@@ -18,6 +18,8 @@ namespace Hiroshima.WebApi.Services
             _requestConverter = requestConverter;
             _responseConverter = responseConverter;
         }
+
+
         public async Task<Result<AvailabilityDetails, ProblemDetails>> SearchAvailability(
             AvailabilityRequest availabilityRequest, 
             string languageCode)

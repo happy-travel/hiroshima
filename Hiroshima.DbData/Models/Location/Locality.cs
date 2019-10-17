@@ -10,6 +10,5 @@ namespace Hiroshima.DbData.Models.Location
         public string CountryCode { get; set; }
         public Country Country { get; set; }
         public ICollection<Location> Locations { get; set; }
-
     }
 }

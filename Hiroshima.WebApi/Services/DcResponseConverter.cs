@@ -22,6 +22,7 @@ namespace Hiroshima.WebApi.Services
             _geometryFactory = geometryFactory;
         }
 
+
         public List<Location> CreateContractLocations(List<SearchLocation> locations)
         {
             if (locations == null || !locations.Any())
@@ -43,6 +44,7 @@ namespace Hiroshima.WebApi.Services
             return outputLocations;
         }
         
+
         public Result<AvailabilityDetails> CreateAvailabilityDetails(AvailabilityResponse response, string languageCode)
         {
             throw new NotImplementedException();

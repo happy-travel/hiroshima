@@ -355,6 +355,8 @@ namespace Hiroshima.DirectContractsDataSeeder
                 dbContext.SaveChanges();
             }
         }
+
+
         private static void AddJumeriahContract(DirectContractsDbContext dbContext)
         {
             var accommodation = dbContext.Accommodations.FirstOrDefault(a => a.Name.En.Equals("Burj Al Arab Jumeirah"));
@@ -597,6 +599,7 @@ namespace Hiroshima.DirectContractsDataSeeder
             }
         }
         
+
         private static void AddAgreements(DirectContractsDbContext dbContext, IEnumerable<int> accommodationsIds, IEnumerable<int> seasonsIds)
         {
             var random = new Random();

@@ -13,7 +13,8 @@ namespace Hiroshima.WebApi.Services
             _geometryFactory = geometryFactory;
         }
 
-        public Result<Hiroshima.DirectContracts.Models.AvailabilityRequest> CreateAvailabilityRequest(HappyTravel.EdoContracts.Accommodations.AvailabilityRequest request)
+
+        public Result<AvailabilityRequest> CreateAvailabilityRequest(HappyTravel.EdoContracts.Accommodations.AvailabilityRequest request)
         {
             if (request.Location.Equals(default))
                 return Result.Failure<AvailabilityRequest>($"{nameof(request.Location)} field is undefined");
