@@ -1,5 +1,4 @@
 ﻿using System;
-using Hiroshima.DbData.Models;
 using Hiroshima.DbData.Models.Accommodation;
 using Hiroshima.DbData.Models.Booking;
 using Hiroshima.DbData.Models.Rates;
@@ -116,14 +115,15 @@ namespace Hiroshima.DbData
                 e.Property(a => a.Name).IsRequired().HasColumnType("jsonb").IsRequired();
                 e.Property(a => a.Description).IsRequired().HasColumnType("jsonb").IsRequired();
                 e.Property(a => a.Contacts).HasColumnType("jsonb");
-                e.Property(a => a.Pictures).HasColumnType("jsonb");
-                e.Property(a => a.TextualDescriptions).HasColumnType("jsonb");
+                e.Property(a => a.Picture).HasColumnType("jsonb");
+                e.Property(a => a.TextualDescription).HasColumnType("jsonb");
                 e.Property(a => a.Schedule).HasColumnType("jsonb");
                 e.Property(a => a.Rating);
                 e.Property(a => a.Category);
                 e.Property(a => a.PropertyType);
                 e.Property(a => a.Amenities).HasColumnType("jsonb");
                 e.Property(a => a.AdditionalInfo).HasColumnType("jsonb");
+                e.Property(a => a.FeatureInfo).HasColumnType("jsonb");
                 e.HasOne(a => a.Location).WithOne(l => l.Accommodation)
                     .HasForeignKey<Location.Location>(l => l.AccommodationId);
             });
@@ -189,9 +189,12 @@ namespace Hiroshima.DbData
                     .IsRequired();
                 e.Property(a => a.BoardBasisCode);
                 e.Property(a => a.Price).HasColumnType("money");
+                e.Property(a => a.ExtraPersonPrice).HasColumnType("money");
                 e.Property(a => a.ReleaseDays);
                 e.HasOne(a => a.Season).WithMany(a => a.Rates)
                     .HasForeignKey(a => a.SeasonId);
+                e.HasOne(a => a.Currency).WithMany(a => a.Rates)
+                    .HasForeignKey(a => a.CurrencyCode);
                 e.HasOne(a => a.BoardBasis).WithMany(b => b.Rates)
                     .HasForeignKey(a => a.BoardBasisCode);
                 e.Property(a => a.ReleaseDays);

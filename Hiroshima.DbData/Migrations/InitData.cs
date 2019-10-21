@@ -284,6 +284,9 @@ namespace Hiroshima.DbData.Migrations
                                 SET ""Name"" = excluded.""Name"";";
              migrationBuilder.Sql(sqlBoardBasis);
 
+             var sqlCurrencies = @"insert into public.""Currencies"" (""Code"", ""Name"") VALUES 
+                            ('AED', 'Dirham')";
+             migrationBuilder.Sql(sqlCurrencies);
         }
 
     }

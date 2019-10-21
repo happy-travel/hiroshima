@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Hiroshima.Common.Models;
-using Hiroshima.DbData.Models.Common;
-using Hiroshima.DbData.Models.Enums;
+using Hiroshima.Common.Models.Accommodation;
+using Hiroshima.Common.Models.Enums;
 using Hiroshima.DbData.Models.Rooms;
 
 namespace Hiroshima.DbData.Models.Accommodation
@@ -13,12 +13,13 @@ namespace Hiroshima.DbData.Models.Accommodation
         public MultiLanguage<string> Name { get; set; }
         public MultiLanguage<string> Description { get; set; }
         public Contacts Contacts { get; set; }
-        public List<Picture> Pictures { get; set; }
+        public Picture Picture { get; set; }
         public HotelRating Rating { get; set; }
-        public List<TextualDescription> TextualDescriptions { get; set; }
+        public TextualDescription TextualDescription { get; set; }
         public Schedule Schedule { get; set; }
         public string Category { get; set; }
-        public PropertyType PropertyType { get; set; }
+        public PropertyTypes PropertyType { get; set; }
+        public List<FeatureInfo> FeatureInfo { get; set; }
         public List<MultiLanguage<string>> Amenities { get; set; }
         public Dictionary<string, MultiLanguage<string>> AdditionalInfo { get; set; }
         public IEnumerable<Room> Rooms { get; set; }

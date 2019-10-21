@@ -1,10 +1,8 @@
 ﻿using Hiroshima.DbData;
 using Hiroshima.DirectContracts.Infrastructure.Options;
 using Hiroshima.DirectContracts.Services;
-using Hiroshima.DirectContracts.Services.Availability;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using DcAvailability = Hiroshima.DirectContracts.Services.Availability.DcAvailability;
 
 namespace Hiroshima.DirectContracts
 {

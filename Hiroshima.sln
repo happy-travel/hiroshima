@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hiroshima.DirectContractsDa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hiroshima.DirectContracts", "Hiroshima.DirectContracts\Hiroshima.DirectContracts.csproj", "{92898D68-8FBF-4DD0-94D1-7A4196247277}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hiroshima.Common", "Hiroshima.Common\Hiroshima.Common.csproj", "{964E83D4-D281-4C20-A4B6-9BAB2A0272A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hiroshima.Common", "Hiroshima.Common\Hiroshima.Common.csproj", "{964E83D4-D281-4C20-A4B6-9BAB2A0272A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

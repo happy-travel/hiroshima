@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Hiroshima.Common.Models;
+using Hiroshima.Common.Models.Accommodation;
+using Hiroshima.Common.Models.Enums;
 using Hiroshima.DbData;
 using Hiroshima.DbData.Models;
 using Hiroshima.DbData.Models.Accommodation;
-using Hiroshima.DbData.Models.Enums;
 using Hiroshima.DbData.Models.Rates;
 using Hiroshima.DbData.Models.Rooms;
 using NetTopologySuite.Geometries;
@@ -19,7 +20,8 @@ namespace Hiroshima.DirectContractsDataSeeder
         internal static void AddData(DirectContractsDbContext dbContext)
         {
             AddOneAndOnlyContract(dbContext);
-            AddJumeriahContract(dbContext);
+            //AddJumeriahContract(dbContext);
+            dbContext.SaveChanges();
         }
 
         private static void AddOneAndOnlyContract(DirectContractsDbContext dbContext)
@@ -28,14 +30,14 @@ namespace Hiroshima.DirectContractsDataSeeder
             if (accommodation == null)
             {
                 var hotelId = 1;
+
                 #region AddAccommodation
                 dbContext.Accommodations.Add(
-                
                     new Accommodation
                     {
                         Id = hotelId,
                         Rating = HotelRating.FiveStars,
-                        PropertyType = PropertyType.Hotels,
+                        PropertyType = PropertyTypes.Hotels,
                         Name = new MultiLanguage<string>
                         {
                             Ar = "ون آند اونلي رويال ميراج",
@@ -49,10 +51,10 @@ namespace Hiroshima.DirectContractsDataSeeder
                         },
                         Schedule = new Schedule
                         {
-                            CheckInTime = new TimeSpan(13, 00,0,0),
-                            CheckOutTime = new TimeSpan(11, 00,0),
-                            PortersStartTime = new TimeSpan(11, 00,0),
-                            PortersEndTime = new TimeSpan(16, 00,0)
+                            CheckInTime = new TimeSpan(13, 00, 0, 0),
+                            CheckOutTime = new TimeSpan(11, 00, 0),
+                            PortersStartTime = new TimeSpan(11, 00, 0),
+                            PortersEndTime = new TimeSpan(16, 00, 0)
                         },
                         Description = new MultiLanguage<string>
                         {
@@ -92,9 +94,19 @@ namespace Hiroshima.DirectContractsDataSeeder
                                 Ru =
                                     @"Процедуры для восстановления равновесия разума, тела и души в спа-центре One&Only обновят вашу жизненную энергию. Позвольте теплым парам традиционного восточного хаммама расслабить ваше тело, пока струящаяся вода успокаивает мысли."
                             }
+                        },
+                        Picture = new Picture
+                        {
+                            Caption = new MultiLanguage<string>
+                            {
+                                Ar= "ون آند اونلي رويال ميراج",
+                                En= "ONE&ONLY ROYAL MIRAGE"
+                            },
+                            Source = "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6HkA4WClkmu3oOM0iuENG66UC6iKZNUrefe0iJ__MX5ZbValF"
                         }
-                });
+                    });
                 #endregion
+
                 #region AddLocation
                 dbContext.Locations.AddRange(new[]{new Location.Location()
             {
@@ -110,10 +122,12 @@ namespace Hiroshima.DirectContractsDataSeeder
 
             }});
                 #endregion
+
                 #region AddSeasons
                 dbContext.Seasons.AddRange(
                 new Season
                 {
+                    Id = 11,
                     AccommodationId = hotelId,
                     Name = "HIGH I",
                     StartDate = new DateTime(2020, 1, 8),
@@ -121,48 +135,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                 },
                 new Season
                 {
-                    AccommodationId = hotelId,
-                    Name = "HIGH I",
-                    StartDate = new DateTime(2020, 1, 25),
-                    EndDate = new DateTime(2020, 2, 7)
-                },
-                new Season
-                {
-                    AccommodationId = hotelId,
-                    Name = "HIGH I",
-                    StartDate = new DateTime(2020, 2, 22),
-                    EndDate = new DateTime(2020, 3, 20)
-                },
-                new Season
-                {
-                    AccommodationId = hotelId,
-                    Name = "HIGH I",
-                    StartDate = new DateTime(2020, 4, 19),
-                    EndDate = new DateTime(2020, 5, 3)
-                },
-                new Season
-                {
-                    AccommodationId = hotelId,
-                    Name = "HIGH I",
-                    StartDate = new DateTime(2020, 10, 10),
-                    EndDate = new DateTime(2020, 10, 16)
-                },
-                new Season
-                {
-                    AccommodationId = hotelId,
-                    Name = "HIGH I",
-                    StartDate = new DateTime(2020, 11, 7),
-                    EndDate = new DateTime(2020, 12, 4)
-                },
-                new Season
-                {
-                    AccommodationId = hotelId,
-                    Name = "HIGH I",
-                    StartDate = new DateTime(2020, 12, 19),
-                    EndDate = new DateTime(2020, 12, 25)
-                },
-                new Season
-                {
+                    Id = 12,
                     AccommodationId = hotelId,
                     Name = "HIGH II",
                     StartDate = new DateTime(2020, 1, 15),
@@ -170,20 +143,15 @@ namespace Hiroshima.DirectContractsDataSeeder
                 },
                 new Season
                 {
+                    Id = 13,
                     AccommodationId = hotelId,
-                    Name = "HIGH II",
-                    StartDate = new DateTime(2020, 9, 26),
-                    EndDate = new DateTime(2020, 10, 9)
+                    Name = "HIGH I",
+                    StartDate = new DateTime(2020, 1, 25),
+                    EndDate = new DateTime(2020, 2, 7)
                 },
                 new Season
                 {
-                    AccommodationId = hotelId,
-                    Name = "HIGH II",
-                    StartDate = new DateTime(2020, 12, 5),
-                    EndDate = new DateTime(2020, 12, 18)
-                },
-                new Season
-                {
+                    Id = 14,
                     AccommodationId = hotelId,
                     Name = "PEAK I",
                     StartDate = new DateTime(2020, 2, 8),
@@ -191,6 +159,15 @@ namespace Hiroshima.DirectContractsDataSeeder
                 },
                 new Season
                 {
+                    Id = 15,
+                    AccommodationId = hotelId,
+                    Name = "HIGH I",
+                    StartDate = new DateTime(2020, 2, 22),
+                    EndDate = new DateTime(2020, 3, 20)
+                },
+                new Season
+                {
+                    Id = 16,
                     AccommodationId = hotelId,
                     Name = "PEAK I",
                     StartDate = new DateTime(2020, 3, 21),
@@ -198,20 +175,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                 },
                 new Season
                 {
-                    AccommodationId = hotelId,
-                    Name = "PEAK I",
-                    StartDate = new DateTime(2020, 4, 13),
-                    EndDate = new DateTime(2020, 4, 18)
-                },
-                new Season
-                {
-                    AccommodationId = hotelId,
-                    Name = "PEAK I",
-                    StartDate = new DateTime(2020, 10, 17),
-                    EndDate = new DateTime(2020, 10, 23)
-                },
-                new Season
-                {
+                    Id = 17,
                     AccommodationId = hotelId,
                     Name = "PEAK II",
                     StartDate = new DateTime(2020, 3, 28),
@@ -219,13 +183,23 @@ namespace Hiroshima.DirectContractsDataSeeder
                 },
                 new Season
                 {
+                    Id = 18,
                     AccommodationId = hotelId,
-                    Name = "PEAK II",
-                    StartDate = new DateTime(2020, 10, 24),
-                    EndDate = new DateTime(2020, 11, 6)
+                    Name = "PEAK I",
+                    StartDate = new DateTime(2020, 4, 13),
+                    EndDate = new DateTime(2020, 4, 18)
                 },
                 new Season
                 {
+                    Id = 19,
+                    AccommodationId = hotelId,
+                    Name = "HIGH I",
+                    StartDate = new DateTime(2020, 4, 19),
+                    EndDate = new DateTime(2020, 5, 3)
+                },
+                new Season
+                {
+                    Id = 20,
                     AccommodationId = hotelId,
                     Name = "SHOULDER",
                     StartDate = new DateTime(2020, 5, 4),
@@ -233,6 +207,15 @@ namespace Hiroshima.DirectContractsDataSeeder
                 },
                 new Season
                 {
+                    Id = 21,
+                    AccommodationId = hotelId,
+                    Name = "LOW",
+                    StartDate = new DateTime(2020, 7, 1),
+                    EndDate = new DateTime(2020, 9, 4)
+                },
+                new Season
+                {
+                    Id = 22,
                     AccommodationId = hotelId,
                     Name = "SHOULDER",
                     StartDate = new DateTime(2020, 9, 5),
@@ -240,22 +223,126 @@ namespace Hiroshima.DirectContractsDataSeeder
                 },
                 new Season
                 {
+                    Id = 23,
                     AccommodationId = hotelId,
-                    Name = "LOW",
-                    StartDate = new DateTime(2020, 7, 1),
-                    EndDate = new DateTime(2020, 7, 4)
+                    Name = "HIGH II",
+                    StartDate = new DateTime(2020, 9, 26),
+                    EndDate = new DateTime(2020, 10, 9)
                 },
                 new Season
                 {
+                    Id = 24,
+                    AccommodationId = hotelId,
+                    Name = "HIGH I",
+                    StartDate = new DateTime(2020, 10, 10),
+                    EndDate = new DateTime(2020, 10, 16)
+                },
+                new Season
+                {
+                    Id = 25,
+                    AccommodationId = hotelId,
+                    Name = "PEAK I",
+                    StartDate = new DateTime(2020, 10, 17),
+                    EndDate = new DateTime(2020, 10, 23)
+                },
+                new Season
+                {
+                    Id = 26,
+                    AccommodationId = hotelId,
+                    Name = "PEAK II",
+                    StartDate = new DateTime(2020, 10, 24),
+                    EndDate = new DateTime(2020, 11, 6)
+                },
+                new Season
+                {
+                    Id = 27,
+                    AccommodationId = hotelId,
+                    Name = "HIGH I",
+                    StartDate = new DateTime(2020, 11, 7),
+                    EndDate = new DateTime(2020, 12, 4)
+                },
+                new Season
+                {
+                    Id = 28,
+                    AccommodationId = hotelId,
+                    Name = "HIGH II",
+                    StartDate = new DateTime(2020, 12, 5),
+                    EndDate = new DateTime(2020, 12, 18)
+                },
+                new Season
+                {
+                    Id = 29,
+                    AccommodationId = hotelId,
+                    Name = "HIGH I",
+                    StartDate = new DateTime(2020, 12, 19),
+                    EndDate = new DateTime(2020, 12, 25)
+                },
+                new Season
+                {
+                    Id = 30,
                     AccommodationId = hotelId,
                     Name = "FESTIVE",
                     StartDate = new DateTime(2020, 12, 26),
                     EndDate = new DateTime(2021, 1, 3)
-                });
+                },
+                new Season
+                {
+                    Id = 31,
+                    AccommodationId = hotelId,
+                    Name = "PEAK I",
+                    StartDate = new DateTime(2021, 1, 4),
+                    EndDate = new DateTime(2021, 1, 10)
+                }, new Season
+                {
+                    Id = 32,
+                    AccommodationId = hotelId,
+                    Name = "HIGH I",
+                    StartDate = new DateTime(2021, 1, 11),
+                    EndDate = new DateTime(2021, 2, 5)
+                }, new Season
+                {
+                    Id = 33,
+                    AccommodationId = hotelId,
+                    Name = "PEAK I",
+                    StartDate = new DateTime(2021, 2, 6),
+                    EndDate = new DateTime(2021, 2, 19)
+                }, new Season
+                {
+                    Id = 34,
+                    AccommodationId = hotelId,
+                    Name = "HIGH I",
+                    StartDate = new DateTime(2021, 2, 20),
+                    EndDate = new DateTime(2021, 3, 19)
+                }, new Season
+                {
+                    Id = 35,
+                    AccommodationId = hotelId,
+                    Name = "PEAK I",
+                    StartDate = new DateTime(2021, 3, 20),
+                    EndDate = new DateTime(2021, 3, 26)
+                }, new Season
+                {
+                    Id = 36,
+                    AccommodationId = hotelId,
+                    Name = "PEAK II",
+                    StartDate = new DateTime(2021, 3, 27),
+                    EndDate = new DateTime(2021, 4, 10)
+                },
+                new Season
+                {
+                    Id = 37,
+                    AccommodationId = hotelId,
+                    Name = "HIGH I",
+                    StartDate = new DateTime(2021, 4, 11),
+                    EndDate = new DateTime(2021, 5, 7)
+                }
+                );
                 #endregion
+
                 #region AddRooms
                 dbContext.Rooms.AddRange(new[]{new Room
                 {
+                    Id = 20,
                     AccommodationId = hotelId,
                     Name = new MultiLanguage<string>
                     {
@@ -263,6 +350,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 },new Room
                 {
+                    Id = 21,
                     AccommodationId = hotelId,
                     Name = new MultiLanguage<string>
                     {
@@ -270,6 +358,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 },new Room
                 {
+                    Id = 22,
                     AccommodationId = hotelId,
                     Name = new MultiLanguage<string>
                     {
@@ -277,6 +366,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 },new Room
                 {
+                    Id = 23,
                     AccommodationId = hotelId,
                     Name = new MultiLanguage<string>
                     {
@@ -284,13 +374,31 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 },new Room
                 {
+                    Id = 24,
                     AccommodationId = hotelId,
                     Name = new MultiLanguage<string>
                     {
-                        En = "Palace One Bedroom Royal Suite"
+                        En = "Palace Two Bedroom Executive Suite"
                     }
                 },new Room
                 {
+                    Id = 25,
+                    AccommodationId = hotelId,
+                    Name = new MultiLanguage<string>
+                    {
+                        En = "Palace Two Bedroom Golf Club Suite"
+                    }
+                },new Room
+                {
+                    Id = 26,
+                    AccommodationId = hotelId,
+                    Name = new MultiLanguage<string>
+                    {
+                        En = "Palace Two Bedroom Royal Suite"
+                    }
+                },new Room
+                {
+                    Id = 27,
                     AccommodationId = hotelId,
                     Name = new MultiLanguage<string>
                     {
@@ -298,13 +406,31 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 },new Room
                 {
+                    Id = 28,
                     AccommodationId = hotelId,
                     Name = new MultiLanguage<string>
                     {
-                        En = "Arabian Court Two Deluxe Room Family Accommodation"
+                        En = "Arabian Court Two Deluxe Rooms Family Accommodation"
                     }
                 },new Room
                 {
+                    Id = 29,
+                    AccommodationId = hotelId,
+                    Name = new MultiLanguage<string>
+                    {
+                        En = "Arabian Court One Bedroom Executive Suite"
+                    }
+                },new Room
+                {
+                    Id = 30,
+                    AccommodationId = hotelId,
+                    Name = new MultiLanguage<string>
+                    {
+                        En = "Arabian Court Two Bedroom Executive Suite"
+                    }
+                },new Room
+                {
+                    Id = 31,
                     AccommodationId = hotelId,
                     Name = new MultiLanguage<string>
                     {
@@ -312,6 +438,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 },new Room
                 {
+                    Id = 32,
                     AccommodationId = hotelId,
                     Name = new MultiLanguage<string>
                     {
@@ -319,6 +446,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 },new Room
                 {
+                    Id = 33,
                     AccommodationId = hotelId,
                     Name = new MultiLanguage<string>
                     {
@@ -326,6 +454,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 },new Room
                 {
+                    Id = 34,
                     AccommodationId = hotelId,
                     Name = new MultiLanguage<string>
                     {
@@ -333,6 +462,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 },new Room
                 {
+                    Id = 35,
                     AccommodationId = hotelId,
                     Name = new MultiLanguage<string>
                     {
@@ -340,23 +470,602 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 } });
                 #endregion
-                dbContext.SaveChanges();
-                var accommodationsIds = dbContext.Rooms.Where(a => a.AccommodationId == hotelId).Select(a => a.Id).ToList();
-                var seasonsIds = dbContext.Seasons.Where(s => s.AccommodationId == hotelId).Select(s => s.Id).ToArray();
-                #region AddAgreements
-                AddAgreements(dbContext, accommodationsIds, seasonsIds);
+               
+                #region AddRates
+                FillRates(
+                    dbContext,
+                    new[] { 11, 13, 15, 19 },
+                    new List<(int, decimal)>
+                    {
+                        (20, 2465),
+                        (21, 3150),
+                        (22, 5700),
+                        (23, 6700),
+                        (24, 8130),
+                        (25, 9850),
+                        (26, 2230),
+                        (27, 2465),
+                        (28, 4390),
+                        (29, 6750),
+                        (30, 9180),
+                        (31, 9100),
+                        (32, 3755),
+                        (33, 6090),
+                        (34, 8460),
+                        (35, 30000)});
+                FillRates(
+                    dbContext,
+                    new[] { 12, 23, 28 },
+                    new List<(int, decimal)>
+                    {
+                        (20, 2100),
+                        (21, 2700),
+                        (22, 4800),
+                        (23, 5800),
+                        (24, 6870),
+                        (25, 8500),
+                        (26, 20700),
+                        (27, 2100),
+                        (28, 4000),
+                        (29, 5750),
+                        (30, 7820),
+                        (31, 7475),
+                        (32, 3150),
+                        (33, 5250),
+                        (34, 6900),
+                        (35, 29000)});
+                FillRates(
+                    dbContext,
+                    new[] { 14, 16, 18, 25 },
+                    new List<(int, decimal)>
+                    {
+                        (20, 3170),
+                        (21, 3780),
+                        (22, 7000),
+                        (23, 8450),
+                        (24, 10200),
+                        (25, 12230),
+                        (26, 23100),
+                        (27, 3170),
+                        (28, 6000),
+                        (29, 8450),
+                        (30, 11600),
+                        (31, 10000),
+                        (32, 4300),
+                        (33, 7000),
+                        (34, 9800),
+                        (35, 30000)});
+                FillRates(
+                    dbContext,
+                    new[] { 17, 26 },
+                    new List<(int, decimal)>
+                    {
+                        (20, 3780),
+                        (21, 4590),
+                        (22, 8800),
+                        (23, 10500),
+                        (24, 12600),
+                        (25, 15100),
+                        (26, 26450),
+                        (27, 3780),
+                        (28, 7560),
+                        (29, 10700),
+                        (30, 14500),
+                        (31, 12850),
+                        (32, 5245),
+                        (33, 8780),
+                        (34, 11780),
+                        (35, 36000)});
+                FillRates(
+                    dbContext,
+                    new[] { 20, 22 },
+                    new List<(int, decimal)>
+                    {
+                        (20, 1830),
+                        (21, 2405),
+                        (22, 4200),
+                        (23, 5200),
+                        (24, 6000),
+                        (25, 7600),
+                        (26, 16600),
+                        (27, 1830),
+                        (28, 3650),
+                        (29, 5000),
+                        (30, 6800),
+                        (31, 6500),
+                        (32, 2835),
+                        (33, 4700),
+                        (34, 5400),
+                        (35, 24000)});
+                FillRates(
+                    dbContext,
+                    new[] { 21 },
+                    new List<(int, decimal)>
+                    {
+                        (20, 1560),
+                        (21, 2070),
+                        (22, 3500),
+                        (23, 4200),
+                        (24, 5000),
+                        (25, 6270),
+                        (26, 16600),
+                        (27, 1560),
+                        (28, 3000),
+                        (29, 4175),
+                        (30, 5680),
+                        (31, 5550),
+                        (32, 2300),
+                        (33, 3540),
+                        (34, 4900),
+                        (35, 24000)});
+                FillRates(
+                    dbContext,
+                    new[] { 24, 27, 29 },
+                    new List<(int, decimal)>
+                    {
+                        (20, 1560),
+                        (21, 2070),
+                        (22, 3500),
+                        (23, 4200),
+                        (24, 5000),
+                        (25, 6270),
+                        (26, 16600),
+                        (27, 1560),
+                        (28, 3000),
+                        (29, 4175),
+                        (30, 5680),
+                        (31, 5550),
+                        (32, 2300),
+                        (33, 3540),
+                        (34, 4900),
+                        (35, 24000)});
+                FillRates(
+                    dbContext,
+                    new[] { 30 },
+                    new List<(int, decimal)>
+                    {
+                        (20, 4600),
+                        (21, 5620),
+                        (22, 9350),
+                        (23, 11000),
+                        (24, 13850),
+                        (25, 16620),
+                        (26, 28700),
+                        (27, 4830),
+                        (28, 9200),
+                        (29, 11750),
+                        (30, 16600),
+                        (31, 14100),
+                        (32, 6350),
+                        (33, 9300),
+                        (34, 11750),
+                        (35, 38000)});
+                FillRates(
+                    dbContext,
+                    new[] { 31, 33, 35 },
+                    new List<(int, decimal)>
+                    {
+                        (20, 3170),
+                        (21, 3780),
+                        (22, 7000),
+                        (23, 8450),
+                        (24, 10200),
+                        (25, 12230),
+                        (26, 23100),
+                        (27, 3170),
+                        (28, 6000),
+                        (29, 8450),
+                        (30, 11600),
+                        (31, 10000),
+                        (32, 4300),
+                        (33, 7000),
+                        (34, 9800),
+                        (35, 3000)});
+                FillRates(
+                    dbContext,
+                    new[] { 32, 34 },
+                    new List<(int, decimal)>
+                    {
+                        (20, 2465),
+                        (21, 3150),
+                        (22, 5700),
+                        (23, 6700),
+                        (24, 8130),
+                        (25, 9850),
+                        (26, 22300),
+                        (27, 2465),
+                        (28, 4930),
+                        (29, 6750),
+                        (30, 9180),
+                        (31, 9100),
+                        (32, 3755),
+                        (33, 6090),
+                        (34, 8460),
+                        (35, 30000)});
+                FillRates(
+                    dbContext,
+                    new[] { 36 },
+                    new List<(int, decimal)>
+                    {
+                        (20, 3780),
+                        (21, 4590),
+                        (22, 8800),
+                        (23, 10500),
+                        (24, 12600),
+                        (25, 15100),
+                        (26, 26450),
+                        (27, 3780),
+                        (28, 7560),
+                        (29, 10700),
+                        (30, 14500),
+                        (31, 12850),
+                        (32, 5245),
+                        (33, 8780),
+                        (34, 11780),
+                        (35, 36000)});
+                FillRates(
+                    dbContext,
+                    new[] { 37 },
+                    new List<(int, decimal)>
+                    {
+                        (20, 2465),
+                        (21, 3150),
+                        (22, 5700),
+                        (23, 6700),
+                        (24, 8130),
+                        (25, 9850),
+                        (26, 22300),
+                        (27, 2465),
+                        (28, 4930),
+                        (29, 6750),
+                        (30, 9180),
+                        (31, 9100),
+                        (32, 3755),
+                        (33, 6090),
+                        (34, 8460),
+                        (35, 30000)});
                 #endregion
+
                 #region AddStopSaleDate
-                AddStopSaleDates(dbContext, accommodationsIds);
+                dbContext.StopSaleDates.AddRange(new StopSaleDate
+                {
+                    RoomId = 20,
+                    StartDate = new DateTime(2020, 4, 1),
+                    EndDate = new DateTime(2020, 4, 10)
+                }, new StopSaleDate
+                {
+                    RoomId = 20,
+                    StartDate = new DateTime(2020, 7, 10),
+                    EndDate = new DateTime(2020, 7, 13)
+                }, new StopSaleDate
+                {
+                    RoomId = 20,
+                    StartDate = new DateTime(2020, 10, 15),
+                    EndDate = new DateTime(2020, 10, 18)
+                }, new StopSaleDate
+                {
+                    RoomId = 20,
+                    StartDate = new DateTime(2021, 1, 10),
+                    EndDate = new DateTime(2021, 1, 12)
+                }, new StopSaleDate
+                {
+                    RoomId = 21,
+                    StartDate = new DateTime(2020, 2, 5),
+                    EndDate = new DateTime(2020, 2, 7)
+                }, new StopSaleDate
+                {
+                    RoomId = 21,
+                    StartDate = new DateTime(2020, 10, 15),
+                    EndDate = new DateTime(2020, 10, 18)
+                }, new StopSaleDate
+                {
+                    RoomId = 21,
+                    StartDate = new DateTime(2020, 12, 28),
+                    EndDate = new DateTime(2021, 1, 2)
+                }, new StopSaleDate
+                {
+                    RoomId = 22,
+                    StartDate = new DateTime(2020, 2, 5),
+                    EndDate = new DateTime(2020, 2, 7)
+                }, new StopSaleDate
+                {
+                    RoomId = 22,
+                    StartDate = new DateTime(2020, 10, 15),
+                    EndDate = new DateTime(2020, 10, 18)
+                }, new StopSaleDate
+                {
+                    RoomId = 22,
+                    StartDate = new DateTime(2020, 12, 28),
+                    EndDate = new DateTime(2020, 12, 29)
+                }, new StopSaleDate
+                {
+                    RoomId = 23,
+                    StartDate = new DateTime(2020, 2, 5),
+                    EndDate = new DateTime(2020, 2, 10)
+                }, new StopSaleDate
+                {
+                    RoomId = 23,
+                    StartDate = new DateTime(2020, 11, 1),
+                    EndDate = new DateTime(2020, 11, 3)
+                }, new StopSaleDate
+                {
+                    RoomId = 23,
+                    StartDate = new DateTime(2020, 8, 7),
+                    EndDate = new DateTime(2020, 8, 10)
+                }, new StopSaleDate
+                {
+                    RoomId = 24,
+                    StartDate = new DateTime(2020, 3, 8),
+                    EndDate = new DateTime(2020, 3, 10)
+                }, new StopSaleDate
+                {
+                    RoomId = 24,
+                    StartDate = new DateTime(2020, 7, 1),
+                    EndDate = new DateTime(2020, 7, 3)
+                }, new StopSaleDate
+                {
+                    RoomId = 24,
+                    StartDate = new DateTime(2020, 9, 3),
+                    EndDate = new DateTime(2020, 9, 5)
+                }, new StopSaleDate
+                {
+                    RoomId = 25,
+                    StartDate = new DateTime(2020, 1, 29),
+                    EndDate = new DateTime(2020, 2, 1)
+                }, new StopSaleDate
+                {
+                    RoomId = 25,
+                    StartDate = new DateTime(2020, 9, 15),
+                    EndDate = new DateTime(2020, 9, 16)
+                }, new StopSaleDate
+                {
+                    RoomId = 25,
+                    StartDate = new DateTime(2020, 12, 30),
+                    EndDate = new DateTime(2021, 1, 2)
+                },
+                new StopSaleDate
+                {
+                    RoomId = 26,
+                    StartDate = new DateTime(2020, 1, 10),
+                    EndDate = new DateTime(2020, 1, 12)
+                }, new StopSaleDate
+                {
+                    RoomId = 26,
+                    StartDate = new DateTime(2020, 3, 4),
+                    EndDate = new DateTime(2020, 3, 7)
+                }, new StopSaleDate
+                {
+                    RoomId = 26,
+                    StartDate = new DateTime(2020, 6, 9),
+                    EndDate = new DateTime(2020, 6, 11)
+                }, new StopSaleDate
+                {
+                    RoomId = 27,
+                    StartDate = new DateTime(2020, 1, 18),
+                    EndDate = new DateTime(2020, 1, 19)
+                }, new StopSaleDate
+                {
+                    RoomId = 27,
+                    StartDate = new DateTime(2020, 2, 27),
+                    EndDate = new DateTime(2020, 3, 1)
+                }, new StopSaleDate
+                {
+                    RoomId = 27,
+                    StartDate = new DateTime(2020, 12, 26),
+                    EndDate = new DateTime(2020, 12, 27)
+                }, new StopSaleDate
+                {
+                    RoomId = 28,
+                    StartDate = new DateTime(2020, 4, 5),
+                    EndDate = new DateTime(2020, 4, 7)
+                }, new StopSaleDate
+                {
+                    RoomId = 28,
+                    StartDate = new DateTime(2020, 11, 3),
+                    EndDate = new DateTime(2020, 11, 5)
+                }, new StopSaleDate
+                {
+                    RoomId = 28,
+                    StartDate = new DateTime(2020, 12, 31),
+                    EndDate = new DateTime(2021, 1, 1)
+                }, new StopSaleDate
+                {
+                    RoomId = 29,
+                    StartDate = new DateTime(2020, 2, 7),
+                    EndDate = new DateTime(2020, 2, 10)
+                }, new StopSaleDate
+                {
+                    RoomId = 29,
+                    StartDate = new DateTime(2020, 4, 3),
+                    EndDate = new DateTime(2020, 4, 5)
+                }, new StopSaleDate
+                {
+                    RoomId = 29,
+                    StartDate = new DateTime(2020, 12, 1),
+                    EndDate = new DateTime(2021, 1, 1)
+                }, new StopSaleDate
+                {
+                    RoomId = 30,
+                    StartDate = new DateTime(2020, 6, 1),
+                    EndDate = new DateTime(2020, 9, 1)
+                }, new StopSaleDate
+                {
+                    RoomId = 30,
+                    StartDate = new DateTime(2020, 9, 2),
+                    EndDate = new DateTime(2020, 9, 4)
+                }, new StopSaleDate
+                {
+                    RoomId = 30,
+                    StartDate = new DateTime(2020, 12, 1),
+                    EndDate = new DateTime(2021, 12, 2)
+                }, new StopSaleDate
+                {
+                    RoomId = 31,
+                    StartDate = new DateTime(2020, 1, 6),
+                    EndDate = new DateTime(2020, 1, 8)
+                }, new StopSaleDate
+                {
+                    RoomId = 31,
+                    StartDate = new DateTime(2020, 2, 14),
+                    EndDate = new DateTime(2020, 2, 16)
+                }, new StopSaleDate
+                {
+                    RoomId = 31,
+                    StartDate = new DateTime(2020, 7, 5),
+                    EndDate = new DateTime(2021, 7, 8)
+                }, new StopSaleDate
+                {
+                    RoomId = 32,
+                    StartDate = new DateTime(2020, 9, 12),
+                    EndDate = new DateTime(2020, 9, 15)
+                }, new StopSaleDate
+                {
+                    RoomId = 32,
+                    StartDate = new DateTime(2020, 10, 2),
+                    EndDate = new DateTime(2020, 10, 4)
+                }, new StopSaleDate
+                {
+                    RoomId = 32,
+                    StartDate = new DateTime(2019, 12, 3),
+                    EndDate = new DateTime(2019, 12, 4)
+                }, new StopSaleDate
+                {
+                    RoomId = 33,
+                    StartDate = new DateTime(2020, 3, 6),
+                    EndDate = new DateTime(2020, 3, 8)
+                }, new StopSaleDate
+                {
+                    RoomId = 33,
+                    StartDate = new DateTime(2020, 4, 10),
+                    EndDate = new DateTime(2020, 4, 13)
+                }, new StopSaleDate
+                {
+                    RoomId = 33,
+                    StartDate = new DateTime(2020, 7, 1),
+                    EndDate = new DateTime(2020, 8, 1)
+                },
+                new StopSaleDate
+                {
+                    RoomId = 34,
+                    StartDate = new DateTime(2020, 3, 3),
+                    EndDate = new DateTime(2020, 3, 5)
+                }, new StopSaleDate
+                {
+                    RoomId = 34,
+                    StartDate = new DateTime(2020, 4, 16),
+                    EndDate = new DateTime(2020, 4, 19)
+                }, new StopSaleDate
+                {
+                    RoomId = 34,
+                    StartDate = new DateTime(2020, 11, 23),
+                    EndDate = new DateTime(2020, 11, 26)
+                }, new StopSaleDate
+                {
+                    RoomId = 35,
+                    StartDate = new DateTime(2020, 5, 1),
+                    EndDate = new DateTime(2020, 5, 6)
+                }, new StopSaleDate
+                {
+                    RoomId = 35,
+                    StartDate = new DateTime(2020, 7, 19),
+                    EndDate = new DateTime(2020, 7, 21)
+                }, new StopSaleDate
+                {
+                    RoomId = 35,
+                    StartDate = new DateTime(2020, 11, 28),
+                    EndDate = new DateTime(2020, 12, 3)
+                });
                 #endregion
+
                 #region AddPermittedOccupancy
-                AddPermittedOccupancy(dbContext, accommodationsIds);
+                dbContext.PermittedOccupancies.AddRange(
+                    new PermittedOccupancy
+                    {
+                        RoomId = 20,
+                        AdultsNumber = 2,
+                        ChildrenNumber = 1,
+                    }, new PermittedOccupancy
+                    {
+                        RoomId = 21,
+                        AdultsNumber = 2,
+                        ChildrenNumber = 1
+                    }, new PermittedOccupancy
+                    {
+                        RoomId = 22,
+                        AdultsNumber = 2,
+                        ChildrenNumber = 1
+                    }, new PermittedOccupancy
+                    {
+                        RoomId = 23,
+                        AdultsNumber = 2,
+                        ChildrenNumber = 1
+                    }, new PermittedOccupancy
+                    {
+                        RoomId = 24,
+                        AdultsNumber = 4,
+                        ChildrenNumber = 1
+                    }, new PermittedOccupancy
+                    {
+                        RoomId = 25,
+                        AdultsNumber = 4,
+                        ChildrenNumber = 1
+                    }, new PermittedOccupancy
+                    {
+                        RoomId = 26,
+                        AdultsNumber = 4,
+                        ChildrenNumber = 1
+                    }, new PermittedOccupancy
+                    {
+                        RoomId = 27,
+                        AdultsNumber = 2,
+                        ChildrenNumber = 1
+                    }, new PermittedOccupancy
+                    {
+                        RoomId = 28,
+                        AdultsNumber = 3,
+                        ChildrenNumber = 3
+                    }, new PermittedOccupancy
+                    {
+                        RoomId = 29,
+                        AdultsNumber = 3,
+                        ChildrenNumber = 1,
+                    }, new PermittedOccupancy
+                    {
+                        RoomId = 30,
+                        AdultsNumber = 4,
+                        ChildrenNumber = 1
+                    }, new PermittedOccupancy
+                    {
+                        RoomId = 31,
+                        AdultsNumber = 2,
+                        ChildrenNumber = 1
+                    }, new PermittedOccupancy
+                    {
+                        RoomId = 32,
+                        AdultsNumber = 4,
+                        ChildrenNumber = 1
+                    }, new PermittedOccupancy
+                    {
+                        RoomId = 33,
+                        AdultsNumber = 2,
+                        ChildrenNumber = 1
+                    }, new PermittedOccupancy
+                    {
+                        RoomId = 34,
+                        AdultsNumber = 2,
+                        ChildrenNumber = 1
+                    }, new PermittedOccupancy
+                    {
+                        RoomId = 35,
+                        AdultsNumber = 4,
+                        ChildrenNumber = 1
+                    }
+                    );
                 #endregion
-                dbContext.SaveChanges();
+
             }
         }
-
-
+        
         private static void AddJumeriahContract(DirectContractsDbContext dbContext)
         {
             var accommodation = dbContext.Accommodations.FirstOrDefault(a => a.Name.En.Equals("Burj Al Arab Jumeirah"));
@@ -371,7 +1080,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     {
                         Id = hotelId,
                         Rating = HotelRating.FiveStars,
-                        PropertyType = PropertyType.Hotels,
+                        PropertyType = PropertyTypes.Hotels,
                         Name = new MultiLanguage<string>
                         {
                             Ar = "برج العرب جميرا",
@@ -590,66 +1299,31 @@ namespace Hiroshima.DirectContractsDataSeeder
                 var accommodationsIds = dbContext.Rooms.Where(a => a.AccommodationId == hotelId).Select(a => a.Id).ToList();
                 var seasonsIds = dbContext.Seasons.Where(s => s.AccommodationId == hotelId).Select(s => s.Id).ToArray();
                 #region AddAgreements
-                AddAgreements(dbContext, accommodationsIds, seasonsIds);
+
                 #endregion
                 #region AddStopSaleDate
-                AddStopSaleDates(dbContext, accommodationsIds);
+
                 #endregion
                 dbContext.SaveChanges();
             }
         }
-        
 
-        private static void AddAgreements(DirectContractsDbContext dbContext, IEnumerable<int> accommodationsIds, IEnumerable<int> seasonsIds)
+        private static void FillRates(DirectContractsDbContext dbContext, int[] seasonsIds, List<(int, decimal)> roomIdsAndPrices)
         {
-            var random = new Random();
-    
-            foreach (var accommodationId in accommodationsIds)
+            foreach (var seasonId in seasonsIds)
             {
-                foreach (var seasonId in seasonsIds)
+                foreach (var roomIdsAndPrice in roomIdsAndPrices)
                 {
                     dbContext.Rates.Add(new Rate
                     {
-                        RoomId = accommodationId,
-                        Price = random.Next(1000, 5000),
-                        SeasonId = seasonId
+                        SeasonId = seasonId,
+                        RoomId = roomIdsAndPrice.Item1,
+                        Price = roomIdsAndPrice.Item2,
+                        CurrencyCode = "AED"
                     });
                 }
             }
         }
-
-
-        private static void AddStopSaleDates(DirectContractsDbContext dbContext, IEnumerable<int> accommodationsIds)
-        {
-            var random = new Random();
-            foreach (var accommodationId in accommodationsIds)
-            {
-                var fromMonth = random.Next(1, 6);
-                var fromDay = random.Next(1, 20);
-
-                dbContext.StopSaleDates.Add(new StopSaleDate
-                {
-                    RoomId = accommodationId,
-                    StartDate = new DateTime(2019, fromMonth, fromDay),
-                    EndDate = new DateTime(2019, fromMonth + random.Next(1, 6), fromDay + random.Next(1, 8))
-                });
-            }
-        }
-
-
-        private static void AddPermittedOccupancy(DirectContractsDbContext dbContext, IEnumerable<int> accommodationsIds)
-        {
-            var random = new Random();
-            foreach (var accommodationId in accommodationsIds)
-            {
-                dbContext.PermittedOccupancies.Add(new PermittedOccupancy()
-                {
-                    RoomId = accommodationId,
-                    AdultsNumber = random.Next(1, 4),
-                    ChildrenNumber = random.Next(1, 3)
-                });
-            }
-        }
-
+        
     }
 }

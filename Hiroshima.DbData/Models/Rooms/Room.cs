@@ -11,7 +11,7 @@ namespace Hiroshima.DbData.Models.Rooms
         public Accommodation.Accommodation Accommodation { get; set; }
         public MultiLanguage<string> Name { get; set; }
         public MultiLanguage<string> Description { get; set; }
-        public  Dictionary<string, MultiLanguage<string>> Amenities { get; set; }
+        public  List<MultiLanguage<string>> Amenities { get; set; }
         public IEnumerable<Rate> Rates { get; set; }
         public IEnumerable<StopSaleDate> StopSaleDates { get; set; }
         public IEnumerable<PermittedOccupancy> PermittedOccupancies{ get; set; }

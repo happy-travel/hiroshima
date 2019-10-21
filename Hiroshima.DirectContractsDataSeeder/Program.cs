@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using HappyTravel.VaultClient;
-using HappyTravel.VaultClient.Extensions;
 using Hiroshima.DbData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -41,26 +40,17 @@ namespace Hiroshima.DirectContractsDataSeeder
 
         private static Dictionary<string, string> GetDbOptions(IConfiguration configuration)
         {
-            using (var vaultClient = CreateVaultClient(configuration))
+            using (var vaultClient = new VaultClient(new VaultOptions
+            {
+                Engine = configuration["Vault:Engine"],
+                Role = configuration["Vault:Role"],
+                BaseUrl = new Uri(configuration["Vault:Endpoint"])
+            }, null))
             {
                 vaultClient.Login(Environment.GetEnvironmentVariable(configuration["Vault:Token"])).Wait();
                 return vaultClient.Get(configuration["Booking:Database:Options"]).Result;
             }
         }
-
-
-        private static IVaultClient CreateVaultClient(IConfiguration configuration)
-        {
-            var services = new ServiceCollection();
-            services.AddVaultClient(o =>
-            {
-                o.Engine = configuration["Vault:Engine"];
-                o.Role = configuration["Vault:Role"];
-                o.Url = new Uri(configuration["Vault:Endpoint"]);
-            });
-            var serviceProvider = services.BuildServiceProvider();
-
-            return serviceProvider.GetService<IVaultClient>();
-        }
+        
     }
 }

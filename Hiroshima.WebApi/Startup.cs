@@ -54,9 +54,7 @@ namespace Hiroshima.WebApi
                     dbOptions["userId"],
                     dbOptions["password"]);
             }
-
-            services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(ConstantValues.Srid));
-            services.AddDirectContractsServices(bookingDbOptions);
+            
             services.AddApiVersioning(options =>
             {
                 options.AssumeDefaultVersionWhenUnspecified = false;
@@ -80,10 +78,7 @@ namespace Hiroshima.WebApi
                 .AddMemoryCache();
 
             services.AddResponseCompression();
-
-            services.AddHealthChecks().
-                AddCheck<ControllerResolveHealthcheck>(nameof(ControllerResolveHealthcheck));
-
+            services.AddHealthChecks();
             services.AddOptions()
                 .Configure<RequestLocalizationOptions>(options =>
                 {
@@ -100,9 +95,9 @@ namespace Hiroshima.WebApi
                     options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider { Options = options });
                 });
 
-            services.AddTransient<IDcRequestConverter, DcRequestConverter>();
-            services.AddTransient<IDcResponseConverter, DcResponseConverter>();
-            services.AddTransient<IAvailabilityService, AvailabilityService>();
+            services.AddDirectContractsServices(bookingDbOptions);
+            services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(ConstantValues.Srid));
+            services.AddTransient<IAvailability, Availability>();
         }
 
 

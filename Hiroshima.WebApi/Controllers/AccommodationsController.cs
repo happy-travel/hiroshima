@@ -13,9 +13,9 @@ namespace Hiroshima.WebApi.Controllers
     [Produces("application/json")]
     public class AccommodationsController : Controller
     {
-        public AccommodationsController(IAvailabilityService availabilityService)
+        public AccommodationsController(IAvailability availability)
         {
-            _availabilityService = availabilityService;
+            _availability = availability;
         }
 
 
@@ -29,13 +29,15 @@ namespace Hiroshima.WebApi.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> SearchAvailabilities([FromBody] AvailabilityRequest request)
         {
-            var result = await _availabilityService.SearchAvailability(request, CultureInfo.CurrentCulture.Name);
+            var result = await _availability.SearchAvailability(request, CultureInfo.CurrentCulture.Name);
+
             if (result.IsFailure)
                 return BadRequest(result.Error);
+
             return Ok(result);
         }
 
 
-        private readonly IAvailabilityService _availabilityService;
+        private readonly IAvailability _availability;
     }
 }

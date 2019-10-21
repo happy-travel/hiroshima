@@ -10,8 +10,11 @@ namespace Hiroshima.DbData.Models.Rates
         public int RoomId { get; set; }
         public string BoardBasisCode { get; set; }
         public BoardBasis BoardBasis { get; set; }
+        public string CurrencyCode { get; set; }
+        public Currency Currency { get; set; }
         public int ReleaseDays { get; set; }
         public decimal Price { get; set; }
+        public decimal ExtraPersonPrice { get; set; }
         public Season Season { get; set; }
         public int SeasonId { get; set; }
         public IEnumerable<Booking.Booking> Bookings { get; set; }
