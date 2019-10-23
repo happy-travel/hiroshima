@@ -4,7 +4,7 @@ using HappyTravel.EdoContracts.GeoData;
 
 namespace Hiroshima.DirectContracts.Services
 {
-    public interface IDcLocations
+    public interface IDirectContractsLocation
     {
         Task<List<Location>> GetLocations();
     }

@@ -14,9 +14,9 @@ namespace Hiroshima.WebApi.Controllers
     [Produces("application/json")]
     public class LocationsController : Controller
     {
-        public LocationsController(IDcLocations dcLocations)
+        public LocationsController(IDirectContractsLocation directContractsLocation)
         {
-            _dcLocations = dcLocations;
+            _directContractsLocation = directContractsLocation;
         }
 
 
@@ -24,10 +24,10 @@ namespace Hiroshima.WebApi.Controllers
         [ProducesResponseType(typeof(List<Location>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetLocations()
         {
-            return Ok(await _dcLocations.GetLocations());
+            return Ok(await _directContractsLocation.GetLocations());
         }
 
 
-        private readonly IDcLocations _dcLocations;
+        private readonly IDirectContractsLocation _directContractsLocation;
     }
 }

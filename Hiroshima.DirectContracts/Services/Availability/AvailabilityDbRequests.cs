@@ -7,11 +7,11 @@ namespace Hiroshima.DirectContracts.Services.Availability
 {
     public static class AvailabilityDbRequests
     {
-        public static IQueryable<RawAvailability> GetAvailability(DirectContractsDbContext dbContext, DateTime checkInDate, DateTime checkOutDate)
+        public static IQueryable<RawAvailabilityData> GetAvailability(DirectContractsDbContext dbContext, DateTime checkInDate, DateTime checkOutDate)
         {
             //Get blocked rooms ids
             var blockedRooms = (from blocked in dbContext.StopSaleDates
-                                where blocked.StartDate <= checkOutDate && blocked.EndDate >= checkInDate
+                                where blocked.StartDate <= checkOutDate && checkInDate <= blocked.EndDate
                                 select blocked.RoomId).Distinct();
             
             
@@ -19,9 +19,7 @@ namespace Hiroshima.DirectContracts.Services.Availability
             var availableRooms = (from room in dbContext.Rooms
                                   join stopSaleDate in dbContext.StopSaleDates
                                       on room.Id equals stopSaleDate.RoomId
-                                  where (stopSaleDate.EndDate < checkInDate ||
-                                        stopSaleDate.StartDate > checkOutDate) &&
-                                        !blockedRooms.Contains(room.Id)
+                                  where !blockedRooms.Contains(room.Id)
                                   select room).Distinct();
 
             
@@ -52,7 +50,7 @@ namespace Hiroshima.DirectContracts.Services.Availability
                    join seasonAndRate in seasonsAndRates
                        on room.Id equals seasonAndRate.Rate.RoomId
                    
-                   select new RawAvailability
+                   select new RawAvailabilityData
                    {
                        Location = location,
                        Locality = locality,
@@ -60,7 +58,7 @@ namespace Hiroshima.DirectContracts.Services.Availability
                        Accommodation = accommodation,
                        Room = room,
                        Season = seasonAndRate.Season,
-                       Rate = seasonAndRate.Rate,
+                       ContractRate = seasonAndRate.Rate,
                        PermittedOccupancy = permittedOccupancy
                    };
         }

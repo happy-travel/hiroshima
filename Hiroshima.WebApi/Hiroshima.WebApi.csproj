@@ -34,4 +34,6 @@
     <ProjectReference Include="..\Hiroshima.DirectContracts\Hiroshima.DirectContracts.csproj" />
   </ItemGroup>
 
+  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
+
 </Project>

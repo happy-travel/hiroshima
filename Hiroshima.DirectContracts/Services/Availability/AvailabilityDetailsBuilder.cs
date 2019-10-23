@@ -22,7 +22,7 @@ namespace Hiroshima.DirectContracts.Services.Availability
         }
 
 
-        public AvailabilityDetailsBuilder GetAvailability(DateTime checkIndDate, DateTime checkOutDate)
+        public AvailabilityDetailsBuilder GetQueryableAvailability(DateTime checkIndDate, DateTime checkOutDate)
         {
             _checkInDate = checkIndDate;
             _checkOutDate = checkOutDate;
@@ -32,7 +32,7 @@ namespace Hiroshima.DirectContracts.Services.Availability
         }
 
 
-        public AvailabilityDetailsBuilder FilterByCoordinates(Point point, double radius)
+        public AvailabilityDetailsBuilder WithCoordinatesAndRadius(Point point, double radius)
         {
             if (!point.Equals(default))
                 _rawAvailabilities = _rawAvailabilities.Where(InDbExecutionPredicates.FilterByCoordinatesAndDistance(point, radius));
@@ -40,7 +40,7 @@ namespace Hiroshima.DirectContracts.Services.Availability
         }
 
 
-        public AvailabilityDetailsBuilder FilterByRoomDetails(RoomDetails roomDetails)
+        public AvailabilityDetailsBuilder WithRoomDetails(RoomDetails roomDetails)
         {
             if (!roomDetails.Equals(default))
                 _rawAvailabilities = _rawAvailabilities.Where(InDbExecutionPredicates.FilterByRoomDetails(roomDetails));
@@ -48,44 +48,38 @@ namespace Hiroshima.DirectContracts.Services.Availability
         }
 
 
-        public AvailabilityDetailsBuilder FilterByAccommodationName(string name)
+        public AvailabilityDetailsBuilder WithAccommodationName(string name)
         {
             if (!string.IsNullOrWhiteSpace(name))
-                _rawAvailabilities = _rawAvailabilities.Where(InDbExecutionPredicates.SearchByAccommodationName(name));
+                _rawAvailabilities = _rawAvailabilities.Where(InDbExecutionPredicates.FilterByAccommodationName(name));
             return this;
         }
 
 
-        public AvailabilityDetailsBuilder FilterByAccommodationLocality(string name)
+        public AvailabilityDetailsBuilder WithAccommodationLocality(string name)
         {
             if (!string.IsNullOrWhiteSpace(name))
-                _rawAvailabilities = _rawAvailabilities.Where(InDbExecutionPredicates.SearchByAccommodationLocality(name));
+                _rawAvailabilities = _rawAvailabilities.Where(InDbExecutionPredicates.FilterByAccommodationLocality(name));
             return this;
         }
 
 
-        public AvailabilityDetailsBuilder FilterByAccommodationCountry(string name)
+        public AvailabilityDetailsBuilder WithAccommodationCountry(string name)
         {
             if (!string.IsNullOrWhiteSpace(name))
-                _rawAvailabilities = _rawAvailabilities.Where(InDbExecutionPredicates.SearchByAccommodationCountry(name));
+                _rawAvailabilities = _rawAvailabilities.Where(InDbExecutionPredicates.FilterByAccommodationCountry(name));
             return this;
         }
 
 
         public async Task<AvailabilityDetails> Build()
         {
-            if (!_rawAvailabilitiesData.Any())
-                _rawAvailabilitiesData = await _rawAvailabilities.ToListAsync();
-            return CreateAvailabilityDetails(_rawAvailabilitiesData);
-        }
+            var rawAvailabilitiesData = await _rawAvailabilities.ToListAsync();
 
-
-        private AvailabilityDetails CreateAvailabilityDetails(List<RawAvailability> rawAvailabilities)
-        {
-            if (rawAvailabilities == null || !rawAvailabilities.Any())
+            if (rawAvailabilitiesData == null || !rawAvailabilitiesData.Any())
                 return EmptyAvailabilityDetails;
 
-            var groupedData = from queryRow in rawAvailabilities
+            var groupedData = from queryRow in rawAvailabilitiesData
                               group queryRow by queryRow.Accommodation.Id
                 into accommodations
                               from room in from accomItem in accommodations
@@ -103,9 +97,11 @@ namespace Hiroshima.DirectContracts.Services.Availability
 
             foreach (var rawAvailability in groupedData)
             {
+                // rawAvailability it's a group with rooms for the current accommodation
                 slimAvailabilities.Add(new SlimAvailabilityResult(
-                     RawAvailabilityHelper.GetAccommodation(rawAvailability.First().First(), _language),
-                     RawAvailabilityHelper.GetAgreements(rawAvailability, _checkInDate, _checkOutDate, _language)));
+                     //get a first group than get the first item from the group
+                     RawSlimAccommodationDetailsHelper.CreateSlimAccommodationDetails(rawAvailability.First().First(), _language),
+                     RawAgreementHelper.CreateAgreements(rawAvailability, _checkInDate, _checkOutDate, _language)));
             }
 
             return new AvailabilityDetails(default,
@@ -121,18 +117,19 @@ namespace Hiroshima.DirectContracts.Services.Availability
             _checkInDate,
             _checkOutDate,
             EmptySlimAvailabilityResults);
-        
+
 
         private static int CalculateCountOfNights(DateTime checkInDate, DateTime checkOutDate) =>
-            Convert.ToInt32(checkOutDate.Date.Subtract(checkInDate.Date).TotalDays);
+            checkInDate.Date <= checkOutDate.Date
+                ? Convert.ToInt32(checkOutDate.Date.Subtract(checkInDate.Date).TotalDays)
+                : 0;
 
 
         private DateTime _checkInDate;
         private DateTime _checkOutDate;
         private readonly Language _language;
         private readonly DirectContractsDbContext _dbContext;
-        private List<RawAvailability> _rawAvailabilitiesData = new List<RawAvailability>(0);
-        private IQueryable<RawAvailability> _rawAvailabilities = Enumerable.Empty<RawAvailability>().AsQueryable();
+        private IQueryable<RawAvailabilityData> _rawAvailabilities = Enumerable.Empty<RawAvailabilityData>().AsQueryable();
         private static readonly List<SlimAvailabilityResult> EmptySlimAvailabilityResults = new List<SlimAvailabilityResult>(0);
     }
 

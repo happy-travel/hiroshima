@@ -16,6 +16,7 @@ namespace Hiroshima.DirectContractsDataSeeder
         {
             using var dbContext = CreateDbContext();
             DataSeeder.AddData(dbContext);
+            Console.WriteLine("Seeding complete");
         }
 
 

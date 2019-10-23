@@ -17,30 +17,30 @@ namespace Hiroshima.DirectContracts.Services.Availability.Helpers
 {
     public static class RawSlimAccommodationDetailsHelper
     {
-        public static SlimAccommodationDetails CreateSlimAccommodationDetails(RawAvailability rawAvailability, Language language)
+        public static SlimAccommodationDetails CreateSlimAccommodationDetails(RawAvailabilityData rawAvailabilityData, Language language)
         {
-            var accommodationId = rawAvailability.Accommodation.Id.ToString();
+            var accommodationId = rawAvailabilityData.Accommodation.Id.ToString();
 
             var accommodationAmenities =
-                GetAccommodationAmenities(rawAvailability, language);
+                GetAccommodationAmenities(rawAvailabilityData, language);
 
-            var featureInfo = GetFeatureInfo(rawAvailability);
+            var featureInfo = GetFeatureInfo(rawAvailabilityData);
 
-            var additionalInfo = GetAdditionalInfo(rawAvailability, language);
+            var additionalInfo = GetAdditionalInfo(rawAvailabilityData, language);
 
-            var name = rawAvailability.Accommodation.Name.TryGetValue(language);
+            var name = rawAvailabilityData.Accommodation.Name.TryGetValue(language);
 
-            var locationInfo = GetLocationInfo(rawAvailability, language);
+            var locationInfo = GetLocationInfo(rawAvailabilityData, language);
 
-            var picture = GetPicture(rawAvailability, language);
+            var picture = GetPicture(rawAvailabilityData, language);
 
-            var accommodationRating = (AccommodationRatings)rawAvailability.Accommodation.Rating;
+            var accommodationRating = (AccommodationRatings)rawAvailabilityData.Accommodation.Rating;
 
-            var roomAmenities = GetRoomAmenities(rawAvailability, language);
+            var roomAmenities = GetRoomAmenities(rawAvailabilityData, language);
 
-            var textualDescription = CreateTextualDescription(rawAvailability, language);
+            var textualDescription = CreateTextualDescription(rawAvailabilityData, language);
 
-            PropertyTypes propertyType = (PropertyTypes)rawAvailability.Accommodation.PropertyType;
+            PropertyTypes propertyType = (PropertyTypes)rawAvailabilityData.Accommodation.PropertyType;
 
 
             return new SlimAccommodationDetails(
@@ -58,65 +58,65 @@ namespace Hiroshima.DirectContracts.Services.Availability.Helpers
         }
 
 
-        private static List<string> GetRoomAmenities(RawAvailability rawAvailability, Language language)
+        private static List<string> GetRoomAmenities(RawAvailabilityData rawAvailabilityData, Language language)
         {
-            return rawAvailability.Room.Amenities == null ||
-                   !rawAvailability.Room.Amenities.Any()
+            return rawAvailabilityData.Room.Amenities == null ||
+                   !rawAvailabilityData.Room.Amenities.Any()
                 ? EmptyStringList
-                : rawAvailability.Room.Amenities.Select(i => i.TryGetValue(language)).ToList();
+                : rawAvailabilityData.Room.Amenities.Select(i => i.TryGetValue(language)).ToList();
         }
 
 
-        private static Dictionary<string, string> GetAdditionalInfo(RawAvailability rawAvailability, Language language)
+        private static Dictionary<string, string> GetAdditionalInfo(RawAvailabilityData rawAvailabilityData, Language language)
         {
-            return rawAvailability.Accommodation.AdditionalInfo == null ||
-                   !rawAvailability.Accommodation.AdditionalInfo.Any()
+            return rawAvailabilityData.Accommodation.AdditionalInfo == null ||
+                   !rawAvailabilityData.Accommodation.AdditionalInfo.Any()
                 ? EmptyStringDictionary
-                : rawAvailability.Accommodation.AdditionalInfo.ToDictionary(k => k.Key,
+                : rawAvailabilityData.Accommodation.AdditionalInfo.ToDictionary(k => k.Key,
                     v => v.Value.TryGetValue(language));
         }
 
 
-        private static List<string> GetAccommodationAmenities(RawAvailability rawAvailability, Language language)
+        private static List<string> GetAccommodationAmenities(RawAvailabilityData rawAvailabilityData, Language language)
         {
-            return rawAvailability.Accommodation.Amenities == null ||
-                !rawAvailability.Accommodation.Amenities.Any()
+            return rawAvailabilityData.Accommodation.Amenities == null ||
+                !rawAvailabilityData.Accommodation.Amenities.Any()
                 ? EmptyStringList
-                : rawAvailability.Accommodation.Amenities.Select(i => i.TryGetValue(language)).ToList();
+                : rawAvailabilityData.Accommodation.Amenities.Select(i => i.TryGetValue(language)).ToList();
         }
 
 
-        private static TextualDescription CreateTextualDescription(RawAvailability rawAvailability, Language language)
+        private static TextualDescription CreateTextualDescription(RawAvailabilityData rawAvailabilityData, Language language)
         {
-            return rawAvailability.Accommodation.TextualDescription == null
+            return rawAvailabilityData.Accommodation.TextualDescription == null
                 ? default
              : new TextualDescription(
-                (TextualDescriptionTypes)rawAvailability.Accommodation.TextualDescription.Type,
-                rawAvailability.Accommodation.TextualDescription.Description.TryGetValue(language));
+                (TextualDescriptionTypes)rawAvailabilityData.Accommodation.TextualDescription.Type,
+                rawAvailabilityData.Accommodation.TextualDescription.Description.TryGetValue(language));
         }
 
 
-        private static Picture GetPicture(RawAvailability rawAvailability, Language language)
+        private static Picture GetPicture(RawAvailabilityData rawAvailabilityData, Language language)
         {
-            return rawAvailability.Accommodation.Picture == null
+            return rawAvailabilityData.Accommodation.Picture == null
                 ? default
-                : new Picture(rawAvailability.Accommodation.Picture.Source,
-                rawAvailability.Accommodation.Picture.Caption.TryGetValue(language));
+                : new Picture(rawAvailabilityData.Accommodation.Picture.Source,
+                rawAvailabilityData.Accommodation.Picture.Caption.TryGetValue(language));
 
         }
 
 
-        private static SlimLocationInfo GetLocationInfo(RawAvailability rawAvailability, Language language) =>
-                new SlimLocationInfo(rawAvailability.Location.Address.TryGetValue(language),
-                    rawAvailability.Country.Name.TryGetValue(language),
-                    rawAvailability.Locality.Name.TryGetValue(language),
+        private static SlimLocationInfo GetLocationInfo(RawAvailabilityData rawAvailabilityData, Language language) =>
+                new SlimLocationInfo(rawAvailabilityData.Location.Address.TryGetValue(language),
+                    rawAvailabilityData.Country.Name.TryGetValue(language),
+                    rawAvailabilityData.Locality.Name.TryGetValue(language),
                     string.Empty,
-                    new GeoPoint(rawAvailability.Location.Coordinates.X, rawAvailability.Location.Coordinates.Y));
+                    new GeoPoint(rawAvailabilityData.Location.Coordinates.X, rawAvailabilityData.Location.Coordinates.Y));
 
 
-        private static List<FeatureInfo> GetFeatureInfo(RawAvailability rawAvailability)
+        private static List<FeatureInfo> GetFeatureInfo(RawAvailabilityData rawAvailabilityData)
         {
-            return rawAvailability.Accommodation.FeatureInfo?.Select(i => new FeatureInfo((FeatureTypes)i.Type, i.IsValueRequired)).ToList();
+            return rawAvailabilityData.Accommodation.Features?.Select(i => new FeatureInfo((FeatureTypes)i.Type, i.IsValueRequired)).ToList();
         }
 
 

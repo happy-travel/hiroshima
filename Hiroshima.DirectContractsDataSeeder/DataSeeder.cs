@@ -36,7 +36,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     new Accommodation
                     {
                         Id = hotelId,
-                        Rating = HotelRating.FiveStars,
+                        Rating = AccommodationRating.FiveStars,
                         PropertyType = PropertyTypes.Hotels,
                         Name = new MultiLanguage<string>
                         {
@@ -51,19 +51,22 @@ namespace Hiroshima.DirectContractsDataSeeder
                         },
                         Schedule = new Schedule
                         {
-                            CheckInTime = new TimeSpan(13, 00, 0, 0),
-                            CheckOutTime = new TimeSpan(11, 00, 0),
-                            PortersStartTime = new TimeSpan(11, 00, 0),
-                            PortersEndTime = new TimeSpan(16, 00, 0)
+                            CheckInTime = "13:00",
+                            CheckOutTime = "11:00",
+                            PortersStartTime = "11:00",
+                            PortersEndTime = "16:00"
                         },
-                        Description = new MultiLanguage<string>
+                        TextualDescription = new TextualDescription
                         {
-                            Ar =
+                            Description = new MultiLanguage<string>
+                            {
+                                Ar =
                                 "65 فدان من الحدائق الغناء وكيلومتر من الشواطئ الخاصة تمثل أنموذجاً للسلاموالرخاء منقطعا النظير.",
-                            En =
+                                En =
                                 "Set in 65 acres of lush gardens and a kilometer of private beach, peaceful lives in remarkable opulence.",
-                            Ru =
+                                Ru =
                                 "26 гектаров ландшафтных садов, собственный пляж протяженностью в один километр, умиротворенная обстановка и роскошное окружение.",
+                            }
                         },
                         Amenities = new List<MultiLanguage<string>>
                         {
@@ -99,8 +102,8 @@ namespace Hiroshima.DirectContractsDataSeeder
                         {
                             Caption = new MultiLanguage<string>
                             {
-                                Ar= "ون آند اونلي رويال ميراج",
-                                En= "ONE&ONLY ROYAL MIRAGE"
+                                Ar = "ون آند اونلي رويال ميراج",
+                                En = "ONE&ONLY ROYAL MIRAGE"
                             },
                             Source = "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6HkA4WClkmu3oOM0iuENG66UC6iKZNUrefe0iJ__MX5ZbValF"
                         }
@@ -470,7 +473,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 } });
                 #endregion
-               
+
                 #region AddRates
                 FillRates(
                     dbContext,
@@ -1065,7 +1068,7 @@ namespace Hiroshima.DirectContractsDataSeeder
 
             }
         }
-        
+
         private static void AddJumeriahContract(DirectContractsDbContext dbContext)
         {
             var accommodation = dbContext.Accommodations.FirstOrDefault(a => a.Name.En.Equals("Burj Al Arab Jumeirah"));
@@ -1079,7 +1082,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     new Accommodation()
                     {
                         Id = hotelId,
-                        Rating = HotelRating.FiveStars,
+                        Rating = AccommodationRating.FiveStars,
                         PropertyType = PropertyTypes.Hotels,
                         Name = new MultiLanguage<string>
                         {
@@ -1094,19 +1097,23 @@ namespace Hiroshima.DirectContractsDataSeeder
                         },
                         Schedule = new Schedule
                         {
-                            CheckInTime = new TimeSpan(14, 00,0,0),
-                            CheckOutTime = new TimeSpan(12, 00,0,0),
-                            PortersStartTime = new TimeSpan(10, 00,0,0),
-                            PortersEndTime = new TimeSpan(15, 00,0,0)
+                            CheckInTime = "14:00",
+                            CheckOutTime = "12:00",
+                            PortersStartTime = "10:00",
+                            PortersEndTime = "15:00"
                         },
-                        Description = new MultiLanguage<string>
+                        TextualDescription = new TextualDescription
                         {
-                            Ar =
-                                "يقف فندق برج العرب جميرا الشهير شامخًا على شكل شراع وكأنه منارة دبي الحديثة، ويتسم بأجود وأرقى الضيافات التي يمكن أن تمر بها على الإطلاق.",
-                            En =
-                                "The iconic sail-shaped silhoutte of Burj Al Arab Jumeirah stands tall as a beacon of modern Dubai, characterized by the finest hospitality you can ever experience.",
-                            Ru =
-                                "Легендарный отель Burj Al Arab Jumeirah известен своим непревзойденным уровнем обслуживания и гостеприимства, а его высокий силуэт в форме паруса служит маяком современного Дубая.",
+                            Description = new MultiLanguage<string>
+                            {
+                                Ar =
+                                    "يقف فندق برج العرب جميرا الشهير شامخًا على شكل شراع وكأنه منارة دبي الحديثة، ويتسم بأجود وأرقى الضيافات التي يمكن أن تمر بها على الإطلاق.",
+                                En =
+                                    "The iconic sail-shaped silhoutte of Burj Al Arab Jumeirah stands tall as a beacon of modern Dubai, characterized by the finest hospitality you can ever experience.",
+                                Ru =
+                                    "Легендарный отель Burj Al Arab Jumeirah известен своим непревзойденным уровнем обслуживания и гостеприимства, а его высокий силуэт в форме паруса служит маяком современного Дубая.",
+                            },
+                            Type = TextualDescriptionTypes.General
                         },
                         Amenities = new List<MultiLanguage<string>>
                         {
@@ -1314,16 +1321,16 @@ namespace Hiroshima.DirectContractsDataSeeder
             {
                 foreach (var roomIdsAndPrice in roomIdsAndPrices)
                 {
-                    dbContext.Rates.Add(new Rate
+                    dbContext.Rates.Add(new ContractRate
                     {
                         SeasonId = seasonId,
                         RoomId = roomIdsAndPrice.Item1,
-                        Price = roomIdsAndPrice.Item2,
+                        SeasonPrice = roomIdsAndPrice.Item2,
                         CurrencyCode = "AED"
                     });
                 }
             }
         }
-        
+
     }
 }

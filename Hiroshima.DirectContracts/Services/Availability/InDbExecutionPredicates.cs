@@ -10,14 +10,14 @@ namespace Hiroshima.DirectContracts.Services.Availability
 {
     static class InDbExecutionPredicates
     {
-        public static Expression<Func<RawAvailability, bool>> FilterByCoordinatesAndDistance(Point coordinates,
+        public static Expression<Func<RawAvailabilityData, bool>> FilterByCoordinatesAndDistance(Point coordinates,
             double radius)
         {
-            return item => DirectContractsDbContext.StDistanceSphere(coordinates, item.Location.Coordinates) <= radius;
+            return item => DirectContractsDbContext.GetDistance(coordinates, item.Location.Coordinates) <= radius;
         }
 
 
-        public static Expression<Func<RawAvailability, bool>> FilterByRoomDetails(
+        public static Expression<Func<RawAvailabilityData, bool>> FilterByRoomDetails(
             RoomDetails roomDetails)
         {
             return item => item.PermittedOccupancy.AdultsNumber >= roomDetails.AdultsNumber &&
@@ -25,7 +25,7 @@ namespace Hiroshima.DirectContracts.Services.Availability
         }
 
 
-        public static Expression<Func<RawAvailability, bool>> SearchByAccommodationName(string name)
+        public static Expression<Func<RawAvailabilityData, bool>> FilterByAccommodationName(string name)
         {
             //Todo find a way to set json as a document.
             //Todo combine predicates
@@ -37,7 +37,7 @@ namespace Hiroshima.DirectContracts.Services.Availability
         }
 
 
-        public static Expression<Func<RawAvailability, bool>> SearchByAccommodationLocality(string name)
+        public static Expression<Func<RawAvailabilityData, bool>> FilterByAccommodationLocality(string name)
         {
             return item => EF.Functions.ILike(item.Accommodation.Location.Locality.Name.Ar, $"%{name}%") ||
                            EF.Functions.ILike(item.Accommodation.Location.Locality.Name.En, $"%{name}%") ||
@@ -46,7 +46,7 @@ namespace Hiroshima.DirectContracts.Services.Availability
         }
 
 
-        public static Expression<Func<RawAvailability, bool>> SearchByAccommodationCountry(string name)
+        public static Expression<Func<RawAvailabilityData, bool>> FilterByAccommodationCountry(string name)
         {
             return item => EF.Functions.ILike(item.Accommodation.Location.Locality.Country.Name.Ar, $"%{name}%") ||
                            EF.Functions.ILike(item.Accommodation.Location.Locality.Country.Name.En, $"%{name}%") ||

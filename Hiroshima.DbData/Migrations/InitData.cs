@@ -271,22 +271,6 @@ namespace Hiroshima.DbData.Migrations
             var sqlLocalities = @"insert into public.""Localities"" (""CountryCode"", ""Name"") VALUES 
                             ('AE', '{""Ar"": ""دبيّ"", ""Cn"": ""阿富汗"", ""En"": ""DUBAI"", ""Es"": ""DUBAI"", ""Fr"": ""DUBAI"", ""Ru"": ""ДУБАЙ""}')";
                         migrationBuilder.Sql(sqlLocalities);
-
-            var sqlBoardBasis = @"INSERT INTO ""public"".""BoardBasis"" (""Code"", ""Name"") 
-                                VALUES 
-                                ('RO', '{""En"": ""Room Only""}'), 
-                                ('SC', '{""En"": ""Self Catering""}'),
-                                ('BB', '{""En"": ""Bed and Breakfast""}'),
-                                ('HB', '{""En"": ""Half Board""}'),
-                                ('FB', '{""En"": ""Full Board""}'),
-                                ('AI', '{""En"": ""All Inclusive""}')
-                                 ON CONFLICT (""Code"") DO UPDATE 
-                                SET ""Name"" = excluded.""Name"";";
-             migrationBuilder.Sql(sqlBoardBasis);
-
-             var sqlCurrencies = @"insert into public.""Currencies"" (""Code"", ""Name"") VALUES 
-                            ('AED', 'Dirham')";
-             migrationBuilder.Sql(sqlCurrencies);
         }
 
     }

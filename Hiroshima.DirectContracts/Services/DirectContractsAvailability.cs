@@ -10,9 +10,9 @@ using NetTopologySuite.Geometries;
 
 namespace Hiroshima.DirectContracts.Services
 {
-    public class DcAvailability : IDcAvailability
+    public class DirectContractsAvailability : IDirectContractsAvailability
     {
-        public DcAvailability(DirectContractsDbContext dbContext, GeometryFactory geometryFactory)
+        public DirectContractsAvailability(DirectContractsDbContext dbContext, GeometryFactory geometryFactory)
         {
             _dbContext = dbContext;
             _geometryFactory = geometryFactory;
@@ -20,7 +20,7 @@ namespace Hiroshima.DirectContracts.Services
         }
 
 
-        public async Task<AvailabilityDetails> SearchAvailableAgreements(AvailabilityRequest availabilityRequest, Language language)
+        public async Task<AvailabilityDetails> GetAvailabilities(AvailabilityRequest availabilityRequest, Language language)
         {
             var location = availabilityRequest.Location;
             var availabilityDetailsBuilder = new AvailabilityDetailsBuilder(_dbContext, language);
@@ -30,19 +30,19 @@ namespace Hiroshima.DirectContracts.Services
                 if (string.IsNullOrWhiteSpace(availabilityRequest.Location.Name))
                 {
                     return await availabilityDetailsBuilder
-                        .GetAvailability(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate)
-                        .FilterByCoordinates(_geometryFactory
+                        .GetQueryableAvailability(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate)
+                        .WithCoordinatesAndRadius(_geometryFactory
                                 .CreatePoint(new Coordinate(location.Coordinates.Longitude,
                                                             location.Coordinates.Latitude)), 
                                             availabilityRequest.Location.Distance)
-                        .FilterByRoomDetails(availabilityRequest.RoomDetails.FirstOrDefault())
+                        .WithRoomDetails(availabilityRequest.RoomDetails.FirstOrDefault())
                         .Build();
                 }
 
                 return await availabilityDetailsBuilder
-                        .GetAvailability(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate)
-                        .FilterByAccommodationName(availabilityRequest.Location.Name)
-                        .FilterByRoomDetails(availabilityRequest.RoomDetails.FirstOrDefault())
+                        .GetQueryableAvailability(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate)
+                        .WithAccommodationName(availabilityRequest.Location.Name)
+                        .WithRoomDetails(availabilityRequest.RoomDetails.FirstOrDefault())
                         .Build();
                 
             }
@@ -50,11 +50,11 @@ namespace Hiroshima.DirectContracts.Services
                 !string.IsNullOrWhiteSpace(location.Locality))
             {
                 return await availabilityDetailsBuilder
-                    .GetAvailability(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate)
-                    .FilterByAccommodationName(availabilityRequest.Location.Name)
-                    .FilterByAccommodationLocality(availabilityRequest.Location.Locality)
-                    .FilterByAccommodationCountry(availabilityRequest.Location.Country)
-                    .FilterByRoomDetails(availabilityRequest.RoomDetails.FirstOrDefault())
+                    .GetQueryableAvailability(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate)
+                    .WithAccommodationName(availabilityRequest.Location.Name)
+                    .WithAccommodationLocality(availabilityRequest.Location.Locality)
+                    .WithAccommodationCountry(availabilityRequest.Location.Country)
+                    .WithRoomDetails(availabilityRequest.RoomDetails.FirstOrDefault())
                     .Build();
             }
 

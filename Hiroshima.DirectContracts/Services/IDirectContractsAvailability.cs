@@ -5,8 +5,8 @@ using AvailabilityRequest = HappyTravel.EdoContracts.Accommodations.Availability
 
 namespace Hiroshima.DirectContracts.Services
 {
-    public interface IDcAvailability
+    public interface IDirectContractsAvailability
     {
-        Task<AvailabilityDetails> SearchAvailableAgreements(AvailabilityRequest request, Language language);
+        Task<AvailabilityDetails> GetAvailabilities(AvailabilityRequest request, Language language);
     }
 }

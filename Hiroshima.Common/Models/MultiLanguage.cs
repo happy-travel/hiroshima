@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using Hiroshima.Common.Models.Enums;
+using Hiroshima.Common.Utils.Languages;
 
 namespace Hiroshima.Common.Models
 {
     public class MultiLanguage<T>
     {
-        public T GetValue(string languageCode)
-        {
-            return GetValue(GetLanguage(languageCode));
-        }
-
-
         public List<T> GetValues()
         {
             var values = new List<T>();
@@ -25,38 +21,41 @@ namespace Hiroshima.Common.Models
         }
 
 
-        public T GetValue(Language language)
+        public T GetValue(Language language) =>
+        language switch
         {
-            switch (language)
+            Language.Ar => Ar,
+            Language.Cn => Cn,
+            Language.De => De,
+            Language.En => En,
+            Language.Es => Es,
+            Language.Fr => Fr,
+            Language.Ru => Ru,
+            _ => throw new ArgumentException(message: "invalid enum value", paramName: nameof(language)),
+        };
+
+
+        public bool TryGetLanguageValue(string languageCode, out T value)
+        {
+            var language = LanguageUtils.GetLanguage(languageCode);
+            if (language == Language.Unknown)
             {
-                case Language.Ar:
-                    return Ar;
-                case Language.Cn:
-                    return Cn;
-                case Language.De:
-                    return De;
-                case Language.En:
-                    return En;
-                case Language.Fr:
-                    return Fr;
-                case Language.Es:
-                    return Es;
-                case Language.Ru:
-                    return Ru;
-                default: throw new ArgumentOutOfRangeException();
+                value = default;
+                return false;
             }
+            value = GetValue(language);
+            return !(value is null);
         }
 
 
-        public static Language GetLanguage(string languageCode)
+        public string GetJson() =>
+            JsonSerializer.Serialize(this, JsonSerializerOptions);
+        
+
+        private static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions
         {
-            if (string.IsNullOrWhiteSpace(languageCode) ||
-                !Constants.ConstantValues.AvailableLanguages.TryGetValue(languageCode, out var language))
-                throw new ArgumentException($"Unknown {nameof(languageCode)}: {languageCode}");
-            return language;
-        }
-
-
+            IgnoreNullValues = true
+        };
         public T Ar { get; set; }
         public T Cn { get; set; }
         public T De { get; set; }

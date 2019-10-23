@@ -4,11 +4,11 @@ namespace Hiroshima.DbData.Models.Accommodation
 {
     public class Schedule
     {
-        public TimeSpan CheckInTime { get; set; }
-        public TimeSpan CheckOutTime { get; set; }
-        public TimeSpan PortersStartTime { get; set; }
-        public TimeSpan PortersEndTime { get; set; }
-        public TimeSpan RoomServiceStartTime { get; set; }
-        public TimeSpan RoomServiceEndTime { get; set; }
+        public string CheckInTime { get; set; }
+        public string CheckOutTime { get; set; }
+        public string PortersStartTime { get; set; }
+        public string PortersEndTime { get; set; }
+        public string RoomServiceStartTime { get; set; }
+        public string RoomServiceEndTime { get; set; }
     }
 }

@@ -7,7 +7,7 @@ using Location = Hiroshima.DbData.Models.Location.Location;
 
 namespace Hiroshima.DirectContracts.Models.RawAvailiability
 {
-    public class RawAvailability
+    public class RawAvailabilityData
     {
       public Location Location { get; set; }
       public Locality Locality { get; set; }
@@ -15,7 +15,7 @@ namespace Hiroshima.DirectContracts.Models.RawAvailiability
       public Accommodation Accommodation { get; set; }
       public Room Room { get; set; }
       public Season Season { get; set; }
-      public Rate Rate { get; set; }
+      public ContractRate ContractRate { get; set; }
       public PermittedOccupancy PermittedOccupancy { get; set; }
     }
 }

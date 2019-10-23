@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CSharpFunctionalExtensions;
 using Hiroshima.DirectContracts.Models.Internal;
 
 namespace Hiroshima.DirectContracts.Services.Availability.Helpers
 {
     public static class PriceHelper
     {
-        public static List<SeasonDailyPrice> GetSeasonDailyPrices(List<Season> seasons, DateTime checkInDate, DateTime checkOutDate)
+        public static Result<List<SeasonDailyPrice>> GetSeasonDailyPrices(List<Season> seasons, DateTime checkInDate, DateTime checkOutDate)
         {
             if (checkInDate >= checkOutDate)
-                throw new ArgumentException(
+                return Result.Failure<List<SeasonDailyPrice>>(
                     $"{nameof(checkInDate)}({checkInDate}) must not be more than {nameof(checkOutDate)}(checkOutDate)");
             
             if (!seasons.Any())
-                return EmptyDailyPrices;
+                return Result.Failure<List<SeasonDailyPrice>>($"{nameof(seasons)} are empty");
 
             seasons = seasons.OrderBy(i => i.EndDate).ToList();
 
@@ -55,7 +56,7 @@ namespace Hiroshima.DirectContracts.Services.Availability.Helpers
                 dailyPrices.Add(dailyPrice);
             }
 
-            return dailyPrices;
+            return Result.Success(dailyPrices);
         }
 
 

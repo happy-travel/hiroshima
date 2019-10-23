@@ -4,8 +4,6 @@ using FloxDc.CacheFlow.Extensions;
 using HappyTravel.VaultClient;
 using Hiroshima.DirectContracts;
 using Hiroshima.DirectContracts.Infrastructure.Options;
-using Hiroshima.WebApi.Infrastructure;
-using Hiroshima.WebApi.Infrastructure.Constants;
 using Hiroshima.WebApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -17,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NetTopologySuite;
 using Newtonsoft.Json;
+using ConstantValues = Hiroshima.Common.Constants.ConstantValues;
 
 namespace Hiroshima.WebApi
 {
@@ -96,7 +95,7 @@ namespace Hiroshima.WebApi
                 });
 
             services.AddDirectContractsServices(bookingDbOptions);
-            services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(ConstantValues.Srid));
+            services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(HappyTravel.Geography.GeoConstants.SpatialReferenceId));
             services.AddTransient<IAvailability, Availability>();
         }
 

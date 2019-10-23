@@ -25,8 +25,8 @@ namespace Hiroshima.DirectContracts
 
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             }, 16);
-            services.AddTransient<IDcAvailability, DcAvailability>();
-            services.AddTransient<IDcLocations, DcLocations>();
+            services.AddTransient<IDirectContractsAvailability, DirectContractsAvailability>();
+            services.AddTransient<IDirectContractsLocation, DirectContractsLocation>();
             return services;
         }
 

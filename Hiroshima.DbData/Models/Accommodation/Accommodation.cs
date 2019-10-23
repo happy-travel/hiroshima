@@ -11,18 +11,16 @@ namespace Hiroshima.DbData.Models.Accommodation
         public int Id { get; set; }
         public Location.Location Location { get; set; }
         public MultiLanguage<string> Name { get; set; }
-        public MultiLanguage<string> Description { get; set; }
         public Contacts Contacts { get; set; }
         public Picture Picture { get; set; }
-        public HotelRating Rating { get; set; }
+        public AccommodationRating Rating { get; set; }
         public TextualDescription TextualDescription { get; set; }
         public Schedule Schedule { get; set; }
-        public string Category { get; set; }
         public PropertyTypes PropertyType { get; set; }
-        public List<FeatureInfo> FeatureInfo { get; set; }
+        public List<FeatureInfo> Features { get; set; }
         public List<MultiLanguage<string>> Amenities { get; set; }
         public Dictionary<string, MultiLanguage<string>> AdditionalInfo { get; set; }
-        public IEnumerable<Room> Rooms { get; set; }
-        public IEnumerable<Season> Seasons { get; set; } 
+        public ICollection<Room> Rooms { get; set; }
+        public ICollection<Season> Seasons { get; set; } 
     }
 }

@@ -21,9 +21,14 @@ namespace Hiroshima.DbData
 
         private static string GetConnectionString()
         {
+            var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            var appSettings = string.IsNullOrEmpty(env)
+                ?"appsettings.json"
+                :$"appsettings.{env}.json";
+            
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile(appSettings, optional: false, reloadOnChange: true)
                 .Build();
             var dbOptions = GetDbOptions(configuration);
             return $"server={dbOptions["host"]};port={dbOptions["port"]};database={dbOptions["database"]};userid={dbOptions["userId"]};password={dbOptions["password"]};";

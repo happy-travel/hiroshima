@@ -12,9 +12,9 @@ namespace Hiroshima.WebApi.Services
     public class Availability : IAvailability
     {
         public Availability(
-            IDcAvailability dcAvailability)
+            IDirectContractsAvailability directContractsAvailability)
         {
-            _dcAvailability = dcAvailability;
+            _directContractsAvailability = directContractsAvailability;
         }
 
 
@@ -27,12 +27,12 @@ namespace Hiroshima.WebApi.Services
             if (language == Language.Unknown)
                 return ProblemDetailsBuilder.Fail<AvailabilityDetails>($"{nameof(languageCode)} is unknown");
 
-            var result = await _dcAvailability.SearchAvailableAgreements(availabilityRequest, language);
+            var result = await _directContractsAvailability.GetAvailabilities(availabilityRequest, language);
 
             return Result.Ok<AvailabilityDetails, ProblemDetails>(result);
         }
 
 
-        private readonly IDcAvailability _dcAvailability;
+        private readonly IDirectContractsAvailability _directContractsAvailability;
     }
 }

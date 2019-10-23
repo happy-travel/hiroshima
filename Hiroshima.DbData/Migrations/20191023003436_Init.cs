@@ -50,58 +50,19 @@ namespace Hiroshima.DbData.Migrations
                 {
                     Id = table.Column<int>(nullable: false, defaultValueSql: "nextval('\"AccommodationIdSeq\"')"),
                     Name = table.Column<MultiLanguage<string>>(type: "jsonb", nullable: false),
-                    Description = table.Column<MultiLanguage<string>>(type: "jsonb", nullable: false),
                     Contacts = table.Column<Contacts>(type: "jsonb", nullable: true),
                     Picture = table.Column<Picture>(type: "jsonb", nullable: true),
                     Rating = table.Column<int>(nullable: false),
-                    TextualDescription = table.Column<TextualDescription>(type: "jsonb", nullable: true),
+                    TextualDescription = table.Column<TextualDescription>(type: "jsonb", nullable: false),
                     Schedule = table.Column<Schedule>(type: "jsonb", nullable: true),
-                    Category = table.Column<string>(nullable: true),
                     PropertyType = table.Column<int>(nullable: false),
-                    FeatureInfo = table.Column<List<FeatureInfo>>(type: "jsonb", nullable: true),
+                    Features = table.Column<List<FeatureInfo>>(type: "jsonb", nullable: true),
                     Amenities = table.Column<List<MultiLanguage<string>>>(type: "jsonb", nullable: true),
                     AdditionalInfo = table.Column<Dictionary<string, MultiLanguage<string>>>(type: "jsonb", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Accommodations", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "BoardBasis",
-                columns: table => new
-                {
-                    Code = table.Column<string>(nullable: false),
-                    Name = table.Column<MultiLanguage<string>>(type: "jsonb", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BoardBasis", x => x.Code);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "BookingStatus",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BookingStatus", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Currencies",
-                columns: table => new
-                {
-                    Code = table.Column<string>(nullable: false),
-                    Name = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Currencies", x => x.Code);
                 });
 
             migrationBuilder.CreateTable(
@@ -164,7 +125,7 @@ namespace Hiroshima.DbData.Migrations
                 columns: table => new
                 {
                     Code = table.Column<string>(nullable: false),
-                    Name = table.Column<MultiLanguage<string>>(type: "jsonb", nullable: true),
+                    Name = table.Column<MultiLanguage<string>>(type: "jsonb", nullable: false),
                     RegionId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
@@ -219,7 +180,7 @@ namespace Hiroshima.DbData.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Rates",
+                name: "ContractRates",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false, defaultValueSql: "nextval('\"RateIdSeq\"')"),
@@ -227,33 +188,21 @@ namespace Hiroshima.DbData.Migrations
                     BoardBasisCode = table.Column<string>(nullable: true),
                     CurrencyCode = table.Column<string>(nullable: true),
                     ReleaseDays = table.Column<int>(nullable: false),
-                    Price = table.Column<decimal>(type: "money", nullable: false),
-                    ExtraPersonPrice = table.Column<decimal>(type: "money", nullable: false),
+                    SeasonPrice = table.Column<decimal>(type: "numeric", nullable: false),
+                    ExtraPersonPrice = table.Column<decimal>(type: "numeric", nullable: false),
                     SeasonId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Rates", x => x.Id);
+                    table.PrimaryKey("PK_ContractRates", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Rates_BoardBasis_BoardBasisCode",
-                        column: x => x.BoardBasisCode,
-                        principalTable: "BoardBasis",
-                        principalColumn: "Code",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Rates_Currencies_CurrencyCode",
-                        column: x => x.CurrencyCode,
-                        principalTable: "Currencies",
-                        principalColumn: "Code",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Rates_Rooms_RoomId",
+                        name: "FK_ContractRates_Rooms_RoomId",
                         column: x => x.RoomId,
                         principalTable: "Rooms",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Rates_Seasons_SeasonId",
+                        name: "FK_ContractRates_Seasons_SeasonId",
                         column: x => x.SeasonId,
                         principalTable: "Seasons",
                         principalColumn: "Id",
@@ -284,29 +233,23 @@ namespace Hiroshima.DbData.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false, defaultValueSql: "nextval('\"BookingIdSeq\"')"),
-                    StatusId = table.Column<int>(nullable: false),
-                    RateId = table.Column<int>(nullable: false),
+                    StatusCode = table.Column<int>(nullable: false),
+                    ContractRateId = table.Column<int>(nullable: false),
                     CreatedAt = table.Column<DateTime>(nullable: false, defaultValueSql: "NOW()"),
-                    BookingAt = table.Column<DateTime>(nullable: false),
+                    BookedAt = table.Column<DateTime>(nullable: false),
                     CheckInAt = table.Column<DateTime>(nullable: false),
                     CheckOutAt = table.Column<DateTime>(nullable: false),
                     Nationality = table.Column<string>(nullable: true),
                     Residency = table.Column<string>(nullable: true),
-                    MainPassengerName = table.Column<MultiLanguage<string>>(type: "jsonb", nullable: true)
+                    LeadPassengerName = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Booking", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Booking_Rates_RateId",
-                        column: x => x.RateId,
-                        principalTable: "Rates",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Booking_BookingStatus_StatusId",
-                        column: x => x.StatusId,
-                        principalTable: "BookingStatus",
+                        name: "FK_Booking_ContractRates_ContractRateId",
+                        column: x => x.ContractRateId,
+                        principalTable: "ContractRates",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -339,14 +282,19 @@ namespace Hiroshima.DbData.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Booking_RateId",
+                name: "IX_Booking_ContractRateId",
                 table: "Booking",
-                column: "RateId");
+                column: "ContractRateId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Booking_StatusId",
-                table: "Booking",
-                column: "StatusId");
+                name: "IX_ContractRates_RoomId",
+                table: "ContractRates",
+                column: "RoomId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ContractRates_SeasonId",
+                table: "ContractRates",
+                column: "SeasonId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Countries_RegionId",
@@ -375,26 +323,6 @@ namespace Hiroshima.DbData.Migrations
                 column: "RoomId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Rates_BoardBasisCode",
-                table: "Rates",
-                column: "BoardBasisCode");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Rates_CurrencyCode",
-                table: "Rates",
-                column: "CurrencyCode");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Rates_RoomId",
-                table: "Rates",
-                column: "RoomId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Rates_SeasonId",
-                table: "Rates",
-                column: "SeasonId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Rooms_AccommodationId",
                 table: "Rooms",
                 column: "AccommodationId");
@@ -411,9 +339,9 @@ namespace Hiroshima.DbData.Migrations
 
             migrationBuilder.Sql(@"CREATE INDEX accommodations_name_eng_fts_idx ON ""Accommodations"" USING GIN (to_tsvector('english', ""Name""));");
             migrationBuilder.Sql(@"CREATE INDEX accommodations_name_smpl_fts_idx ON ""Accommodations"" USING GIN (to_tsvector('simple', ""Name""));");
-            migrationBuilder.Sql(@"CREATE INDEX locations_address_eng_fts_idx ON ""Locations"" USING GIN (to_tsvector('english', ""Address""::text));");
-            migrationBuilder.Sql(@"CREATE INDEX locations_address_smpl_fts_idx ON ""Locations"" USING GIN (to_tsvector('simple', ""Address""::text));");
-            
+            migrationBuilder.Sql(@"CREATE INDEX locations_address_eng_fts_idx ON ""Locations"" USING GIN (to_tsvector('english', ""Address""));");
+            migrationBuilder.Sql(@"CREATE INDEX locations_address_smpl_fts_idx ON ""Locations"" USING GIN (to_tsvector('simple', ""Address""));");
+
             InitData.AddStaticData(migrationBuilder);
         }
 
@@ -432,19 +360,10 @@ namespace Hiroshima.DbData.Migrations
                 name: "StopSaleDates");
 
             migrationBuilder.DropTable(
-                name: "Rates");
-
-            migrationBuilder.DropTable(
-                name: "BookingStatus");
+                name: "ContractRates");
 
             migrationBuilder.DropTable(
                 name: "Localities");
-
-            migrationBuilder.DropTable(
-                name: "BoardBasis");
-
-            migrationBuilder.DropTable(
-                name: "Currencies");
 
             migrationBuilder.DropTable(
                 name: "Rooms");
@@ -488,10 +407,10 @@ namespace Hiroshima.DbData.Migrations
             migrationBuilder.DropSequence(
                 name: "StopSaleDateIdSeq");
 
-            migrationBuilder.Sql(@"DROP INDEX accommodations_name_descr_fts_idx;");
-            migrationBuilder.Sql(@"DROP INDEX locations_address_fts_idx;");
-            migrationBuilder.Sql(@"DROP INDEX locations_address_eng_fts_idx;");
-            migrationBuilder.Sql(@"DROP INDEX locations_address_smpl_fts_idx;");
+            migrationBuilder.Sql(@"DROP accommodations_name_eng_fts_idx;");
+            migrationBuilder.Sql(@"DROP accommodations_name_smpl_fts_idx;");
+            migrationBuilder.Sql(@"DROP locations_address_eng_fts_idx;");
+            migrationBuilder.Sql(@"DROP locations_address_smpl_fts_idx;");
         }
     }
 }

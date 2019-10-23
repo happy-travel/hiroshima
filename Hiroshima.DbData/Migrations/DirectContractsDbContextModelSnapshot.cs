@@ -48,17 +48,10 @@ namespace Hiroshima.DbData.Migrations
                     b.Property<List<MultiLanguage<string>>>("Amenities")
                         .HasColumnType("jsonb");
 
-                    b.Property<string>("Category")
-                        .HasColumnType("text");
-
                     b.Property<Contacts>("Contacts")
                         .HasColumnType("jsonb");
 
-                    b.Property<MultiLanguage<string>>("Description")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.Property<List<FeatureInfo>>("FeatureInfo")
+                    b.Property<List<FeatureInfo>>("Features")
                         .HasColumnType("jsonb");
 
                     b.Property<MultiLanguage<string>>("Name")
@@ -78,6 +71,7 @@ namespace Hiroshima.DbData.Migrations
                         .HasColumnType("jsonb");
 
                     b.Property<TextualDescription>("TextualDescription")
+                        .IsRequired()
                         .HasColumnType("jsonb");
 
                     b.HasKey("Id");
@@ -92,7 +86,7 @@ namespace Hiroshima.DbData.Migrations
                         .HasColumnType("integer")
                         .HasDefaultValueSql("nextval('\"BookingIdSeq\"')");
 
-                    b.Property<DateTime>("BookingAt")
+                    b.Property<DateTime>("BookedAt")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("CheckInAt")
@@ -101,48 +95,31 @@ namespace Hiroshima.DbData.Migrations
                     b.Property<DateTime>("CheckOutAt")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<int>("ContractRateId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone")
                         .HasDefaultValueSql("NOW()");
 
-                    b.Property<MultiLanguage<string>>("MainPassengerName")
-                        .HasColumnType("jsonb");
+                    b.Property<string>("LeadPassengerName")
+                        .HasColumnType("text");
 
                     b.Property<string>("Nationality")
                         .HasColumnType("text");
 
-                    b.Property<int>("RateId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Residency")
                         .HasColumnType("text");
 
-                    b.Property<int>("StatusId")
+                    b.Property<int>("StatusCode")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RateId");
-
-                    b.HasIndex("StatusId");
+                    b.HasIndex("ContractRateId");
 
                     b.ToTable("Booking");
-                });
-
-            modelBuilder.Entity("Hiroshima.DbData.Models.Booking.BookingStatus", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("BookingStatus");
                 });
 
             modelBuilder.Entity("Hiroshima.DbData.Models.Location.Country", b =>
@@ -151,6 +128,7 @@ namespace Hiroshima.DbData.Migrations
                         .HasColumnType("text");
 
                     b.Property<MultiLanguage<string>>("Name")
+                        .IsRequired()
                         .HasColumnType("jsonb");
 
                     b.Property<int>("RegionId")
@@ -230,33 +208,7 @@ namespace Hiroshima.DbData.Migrations
                     b.ToTable("Regions");
                 });
 
-            modelBuilder.Entity("Hiroshima.DbData.Models.Rates.BoardBasis", b =>
-                {
-                    b.Property<string>("Code")
-                        .HasColumnType("text");
-
-                    b.Property<MultiLanguage<string>>("Name")
-                        .HasColumnType("jsonb");
-
-                    b.HasKey("Code");
-
-                    b.ToTable("BoardBasis");
-                });
-
-            modelBuilder.Entity("Hiroshima.DbData.Models.Rates.Currency", b =>
-                {
-                    b.Property<string>("Code")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.HasKey("Code");
-
-                    b.ToTable("Currencies");
-                });
-
-            modelBuilder.Entity("Hiroshima.DbData.Models.Rates.Rate", b =>
+            modelBuilder.Entity("Hiroshima.DbData.Models.Rates.ContractRate", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -270,10 +222,7 @@ namespace Hiroshima.DbData.Migrations
                         .HasColumnType("text");
 
                     b.Property<decimal>("ExtraPersonPrice")
-                        .HasColumnType("money");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("money");
+                        .HasColumnType("numeric");
 
                     b.Property<int>("ReleaseDays")
                         .HasColumnType("integer");
@@ -284,17 +233,16 @@ namespace Hiroshima.DbData.Migrations
                     b.Property<int>("SeasonId")
                         .HasColumnType("integer");
 
+                    b.Property<decimal>("SeasonPrice")
+                        .HasColumnType("numeric");
+
                     b.HasKey("Id");
-
-                    b.HasIndex("BoardBasisCode");
-
-                    b.HasIndex("CurrencyCode");
 
                     b.HasIndex("RoomId");
 
                     b.HasIndex("SeasonId");
 
-                    b.ToTable("Rates");
+                    b.ToTable("ContractRates");
                 });
 
             modelBuilder.Entity("Hiroshima.DbData.Models.Rooms.PermittedOccupancy", b =>
@@ -402,15 +350,9 @@ namespace Hiroshima.DbData.Migrations
 
             modelBuilder.Entity("Hiroshima.DbData.Models.Booking.Booking", b =>
                 {
-                    b.HasOne("Hiroshima.DbData.Models.Rates.Rate", "Rate")
+                    b.HasOne("Hiroshima.DbData.Models.Rates.ContractRate", "ContractRate")
                         .WithMany("Bookings")
-                        .HasForeignKey("RateId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Hiroshima.DbData.Models.Booking.BookingStatus", "Status")
-                        .WithMany("Bookings")
-                        .HasForeignKey("StatusId")
+                        .HasForeignKey("ContractRateId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -446,24 +388,16 @@ namespace Hiroshima.DbData.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Hiroshima.DbData.Models.Rates.Rate", b =>
+            modelBuilder.Entity("Hiroshima.DbData.Models.Rates.ContractRate", b =>
                 {
-                    b.HasOne("Hiroshima.DbData.Models.Rates.BoardBasis", "BoardBasis")
-                        .WithMany("Rates")
-                        .HasForeignKey("BoardBasisCode");
-
-                    b.HasOne("Hiroshima.DbData.Models.Rates.Currency", "Currency")
-                        .WithMany("Rates")
-                        .HasForeignKey("CurrencyCode");
-
                     b.HasOne("Hiroshima.DbData.Models.Rooms.Room", "Room")
-                        .WithMany("Rates")
+                        .WithMany("ContractRates")
                         .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Hiroshima.DbData.Models.Rooms.Season", "Season")
-                        .WithMany("Rates")
+                        .WithMany("ContractRates")
                         .HasForeignKey("SeasonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

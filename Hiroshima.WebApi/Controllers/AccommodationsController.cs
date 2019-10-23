@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using HappyTravel.EdoContracts.Accommodations;
 using Hiroshima.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace Hiroshima.WebApi.Controllers
 {
@@ -13,9 +14,10 @@ namespace Hiroshima.WebApi.Controllers
     [Produces("application/json")]
     public class AccommodationsController : Controller
     {
-        public AccommodationsController(IAvailability availability)
+        public AccommodationsController(IAvailability availability, IConfiguration configuration)
         {
             _availability = availability;
+            _configuration = configuration;
         }
 
 
@@ -25,7 +27,7 @@ namespace Hiroshima.WebApi.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost("accommodations/availabilities")]
-        [ProducesResponseType(typeof(AvailabilityDetails), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> SearchAvailabilities([FromBody] AvailabilityRequest request)
         {
@@ -39,5 +41,6 @@ namespace Hiroshima.WebApi.Controllers
 
 
         private readonly IAvailability _availability;
+        private IConfiguration _configuration;
     }
 }

@@ -12,13 +12,16 @@ namespace Hiroshima.DbData
     public class DirectContractsDbContext : DbContext
     {
         public DirectContractsDbContext(DbContextOptions<DirectContractsDbContext> options) : base(options)
-        {
-            _options = options;
-        }
+        { }
 
 
         [DbFunction("st_distance_sphere")]
-        public static double StDistanceSphere(Point from, Point to)
+        public static double GetDistance(Point from, Point to)
+            => throw new Exception();
+
+
+        [DbFunction("jsonb_to_string")]
+        public static string JsonbToString(string target)
             => throw new Exception();
 
 
@@ -34,16 +37,13 @@ namespace Hiroshima.DbData
             AddAccommodations(modelBuilder);
             AddRooms(modelBuilder);
             AddSeasons(modelBuilder);
-            AddBoardBasis(modelBuilder);
-            AddRates(modelBuilder);
-            AddCurrencies(modelBuilder);
-            AddBookingStatus(modelBuilder);
+            AddContractRates(modelBuilder);
             AddBookings(modelBuilder);
             AddStopSaleDate(modelBuilder);
             AddPermittedOccupancies(modelBuilder);
         }
 
-     
+
         private void AddRegions(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Location.Region>(e =>
@@ -62,7 +62,7 @@ namespace Hiroshima.DbData
                 e.ToTable("Countries");
                 e.HasKey(c => c.Code);
                 e.Property(c => c.Code).IsRequired();
-                e.Property(c => c.Name).HasColumnType("jsonb");//.IsRequired();
+                e.Property(c => c.Name).HasColumnType("jsonb").IsRequired();
                 e.HasOne(c => c.Region).WithMany(r => r.Countries)
                     .HasForeignKey(c => c.RegionId);
             });
@@ -113,17 +113,15 @@ namespace Hiroshima.DbData
                 e.Property(a => a.Id).HasDefaultValueSql("nextval('\"AccommodationIdSeq\"')")
                     .IsRequired();
                 e.Property(a => a.Name).IsRequired().HasColumnType("jsonb").IsRequired();
-                e.Property(a => a.Description).IsRequired().HasColumnType("jsonb").IsRequired();
+                e.Property(a => a.TextualDescription).HasColumnType("jsonb").IsRequired();
                 e.Property(a => a.Contacts).HasColumnType("jsonb");
                 e.Property(a => a.Picture).HasColumnType("jsonb");
-                e.Property(a => a.TextualDescription).HasColumnType("jsonb");
                 e.Property(a => a.Schedule).HasColumnType("jsonb");
                 e.Property(a => a.Rating);
-                e.Property(a => a.Category);
                 e.Property(a => a.PropertyType);
                 e.Property(a => a.Amenities).HasColumnType("jsonb");
                 e.Property(a => a.AdditionalInfo).HasColumnType("jsonb");
-                e.Property(a => a.FeatureInfo).HasColumnType("jsonb");
+                e.Property(a => a.Features).HasColumnType("jsonb");
                 e.HasOne(a => a.Location).WithOne(l => l.Accommodation)
                     .HasForeignKey<Location.Location>(l => l.AccommodationId);
             });
@@ -143,6 +141,7 @@ namespace Hiroshima.DbData
                 e.Property(r => r.Name).HasColumnType("jsonb");
                 e.Property(r => r.Description).HasColumnType("jsonb");
                 e.Property(r => r.Amenities).HasColumnType("jsonb");
+
                 e.HasOne(r => r.Accommodation).WithMany(a => a.Rooms)
                     .HasForeignKey(r => r.AccommodationId);
             });
@@ -167,61 +166,24 @@ namespace Hiroshima.DbData
         }
 
 
-        private void AddBoardBasis(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<BoardBasis>(e =>
-            {
-                e.ToTable("BoardBasis");
-                e.HasKey(b => b.Code);
-                e.Property(b => b.Name).HasColumnType("jsonb");
-            });
-        }
-
-
-        private void AddRates(ModelBuilder modelBuilder)
+        private void AddContractRates(ModelBuilder modelBuilder)
         {
             modelBuilder.HasSequence<int>("RateIdSeq").StartsAt(1).IncrementsBy(1);
-            modelBuilder.Entity<Rate>(e =>
+            modelBuilder.Entity<ContractRate>(e =>
             {
-                e.ToTable("Rates");
+                e.ToTable("ContractRates");
                 e.HasKey(a => a.Id);
                 e.Property(r => r.Id).HasDefaultValueSql("nextval('\"RateIdSeq\"')")
                     .IsRequired();
+                e.Property(a => a.SeasonPrice).HasColumnType("numeric");
+                e.Property(a => a.ExtraPersonPrice).HasColumnType("numeric");
+                e.Property(a => a.CurrencyCode);
                 e.Property(a => a.BoardBasisCode);
-                e.Property(a => a.Price).HasColumnType("money");
-                e.Property(a => a.ExtraPersonPrice).HasColumnType("money");
                 e.Property(a => a.ReleaseDays);
-                e.HasOne(a => a.Season).WithMany(a => a.Rates)
+                e.HasOne(a => a.Season).WithMany(a => a.ContractRates)
                     .HasForeignKey(a => a.SeasonId);
-                e.HasOne(a => a.Currency).WithMany(a => a.Rates)
-                    .HasForeignKey(a => a.CurrencyCode);
-                e.HasOne(a => a.BoardBasis).WithMany(b => b.Rates)
-                    .HasForeignKey(a => a.BoardBasisCode);
-                e.Property(a => a.ReleaseDays);
-                e.HasOne(a => a.Room).WithMany(r => r.Rates)
+                e.HasOne(a => a.Room).WithMany(r => r.ContractRates)
                     .HasForeignKey(r => r.RoomId);
-            });
-        }
-
-
-        private void AddCurrencies(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Currency>(e =>
-            {
-                e.ToTable("Currencies");
-                e.HasKey(a => a.Code);
-                e.Property(a => a.Name);
-            });
-        }
-
-
-        private void AddBookingStatus(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<BookingStatus>(e =>
-            {
-                e.ToTable("BookingStatus");
-                e.HasKey(a => a.Id);
-                e.Property(a => a.Name);
             });
         }
 
@@ -234,17 +196,16 @@ namespace Hiroshima.DbData
                 e.ToTable("Booking");
                 e.HasKey(b => b.Id);
                 e.Property(b => b.Id).HasDefaultValueSql("nextval('\"BookingIdSeq\"')").IsRequired();
-                e.Property(b => b.Nationality);
-                e.Property(b => b.Residency);
                 e.Property(b => b.CreatedAt).HasDefaultValueSql("NOW()").ValueGeneratedOnAdd();
                 e.Property(b => b.CheckInAt);
                 e.Property(b => b.CheckOutAt);
-                e.Property(b => b.BookingAt);
-                e.Property(b => b.MainPassengerName).HasColumnType("jsonb");
-                e.HasOne(b => b.Rate).WithMany(a => a.Bookings)
-                    .HasForeignKey(b => b.RateId);
-                e.HasOne(b => b.Status).WithMany(s => s.Bookings)
-                    .HasForeignKey(b => b.StatusId);
+                e.Property(b => b.BookedAt);
+                e.Property(b => b.StatusCode);
+                e.Property(b => b.LeadPassengerName);
+                e.Property(b => b.Nationality);
+                e.Property(b => b.Residency);
+                e.HasOne(b => b.ContractRate).WithMany(a => a.Bookings)
+                    .HasForeignKey(b => b.ContractRateId);
             });
         }
 
@@ -282,20 +243,17 @@ namespace Hiroshima.DbData
         }
 
 
-        public DbSet<Location.Locality> Localities { get; set; }
-        public DbSet<Location.Country> Countries { get; set; }
-        public DbSet<Location.Location> Locations { get; set; }
-        public DbSet<Location.Region> Regions { get; set; }
-        public DbSet<Rate> Rates { get; set; }
-        public DbSet<Accommodation> Accommodations { get; set; }
-        public DbSet<Booking> Bookings { get; set; }
-        public DbSet<Season> Seasons { get; set; }
-        public DbSet<Room> Rooms { get; set; }
-        public DbSet<PermittedOccupancy> PermittedOccupancies  { get; set; }
-        public DbSet<StopSaleDate> StopSaleDates { get; set; }
-        
-        private readonly DbContextOptions<DirectContractsDbContext> _options;
-
+        public virtual DbSet<Location.Locality> Localities { get; set; }
+        public virtual DbSet<Location.Country> Countries { get; set; }
+        public virtual DbSet<Location.Region> Regions { get; set; }
+        public virtual DbSet<Location.Location> Locations { get; set; }
+        public virtual DbSet<ContractRate> Rates { get; set; }
+        public virtual DbSet<Accommodation> Accommodations { get; set; }
+        public virtual DbSet<Booking> Bookings { get; set; }
+        public virtual DbSet<Season> Seasons { get; set; }
+        public virtual DbSet<Room> Rooms { get; set; }
+        public virtual DbSet<PermittedOccupancy> PermittedOccupancies { get; set; }
+        public virtual DbSet<StopSaleDate> StopSaleDates { get; set; }
 
     }
 

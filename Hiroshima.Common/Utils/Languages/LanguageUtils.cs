@@ -9,16 +9,5 @@ namespace Hiroshima.Common.Utils.Languages
             Constants.ConstantValues.AvailableLanguages.TryGetValue(languageCode, out var language)
                 ? language
                 : Language.Unknown;
-
-
-        public static bool TryGetLanguageValue<T>(MultiLanguage<T> obj, Language language, out T result)
-        {
-            result = default;
-            if (obj is null)
-                return false;
-            result = obj.GetValue(language);
-            return result != null;
-        }
-
     }
 }

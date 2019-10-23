@@ -12,6 +12,6 @@ namespace Hiroshima.DbData.Models.Rooms
         public DateTime EndDate { get; set; }
         public Accommodation.Accommodation Accommodation { get; set; }
         public int AccommodationId { get; set; }
-        public IEnumerable<Rate> Rates { get; set; }
+        public ICollection<ContractRate> ContractRates { get; set; }
     }
 }
