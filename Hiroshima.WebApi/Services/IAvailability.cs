@@ -7,6 +7,6 @@ namespace Hiroshima.WebApi.Services
 {
     public interface IAvailability
     {
-        Task<Result<AvailabilityDetails, ProblemDetails>> SearchAvailability(AvailabilityRequest request, string languageCode);
+        Task<Result<AvailabilityDetails, ProblemDetails>> GetAvailabilities(AvailabilityRequest request, string languageCode);
     }
 }

@@ -18,7 +18,7 @@ namespace Hiroshima.WebApi.Services
         }
 
 
-        public async Task<Result<AvailabilityDetails, ProblemDetails>> SearchAvailability(
+        public async Task<Result<AvailabilityDetails, ProblemDetails>> GetAvailabilities(
             AvailabilityRequest availabilityRequest,
             string languageCode)
         {
