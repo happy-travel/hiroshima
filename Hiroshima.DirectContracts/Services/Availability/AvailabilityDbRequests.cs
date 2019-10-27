@@ -28,7 +28,7 @@ namespace Hiroshima.DirectContracts.Services.Availability
                                   join season in dbContext.Seasons
                                       on rate.SeasonId equals season.Id
                                   where !(season.EndDate < checkInDate ||
-                                          season.StartDate > checkOutDate)
+                                          checkOutDate < season.StartDate )
                                   select new
                                   {
                                       Rate = rate,
