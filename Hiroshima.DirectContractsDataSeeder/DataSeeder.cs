@@ -20,7 +20,7 @@ namespace Hiroshima.DirectContractsDataSeeder
         internal static void AddData(DirectContractsDbContext dbContext)
         {
             AddOneAndOnlyContract(dbContext);
-            //AddJumeriahContract(dbContext);
+            AddJumeriahContract(dbContext);
             dbContext.SaveChanges();
         }
 
@@ -729,7 +729,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (35, 30000)});
                 #endregion
 
-                #region AddStopSaleDate
+                #region AddStopSaleDate //Test data
                 dbContext.StopSaleDates.AddRange(new StopSaleDate
                 {
                     RoomId = 20,
@@ -1075,11 +1075,12 @@ namespace Hiroshima.DirectContractsDataSeeder
             if (accommodation == null)
             {
                 var hotelId = 2;
+
                 #region AddAccommodation
 
                 dbContext.Accommodations.AddRange(new[]
                 {
-                    new Accommodation()
+                    new Accommodation
                     {
                         Id = hotelId,
                         Rating = AccommodationRating.FiveStars,
@@ -1147,8 +1148,11 @@ namespace Hiroshima.DirectContractsDataSeeder
                         },
                     }
                 });
+
                 #endregion
+
                 #region AddLocation
+
                 dbContext.Locations.AddRange(new Location.Location
                 {
                     Coordinates = new Point(55.1850, 25.1385),
@@ -1162,156 +1166,782 @@ namespace Hiroshima.DirectContractsDataSeeder
                     LocalityId = 1
 
                 });
+
                 #endregion
+
                 #region AddSeasons
+
                 dbContext.Seasons.AddRange(
-                new Season
-                {
-                    AccommodationId = hotelId,
-                    Name = "Shoulder",
-                    StartDate = new DateTime(2019, 1, 14),
-                    EndDate = new DateTime(2020, 1, 31)
-                },
-                new Season
-                {
-                    AccommodationId = hotelId,
-                    Name = "High",
-                    StartDate = new DateTime(2019, 2, 1),
-                    EndDate = new DateTime(2019, 2, 4)
-                },
-                new Season
-                {
-                    AccommodationId = hotelId,
-                    Name = "Peak",
-                    StartDate = new DateTime(2019, 2, 5),
-                    EndDate = new DateTime(2019, 2, 11)
-                },
-                new Season
-                {
-                    AccommodationId = hotelId,
-                    Name = "High",
-                    StartDate = new DateTime(2019, 2, 12),
-                    EndDate = new DateTime(2019, 3, 27)
-                },
-                new Season
-                {
-                    AccommodationId = hotelId,
-                    Name = "Peak",
-                    StartDate = new DateTime(2019, 3, 28),
-                    EndDate = new DateTime(2019, 4, 21)
-                },
-                new Season
-                {
-                    AccommodationId = hotelId,
-                    Name = "High",
-                    StartDate = new DateTime(2019, 4, 22),
-                    EndDate = new DateTime(2019, 5, 5)
-                },
-                new Season
-                {
-                    AccommodationId = hotelId,
-                    Name = "Low",
-                    StartDate = new DateTime(2019, 5, 6),
-                    EndDate = new DateTime(2019, 8, 31)
-                },
-                new Season
-                {
-                    AccommodationId = hotelId,
-                    Name = "Shoulder",
-                    StartDate = new DateTime(2019, 9, 1),
-                    EndDate = new DateTime(2019, 10, 12)
-                },
-                new Season
-                {
-                    AccommodationId = hotelId,
-                    Name = "High",
-                    StartDate = new DateTime(2019, 10, 13),
-                    EndDate = new DateTime(2019, 10, 19)
-                },
-                new Season
-                {
-                    AccommodationId = hotelId,
-                    Name = "Peak",
-                    StartDate = new DateTime(2019, 10, 20),
-                    EndDate = new DateTime(2019, 11, 9)
-                },
-                new Season
-                {
-                    AccommodationId = hotelId,
-                    Name = "High",
-                    StartDate = new DateTime(2019, 11, 10),
-                    EndDate = new DateTime(2019, 12, 1)
-                },
-                new Season
-                {
-                    AccommodationId = hotelId,
-                    Name = "Shoulder",
-                    StartDate = new DateTime(2019, 12, 2),
-                    EndDate = new DateTime(2019, 12, 21)
-                },
-                new Season
-                {
-                    AccommodationId = hotelId,
-                    Name = "High",
-                    StartDate = new DateTime(2019, 12, 22),
-                    EndDate = new DateTime(2019, 12, 26)
-                },
-                new Season
-                {
-                    AccommodationId = hotelId,
-                    Name = "Festive",
-                    StartDate = new DateTime(2019, 12, 27),
-                    EndDate = new DateTime(2020, 1, 4)
-                },
-                new Season
-                {
-                    AccommodationId = hotelId,
-                    Name = "High",
-                    StartDate = new DateTime(2020, 1, 5),
-                    EndDate = new DateTime(2020, 1, 13)
-                });
+                    new Season
+                    {
+                        Id = 51,
+                        AccommodationId = hotelId,
+                        Name = "Shoulder",
+                        StartDate = new DateTime(2019, 1, 14),
+                        EndDate = new DateTime(2019, 1, 31)
+                    },
+                    new Season
+                    {
+                        Id = 52,
+                        AccommodationId = hotelId,
+                        Name = "High",
+                        StartDate = new DateTime(2019, 2, 1),
+                        EndDate = new DateTime(2019, 2, 4)
+                    },
+                    new Season
+                    {
+                        Id = 53,
+                        AccommodationId = hotelId,
+                        Name = "Peak",
+                        StartDate = new DateTime(2019, 2, 5),
+                        EndDate = new DateTime(2019, 2, 11)
+                    },
+                    new Season
+                    {
+                        Id = 54,
+                        AccommodationId = hotelId,
+                        Name = "High",
+                        StartDate = new DateTime(2019, 2, 12),
+                        EndDate = new DateTime(2019, 3, 27)
+                    },
+                    new Season
+                    {
+                        Id = 55,
+                        AccommodationId = hotelId,
+                        Name = "Peak",
+                        StartDate = new DateTime(2019, 3, 28),
+                        EndDate = new DateTime(2019, 4, 21)
+                    },
+                    new Season
+                    {
+                        Id = 56,
+                        AccommodationId = hotelId,
+                        Name = "High",
+                        StartDate = new DateTime(2019, 4, 22),
+                        EndDate = new DateTime(2019, 5, 5)
+                    },
+                    new Season
+                    {
+                        Id = 57,
+                        AccommodationId = hotelId,
+                        Name = "Low",
+                        StartDate = new DateTime(2019, 5, 6),
+                        EndDate = new DateTime(2019, 8, 31)
+                    },
+                    new Season
+                    {
+                        Id = 58,
+                        AccommodationId = hotelId,
+                        Name = "Shoulder",
+                        StartDate = new DateTime(2019, 9, 1),
+                        EndDate = new DateTime(2019, 10, 12)
+                    },
+                    new Season
+                    {
+                        Id = 59,
+                        AccommodationId = hotelId,
+                        Name = "High",
+                        StartDate = new DateTime(2019, 10, 13),
+                        EndDate = new DateTime(2019, 10, 19)
+                    },
+                    new Season
+                    {
+                        Id = 60,
+                        AccommodationId = hotelId,
+                        Name = "Peak",
+                        StartDate = new DateTime(2019, 10, 20),
+                        EndDate = new DateTime(2019, 11, 9)
+                    },
+                    new Season
+                    {
+                        Id = 61,
+                        AccommodationId = hotelId,
+                        Name = "High",
+                        StartDate = new DateTime(2019, 11, 10),
+                        EndDate = new DateTime(2019, 12, 1)
+                    },
+                    new Season
+                    {
+                        Id = 62,
+                        AccommodationId = hotelId,
+                        Name = "Shoulder",
+                        StartDate = new DateTime(2019, 12, 2),
+                        EndDate = new DateTime(2019, 12, 21)
+                    },
+                    new Season
+                    {
+                        Id = 63,
+                        AccommodationId = hotelId,
+                        Name = "High",
+                        StartDate = new DateTime(2019, 12, 22),
+                        EndDate = new DateTime(2019, 12, 26)
+                    },
+                    new Season
+                    {
+                        Id = 64,
+                        AccommodationId = hotelId,
+                        Name = "Festive",
+                        StartDate = new DateTime(2019, 12, 27),
+                        EndDate = new DateTime(2020, 1, 4)
+                    },
+                    new Season
+                    {
+                        Id = 65,
+                        AccommodationId = hotelId,
+                        Name = "High",
+                        StartDate = new DateTime(2020, 1, 5),
+                        EndDate = new DateTime(2020, 1, 13)
+                    });
+
                 #endregion
+
                 #region AddRooms
-                dbContext.Rooms.AddRange(new[]{new Room
+
+                dbContext.Rooms.AddRange(new[]
                 {
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
+                    new Room
                     {
-                        En = "One Bedroom Deluxe Suite"
-                    }
-                },new Room
-                {
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
+                        Id = 71,
+                        AccommodationId = hotelId,
+                        Name = new MultiLanguage<string>
+                        {
+                            En = "One Bedroom Deluxe Suite"
+                        }
+                    },
+                    new Room
                     {
-                        En = "Panoramic One Bedroom Delux Suite"
-                    }
-                },new Room
-                {
+                        Id = 72,
+                        AccommodationId = hotelId,
+                        Name = new MultiLanguage<string>
+                        {
+                            En = "Panoramic One Bedroom Suite"
+                        }
+                    },
+                    new Room
+                    {
+                        Id = 73,
                         AccommodationId = hotelId,
                         Name = new MultiLanguage<string>
                         {
                             En = "Two Bedroom Delux Suite"
                         }
-                    },new Room
-                {
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
+                    },
+                    new Room
                     {
-                        En = "Diplomatic Three Bedroom Suite"
+                        Id = 74,
+                        AccommodationId = hotelId,
+                        Name = new MultiLanguage<string>
+                        {
+                            En = "Diplomatic Three Bedroom Suite"
+                        }
                     }
-                } });
-                #endregion
-                dbContext.SaveChanges();
-                var accommodationsIds = dbContext.Rooms.Where(a => a.AccommodationId == hotelId).Select(a => a.Id).ToList();
-                var seasonsIds = dbContext.Seasons.Where(s => s.AccommodationId == hotelId).Select(s => s.Id).ToArray();
-                #region AddAgreements
+                });
 
                 #endregion
-                #region AddStopSaleDate
+
+
+                #region AddPrices
+
+                FillRates(
+                    dbContext,
+                    new[] {51},
+                    new List<(int, decimal)>
+                    {
+                        (71, 7321),
+                        (72, 7809),
+                        (73, 10981),
+                        (74, 18302)
+                    });
+
+                FillRates(
+                    dbContext,
+                    new[] {52},
+                    new List<(int, decimal)>
+                    {
+                        (71, 9273),
+                        (72, 10005),
+                        (73, 13909),
+                        (74, 23182)
+                    });
+
+                FillRates(
+                    dbContext,
+                    new[] {53},
+                    new List<(int, decimal)>
+                    {
+                        (71, 11225),
+                        (72, 12201),
+                        (73, 22450),
+                        (74, 33675)
+                    });
+
+                FillRates(
+                    dbContext,
+                    new[] {54},
+                    new List<(int, decimal)>
+                    {
+                        (71, 9273),
+                        (72, 10005),
+                        (73, 13909),
+                        (74, 23182)
+                    });
+
+                FillRates(
+                    dbContext,
+                    new[] {55},
+                    new List<(int, decimal)>
+                    {
+                        (71, 11225),
+                        (72, 12201),
+                        (73, 22450),
+                        (74, 33675)
+                    });
+
+                FillRates(
+                    dbContext,
+                    new[] {56},
+                    new List<(int, decimal)>
+                    {
+                        (71, 9273),
+                        (72, 10005),
+                        (73, 13909),
+                        (74, 23182)
+                    });
+
+                FillRates(
+                    dbContext,
+                    new[] {57},
+                    new List<(int, decimal)>
+                    {
+                        (71, 6345),
+                        (72, 6833),
+                        (73, 9517),
+                        (74, 15862)
+                    });
+
+                FillRates(
+                    dbContext,
+                    new[] {58},
+                    new List<(int, decimal)>
+                    {
+                        (71, 7321),
+                        (72, 7809),
+                        (73, 10981),
+                        (74, 18302)
+                    });
+
+                FillRates(
+                    dbContext,
+                    new[] {59},
+                    new List<(int, decimal)>
+                    {
+                        (71, 9273),
+                        (72, 10005),
+                        (73, 13909),
+                        (74, 23182)
+                    });
+
+                FillRates(
+                    dbContext,
+                    new[] {60},
+                    new List<(int, decimal)>
+                    {
+                        (71, 11225),
+                        (72, 12201),
+                        (73, 22450),
+                        (74, 33675)
+                    });
+
+                FillRates(
+                    dbContext,
+                    new[] {61},
+                    new List<(int, decimal)>
+                    {
+                        (71, 9273),
+                        (72, 10005),
+                        (73, 13909),
+                        (74, 23182)
+                    });
+
+                FillRates(
+                    dbContext,
+                    new[] {62},
+                    new List<(int, decimal)>
+                    {
+                        (71, 7321),
+                        (72, 7809),
+                        (73, 10981),
+                        (74, 18302)
+                    });
+
+                FillRates(
+                    dbContext,
+                    new[] {63},
+                    new List<(int, decimal)>
+                    {
+                        (71, 9273),
+                        (72, 10005),
+                        (73, 13909),
+                        (74, 23182)
+                    });
+
+                FillRates(
+                    dbContext,
+                    new[] {64},
+                    new List<(int, decimal)>
+                    {
+                        (71, 13177),
+                        (72, 14153),
+                        (73, 26355),
+                        (74, 39532)
+                    });
+
+                FillRates(
+                    dbContext,
+                    new[] {65},
+                    new List<(int, decimal)>
+                    {
+                        (71, 9273),
+                        (72, 10005),
+                        (73, 13909),
+                        (74, 23182)
+                    });
 
                 #endregion
-                dbContext.SaveChanges();
+
+                #region AddStopSaleDates //Test data
+
+                //Panoramic Suite
+                dbContext.StopSaleDates.AddRange(new StopSaleDate
+                {
+                    RoomId = 72,
+                    StartDate = new DateTime(2019, 9, 28),
+                    EndDate = new DateTime(2019, 9, 28)
+                }, new StopSaleDate
+                {
+                    RoomId = 72,
+                    StartDate = new DateTime(2019, 9, 30),
+                    EndDate = new DateTime(2019, 9, 30)
+                },
+                new StopSaleDate
+                {
+                    RoomId = 72,
+                    StartDate = new DateTime(2019, 10, 1),
+                    EndDate = new DateTime(2019, 10, 1)
+                },
+                new StopSaleDate
+                {
+                    RoomId = 73,
+                    StartDate = new DateTime(2019, 10, 11),
+                    EndDate = new DateTime(2019, 10, 12)
+                },
+                new StopSaleDate
+                {
+                    RoomId = 73,
+                    StartDate = new DateTime(2020, 10, 19),
+                    EndDate = new DateTime(2020, 10, 19)
+                },
+                new StopSaleDate
+                {
+                    RoomId = 73,
+                    StartDate = new DateTime(2020, 10, 26),
+                    EndDate = new DateTime(2020, 10, 27)
+                });
+
+                #endregion
+
+                #region Permitted Occupancies
+
+                dbContext.PermittedOccupancies.AddRange(
+                    new PermittedOccupancy
+                    {
+                        RoomId = 71,
+                        AdultsNumber = 1,
+                        ChildrenNumber = 0,
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 71,
+                        AdultsNumber = 2,
+                        ChildrenNumber = 0,
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 71,
+                        AdultsNumber = 1,
+                        ChildrenNumber = 1,
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 71,
+                        AdultsNumber = 2,
+                        ChildrenNumber = 1,
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 71,
+                        AdultsNumber = 3,
+                        ChildrenNumber = 0,
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 71,
+                        AdultsNumber = 1,
+                        ChildrenNumber = 2,
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 71,
+                        AdultsNumber = 3,
+                        ChildrenNumber = 1,
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 71,
+                        AdultsNumber = 2,
+                        ChildrenNumber = 2,
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 72,
+                        AdultsNumber = 1,
+                        ChildrenNumber = 0,
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 72,
+                        AdultsNumber = 2,
+                        ChildrenNumber = 0
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 72,
+                        AdultsNumber = 1,
+                        ChildrenNumber = 1
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 72,
+                        AdultsNumber = 3,
+                        ChildrenNumber = 0
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 72,
+                        AdultsNumber = 1,
+                        ChildrenNumber = 2
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 72,
+                        AdultsNumber = 3,
+                        ChildrenNumber = 1
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 72,
+                        AdultsNumber = 2,
+                        ChildrenNumber = 2
+                    },
+
+                    new PermittedOccupancy
+                    {
+                        RoomId = 73,
+                        AdultsNumber = 1,
+                        ChildrenNumber = 0
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 73,
+                        AdultsNumber = 2,
+                        ChildrenNumber = 0
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 73,
+                        AdultsNumber = 1,
+                        ChildrenNumber = 1
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 73,
+                        AdultsNumber = 2,
+                        ChildrenNumber = 1
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 73,
+                        AdultsNumber = 3,
+                        ChildrenNumber = 0
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 73,
+                        AdultsNumber = 1,
+                        ChildrenNumber = 2
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 73,
+                        AdultsNumber = 4,
+                        ChildrenNumber = 0
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 73,
+                        AdultsNumber = 3,
+                        ChildrenNumber = 1
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 73,
+                        AdultsNumber = 2,
+                        ChildrenNumber = 2
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 73,
+                        AdultsNumber = 1,
+                        ChildrenNumber = 3
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 73,
+                        AdultsNumber = 5,
+                        ChildrenNumber = 0
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 73,
+                        AdultsNumber = 4,
+                        ChildrenNumber = 1
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 73,
+                        AdultsNumber = 3,
+                        ChildrenNumber = 2
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 73,
+                        AdultsNumber = 2,
+                        ChildrenNumber = 3
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 73,
+                        AdultsNumber = 1,
+                        ChildrenNumber = 4
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 73,
+                        AdultsNumber = 5,
+                        ChildrenNumber = 1
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 73,
+                        AdultsNumber = 4,
+                        ChildrenNumber = 2
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 73,
+                        AdultsNumber = 3,
+                        ChildrenNumber = 3
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 73,
+                        AdultsNumber = 2,
+                        ChildrenNumber = 4
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 73,
+                        AdultsNumber = 1,
+                        ChildrenNumber = 5
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 73,
+                        AdultsNumber = 1,
+                        ChildrenNumber = 5
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 1,
+                        ChildrenNumber = 0
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 2,
+                        ChildrenNumber = 0
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 1,
+                        ChildrenNumber = 1
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 2,
+                        ChildrenNumber = 1
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 3,
+                        ChildrenNumber = 0
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 1,
+                        ChildrenNumber = 2
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 4,
+                        ChildrenNumber = 0
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 3,
+                        ChildrenNumber = 1
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 2,
+                        ChildrenNumber = 2
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 1,
+                        ChildrenNumber = 3
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 5,
+                        ChildrenNumber = 0
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 4,
+                        ChildrenNumber = 1
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 3,
+                        ChildrenNumber = 2
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 2,
+                        ChildrenNumber = 3
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 1,
+                        ChildrenNumber = 4
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 6,
+                        ChildrenNumber = 0
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 5,
+                        ChildrenNumber = 1
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 4,
+                        ChildrenNumber = 2
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 3,
+                        ChildrenNumber = 3
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 2,
+                        ChildrenNumber = 4
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 1,
+                        ChildrenNumber =5
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 7,
+                        ChildrenNumber = 0
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 6,
+                        ChildrenNumber = 1
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 5,
+                        ChildrenNumber = 2
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 4,
+                        ChildrenNumber = 3
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 3,
+                        ChildrenNumber = 4
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 2,
+                        ChildrenNumber = 5
+                    },
+                    new PermittedOccupancy
+                    {
+                        RoomId = 74,
+                        AdultsNumber = 1,
+                        ChildrenNumber = 6
+                    });
+
+                #endregion region
+
+               dbContext.SaveChanges();
             }
         }
 
