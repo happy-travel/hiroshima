@@ -23,7 +23,6 @@ namespace Hiroshima.WebApi.Services
             string languageCode)
         {
             var language = LanguageUtils.GetLanguage(languageCode);
-
             if (language == Language.Unknown)
                 return ProblemDetailsBuilder.Fail<AvailabilityDetails>($"{nameof(languageCode)} is unknown");
 

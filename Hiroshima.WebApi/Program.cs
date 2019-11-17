@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Hiroshima.WebApi
 {
@@ -12,8 +12,19 @@ namespace Hiroshima.WebApi
         }
 
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
+        public static IHostBuilder CreateHostBuilder(string[] args)
+            => Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                    webBuilder.ConfigureLogging(logging =>
+                    {
+                        logging.AddConsole(options =>
+                        {
+                            options.LogToStandardErrorThreshold = LogLevel.Information;
+                            options.IncludeScopes = true;
+                        });
+                    });
+                });
     }
 }

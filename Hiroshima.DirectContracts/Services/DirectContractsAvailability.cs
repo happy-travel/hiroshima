@@ -1,68 +1,76 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Hiroshima.DbData;
 using HappyTravel.EdoContracts.Accommodations;
 using Hiroshima.Common.Models.Enums;
-using Hiroshima.DirectContracts.Services.Availability;
+using Hiroshima.DirectContracts.Models.RawAvailiability;
+using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
-
 
 namespace Hiroshima.DirectContracts.Services
 {
     public class DirectContractsAvailability : IDirectContractsAvailability
     {
-        public DirectContractsAvailability(DirectContractsDbContext dbContext, GeometryFactory geometryFactory)
+        public DirectContractsAvailability(IDirectContractsDatabaseRequests dbRequests, IDirectContractsAvailabilityResponse availabilityResponse,
+            IDirectContractsRawDataFilter rawDataFilter, GeometryFactory geometryFactory)
         {
-            _dbContext = dbContext;
+            _dbRequests = dbRequests;
+            _availabilityResponse = availabilityResponse;
             _geometryFactory = geometryFactory;
-
+            _rawDataFilter = rawDataFilter;
         }
 
 
         public async Task<AvailabilityDetails> GetAvailabilities(AvailabilityRequest availabilityRequest, Language language)
         {
             var location = availabilityRequest.Location;
-            var availabilityDetailsBuilder = new AvailabilityDetailsBuilder(_dbContext, language);
+            var rawAvailabilityData = Enumerable.Empty<RawAvailabilityData>().AsQueryable();
 
             if (!availabilityRequest.Location.Coordinates.Equals(default))
             {
                 if (string.IsNullOrWhiteSpace(availabilityRequest.Location.Name))
-                {
-                    return await availabilityDetailsBuilder
-                        .GetQueryableAvailability(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate)
-                        .WithCoordinatesAndRadius(_geometryFactory
-                                .CreatePoint(new Coordinate(location.Coordinates.Longitude,
-                                                            location.Coordinates.Latitude)), 
-                                            availabilityRequest.Location.Distance)
-                        .WithRoomDetails(availabilityRequest.RoomDetails.FirstOrDefault())
-                        .Build();
-                }
-
-                return await availabilityDetailsBuilder
-                        .GetQueryableAvailability(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate)
-                        .WithAccommodationName(availabilityRequest.Location.Name)
-                        .WithRoomDetails(availabilityRequest.RoomDetails.FirstOrDefault())
-                        .Build();
-                
+                    rawAvailabilityData = _dbRequests.GetAvailability(
+                        availabilityRequest.CheckInDate,
+                        availabilityRequest.CheckOutDate,
+                        _geometryFactory.CreatePoint(new Coordinate(location.Coordinates.Longitude, location.Coordinates.Latitude)),
+                        Convert.ToDouble(availabilityRequest.Location.Distance));
+                else
+                    rawAvailabilityData = _dbRequests.GetAvailability(
+                        availabilityRequest.CheckInDate,
+                        availabilityRequest.CheckOutDate,
+                        availabilityRequest.Location.Name,
+                        _geometryFactory.CreatePoint(new Coordinate(location.Coordinates.Longitude, location.Coordinates.Latitude)),
+                        availabilityRequest.Location.Distance);
             }
-            if (!string.IsNullOrWhiteSpace(location.Name) ||
-                !string.IsNullOrWhiteSpace(location.Locality))
+            else
             {
-                return await availabilityDetailsBuilder
-                    .GetQueryableAvailability(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate)
-                    .WithAccommodationName(availabilityRequest.Location.Name)
-                    .WithAccommodationLocality(availabilityRequest.Location.Locality)
-                    .WithAccommodationCountry(availabilityRequest.Location.Country)
-                    .WithRoomDetails(availabilityRequest.RoomDetails.FirstOrDefault())
-                    .Build();
+                if (!string.IsNullOrWhiteSpace(location.Name) ||
+                    !string.IsNullOrWhiteSpace(location.Locality))
+                    rawAvailabilityData = _dbRequests.GetAvailability(
+                        availabilityRequest.CheckInDate,
+                        availabilityRequest.CheckOutDate,
+                        availabilityRequest.Location.Name,
+                        availabilityRequest.Location.Locality,
+                        availabilityRequest.Location.Country);
             }
 
-            return availabilityDetailsBuilder.EmptyAvailabilityDetails;
+            var rawAvailabilityItems = await rawAvailabilityData.ToListAsync();
+
+            if (!rawAvailabilityItems.Any())
+                return _availabilityResponse.GetEmptyAvailabilityDetails(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate);
+
+            var filteredRawAvailabilityItems = _rawDataFilter.FilterByRoomDetails(rawAvailabilityItems, availabilityRequest.RoomDetails);
+
+            return _availabilityResponse.GetAvailabilityDetails(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate, filteredRawAvailabilityItems,
+                language);
         }
 
 
-        private readonly DirectContractsDbContext _dbContext;
+        private readonly IDirectContractsAvailabilityResponse _availabilityResponse;
+
+
+        private readonly IDirectContractsDatabaseRequests _dbRequests;
         private readonly GeometryFactory _geometryFactory;
+        private readonly IDirectContractsRawDataFilter _rawDataFilter;
     }
 }

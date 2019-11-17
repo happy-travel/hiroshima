@@ -3,7 +3,6 @@ using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.EdoContracts.GeoData;
 using Hiroshima.DirectContracts.Services;
-using Hiroshima.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hiroshima.WebApi.Controllers
@@ -21,11 +20,8 @@ namespace Hiroshima.WebApi.Controllers
 
 
         [HttpGet]
-        [ProducesResponseType(typeof(List<Location>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetLocations()
-        {
-            return Ok(await _directContractsLocation.GetLocations());
-        }
+        [ProducesResponseType(typeof(List<Location>), (int) HttpStatusCode.OK)]
+        public async Task<IActionResult> GetLocations() => Ok(await _directContractsLocation.GetLocations());
 
 
         private readonly IDirectContractsLocation _directContractsLocation;

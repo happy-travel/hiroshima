@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using HappyTravel.EdoContracts.Accommodations;
 using Hiroshima.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 
 namespace Hiroshima.WebApi.Controllers
 {
@@ -21,13 +20,13 @@ namespace Hiroshima.WebApi.Controllers
 
 
         /// <summary>
-        /// The method returns availability details
+        ///     The method returns availability details
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost("accommodations/availabilities")]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(AvailabilityDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> SearchAvailabilities([FromBody] AvailabilityRequest request)
         {
             var result = await _availability.GetAvailabilities(request, CultureInfo.CurrentCulture.Name);
@@ -35,7 +34,7 @@ namespace Hiroshima.WebApi.Controllers
             if (result.IsFailure)
                 return BadRequest(result.Error);
 
-            return Ok(result);
+            return Ok(result.Value);
         }
 
 

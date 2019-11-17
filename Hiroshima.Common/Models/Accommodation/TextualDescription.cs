@@ -1,4 +1,4 @@
-﻿using Hiroshima.Common.Models.Enums;
+﻿using HappyTravel.EdoContracts.Accommodations.Enums;
 
 namespace Hiroshima.Common.Models.Accommodation
 {

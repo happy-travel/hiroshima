@@ -1,10 +1,11 @@
-﻿using Hiroshima.Common.Models.Enums;
+﻿using HappyTravel.EdoContracts.General.Enums;
 
 namespace Hiroshima.Common.Models.Accommodation
 {
     public class FeatureInfo
     {
-        public FeatureTypes Type { get; set; }
-        public bool IsValueRequired { get; set; }
+        public bool IsCommentRequired { get; set; }
+        public string Name { get; set; }
+        public FieldTypes Type { get; set; }
     }
 }

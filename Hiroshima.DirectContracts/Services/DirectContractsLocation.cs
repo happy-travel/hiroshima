@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Hiroshima.DbData;
-using Microsoft.EntityFrameworkCore;
-using HappyTravel.EdoContracts.GeoData;
 using System.Text.Json;
+using System.Threading.Tasks;
+using HappyTravel.EdoContracts.GeoData;
 using HappyTravel.EdoContracts.GeoData.Enums;
 using HappyTravel.Geography;
+using Hiroshima.DbData;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace Hiroshima.DirectContracts.Services
@@ -20,7 +20,7 @@ namespace Hiroshima.DirectContracts.Services
             _jsonSerializerOptions = jsonOptions.Value.JsonSerializerOptions;
         }
 
-        
+
         public async Task<List<Location>> GetLocations()
         {
             var locations = _dbContext.Locations
@@ -39,7 +39,7 @@ namespace Hiroshima.DirectContracts.Services
 
 
         private string Serialize<T>(T value) => JsonSerializer.Serialize(value, _jsonSerializerOptions);
-        
+
 
         private readonly DirectContractsDbContext _dbContext;
         private readonly JsonSerializerOptions _jsonSerializerOptions;
