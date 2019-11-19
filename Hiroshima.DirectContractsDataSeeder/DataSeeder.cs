@@ -7,6 +7,7 @@ using Hiroshima.Common.Models.Accommodation;
 using Hiroshima.DbData;
 using Hiroshima.DbData.Models.Accommodation;
 using Hiroshima.DbData.Models.Booking;
+using Hiroshima.DbData.Models.Location;
 using Hiroshima.DbData.Models.Rates;
 using Hiroshima.DbData.Models.Rooms;
 using NetTopologySuite.Geometries;
@@ -2873,7 +2874,7 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 #region AddTestLocation
 
-                //dbContext.Localities.Add(new Location.Locality {CountryCode = "IE", Id = 2, Name = new MultiLanguage<string> {En = "Test"}});
+                dbContext.Localities.Add(new Locality {CountryCode = "IE", Id = 2, Name = new MultiLanguage<string> {En = "Test"}});
 
                 #endregion
 

@@ -17,7 +17,7 @@ using NpgsqlTypes;
 namespace Hiroshima.DbData.Migrations
 {
     [DbContext(typeof(DirectContractsDbContext))]
-    [Migration("20191117171434_Init")]
+    [Migration("20191119113112_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

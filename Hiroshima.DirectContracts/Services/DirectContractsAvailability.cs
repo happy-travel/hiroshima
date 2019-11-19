@@ -25,19 +25,21 @@ namespace Hiroshima.DirectContracts.Services
         {
             var location = availabilityRequest.Location;
             var rawAvailabilityData = Enumerable.Empty<RawAvailabilityData>().AsQueryable();
+            var checkInDate = availabilityRequest.CheckInDate.Date;
+            var checkOutDate = availabilityRequest.CheckOutDate.Date;
 
             if (!availabilityRequest.Location.Coordinates.Equals(default))
             {
                 if (string.IsNullOrWhiteSpace(availabilityRequest.Location.Name))
                     rawAvailabilityData = _dbRequests.GetAvailability(
-                        availabilityRequest.CheckInDate,
-                        availabilityRequest.CheckOutDate,
+                        checkInDate,
+                        checkOutDate,
                         _geometryFactory.CreatePoint(new Coordinate(location.Coordinates.Longitude, location.Coordinates.Latitude)),
                         Convert.ToDouble(availabilityRequest.Location.Distance));
                 else
                     rawAvailabilityData = _dbRequests.GetAvailability(
-                        availabilityRequest.CheckInDate,
-                        availabilityRequest.CheckOutDate,
+                        checkInDate,
+                        checkOutDate,
                         availabilityRequest.Location.Name,
                         _geometryFactory.CreatePoint(new Coordinate(location.Coordinates.Longitude, location.Coordinates.Latitude)),
                         availabilityRequest.Location.Distance);
@@ -47,8 +49,8 @@ namespace Hiroshima.DirectContracts.Services
                 if (!string.IsNullOrWhiteSpace(location.Name) ||
                     !string.IsNullOrWhiteSpace(location.Locality))
                     rawAvailabilityData = _dbRequests.GetAvailability(
-                        availabilityRequest.CheckInDate,
-                        availabilityRequest.CheckOutDate,
+                        checkInDate,
+                        checkOutDate,
                         availabilityRequest.Location.Name,
                         availabilityRequest.Location.Locality,
                         availabilityRequest.Location.Country);
@@ -57,11 +59,11 @@ namespace Hiroshima.DirectContracts.Services
             var rawAvailabilityItems = await rawAvailabilityData.ToListAsync();
 
             if (!rawAvailabilityItems.Any())
-                return _availabilityResponse.GetEmptyAvailabilityDetails(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate);
+                return _availabilityResponse.GetEmptyAvailabilityDetails(checkInDate, checkOutDate);
 
             var filteredRawAvailabilityItems = _rawDataFilter.FilterByRoomDetails(rawAvailabilityItems, availabilityRequest.RoomDetails);
 
-            return _availabilityResponse.GetAvailabilityDetails(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate, filteredRawAvailabilityItems,
+            return _availabilityResponse.GetAvailabilityDetails(checkInDate, checkOutDate, filteredRawAvailabilityItems,
                 language);
         }
 

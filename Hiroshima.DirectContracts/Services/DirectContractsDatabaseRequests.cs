@@ -36,8 +36,12 @@ namespace Hiroshima.DirectContracts.Services
 
         private IQueryable<RawAvailabilityData> GetAvailability(DateTime checkInDate, DateTime checkOutDate)
         {
+            var utcNowDate = DateTime.UtcNow.Date;
+            var daysToCheckIn = (checkInDate - utcNowDate).Days;
+            var daysOfStay = (checkOutDate - checkInDate).Days;
+
             var blockedRooms = (from blocked in _dbContext.StopSaleDates
-                where blocked.StartDate.Date <= checkOutDate.Date && checkInDate.Date <= blocked.EndDate.Date
+                where blocked.StartDate <= checkOutDate && checkInDate <= blocked.EndDate
                 select blocked.RoomId).Distinct();
 
             //Get available rooms, exclude blocked
@@ -54,10 +58,10 @@ namespace Hiroshima.DirectContracts.Services
                     on rate.SeasonId equals season.Id
                 join cancelationPolicy in _dbContext.CancelationPolicies
                     on season.CancelationPolicyId equals cancelationPolicy.Id
-                where !(season.EndDate.Date < checkInDate.Date ||
-                        checkOutDate.Date < season.StartDate.Date) &&
-                    rate.MinimumStayDays <= (checkOutDate - checkInDate).TotalDays &&
-                    rate.ReleaseDays < CalculateDaysToCheckIn(checkInDate)
+                where !(season.EndDate < checkInDate ||
+                        checkOutDate < season.StartDate) &&
+                    rate.MinimumStayDays <= daysOfStay &&
+                    rate.ReleaseDays < daysToCheckIn
                 select new
                 {
                     Rate = rate,
@@ -67,9 +71,9 @@ namespace Hiroshima.DirectContracts.Services
 
             //Get promotional offers
             var promotionalOffers = from offer in _dbContext.DiscountRates
-                where !(offer.ValidTo.Date < checkInDate.Date ||
-                        checkOutDate.Date < offer.ValidFrom.Date)
-                    && DateTime.Now.Date <= offer.BookBy
+                where !(offer.ValidTo < checkInDate ||
+                        checkOutDate < offer.ValidFrom)
+                    && utcNowDate <= offer.BookBy
                 select offer;
 
             return from location in _dbContext.Locations
@@ -88,6 +92,7 @@ namespace Hiroshima.DirectContracts.Services
                 join promotionalOffer in promotionalOffers
                     on room.Id equals promotionalOffer.RoomId into offersGroup
                 from subPromotionalOffer in offersGroup.DefaultIfEmpty()
+
                 select new RawAvailabilityData
                 {
                     Location = location,
@@ -103,8 +108,6 @@ namespace Hiroshima.DirectContracts.Services
                 };
         }
 
-
-        private int CalculateDaysToCheckIn(DateTime checkInDate) => Convert.ToInt32((checkInDate.Date - DateTime.UtcNow.Date).TotalDays);
 
         private readonly DirectContractsDbContext _dbContext;
     }
