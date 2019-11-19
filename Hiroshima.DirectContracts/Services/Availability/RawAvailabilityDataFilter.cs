@@ -4,11 +4,11 @@ using HappyTravel.EdoContracts.Accommodations.Internals;
 using Hiroshima.DirectContracts.Models.RawAvailiability;
 using NpgsqlTypes;
 
-namespace Hiroshima.DirectContracts.Services
+namespace Hiroshima.DirectContracts.Services.Availability
 {
-    public class DirectContractsRawDataFilter : IDirectContractsRawDataFilter
+    public class RawAvailabilityDataFilter : IRawAvailabilityDataFilter
     {
-        public List<RawAvailabilityData> FilterByRoomDetails(List<RawAvailabilityData> availabilityData, List<RoomDetails> roomDetails)
+        public List<RawAvailabilityData> ByRoomDetails(List<RawAvailabilityData> availabilityData, List<RoomDetails> roomDetails)
         {
             var availabilityResult = new List<RawAvailabilityData>();
 

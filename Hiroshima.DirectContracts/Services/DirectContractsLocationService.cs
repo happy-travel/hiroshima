@@ -12,9 +12,9 @@ using Microsoft.Extensions.Options;
 
 namespace Hiroshima.DirectContracts.Services
 {
-    public class DirectContractsLocation : IDirectContractsLocation
+    public class DirectContractsLocationService : IDirectContractsLocationService
     {
-        public DirectContractsLocation(DirectContractsDbContext dbContext, IOptions<JsonOptions> jsonOptions)
+        public DirectContractsLocationService(DirectContractsDbContext dbContext, IOptions<JsonOptions> jsonOptions)
         {
             _dbContext = dbContext;
             _jsonSerializerOptions = jsonOptions.Value.JsonSerializerOptions;

@@ -9,7 +9,7 @@ namespace Hiroshima.DbData.Models.Rates
         public int Id { get; set; }
         public int RoomId { get; set; }
         public Room Room { get; set; }
-        public int DiscountPct { get; set; }
+        public int DiscountPercent { get; set; }
         public string BookingCode { get; set; }
         public DateTime BookBy { get; set; }
         public DateTime ValidFrom { get; set; }

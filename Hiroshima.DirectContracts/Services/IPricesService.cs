@@ -5,7 +5,7 @@ using Hiroshima.DirectContracts.Models.Internal;
 
 namespace Hiroshima.DirectContracts.Services
 {
-    public interface IDirectContractsPrices
+    public interface IPricesService
     {
         List<SeasonPrice> GetSeasonPrices(ICollection<ContractedRate> contractRates, ICollection<DiscountRate> discountRates, DateTime checkInDate,
             DateTime checkOutDate);

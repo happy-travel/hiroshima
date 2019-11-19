@@ -4,20 +4,21 @@ using System.Threading.Tasks;
 using HappyTravel.EdoContracts.Accommodations;
 using Hiroshima.Common.Models.Enums;
 using Hiroshima.DirectContracts.Models.RawAvailiability;
+using Hiroshima.DirectContracts.Services.Availability;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 
 namespace Hiroshima.DirectContracts.Services
 {
-    public class DirectContractsAvailability : IDirectContractsAvailability
+    public class DirectContractsAvailabilityService : IDirectContractsAvailabilityService
     {
-        public DirectContractsAvailability(IDirectContractsDatabaseRequests dbRequests, IDirectContractsAvailabilityResponse availabilityResponse,
-            IDirectContractsRawDataFilter rawDataFilter, GeometryFactory geometryFactory)
+        public DirectContractsAvailabilityService(IAvailabilityQueriesService availabilityRequestsService, IAvailabilityResponseService availabilityResponseService,
+            IRawAvailabilityDataFilter rawAvailabilityDataFilter, GeometryFactory geometryFactory)
         {
-            _dbRequests = dbRequests;
-            _availabilityResponse = availabilityResponse;
+            _availabilityRequestsService = availabilityRequestsService;
+            _availabilityResponseService = availabilityResponseService;
             _geometryFactory = geometryFactory;
-            _rawDataFilter = rawDataFilter;
+            _rawAvailabilityDataFilter = rawAvailabilityDataFilter;
         }
 
 
@@ -31,13 +32,13 @@ namespace Hiroshima.DirectContracts.Services
             if (!availabilityRequest.Location.Coordinates.Equals(default))
             {
                 if (string.IsNullOrWhiteSpace(availabilityRequest.Location.Name))
-                    rawAvailabilityData = _dbRequests.GetAvailability(
+                    rawAvailabilityData = _availabilityRequestsService.GetAvailability(
                         checkInDate,
                         checkOutDate,
                         _geometryFactory.CreatePoint(new Coordinate(location.Coordinates.Longitude, location.Coordinates.Latitude)),
                         Convert.ToDouble(availabilityRequest.Location.Distance));
                 else
-                    rawAvailabilityData = _dbRequests.GetAvailability(
+                    rawAvailabilityData = _availabilityRequestsService.GetAvailability(
                         checkInDate,
                         checkOutDate,
                         availabilityRequest.Location.Name,
@@ -48,7 +49,7 @@ namespace Hiroshima.DirectContracts.Services
             {
                 if (!string.IsNullOrWhiteSpace(location.Name) ||
                     !string.IsNullOrWhiteSpace(location.Locality))
-                    rawAvailabilityData = _dbRequests.GetAvailability(
+                    rawAvailabilityData = _availabilityRequestsService.GetAvailability(
                         checkInDate,
                         checkOutDate,
                         availabilityRequest.Location.Name,
@@ -59,20 +60,20 @@ namespace Hiroshima.DirectContracts.Services
             var rawAvailabilityItems = await rawAvailabilityData.ToListAsync();
 
             if (!rawAvailabilityItems.Any())
-                return _availabilityResponse.GetEmptyAvailabilityDetails(checkInDate, checkOutDate);
+                return _availabilityResponseService.GetEmptyAvailabilityDetails(checkInDate, checkOutDate);
 
-            var filteredRawAvailabilityItems = _rawDataFilter.FilterByRoomDetails(rawAvailabilityItems, availabilityRequest.RoomDetails);
+            var filteredRawAvailabilityItems = _rawAvailabilityDataFilter.ByRoomDetails(rawAvailabilityItems, availabilityRequest.RoomDetails);
 
-            return _availabilityResponse.GetAvailabilityDetails(checkInDate, checkOutDate, filteredRawAvailabilityItems,
+            return _availabilityResponseService.GetAvailabilityDetails(checkInDate, checkOutDate, filteredRawAvailabilityItems,
                 language);
         }
 
 
-        private readonly IDirectContractsAvailabilityResponse _availabilityResponse;
+        private readonly IAvailabilityResponseService _availabilityResponseService;
 
 
-        private readonly IDirectContractsDatabaseRequests _dbRequests;
+        private readonly IAvailabilityQueriesService _availabilityRequestsService;
         private readonly GeometryFactory _geometryFactory;
-        private readonly IDirectContractsRawDataFilter _rawDataFilter;
+        private readonly IRawAvailabilityDataFilter _rawAvailabilityDataFilter;
     }
 }

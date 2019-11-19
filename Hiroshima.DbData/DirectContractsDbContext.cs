@@ -283,7 +283,7 @@ namespace Hiroshima.DbData
             {
                 e.ToTable("DiscountRates");
                 e.HasKey(p => p.Id);
-                e.Property(p => p.DiscountPct).IsRequired();
+                e.Property(p => p.DiscountPercent).IsRequired();
                 e.Property(p => p.BookBy).IsRequired();
                 e.Property(p => p.ValidFrom).IsRequired();
                 e.Property(p => p.ValidTo).IsRequired();

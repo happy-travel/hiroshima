@@ -2267,7 +2267,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                 #region AddDiscountRates
 
                 var discounts =
-                    new (int discountPct, DateTime bookBy, DateTime validFrom, DateTime validTo, string bookingCode,
+                    new (int discountPercent, DateTime bookBy, DateTime validFrom, DateTime validTo, string bookingCode,
                         MultiLanguage<string> details)[]
                         {
                             (20, new DateTime(2018, 11, 29), new DateTime(2019, 1, 14), new DateTime(2019, 1, 31), "WWHL600",
@@ -4601,14 +4601,14 @@ namespace Hiroshima.DirectContractsDataSeeder
 
 
         private static void FillDiscountRates(DirectContractsDbContext dbContext, int[] roomIds,
-            (int discountPct, DateTime bookBy, DateTime validFrom, DateTime validTo, string bookingCode, MultiLanguage<string> details)[] offers)
+            (int discountPercent, DateTime bookBy, DateTime validFrom, DateTime validTo, string bookingCode, MultiLanguage<string> details)[] offers)
         {
             foreach (var roomId in roomIds)
             foreach (var offer in offers)
                 dbContext.DiscountRates.Add(new DiscountRate
                 {
                     RoomId = roomId,
-                    DiscountPct = offer.discountPct,
+                    DiscountPercent = offer.discountPercent,
                     BookBy = offer.bookBy,
                     ValidFrom = offer.validFrom,
                     ValidTo = offer.validTo,

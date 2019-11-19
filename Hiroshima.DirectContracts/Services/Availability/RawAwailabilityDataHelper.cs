@@ -6,7 +6,7 @@ using Hiroshima.DbData.Models.Rooms;
 using Hiroshima.DirectContracts.Infrastructure.Utils;
 using Hiroshima.DirectContracts.Models.RawAvailiability;
 
-namespace Hiroshima.DirectContracts.Services
+namespace Hiroshima.DirectContracts.Services.Availability
 {
     public static class RawAwailabilityDataHelper
     {

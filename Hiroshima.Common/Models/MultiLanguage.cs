@@ -35,13 +35,13 @@ namespace Hiroshima.Common.Models
         public T GetValue(Language language)
             => language switch
                 {
-                Language.Ar => Ar,
-                Language.Cn => Cn,
-                Language.De => De,
-                Language.En => En,
-                Language.Es => Es,
-                Language.Fr => Fr,
-                Language.Ru => Ru,
+                    Language.Ar => Ar,
+                    Language.Cn => Cn,
+                    Language.De => De,
+                    Language.En => En,
+                    Language.Es => Es,
+                    Language.Fr => Fr,
+                    Language.Ru => Ru,
                 _ => throw new ArgumentException("invalid enum value", nameof(language)),
                 };
 

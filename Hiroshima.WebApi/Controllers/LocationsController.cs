@@ -13,17 +13,17 @@ namespace Hiroshima.WebApi.Controllers
     [Produces("application/json")]
     public class LocationsController : Controller
     {
-        public LocationsController(IDirectContractsLocation directContractsLocation)
+        public LocationsController(IDirectContractsLocationService directContractsLocationService)
         {
-            _directContractsLocation = directContractsLocation;
+            _directContractsLocationService = directContractsLocationService;
         }
 
 
         [HttpGet]
         [ProducesResponseType(typeof(List<Location>), (int) HttpStatusCode.OK)]
-        public async Task<IActionResult> GetLocations() => Ok(await _directContractsLocation.GetLocations());
+        public async Task<IActionResult> GetLocations() => Ok(await _directContractsLocationService.GetLocations());
 
 
-        private readonly IDirectContractsLocation _directContractsLocation;
+        private readonly IDirectContractsLocationService _directContractsLocationService;
     }
 }

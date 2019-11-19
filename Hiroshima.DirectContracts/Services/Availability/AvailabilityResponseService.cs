@@ -15,24 +15,26 @@ using Hiroshima.DbData.Models.Rooms;
 using Hiroshima.DirectContracts.Models.RawAvailiability;
 using RoomDetails = HappyTravel.EdoContracts.Accommodations.Internals.RoomDetails;
 
-namespace Hiroshima.DirectContracts.Services
+namespace Hiroshima.DirectContracts.Services.Availability
 {
-    public class DirectContractsAvailabilityResponse : IDirectContractsAvailabilityResponse
+    public class AvailabilityResponseService : IAvailabilityResponseService
     {
-        public DirectContractsAvailabilityResponse(IDirectContractsPrices directContractsPrices,
-            IDirectContractsCancelationPolicies directContractsCancelationPolicies)
+        public AvailabilityResponseService(IPricesService pricesService,
+            ICancelationPoliciesService cancelationPoliciesService)
         {
-            _directContractsPrices = directContractsPrices;
-            _directContractsCancelationPolicies = directContractsCancelationPolicies;
+            _pricesService = pricesService;
+            _cancelationPoliciesService = cancelationPoliciesService;
         }
 
 
         public AvailabilityDetails GetEmptyAvailabilityDetails(DateTime checkInDate, DateTime checkOutDate)
-            => new AvailabilityDetails(default,
+        {
+            return new AvailabilityDetails(default,
                 CalculateNumberOfNights(checkInDate, checkOutDate),
                 checkInDate,
                 checkOutDate,
                 EmptySlimAvailabilityResults);
+        }
 
 
         public AvailabilityDetails GetAvailabilityDetails(DateTime checkInDate,
@@ -48,7 +50,8 @@ namespace Hiroshima.DirectContracts.Services
         }
 
 
-        private AvailabilityDetails CreateAvailabilityDetails(ICollection<Accommodation> accommodations, DateTime checkInDate, DateTime checkOutDate,
+        private AvailabilityDetails CreateAvailabilityDetails(ICollection<Accommodation> accommodations,
+            DateTime checkInDate, DateTime checkOutDate,
             Language language)
         {
             var slimAvailabilityResult = new List<SlimAvailabilityResult>(accommodations.Count);
@@ -68,7 +71,8 @@ namespace Hiroshima.DirectContracts.Services
         }
 
 
-        private List<Agreement> CreateAgreements(ICollection<Room> rooms, DateTime checkInDate, DateTime checkOutDate, Language language)
+        private List<Agreement> CreateAgreements(ICollection<Room> rooms, DateTime checkInDate, DateTime checkOutDate,
+            Language language)
         {
             var agreements = new List<Agreement>();
             foreach (var room in rooms)
@@ -81,9 +85,10 @@ namespace Hiroshima.DirectContracts.Services
                 var agreementId = Guid.Empty;
                 var tariffCode = string.Empty;
 
-                var deadlineDate = _directContractsCancelationPolicies.GetDeadline(room, checkInDate);
+                var deadlineDate = _cancelationPoliciesService.GetDeadline(room, checkInDate);
 
-                var dailyPrices = _directContractsPrices.GetSeasonPrices(room.ContractRates, room.DiscountRates, checkInDate, checkOutDate);
+                var dailyPrices = _pricesService.GetSeasonPrices(room.ContractRates, room.DiscountRates, checkInDate,
+                    checkOutDate);
 
                 var totalPrice = dailyPrices.Sum(i => i.TotalPrice);
                 var price = new Price(currencyCode, totalPrice, totalPrice);
@@ -143,68 +148,91 @@ namespace Hiroshima.DirectContracts.Services
 
 
         private List<string> GetAccommodationAmenities(Accommodation accommodation, Language language)
-            => accommodation.Amenities == null ||
-                !accommodation.Amenities.Any()
-                    ? EmptyStringList
-                    : accommodation.Amenities.Select(i => i.TryGetValue(language)).ToList();
+        {
+            return accommodation.Amenities == null ||
+                   !accommodation.Amenities.Any()
+                ? EmptyStringList
+                : accommodation.Amenities.Select(i => i.TryGetValue(language)).ToList();
+        }
 
 
         private List<FeatureInfo> GetFeaturesInfo(List<Common.Models.Accommodation.FeatureInfo> featuresInfo)
-            => featuresInfo?.Select(i => new FeatureInfo(i.Name, FieldTypes.Boolean)).ToList();
+        {
+            return featuresInfo?.Select(i => new FeatureInfo(i.Name, FieldTypes.Boolean)).ToList();
+        }
 
 
-        private Dictionary<string, string> GetAdditionalInfo(Dictionary<string, MultiLanguage<string>> additionalInfo, Language language)
-            => additionalInfo == null ||
-                !additionalInfo.Any()
-                    ? EmptyStringDictionary
-                    : additionalInfo.ToDictionary(k => k.Key,
-                        v => v.Value.TryGetValue(language));
+        private Dictionary<string, string> GetAdditionalInfo(Dictionary<string, MultiLanguage<string>> additionalInfo,
+            Language language)
+        {
+            return additionalInfo == null ||
+                   !additionalInfo.Any()
+                ? EmptyStringDictionary
+                : additionalInfo.ToDictionary(k => k.Key,
+                    v => v.Value.TryGetValue(language));
+        }
 
 
         private SlimLocationInfo GetLocationInfo(Location location, Language language)
-            => new SlimLocationInfo(location.Address.TryGetValue(language),
+        {
+            return new SlimLocationInfo(location.Address.TryGetValue(language),
                 location.Locality.Country.Name.TryGetValue(language),
                 location.Locality.Name.TryGetValue(language),
                 string.Empty,
                 new GeoPoint(location.Coordinates.X, location.Coordinates.Y));
+        }
 
 
         private Picture GetPicture(Common.Models.Accommodation.Picture picture, Language language)
-            => picture == null
+        {
+            return picture == null
                 ? default
                 : new Picture(picture.Source,
                     picture.Caption.TryGetValue(language));
+        }
 
 
         private static List<string> GetRoomAmenities(List<MultiLanguage<string>> roomAmenities, Language language)
-            => roomAmenities == null ||
-                !roomAmenities.Any()
-                    ? EmptyStringList
-                    : roomAmenities.Select(i => i.TryGetValue(language)).ToList();
+        {
+            return roomAmenities == null ||
+                   !roomAmenities.Any()
+                ? EmptyStringList
+                : roomAmenities.Select(i => i.TryGetValue(language)).ToList();
+        }
 
 
         private int CalculateNumberOfNights(DateTime checkInDate, DateTime checkOutDate)
-            => checkInDate.Date <= checkOutDate.Date
+        {
+            return checkInDate.Date <= checkOutDate.Date
                 ? Convert.ToInt32(checkOutDate.Date.Subtract(checkInDate.Date).TotalDays)
                 : 0;
+        }
 
 
-        private TextualDescription GetTextualDescription(Common.Models.Accommodation.TextualDescription textualDescription, Language language)
-            => Equals(textualDescription, null)
+        private TextualDescription GetTextualDescription(
+            Common.Models.Accommodation.TextualDescription textualDescription, Language language)
+        {
+            return Equals(textualDescription, null)
                 ? default
                 : new TextualDescription(textualDescription.Type, textualDescription.Description.TryGetValue(language));
+        }
 
 
         private List<RoomDetails> GetRoomDetails(List<DbData.Models.Rooms.RoomDetails> roomDetails)
-            => roomDetails.Select(i => new RoomDetails(i.AdultsNumber, i.ChildrenNumber)).ToList();
+        {
+            return roomDetails.Select(i => new RoomDetails(i.AdultsNumber, i.ChildrenNumber)).ToList();
+        }
 
 
         private static readonly List<string> EmptyStringList = new List<string>(0);
         private static readonly Dictionary<string, string> EmptyStringDictionary = new Dictionary<string, string>(0);
-        private static readonly List<SlimAvailabilityResult> EmptySlimAvailabilityResults = new List<SlimAvailabilityResult>(0);
-        private readonly IDirectContractsCancelationPolicies _directContractsCancelationPolicies;
+
+        private static readonly List<SlimAvailabilityResult> EmptySlimAvailabilityResults =
+            new List<SlimAvailabilityResult>(0);
+
+        private readonly ICancelationPoliciesService _cancelationPoliciesService;
 
 
-        private readonly IDirectContractsPrices _directContractsPrices;
+        private readonly IPricesService _pricesService;
     }
 }

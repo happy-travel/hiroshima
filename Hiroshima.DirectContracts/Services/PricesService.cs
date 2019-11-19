@@ -6,9 +6,10 @@ using Hiroshima.DirectContracts.Models.Internal;
 
 namespace Hiroshima.DirectContracts.Services
 {
-    public class DirectContractsPrices : IDirectContractsPrices
+    public class PricesService : IPricesService
     {
-        public List<SeasonPrice> GetSeasonPrices(ICollection<ContractedRate> contractRates, ICollection<DiscountRate> discountRates, DateTime checkInDate,
+        public List<SeasonPrice> GetSeasonPrices(ICollection<ContractedRate> contractRates,
+            ICollection<DiscountRate> discountRates, DateTime checkInDate,
             DateTime checkOutDate)
         {
             if (contractRates == null || !contractRates.Any())
@@ -29,7 +30,8 @@ namespace Hiroshima.DirectContracts.Services
         }
 
 
-        private List<SeasonPrice> GetSeasonDailyPrices(List<(string SeasonName, DateTime StartDate, DateTime EndDate, decimal NightPrice)> seasons,
+        private List<SeasonPrice> GetSeasonDailyPrices(
+            List<(string SeasonName, DateTime StartDate, DateTime EndDate, decimal NightPrice)> seasons,
             DateTime checkInDate, DateTime checkOutDate)
         {
             if (checkInDate >= checkOutDate || !seasons.Any())
@@ -80,10 +82,13 @@ namespace Hiroshima.DirectContracts.Services
         }
 
 
-        private List<(string SeasonName, DateTime StartDate, DateTime EndDate, decimal NightPrice)> GetRatesWithDiscount(
-            ICollection<ContractedRate> contractRates, ICollection<DiscountRate> discountRates)
+        private List<(string SeasonName, DateTime StartDate, DateTime EndDate, decimal NightPrice)>
+            GetRatesWithDiscount(
+                ICollection<ContractedRate> contractRates, ICollection<DiscountRate> discountRates)
         {
-            var discountContractedRates = new List<(string SeasonName, DateTime StartDate, DateTime EndDate, decimal NightPrice)>(contractRates.Count);
+            var discountContractedRates =
+                new List<(string SeasonName, DateTime StartDate, DateTime EndDate, decimal NightPrice)>(contractRates
+                    .Count);
             foreach (var discountRate in discountRates)
             foreach (var contractRate in contractRates)
             {
@@ -92,7 +97,7 @@ namespace Hiroshima.DirectContracts.Services
                     discountRate.ValidFrom.Date <= season.EndDate.Date)
                 {
                     discountContractedRates.Add((discountRate.BookingCode, discountRate.ValidFrom, discountRate.ValidTo,
-                        contractRate.SeasonPrice - contractRate.SeasonPrice / 100 * discountRate.DiscountPct));
+                        contractRate.SeasonPrice - contractRate.SeasonPrice / 100 * discountRate.DiscountPercent));
                     break;
                 }
             }
@@ -102,8 +107,10 @@ namespace Hiroshima.DirectContracts.Services
 
 
         private static bool SeasonContainsDay(DateTime startDate, DateTime endDate, in DateTime day)
-            => day.Date >= startDate.Date &&
-                day.Date <= endDate.Date;
+        {
+            return day.Date >= startDate.Date &&
+                   day.Date <= endDate.Date;
+        }
 
 
         private static readonly List<SeasonPrice> EmptyDailyPrices = new List<SeasonPrice>(0);

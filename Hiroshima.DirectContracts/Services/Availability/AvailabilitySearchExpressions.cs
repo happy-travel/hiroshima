@@ -5,9 +5,9 @@ using Hiroshima.DirectContracts.Models.RawAvailiability;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 
-namespace Hiroshima.DirectContracts.Services
+namespace Hiroshima.DirectContracts.Services.Availability
 {
-    internal static class InDbExecutionPredicates
+    internal static class AvailabilitySearchExpressions
     {
         public static Expression<Func<RawAvailabilityData, bool>> FilterByCoordinatesAndDistance(Point coordinates,
             double radius)

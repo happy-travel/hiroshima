@@ -1,6 +1,7 @@
 ﻿using Hiroshima.DbData;
 using Hiroshima.DirectContracts.Infrastructure.Options;
 using Hiroshima.DirectContracts.Services;
+using Hiroshima.DirectContracts.Services.Availability;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -26,13 +27,13 @@ namespace Hiroshima.DirectContracts.Extensions
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             }, 16);
 
-            services.AddTransient<IDirectContractsAvailability, DirectContractsAvailability>();
-            services.AddTransient<IDirectContractsLocation, DirectContractsLocation>();
-            services.AddTransient<IDirectContractsDatabaseRequests, DirectContractsDatabaseRequests>();
-            services.AddTransient<IDirectContractsAvailabilityResponse, DirectContractsAvailabilityResponse>();
-            services.AddTransient<IDirectContractsRawDataFilter, DirectContractsRawDataFilter>();
-            services.AddTransient<IDirectContractsPrices, DirectContractsPrices>();
-            services.AddTransient<IDirectContractsCancelationPolicies, DirectContractsCancelationPolicies>();
+            services.AddTransient<IDirectContractsAvailabilityService, DirectContractsAvailabilityService>();
+            services.AddTransient<IDirectContractsLocationService, DirectContractsLocationService>();
+            services.AddTransient<IAvailabilityQueriesService, AvailabilityQueriesService>();
+            services.AddTransient<IAvailabilityResponseService, AvailabilityResponseService>();
+            services.AddTransient<IRawAvailabilityDataFilter, RawAvailabilityDataFilter>();
+            services.AddTransient<IPricesService, PricesService>();
+            services.AddTransient<ICancelationPoliciesService, CancelationPoliciesService>();
 
             return services;
         }

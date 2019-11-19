@@ -3,7 +3,7 @@ using Hiroshima.DbData.Models.Rooms;
 
 namespace Hiroshima.DirectContracts.Services
 {
-    public interface IDirectContractsCancelationPolicies
+    public interface ICancelationPoliciesService
     {
         DateTime GetDeadline(Room room, DateTime checkInDate);
     }

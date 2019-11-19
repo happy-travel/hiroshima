@@ -4,11 +4,11 @@ using Hiroshima.DbData;
 using Hiroshima.DirectContracts.Models.RawAvailiability;
 using NetTopologySuite.Geometries;
 
-namespace Hiroshima.DirectContracts.Services
+namespace Hiroshima.DirectContracts.Services.Availability
 {
-    public class DirectContractsDatabaseRequests : IDirectContractsDatabaseRequests
+    public class AvailabilityQueriesService : IAvailabilityQueriesService
     {
-        public DirectContractsDatabaseRequests(DirectContractsDbContext dbContext)
+        public AvailabilityQueriesService(DirectContractsDbContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -16,22 +16,22 @@ namespace Hiroshima.DirectContracts.Services
 
         public IQueryable<RawAvailabilityData> GetAvailability(DateTime checkInDate, DateTime checkOutDate, Point point, double distance)
             => GetAvailability(checkInDate, checkOutDate)
-                .Where(InDbExecutionPredicates.FilterByCoordinatesAndDistance(point, distance));
+                .Where(AvailabilitySearchExpressions.FilterByCoordinatesAndDistance(point, distance));
 
 
         public IQueryable<RawAvailabilityData> GetAvailability(DateTime checkInDate, DateTime checkOutDate, string accommodationName, Point point,
             double distance)
             => GetAvailability(checkInDate, checkOutDate)
-                .Where(InDbExecutionPredicates.FilterByCoordinatesAndDistance(point, distance))
-                .Where(InDbExecutionPredicates.FilterByAccommodationName(accommodationName));
+                .Where(AvailabilitySearchExpressions.FilterByCoordinatesAndDistance(point, distance))
+                .Where(AvailabilitySearchExpressions.FilterByAccommodationName(accommodationName));
 
 
         public IQueryable<RawAvailabilityData> GetAvailability(DateTime checkInDate, DateTime checkOutDate, string accommodationName, string localityName,
             string countyName)
             => GetAvailability(checkInDate, checkOutDate)
-                .Where(InDbExecutionPredicates.FilterByAccommodationName(accommodationName))
-                .Where(InDbExecutionPredicates.FilterByAccommodationLocality(localityName))
-                .Where(InDbExecutionPredicates.FilterByAccommodationCountry(countyName));
+                .Where(AvailabilitySearchExpressions.FilterByAccommodationName(accommodationName))
+                .Where(AvailabilitySearchExpressions.FilterByAccommodationLocality(localityName))
+                .Where(AvailabilitySearchExpressions.FilterByAccommodationCountry(countyName));
 
 
         private IQueryable<RawAvailabilityData> GetAvailability(DateTime checkInDate, DateTime checkOutDate)

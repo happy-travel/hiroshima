@@ -4,9 +4,9 @@ using HappyTravel.EdoContracts.Accommodations;
 using Hiroshima.Common.Models.Enums;
 using Hiroshima.DirectContracts.Models.RawAvailiability;
 
-namespace Hiroshima.DirectContracts.Services
+namespace Hiroshima.DirectContracts.Services.Availability
 {
-    public interface IDirectContractsAvailabilityResponse
+    public interface IAvailabilityResponseService
     {
         AvailabilityDetails GetEmptyAvailabilityDetails(DateTime checkInDate, DateTime checkOutDate);
 
