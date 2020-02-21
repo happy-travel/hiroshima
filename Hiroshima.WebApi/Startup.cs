@@ -1,8 +1,9 @@
 using System;
 using System.Globalization;
 using FloxDc.CacheFlow.Extensions;
+using HappyTravel.Geography;
 using HappyTravel.VaultClient;
-using Hiroshima.DirectContracts;
+using Hiroshima.DirectContracts.Extensions;
 using Hiroshima.DirectContracts.Infrastructure.Options;
 using Hiroshima.WebApi.Services;
 using Microsoft.AspNetCore.Builder;
@@ -15,7 +16,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NetTopologySuite;
 using Newtonsoft.Json;
-using ConstantValues = Hiroshima.Common.Constants.ConstantValues;
 
 namespace Hiroshima.WebApi
 {
@@ -26,7 +26,10 @@ namespace Hiroshima.WebApi
             Configuration = configuration;
         }
 
-        
+
+        public IConfiguration Configuration { get; }
+
+
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers().AddJsonOptions(options =>
@@ -35,17 +38,18 @@ namespace Hiroshima.WebApi
                 options.JsonSerializerOptions.IgnoreNullValues = true;
                 options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
             });
-            
+
             DbOptions bookingDbOptions;
             using (var vaultClient = new VaultClient(new VaultOptions
             {
                 Engine = Configuration["Vault:Engine"],
                 Role = Configuration["Vault:Role"],
-                BaseUrl = new Uri(Configuration["Vault:Endpoint"])
+                BaseUrl = new Uri(Configuration[Configuration["Vault:Endpoint"]])
             }, null))
             {
                 vaultClient.Login(Configuration[Configuration["Vault:Token"]]).GetAwaiter().GetResult();
-                var dbOptions = vaultClient.Get(Configuration["DirectContracts:Database:Options"]).GetAwaiter().GetResult();
+                var dbOptions = vaultClient.Get(Configuration["DirectContracts:Database:Options"]).GetAwaiter()
+                    .GetResult();
                 bookingDbOptions = new DbOptions(
                     dbOptions["host"],
                     int.Parse(dbOptions["port"]),
@@ -53,7 +57,7 @@ namespace Hiroshima.WebApi
                     dbOptions["userId"],
                     dbOptions["password"]);
             }
-            
+
             services.AddApiVersioning(options =>
             {
                 options.AssumeDefaultVersionWhenUnspecified = false;
@@ -65,10 +69,7 @@ namespace Hiroshima.WebApi
                 .AddControllersAsServices()
                 .AddFormatterMappings()
                 .AddApiExplorer()
-                .AddNewtonsoftJson(options =>
-                    {
-                        options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Unspecified;
-                    })
+                .AddNewtonsoftJson(options => { options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Unspecified; })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             services.AddCors()
@@ -91,16 +92,19 @@ namespace Hiroshima.WebApi
                         new CultureInfo("fr"),
                         new CultureInfo("ru")
                     };
-                    options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider { Options = options });
+                    options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider {Options = options});
                 });
 
             services.AddDirectContractsServices(bookingDbOptions);
-            services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(HappyTravel.Geography.GeoConstants.SpatialReferenceId));
+            services.AddSingleton(
+                NtsGeometryServices.Instance.CreateGeometryFactory(
+                    GeoConstants.SpatialReferenceId));
             services.AddTransient<IAvailability, Availability>();
         }
 
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IOptions<RequestLocalizationOptions> localizationOptions)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env,
+            IOptions<RequestLocalizationOptions> localizationOptions)
         {
             app.UseRouting();
             app.UseCors(builder => builder
@@ -108,13 +112,7 @@ namespace Hiroshima.WebApi
                 .AllowAnyHeader());
             app.UseResponseCompression();
             app.UseRequestLocalization(localizationOptions.Value);
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
-
-
-        public IConfiguration Configuration { get; }
     }
 }

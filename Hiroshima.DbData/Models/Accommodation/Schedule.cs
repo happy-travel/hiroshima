@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Hiroshima.DbData.Models.Accommodation
+﻿namespace Hiroshima.DbData.Models.Accommodation
 {
     public class Schedule
     {

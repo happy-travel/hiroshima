@@ -1,11 +1,12 @@
 ﻿using System;
 using Hiroshima.DbData.Models.Accommodation;
 using Hiroshima.DbData.Models.Booking;
+using Hiroshima.DbData.Models.Location;
 using Hiroshima.DbData.Models.Rates;
 using Hiroshima.DbData.Models.Rooms;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
-using Location = Hiroshima.DbData.Models.Location;
+using Location = Hiroshima.DbData.Models.Location.Location;
 
 namespace Hiroshima.DbData
 {
@@ -15,14 +16,27 @@ namespace Hiroshima.DbData
         { }
 
 
+        public DbSet<Locality> Localities { get; set; }
+        public DbSet<Country> Countries { get; set; }
+        public virtual DbSet<Region> Regions { get; set; }
+        public virtual DbSet<Location> Locations { get; set; }
+        public virtual DbSet<ContractedRate> Rates { get; set; }
+        public virtual DbSet<DiscountRate> DiscountRates { get; set; }
+        public virtual DbSet<Accommodation> Accommodations { get; set; }
+        public virtual DbSet<Booking> Bookings { get; set; }
+        public virtual DbSet<Season> Seasons { get; set; }
+        public virtual DbSet<Room> Rooms { get; set; }
+        public virtual DbSet<RoomDetails> RoomDetails { get; set; }
+        public virtual DbSet<StopSaleDate> StopSaleDates { get; set; }
+        public virtual DbSet<CancelationPolicy> CancelationPolicies { get; set; }
+
+
         [DbFunction("st_distance_sphere")]
-        public static double GetDistance(Point from, Point to)
-            => throw new Exception();
+        public static double GetDistance(Point from, Point to) => throw new Exception();
 
 
         [DbFunction("jsonb_to_string")]
-        public static string JsonbToString(string target)
-            => throw new Exception();
+        public static string JsonbToString(string target) => throw new Exception();
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -37,16 +51,18 @@ namespace Hiroshima.DbData
             AddAccommodations(modelBuilder);
             AddRooms(modelBuilder);
             AddSeasons(modelBuilder);
+            AddCancelationPolicies(modelBuilder);
             AddContractRates(modelBuilder);
             AddBookings(modelBuilder);
             AddStopSaleDate(modelBuilder);
-            AddPermittedOccupancies(modelBuilder);
+            AddRoomDetails(modelBuilder);
+            AddDiscountRates(modelBuilder);
         }
 
 
         private void AddRegions(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Location.Region>(e =>
+            modelBuilder.Entity<Region>(e =>
             {
                 e.ToTable("Regions");
                 e.HasKey(r => r.Id);
@@ -57,7 +73,7 @@ namespace Hiroshima.DbData
 
         private void AddCountries(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Location.Country>(e =>
+            modelBuilder.Entity<Country>(e =>
             {
                 e.ToTable("Countries");
                 e.HasKey(c => c.Code);
@@ -72,7 +88,7 @@ namespace Hiroshima.DbData
         private void AddLocalities(ModelBuilder modelBuilder)
         {
             modelBuilder.HasSequence<int>("LocalityIdSeq").StartsAt(1).IncrementsBy(1);
-            modelBuilder.Entity<Location.Locality>(e =>
+            modelBuilder.Entity<Locality>(e =>
             {
                 e.ToTable("Localities");
                 e.HasKey(l => l.Id);
@@ -87,7 +103,7 @@ namespace Hiroshima.DbData
 
         private void AddLocation(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Location.Location>(e =>
+            modelBuilder.Entity<Location>(e =>
             {
                 e.ToTable("Locations");
                 modelBuilder.HasSequence<int>("LocationIdSeq").StartsAt(1).IncrementsBy(1);
@@ -120,12 +136,12 @@ namespace Hiroshima.DbData
                 e.Property(a => a.Rating);
                 e.Property(a => a.PropertyType);
                 e.Property(a => a.Amenities).HasColumnType("jsonb");
+                e.Property(a => a.RoomAmenities).HasColumnType("jsonb");
                 e.Property(a => a.AdditionalInfo).HasColumnType("jsonb");
                 e.Property(a => a.Features).HasColumnType("jsonb");
                 e.HasOne(a => a.Location).WithOne(l => l.Accommodation)
-                    .HasForeignKey<Location.Location>(l => l.AccommodationId);
+                    .HasForeignKey<Location>(l => l.AccommodationId);
             });
-
         }
 
 
@@ -160,8 +176,22 @@ namespace Hiroshima.DbData
                 e.Property(s => s.Name).IsRequired();
                 e.Property(s => s.StartDate).IsRequired();
                 e.Property(s => s.EndDate).IsRequired();
+                e.HasOne(s => s.CancelationPolicy).WithMany(a => a.Seasons)
+                    .HasForeignKey(s => s.CancelationPolicyId);
                 e.HasOne(s => s.Accommodation).WithMany(a => a.Seasons)
                     .HasForeignKey(s => s.AccommodationId);
+            });
+        }
+
+
+        private void AddCancelationPolicies(ModelBuilder modelBuilder)
+        {
+            modelBuilder.HasSequence<int>("CancelationPolicyIdSeq").StartsAt(1).IncrementsBy(1);
+            modelBuilder.Entity<CancelationPolicy>(e =>
+            {
+                e.ToTable("CancelationPolicies");
+                e.HasKey(p => p.Id);
+                e.Property(p => p.CancelationPolicyDetails).HasColumnType("jsonb").IsRequired();
             });
         }
 
@@ -169,9 +199,9 @@ namespace Hiroshima.DbData
         private void AddContractRates(ModelBuilder modelBuilder)
         {
             modelBuilder.HasSequence<int>("RateIdSeq").StartsAt(1).IncrementsBy(1);
-            modelBuilder.Entity<ContractRate>(e =>
+            modelBuilder.Entity<ContractedRate>(e =>
             {
-                e.ToTable("ContractRates");
+                e.ToTable("ContractedRates");
                 e.HasKey(a => a.Id);
                 e.Property(r => r.Id).HasDefaultValueSql("nextval('\"RateIdSeq\"')")
                     .IsRequired();
@@ -179,6 +209,8 @@ namespace Hiroshima.DbData
                 e.Property(a => a.ExtraPersonPrice).HasColumnType("numeric");
                 e.Property(a => a.CurrencyCode);
                 e.Property(a => a.BoardBasisCode);
+                e.Property(a => a.MealPlanCode);
+                e.Property(a => a.MinimumStayDays);
                 e.Property(a => a.ReleaseDays);
                 e.HasOne(a => a.Season).WithMany(a => a.ContractRates)
                     .HasForeignKey(a => a.SeasonId);
@@ -204,7 +236,7 @@ namespace Hiroshima.DbData
                 e.Property(b => b.LeadPassengerName);
                 e.Property(b => b.Nationality);
                 e.Property(b => b.Residency);
-                e.HasOne(b => b.ContractRate).WithMany(a => a.Bookings)
+                e.HasOne(b => b.ContractedRate).WithMany(a => a.Bookings)
                     .HasForeignKey(b => b.ContractRateId);
             });
         }
@@ -227,34 +259,39 @@ namespace Hiroshima.DbData
         }
 
 
-        private void AddPermittedOccupancies(ModelBuilder modelBuilder)
+        private void AddRoomDetails(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasSequence<int>("PermittedOccupancyIdSeq").StartsAt(1).IncrementsBy(1);
-            modelBuilder.Entity<PermittedOccupancy>(e =>
+            modelBuilder.HasSequence<int>("RoomDetailsIdSeq").StartsAt(1).IncrementsBy(1);
+            modelBuilder.Entity<RoomDetails>(e =>
             {
-                e.ToTable("PermittedOccupancies");
+                e.ToTable("RoomDetails");
                 e.HasKey(p => p.Id);
-                e.Property(b => b.Id).HasDefaultValueSql("nextval('\"PermittedOccupancyIdSeq\"')").IsRequired();
-                e.Property(p => p.AdultsNumber).HasDefaultValue(0);
-                e.Property(p => p.ChildrenNumber).HasDefaultValue(0);
-                e.HasOne(p => p.Room).WithMany(a => a.PermittedOccupancies)
+                e.Property(b => b.Id).HasDefaultValueSql("nextval('\"RoomDetailsIdSeq\"')").IsRequired();
+                e.Property(p => p.AdultsNumber).IsRequired().HasDefaultValue(0);
+                e.Property(p => p.ChildrenNumber).IsRequired().HasDefaultValue(0);
+                e.Property(p => p.ChildrenAges);
+                e.HasOne(p => p.Room).WithMany(r => r.RoomDetails)
                     .HasForeignKey(p => p.RoomId);
             });
         }
 
 
-        public virtual DbSet<Location.Locality> Localities { get; set; }
-        public virtual DbSet<Location.Country> Countries { get; set; }
-        public virtual DbSet<Location.Region> Regions { get; set; }
-        public virtual DbSet<Location.Location> Locations { get; set; }
-        public virtual DbSet<ContractRate> Rates { get; set; }
-        public virtual DbSet<Accommodation> Accommodations { get; set; }
-        public virtual DbSet<Booking> Bookings { get; set; }
-        public virtual DbSet<Season> Seasons { get; set; }
-        public virtual DbSet<Room> Rooms { get; set; }
-        public virtual DbSet<PermittedOccupancy> PermittedOccupancies { get; set; }
-        public virtual DbSet<StopSaleDate> StopSaleDates { get; set; }
-
+        private void AddDiscountRates(ModelBuilder modelBuilder)
+        {
+            modelBuilder.HasSequence<int>("DiscountRateIdSeq").StartsAt(1).IncrementsBy(1);
+            modelBuilder.Entity<DiscountRate>(e =>
+            {
+                e.ToTable("DiscountRates");
+                e.HasKey(p => p.Id);
+                e.Property(p => p.DiscountPercent).IsRequired();
+                e.Property(p => p.BookBy).IsRequired();
+                e.Property(p => p.ValidFrom).IsRequired();
+                e.Property(p => p.ValidTo).IsRequired();
+                e.Property(p => p.BookingCode);
+                e.Property(p => p.Details).HasColumnType("jsonb");
+                e.HasOne(p => p.Room).WithMany(r => r.DiscountRates)
+                    .HasForeignKey(p => p.RoomId);
+            });
+        }
     }
-
 }

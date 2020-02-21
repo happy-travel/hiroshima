@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using Hiroshima.Common.Models;
 using Hiroshima.Common.Models.Accommodation;
 using Hiroshima.DbData.Models.Accommodation;
+using Hiroshima.DbData.Models.Booking;
 using Microsoft.EntityFrameworkCore.Migrations;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using NpgsqlTypes;
 
 namespace Hiroshima.DbData.Migrations
 {
@@ -24,16 +26,22 @@ namespace Hiroshima.DbData.Migrations
                 name: "BookingIdSeq");
 
             migrationBuilder.CreateSequence<int>(
+                name: "CancelationPolicyIdSeq");
+
+            migrationBuilder.CreateSequence<int>(
+                name: "DiscountRateIdSeq");
+
+            migrationBuilder.CreateSequence<int>(
                 name: "LocalityIdSeq");
 
             migrationBuilder.CreateSequence<int>(
                 name: "LocationIdSeq");
 
             migrationBuilder.CreateSequence<int>(
-                name: "PermittedOccupancyIdSeq");
+                name: "RateIdSeq");
 
             migrationBuilder.CreateSequence<int>(
-                name: "RateIdSeq");
+                name: "RoomDetailsIdSeq");
 
             migrationBuilder.CreateSequence<int>(
                 name: "RoomsIdSeq");
@@ -58,11 +66,25 @@ namespace Hiroshima.DbData.Migrations
                     PropertyType = table.Column<int>(nullable: false),
                     Features = table.Column<List<FeatureInfo>>(type: "jsonb", nullable: true),
                     Amenities = table.Column<List<MultiLanguage<string>>>(type: "jsonb", nullable: true),
+                    RoomAmenities = table.Column<List<MultiLanguage<string>>>(type: "jsonb", nullable: true),
                     AdditionalInfo = table.Column<Dictionary<string, MultiLanguage<string>>>(type: "jsonb", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Accommodations", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CancelationPolicies",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CancelationPolicyDetails = table.Column<List<CancelationPolicyDetails>>(type: "jsonb", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CancelationPolicies", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -107,6 +129,7 @@ namespace Hiroshima.DbData.Migrations
                     Name = table.Column<string>(nullable: false),
                     StartDate = table.Column<DateTime>(nullable: false),
                     EndDate = table.Column<DateTime>(nullable: false),
+                    CancelationPolicyId = table.Column<int>(nullable: false),
                     AccommodationId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
@@ -116,6 +139,12 @@ namespace Hiroshima.DbData.Migrations
                         name: "FK_Seasons_Accommodations_AccommodationId",
                         column: x => x.AccommodationId,
                         principalTable: "Accommodations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Seasons_CancelationPolicies_CancelationPolicyId",
+                        column: x => x.CancelationPolicyId,
+                        principalTable: "CancelationPolicies",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -140,19 +169,46 @@ namespace Hiroshima.DbData.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PermittedOccupancies",
+                name: "DiscountRates",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false, defaultValueSql: "nextval('\"PermittedOccupancyIdSeq\"')"),
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     RoomId = table.Column<int>(nullable: false),
-                    AdultsNumber = table.Column<int>(nullable: false, defaultValue: 0),
-                    ChildrenNumber = table.Column<int>(nullable: false, defaultValue: 0)
+                    DiscountPct = table.Column<int>(nullable: false),
+                    BookingCode = table.Column<string>(nullable: true),
+                    BookBy = table.Column<DateTime>(nullable: false),
+                    ValidFrom = table.Column<DateTime>(nullable: false),
+                    ValidTo = table.Column<DateTime>(nullable: false),
+                    Details = table.Column<MultiLanguage<string>>(type: "jsonb", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PermittedOccupancies", x => x.Id);
+                    table.PrimaryKey("PK_DiscountRates", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_PermittedOccupancies_Rooms_RoomId",
+                        name: "FK_DiscountRates_Rooms_RoomId",
+                        column: x => x.RoomId,
+                        principalTable: "Rooms",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RoomDetails",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false, defaultValueSql: "nextval('\"RoomDetailsIdSeq\"')"),
+                    RoomId = table.Column<int>(nullable: false),
+                    AdultsNumber = table.Column<int>(nullable: false, defaultValue: 0),
+                    InfantsNumber = table.Column<int>(nullable: false),
+                    ChildrenNumber = table.Column<int>(nullable: false, defaultValue: 0),
+                    ChildrenAges = table.Column<NpgsqlRange<int>>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoomDetails", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RoomDetails_Rooms_RoomId",
                         column: x => x.RoomId,
                         principalTable: "Rooms",
                         principalColumn: "Id",
@@ -180,29 +236,31 @@ namespace Hiroshima.DbData.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ContractRates",
+                name: "ContractedRates",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false, defaultValueSql: "nextval('\"RateIdSeq\"')"),
                     RoomId = table.Column<int>(nullable: false),
                     BoardBasisCode = table.Column<string>(nullable: true),
+                    MealPlanCode = table.Column<string>(nullable: true),
                     CurrencyCode = table.Column<string>(nullable: true),
                     ReleaseDays = table.Column<int>(nullable: false),
+                    MinimumStayDays = table.Column<int>(nullable: false),
                     SeasonPrice = table.Column<decimal>(type: "numeric", nullable: false),
                     ExtraPersonPrice = table.Column<decimal>(type: "numeric", nullable: false),
                     SeasonId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ContractRates", x => x.Id);
+                    table.PrimaryKey("PK_ContractedRates", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ContractRates_Rooms_RoomId",
+                        name: "FK_ContractedRates_Rooms_RoomId",
                         column: x => x.RoomId,
                         principalTable: "Rooms",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ContractRates_Seasons_SeasonId",
+                        name: "FK_ContractedRates_Seasons_SeasonId",
                         column: x => x.SeasonId,
                         principalTable: "Seasons",
                         principalColumn: "Id",
@@ -247,9 +305,9 @@ namespace Hiroshima.DbData.Migrations
                 {
                     table.PrimaryKey("PK_Booking", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Booking_ContractRates_ContractRateId",
+                        name: "FK_Booking_ContractedRates_ContractRateId",
                         column: x => x.ContractRateId,
-                        principalTable: "ContractRates",
+                        principalTable: "ContractedRates",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -287,19 +345,24 @@ namespace Hiroshima.DbData.Migrations
                 column: "ContractRateId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ContractRates_RoomId",
-                table: "ContractRates",
+                name: "IX_ContractedRates_RoomId",
+                table: "ContractedRates",
                 column: "RoomId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ContractRates_SeasonId",
-                table: "ContractRates",
+                name: "IX_ContractedRates_SeasonId",
+                table: "ContractedRates",
                 column: "SeasonId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Countries_RegionId",
                 table: "Countries",
                 column: "RegionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DiscountRates_RoomId",
+                table: "DiscountRates",
+                column: "RoomId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Localities_CountryCode",
@@ -318,8 +381,8 @@ namespace Hiroshima.DbData.Migrations
                 column: "LocalityId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PermittedOccupancies_RoomId",
-                table: "PermittedOccupancies",
+                name: "IX_RoomDetails_RoomId",
+                table: "RoomDetails",
                 column: "RoomId");
 
             migrationBuilder.CreateIndex(
@@ -333,6 +396,11 @@ namespace Hiroshima.DbData.Migrations
                 column: "AccommodationId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Seasons_CancelationPolicyId",
+                table: "Seasons",
+                column: "CancelationPolicyId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_StopSaleDates_RoomId",
                 table: "StopSaleDates",
                 column: "RoomId");
@@ -341,7 +409,6 @@ namespace Hiroshima.DbData.Migrations
             migrationBuilder.Sql(@"CREATE INDEX accommodations_name_smpl_fts_idx ON ""Accommodations"" USING GIN (to_tsvector('simple', ""Name""));");
             migrationBuilder.Sql(@"CREATE INDEX locations_address_eng_fts_idx ON ""Locations"" USING GIN (to_tsvector('english', ""Address""));");
             migrationBuilder.Sql(@"CREATE INDEX locations_address_smpl_fts_idx ON ""Locations"" USING GIN (to_tsvector('simple', ""Address""));");
-
             InitData.AddStaticData(migrationBuilder);
         }
 
@@ -351,16 +418,19 @@ namespace Hiroshima.DbData.Migrations
                 name: "Booking");
 
             migrationBuilder.DropTable(
+                name: "DiscountRates");
+
+            migrationBuilder.DropTable(
                 name: "Locations");
 
             migrationBuilder.DropTable(
-                name: "PermittedOccupancies");
+                name: "RoomDetails");
 
             migrationBuilder.DropTable(
                 name: "StopSaleDates");
 
             migrationBuilder.DropTable(
-                name: "ContractRates");
+                name: "ContractedRates");
 
             migrationBuilder.DropTable(
                 name: "Localities");
@@ -378,6 +448,9 @@ namespace Hiroshima.DbData.Migrations
                 name: "Accommodations");
 
             migrationBuilder.DropTable(
+                name: "CancelationPolicies");
+
+            migrationBuilder.DropTable(
                 name: "Regions");
 
             migrationBuilder.DropSequence(
@@ -387,16 +460,22 @@ namespace Hiroshima.DbData.Migrations
                 name: "BookingIdSeq");
 
             migrationBuilder.DropSequence(
+                name: "CancelationPolicyIdSeq");
+
+            migrationBuilder.DropSequence(
+                name: "DiscountRateIdSeq");
+
+            migrationBuilder.DropSequence(
                 name: "LocalityIdSeq");
 
             migrationBuilder.DropSequence(
                 name: "LocationIdSeq");
 
             migrationBuilder.DropSequence(
-                name: "PermittedOccupancyIdSeq");
+                name: "RateIdSeq");
 
             migrationBuilder.DropSequence(
-                name: "RateIdSeq");
+                name: "RoomDetailsIdSeq");
 
             migrationBuilder.DropSequence(
                 name: "RoomsIdSeq");

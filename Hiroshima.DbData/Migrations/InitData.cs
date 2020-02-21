@@ -266,13 +266,11 @@ namespace Hiroshima.DbData.Migrations
         ('UM', '{""Ar"": ""نائية التابعة للولايات المتحدة"", ""Cn"": ""美国本土外小岛屿"", ""En"": ""United States Minor Outlying Islands"", ""Es"": ""Islas menores alejadas de Estados Unidos"", ""Fr"": ""Îles mineures éloignées des États-Unis"", ""Ru"": ""Внешние малые острова Соединенных Штатов""}', 9)
          on conflict (""Code"") DO UPDATE
         SET (""RegionId"", ""Name"") = (excluded.""RegionId"", excluded.""Name"");";
-            migrationBuilder.Sql(sqlCountries); 
-        
+            migrationBuilder.Sql(sqlCountries);
+
             var sqlLocalities = @"insert into public.""Localities"" (""CountryCode"", ""Name"") VALUES 
                             ('AE', '{""Ar"": ""دبيّ"", ""Cn"": ""阿富汗"", ""En"": ""DUBAI"", ""Es"": ""DUBAI"", ""Fr"": ""DUBAI"", ""Ru"": ""ДУБАЙ""}')";
-                        migrationBuilder.Sql(sqlLocalities);
+            migrationBuilder.Sql(sqlLocalities);
         }
-
     }
-
 }

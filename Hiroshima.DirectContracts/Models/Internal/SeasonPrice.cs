@@ -2,7 +2,7 @@
 
 namespace Hiroshima.DirectContracts.Models.Internal
 {
-    public class SeasonDailyPrice
+    public class SeasonPrice
     {
         public string SeasonName { get; set; }
         public DateTime StartDate { get; set; }

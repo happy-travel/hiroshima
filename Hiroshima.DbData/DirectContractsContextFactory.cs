@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Hiroshima.DbData
 {
-    class DirectContractsContextFactory : IDesignTimeDbContextFactory<DirectContractsDbContext>
+    internal class DirectContractsContextFactory : IDesignTimeDbContextFactory<DirectContractsDbContext>
     {
         public DirectContractsDbContext CreateDbContext(string[] args)
         {
@@ -23,15 +23,16 @@ namespace Hiroshima.DbData
         {
             var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             var appSettings = string.IsNullOrEmpty(env)
-                ?"appsettings.json"
-                :$"appsettings.{env}.json";
-            
+                ? "appsettings.json"
+                : $"appsettings.{env}.json";
+
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))
-                .AddJsonFile(appSettings, optional: false, reloadOnChange: true)
+                .AddJsonFile(appSettings, false, true)
                 .Build();
             var dbOptions = GetDbOptions(configuration);
-            return $"server={dbOptions["host"]};port={dbOptions["port"]};database={dbOptions["database"]};userid={dbOptions["userId"]};password={dbOptions["password"]};";
+            return
+                $"server={dbOptions["host"]};port={dbOptions["port"]};database={dbOptions["database"]};userid={dbOptions["userId"]};password={dbOptions["password"]};";
         }
 
 
@@ -41,7 +42,7 @@ namespace Hiroshima.DbData
             {
                 Engine = configuration["Vault:Engine"],
                 Role = configuration["Vault:Role"],
-                BaseUrl = new Uri(configuration["Vault:Endpoint"])
+                BaseUrl = new Uri(Environment.GetEnvironmentVariable(configuration["Vault:Endpoint"]))
             }, null))
             {
                 vaultClient.Login(Environment.GetEnvironmentVariable(configuration["Vault:Token"])).Wait();
