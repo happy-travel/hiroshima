@@ -34,8 +34,7 @@ namespace Hiroshima.DirectContractsDataSeeder
             var dbContextOptions = new DbContextOptionsBuilder<DirectContractsDbContext>();
             using var vaultClient = StartupHelper.CreateVaultClient(configuration);
             vaultClient.Login(configuration[configuration["Vault:Token"]]).GetAwaiter().GetResult();
-            //var connectionString = StartupHelper.GetDbConnectionString(vaultClient, configuration);
-            var connectionString = "Server=localhost;Port=5433;Database=directcontracts;Userid=postgres;Password=postgress";
+            var connectionString = StartupHelper.GetDbConnectionString(vaultClient, configuration);
             dbContextOptions.UseNpgsql(connectionString, builder => builder.UseNetTopologySuite());
             return new DirectContractsDbContext(dbContextOptions.Options);
         }

@@ -5,16 +5,13 @@ using HappyTravel.EdoContracts.Accommodations.Enums;
 using Hiroshima.Common.Models;
 using Hiroshima.Common.Models.Enums;
 using Hiroshima.DbData;
-using Hiroshima.DbData.Models;
 using Hiroshima.DbData.Models.Accommodation;
 using Hiroshima.DbData.Models.Rooms;
 using Hiroshima.DbData.Models.Rooms.Occupancy;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.IO;
 using Newtonsoft.Json;
 using Location = Hiroshima.DbData.Models.Location;
-using PropertyTypes = Hiroshima.Common.Models.Enums.PropertyTypes;
 
 namespace Hiroshima.DirectContractsDataSeeder
 {
@@ -73,7 +70,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                 {
                     Id = hotelId,
                     Rating = AccommodationRating.FiveStars,
-                    PropertyType = PropertyTypes.Hotel,
+                    PropertyType = PropertyTypes.Hotels,
                     Name = new MultiLanguage<string>
                         {
                             Ar = "ون آند اونلي رويال ميراج",
@@ -3173,7 +3170,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                 {
                     Id = hotelId,
                     Rating = AccommodationRating.FiveStars,
-                    PropertyType = PropertyTypes.Hotel,
+                    PropertyType = PropertyTypes.Hotels,
                     Name = new MultiLanguage<string>
                     {
                         Ar = "برج العرب جميرا",

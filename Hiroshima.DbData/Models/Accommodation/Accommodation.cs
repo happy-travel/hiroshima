@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
+using HappyTravel.EdoContracts.Accommodations.Enums;
 using Hiroshima.Common.Models;
 using Hiroshima.Common.Models.Enums;
 using NetTopologySuite.Geometries;
-using PropertyTypes = Hiroshima.Common.Models.Enums.PropertyTypes;
 
 namespace Hiroshima.DbData.Models.Accommodation
 {
