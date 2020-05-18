@@ -3,15 +3,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using HappyTravel.VaultClient;
+using Hiroshima.Common.Infrastructure;
 using Hiroshima.DbData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Hiroshima.DirectContractsDataSeeder
 {
-    internal class Program
+    class Program
     {
-        private static void Main(string[] args)
+        static void Main(string[] args)
         {
             using var dbContext = CreateDbContext();
             DataSeeder.AddData(dbContext);
@@ -21,36 +23,22 @@ namespace Hiroshima.DirectContractsDataSeeder
 
         private static DirectContractsDbContext CreateDbContext()
         {
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))
+                .AddJsonFile("appsettings.json", 
+                    false,
+                    true)
+                .AddEnvironmentVariables()
+                .Build();
+            
             var dbContextOptions = new DbContextOptionsBuilder<DirectContractsDbContext>();
-            dbContextOptions.UseNpgsql(GetConnectionString(), builder => builder.UseNetTopologySuite());
+            using var vaultClient = StartupHelper.CreateVaultClient(configuration);
+            vaultClient.Login(configuration[configuration["Vault:Token"]]).GetAwaiter().GetResult();
+            //var connectionString = StartupHelper.GetDbConnectionString(vaultClient, configuration);
+            var connectionString = "Server=localhost;Port=5433;Database=directcontracts;Userid=postgres;Password=postgress";
+            dbContextOptions.UseNpgsql(connectionString, builder => builder.UseNetTopologySuite());
             return new DirectContractsDbContext(dbContextOptions.Options);
         }
 
-
-        private static string GetConnectionString()
-        {
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))
-                .AddJsonFile("appsettings.json", false, true)
-                .Build();
-            var dbOptions = GetDbOptions(configuration);
-            return
-                $"server={dbOptions["host"]};port={dbOptions["port"]};database={dbOptions["database"]};userid={dbOptions["userId"]};password={dbOptions["password"]};";
-        }
-
-
-        private static Dictionary<string, string> GetDbOptions(IConfiguration configuration)
-        {
-            using (var vaultClient = new VaultClient(new VaultOptions
-            {
-                Engine = configuration["Vault:Engine"],
-                Role = configuration["Vault:Role"],
-                BaseUrl = new Uri(Environment.GetEnvironmentVariable(configuration["Vault:Endpoint"]))
-            }, null))
-            {
-                vaultClient.Login(Environment.GetEnvironmentVariable(configuration["Vault:Token"])).Wait();
-                return vaultClient.Get(configuration["Booking:Database:Options"]).Result;
-            }
-        }
     }
 }

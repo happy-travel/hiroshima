@@ -1,6 +1,6 @@
 ﻿namespace Hiroshima.Common.Models.Enums
 {
-    public enum Language
+    public enum Languages
     {
         Unknown = 0,
         Ar = 1,
