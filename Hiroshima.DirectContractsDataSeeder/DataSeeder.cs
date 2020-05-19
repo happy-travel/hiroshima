@@ -77,22 +77,21 @@ namespace Hiroshima.DirectContractsDataSeeder
                             En = "ONE&ONLY ROYAL MIRAGE",
                             Ru = "ONE&ONLY ROYAL MIRAGE"
                         },
-                    TextualDescription =
-                        new List<TextualDescription>
+                    TextualDescription = new MultiLanguage<TextualDescription>
+                    {
+                        En = new TextualDescription
                         {
-                            new TextualDescription
-                            {
-                                Description = new MultiLanguage<string>
-                                {
-                                    Ar =
-                                        "65 فدان من الحدائق الغناء وكيلومتر من الشواطئ الخاصة تمثل أنموذجاً للسلاموالرخاء منقطعا النظير.",
-                                    En =
-                                        "Set in 65 acres of lush gardens and a kilometer of private beach, peaceful lives in remarkable opulence.",
-                                    Ru =
-                                        "26 гектаров ландшафтных садов, собственный пляж протяженностью в один километр, умиротворенная обстановка и роскошное окружение.",
-                                }
-                            }
+                            Description = "Set in 65 acres of lush gardens and a kilometer of private beach, peaceful lives in remarkable opulence.",
                         },
+                        Ar = new TextualDescription
+                        {
+                            Description = "65 فدان من الحدائق الغناء وكيلومتر من الشواطئ الخاصة تمثل أنموذجاً للسلاموالرخاء منقطعا النظير."
+                        },
+                        Ru = new TextualDescription
+                        {
+                            Description = "26 гектаров ландшафтных садов, собственный пляж протяженностью в один километр, умиротворенная обстановка и роскошное окружение."
+                        }
+                    },
                     Address = new MultiLanguage<string>
                     {
                         Ar = "شارع الملك سلمان بن عبدالعزيز آل سعود - دبي",
@@ -100,46 +99,52 @@ namespace Hiroshima.DirectContractsDataSeeder
                         Ru = "King Salman Bin Abdulaziz Al Saud St - Dubai - ОАЭ"
                     },
                     Contacts = new Contacts {Email = "info@oneandonlythepalm.com", Phone = "+ 971 4 440 1010"},
-                    AccommodationAmenities = new List<MultiLanguage<string>>
+                    AccommodationAmenities = new MultiLanguage<List<string>>
                     {
-                        new MultiLanguage<string>
+                        En =  new List<string>
                         {
-                            Ar =
-                                @"يعتبر تناول الطعام في ون آند أونلي رويال ميراج متعة بحد ذاتها بفضل ثمانية مطاعم مختلفة في ذا بالاس والردهة العربية والإقامة والسبا. ويقدم كل منها تجربة فريدة لاكتشاف أشهى المأكولات في أجواء مميزة ومبتكرة. ويوفر ذا بالاس أربعة مطاعم مختلفة؛ حيث تُقدَّم القوائم المتوسطية في أوليفز، والمأكولات المغربية الاستثنائية في طاجين، والمأكولات العالمية الكلاسيكية في مطعم المشاهير، والسلطات الطازجة وثمار البحر في بار ومطعم الشاطئ للمشويات. ويمكن للضيوف اكتشاف أشهى النكهات الهندو-أوروبية في نينا، أو تذوق أصنافهم المفضلة طوال اليوم من أطباق الشرق الأوسط وشمال أوروبا في ذا روتيسيري، أو تناول الطعام في مجلس عائم مطل على الخليج العربي في مطعم أوزون الذي يقدم المأكولات العالمية بلمسة آسيوية. وتعرض قاعة الطعام قوائم ملهمة ومبتكرة حصريًا لضيوف المساكن والسبا.",
-                            En =
-                                @"Dining at One&Only Royal Mirage is a unique journey within eight different restaurants between The Palace, Arabian Court and Residence & Spa. Each venue presents an authentic culinary experience in a distinctive environment. The Palace offers four different restaurants, including Mediterranean flavours at Olives, exceptional Moroccan fare at Tagine, an elegant dining on European cuisine at Celebrities, and fresh grilled seafood and bright salads at The Beach Bar & Grill. Within Arabian Court, guests may discover seductive Indo-European flavours at Nina, savour all-day dining on traditional recipes from the Middle East and northern Europe at The Rotisserie, or experience the floating majlis overlooking the Arabian Gulf at Eauzone featuring international cuisine with an Asian twist. Exclusive to guests at Residence & Spa, The Dining Room showcases inspired menus of fresh creativity.",
-                            Ru =
-                                @"Ужин или обед на курорте One&Only Royal Mirage — это уникальное путешествие, в котором вас ждут восемь ресторанов, расположенных в корпусах The Palace, Arabian Court и Residence & Spa. Каждый из ресторанов дарит гостям уникальный гастрономический опыт в неповторимой обстановке. В корпусе The Palace расположены четыре ресторана, включая ресторан средиземноморской кухни Olives, ресторан марокканской кухни Tagine, ресторан Celebrities с элегантным интерьером и европейской кухней, а также гриль-бар Beach Bar & Grill, где вам предложат блюда из свежих морепродуктов на гриле и великолепные салаты. В корпусе Arabian Court гостей ждут соблазнительные блюда индоевропейской кухни ресторана Nina, а в ресторане The Rotisserie в течение всего дня можно оценить блюда, приготовленные по традиционным рецептам кухни Ближнего Востока и Северной Европы. В ресторане Eauzone можно удобно устроиться в плавающем меджлисе с видом на Персидский залив и заказать блюда международной кухни с азиатскими нотками. Ресторан Dining Room, обслуживающий исключительно гостей корпуса Residence & Spa, отличается творческим подходом к составлению меню и приготовлению блюд."
+                            @"Dining at One&Only Royal Mirage is a unique journey within eight different restaurants between The Palace, Arabian Court and Residence & Spa. Each venue presents an authentic culinary experience in a distinctive environment. The Palace offers four different restaurants, including Mediterranean flavours at Olives, exceptional Moroccan fare at Tagine, an elegant dining on European cuisine at Celebrities, and fresh grilled seafood and bright salads at The Beach Bar & Grill. Within Arabian Court, guests may discover seductive Indo-European flavours at Nina, savour all-day dining on traditional recipes from the Middle East and northern Europe at The Rotisserie, or experience the floating majlis overlooking the Arabian Gulf at Eauzone featuring international cuisine with an Asian twist. Exclusive to guests at Residence & Spa, The Dining Room showcases inspired menus of fresh creativity.", 
+                            @"Dubai boasts 10 spectacular golf courses within easy reach of One&Only Royal Mirage, with Emirates Golf Club and Montgomerie just minutes away.",
+                            @"Spirits elevate as you indulge in a range of holistic experiences designed to restore mind, body and soul at One&Only Spa. At the Traditional Oriental Hammam, let the body ease slowly into the rising heat and steam whilst the sounds of rippling water relaxes the mind."
                         },
-                        new MultiLanguage<string>
+                        Ar = new List<string>
                         {
-                            Ar =
-                                @"تضم دبي 10 ملاعب جولف ضمن مسافة قريبة من ون آند أونلي رويال ميراج، ولا يبعد نادي الإمارات للجولف ونادي مونتغمري إلا بضع دقائق.",
-                            En =
-                                @"Dubai boasts 10 spectacular golf courses within easy reach of One&Only Royal Mirage, with Emirates Golf Club and Montgomerie just minutes away.",
-                            Ru =
-                                @"В Дубае, недалеко от курорта One&Only Royal Mirage, находится 10 роскошных полей для гольфа, а гольф-клубы Emirates Golf Club и Montgomerie также расположены в непосредственной близости."
+                            @"يعتبر تناول الطعام في ون آند أونلي رويال ميراج متعة بحد ذاتها بفضل ثمانية مطاعم مختلفة في ذا بالاس والردهة العربية والإقامة والسبا. ويقدم كل منها تجربة فريدة لاكتشاف أشهى المأكولات في أجواء مميزة ومبتكرة. ويوفر ذا بالاس أربعة مطاعم مختلفة؛ حيث تُقدَّم القوائم المتوسطية في أوليفز، والمأكولات المغربية الاستثنائية في طاجين، والمأكولات العالمية الكلاسيكية في مطعم المشاهير، والسلطات الطازجة وثمار البحر في بار ومطعم الشاطئ للمشويات. ويمكن للضيوف اكتشاف أشهى النكهات الهندو-أوروبية في نينا، أو تذوق أصنافهم المفضلة طوال اليوم من أطباق الشرق الأوسط وشمال أوروبا في ذا روتيسيري، أو تناول الطعام في مجلس عائم مطل على الخليج العربي في مطعم أوزون الذي يقدم المأكولات العالمية بلمسة آسيوية. وتعرض قاعة الطعام قوائم ملهمة ومبتكرة حصريًا لضيوف المساكن والسبا.",
+                            @"تضم دبي 10 ملاعب جولف ضمن مسافة قريبة من ون آند أونلي رويال ميراج، ولا يبعد نادي الإمارات للجولف ونادي مونتغمري إلا بضع دقائق.",
+                            "ترتقي روحك وتسمو بينما تنغمس في ملذات التجارب الشاملة المصممة لاستعادة العقل والبدن والروح في منتجع ون آند أونلي سبا. ادخل الحمام الشرقي ودع بدنك يرتاح ببطء عبر الحرارة والبخار المتصاعد بينما تبث أصوات الماء المترقرقة الاسترخاء في العقل."
                         },
-                        new MultiLanguage<string>
+                        Ru = new List<string>
                         {
-                            Ar =
-                                "ترتقي روحك وتسمو بينما تنغمس في ملذات التجارب الشاملة المصممة لاستعادة العقل والبدن والروح في منتجع ون آند أونلي سبا. ادخل الحمام الشرقي ودع بدنك يرتاح ببطء عبر الحرارة والبخار المتصاعد بينما تبث أصوات الماء المترقرقة الاسترخاء في العقل.",
-                            En =
-                                @"Spirits elevate as you indulge in a range of holistic experiences designed to restore mind, body and soul at One&Only Spa. At the Traditional Oriental Hammam, let the body ease slowly into the rising heat and steam whilst the sounds of rippling water relaxes the mind.",
-                            Ru =
-                                @"Процедуры для восстановления равновесия разума, тела и души в спа-центре One&Only обновят вашу жизненную энергию. Позвольте теплым парам традиционного восточного хаммама расслабить ваше тело, пока струящаяся вода успокаивает мысли."
+                            @"Ужин или обед на курорте One&Only Royal Mirage — это уникальное путешествие, в котором вас ждут восемь ресторанов, расположенных в корпусах The Palace, Arabian Court и Residence & Spa. Каждый из ресторанов дарит гостям уникальный гастрономический опыт в неповторимой обстановке. В корпусе The Palace расположены четыре ресторана, включая ресторан средиземноморской кухни Olives, ресторан марокканской кухни Tagine, ресторан Celebrities с элегантным интерьером и европейской кухней, а также гриль-бар Beach Bar & Grill, где вам предложат блюда из свежих морепродуктов на гриле и великолепные салаты. В корпусе Arabian Court гостей ждут соблазнительные блюда индоевропейской кухни ресторана Nina, а в ресторане The Rotisserie в течение всего дня можно оценить блюда, приготовленные по традиционным рецептам кухни Ближнего Востока и Северной Европы. В ресторане Eauzone можно удобно устроиться в плавающем меджлисе с видом на Персидский залив и заказать блюда международной кухни с азиатскими нотками. Ресторан Dining Room, обслуживающий исключительно гостей корпуса Residence & Spa, отличается творческим подходом к составлению меню и приготовлению блюд.",
+                            @"В Дубае, недалеко от курорта One&Only Royal Mirage, находится 10 роскошных полей для гольфа, а гольф-клубы Emirates Golf Club и Montgomerie также расположены в непосредственной близости.",
+                            @"Процедуры для восстановления равновесия разума, тела и души в спа-центре One&Only обновят вашу жизненную энергию. Позвольте теплым парам традиционного восточного хаммама расслабить ваше тело, пока струящаяся вода успокаивает мысли."
                         }
                     },
-                    Pictures = new List<Picture>
+                    Pictures = new MultiLanguage<List<Picture>>
                     {
-                        new Picture
+                        En = new List<Picture>
                         {
-                            Caption = new MultiLanguage<string>
+                            new Picture
                             {
-                                Ar = "ون آند اونلي رويال ميراج", En = "ONE&ONLY ROYAL MIRAGE"
-                            },
-                            Source =
-                                "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6HkA4WClkmu3oOM0iuENG66UC6iKZNUrefe0iJ__MX5ZbValF"
+                                Source = "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6HkA4WClkmu3oOM0iuENG66UC6iKZNUrefe0iJ__MX5ZbValF",
+                                Caption = "ONE&ONLY ROYAL MIRAGE"
+                            }
+                        },
+                        Ar = new List<Picture>
+                        {
+                            new Picture
+                            {
+                                Source = "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6HkA4WClkmu3oOM0iuENG66UC6iKZNUrefe0iJ__MX5ZbValF",
+                                Caption = "ون آند اونلي رويال ميراج"
+                            }
+                        },
+                        Ru = new List<Picture>
+                        {
+                            new Picture
+                            {
+                                Source = "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6HkA4WClkmu3oOM0iuENG66UC6iKZNUrefe0iJ__MX5ZbValF",
+                                Caption = "ONE&ONLY ROYAL MIRAGE"
+                            }
                         }
                     },
                     CheckInTime = "13:00",
@@ -168,20 +173,11 @@ namespace Hiroshima.DirectContractsDataSeeder
                             Ru = "",
                             Ar = ""
                         },
-                        Amenities = new List<MultiLanguage<string>>
+                        Amenities = new MultiLanguage<List<string>>
                         {
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            },
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            }
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
                         },
                         #region PermittedOccupancies
                         PermittedOccupancies = new PermittedOccupancies
@@ -269,20 +265,11 @@ namespace Hiroshima.DirectContractsDataSeeder
                             Ru = "",
                             Ar = ""
                         },
-                        Amenities = new List<MultiLanguage<string>>
+                        Amenities = new MultiLanguage<List<string>>
                         {
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            },
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            }
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
                         },
                          #region PermittedOccupancies
                         PermittedOccupancies = new PermittedOccupancies
@@ -370,20 +357,11 @@ namespace Hiroshima.DirectContractsDataSeeder
                             Ru = "",
                             Ar = ""
                         },
-                        Amenities = new List<MultiLanguage<string>>
+                        Amenities = new MultiLanguage<List<string>>
                         {
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            },
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            }
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
                         },
                          #region PermittedOccupancies
                         PermittedOccupancies = new PermittedOccupancies
@@ -470,20 +448,11 @@ namespace Hiroshima.DirectContractsDataSeeder
                             Ru = "",
                             Ar = ""
                         },
-                        Amenities = new List<MultiLanguage<string>>
+                        Amenities = new MultiLanguage<List<string>>
                         {
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            },
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            }
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
                         },
                          #region PermittedOccupancies
                         PermittedOccupancies = new PermittedOccupancies
@@ -571,20 +540,11 @@ namespace Hiroshima.DirectContractsDataSeeder
                             Ru = "",
                             Ar = ""
                         },
-                        Amenities = new List<MultiLanguage<string>>
+                        Amenities = new MultiLanguage<List<string>>
                         {
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            },
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            }
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
                         },
                         #region PermittedOccupancies
                         PermittedOccupancies = new PermittedOccupancies
@@ -636,20 +596,11 @@ namespace Hiroshima.DirectContractsDataSeeder
                             Ru = "",
                             Ar = ""
                         },
-                        Amenities = new List<MultiLanguage<string>>
+                        Amenities = new MultiLanguage<List<string>>
                         {
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            },
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            }
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
                         },
                         #region PermittedOccupancies
                         PermittedOccupancies = new PermittedOccupancies
@@ -701,20 +652,11 @@ namespace Hiroshima.DirectContractsDataSeeder
                             Ru = "",
                             Ar = ""
                         },
-                        Amenities = new List<MultiLanguage<string>>
+                        Amenities = new MultiLanguage<List<string>>
                         {
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            },
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            }
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
                         },
                         #region PermittedOccupancies
                         PermittedOccupancies = new PermittedOccupancies
@@ -766,20 +708,11 @@ namespace Hiroshima.DirectContractsDataSeeder
                             Ru = "",
                             Ar = ""
                         },
-                        Amenities = new List<MultiLanguage<string>>
+                        Amenities = new MultiLanguage<List<string>>
                         {
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            },
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            }
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
                         },
                          #region PermittedOccupancies
                         PermittedOccupancies = new PermittedOccupancies
@@ -867,20 +800,11 @@ namespace Hiroshima.DirectContractsDataSeeder
                             Ru = "",
                             Ar = ""
                         },
-                        Amenities = new List<MultiLanguage<string>>
+                        Amenities = new MultiLanguage<List<string>>
                         {
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            },
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            }
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
                         },
                          #region PermittedOccupancies
                         PermittedOccupancies = new PermittedOccupancies
@@ -932,20 +856,11 @@ namespace Hiroshima.DirectContractsDataSeeder
                             Ru = "",
                             Ar = ""
                         },
-                        Amenities = new List<MultiLanguage<string>>
+                        Amenities = new MultiLanguage<List<string>>
                         {
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            },
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            }
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
                         },
                         #region PermittedOccupancies
                         PermittedOccupancies = new PermittedOccupancies
@@ -1033,20 +948,11 @@ namespace Hiroshima.DirectContractsDataSeeder
                             Ru = "",
                             Ar = ""
                         },
-                        Amenities = new List<MultiLanguage<string>>
+                        Amenities = new MultiLanguage<List<string>>
                         {
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            },
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            }
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
                         },
                         #region PermittedOccupancies
                         PermittedOccupancies = new PermittedOccupancies
@@ -1098,20 +1004,11 @@ namespace Hiroshima.DirectContractsDataSeeder
                             Ru = "",
                             Ar = ""
                         },
-                        Amenities = new List<MultiLanguage<string>>
+                        Amenities = new MultiLanguage<List<string>>
                         {
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            },
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            }
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
                         },
                          #region PermittedOccupancies
                         PermittedOccupancies = new PermittedOccupancies
@@ -1199,20 +1096,11 @@ namespace Hiroshima.DirectContractsDataSeeder
                             Ru = "",
                             Ar = ""
                         },
-                        Amenities = new List<MultiLanguage<string>>
+                        Amenities = new MultiLanguage<List<string>>
                         {
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            },
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            }
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
                         },
                          #region PermittedOccupancies
                         PermittedOccupancies = new PermittedOccupancies
@@ -1300,20 +1188,11 @@ namespace Hiroshima.DirectContractsDataSeeder
                             Ru = "",
                             Ar = ""
                         },
-                        Amenities = new List<MultiLanguage<string>>
+                        Amenities = new MultiLanguage<List<string>>
                         {
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            },
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            }
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
                         },
                          #region PermittedOccupancies
                         PermittedOccupancies = new PermittedOccupancies
@@ -1401,20 +1280,11 @@ namespace Hiroshima.DirectContractsDataSeeder
                             Ru = "",
                             Ar = ""
                         },
-                        Amenities = new List<MultiLanguage<string>>
+                        Amenities = new MultiLanguage<List<string>>
                         {
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            },
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            }
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
                         },
                          #region PermittedOccupancies
                         PermittedOccupancies = new PermittedOccupancies
@@ -1502,20 +1372,11 @@ namespace Hiroshima.DirectContractsDataSeeder
                             Ru = "",
                             Ar = ""
                         },
-                        Amenities = new List<MultiLanguage<string>>
+                        Amenities = new MultiLanguage<List<string>>
                         {
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            },
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            }
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
                         },
                          #region PermittedOccupancies
                         PermittedOccupancies = new PermittedOccupancies
@@ -3177,23 +3038,21 @@ namespace Hiroshima.DirectContractsDataSeeder
                         En = "Burj Al Arab Jumeirah",
                         Ru = "Burj Al Arab Jumeirah"
                     },
-                    TextualDescription =
-                        new List<TextualDescription>
+                    TextualDescription = new MultiLanguage<TextualDescription>
+                    {
+                        En = new TextualDescription
                         {
-                            new TextualDescription
-                            {
-                                Description = new MultiLanguage<string>
-                                {
-                                    Ar =
-                                        "يقف فندق برج العرب جميرا الشهير شامخًا على شكل شراع وكأنه منارة دبي الحديثة، ويتسم بأجود وأرقى الضيافات التي يمكن أن تمر بها على الإطلاق.",
-                                    En =
-                                        "The iconic sail-shaped silhoutte of Burj Al Arab Jumeirah stands tall as a beacon of modern Dubai, characterized by the finest hospitality you can ever experience.",
-                                    Ru =
-                                        "Легендарный отель Burj Al Arab Jumeirah известен своим непревзойденным уровнем обслуживания и гостеприимства, а его высокий силуэт в форме паруса служит маяком современного Дубая.",
-                                },
-                                Type = TextualDescriptionTypes.General
-                            }
+                            Description = "The iconic sail-shaped silhoutte of Burj Al Arab Jumeirah stands tall as a beacon of modern Dubai, characterized by the finest hospitality you can ever experience."
                         },
+                        Ar = new TextualDescription
+                        {
+                            Description = "يقف فندق برج العرب جميرا الشهير شامخًا على شكل شراع وكأنه منارة دبي الحديثة، ويتسم بأجود وأرقى الضيافات التي يمكن أن تمر بها على الإطلاق."
+                        },
+                        Ru = new TextualDescription
+                        {
+                            Description = "Легендарный отель Burj Al Arab Jumeirah известен своим непревзойденным уровнем обслуживания и гостеприимства, а его высокий силуэт в форме паруса служит маяком современного Дубая."
+                        }
+                    },
                     Address = new MultiLanguage<string>
                     {
                         Ar = "شارع الملك سلمان بن عبدالعزيز آل سعود - دبي",
@@ -3205,46 +3064,45 @@ namespace Hiroshima.DirectContractsDataSeeder
                         Email = "info@jumeirah.com",
                         Phone = "+971 4 3665000"
                     },
-                    AccommodationAmenities = new List<MultiLanguage<string>>
+                    AccommodationAmenities = new MultiLanguage<List<string>>
                     {
-                        new MultiLanguage<string>
+                        En = new List<string>
                         {
-                            Ar =
-                                @"201 جناح دوبلكس فخم",
-                            En =
-                                @"201 luxurious duplex suites",
-                            Ru =
-                                @"201 роскошный двухэтажный номер люкс"
+                            @"201 luxurious duplex suites",
+                            @"Nine world-class restaurants and bars",
+                            @"Five swimming pools (three outdoor, two indoor) and a private beach"
                         },
-                        new MultiLanguage<string>
+                        Ar = new List<string>
                         {
-                            Ar =
-                                @"تسعة مقاهي ومطاعم عالمية",
-                            En =
-                                @"Nine world-class restaurants and bars",
-                            Ru =
-                                @"Девять ресторанов и баров мирового класса"
+                            @"201 جناح دوبلكس فخم",
+                            @"تسعة مقاهي ومطاعم عالمية",
+                            "خمسة مسابح (ثلاثة خارجيون، اثنان داخليان) وشاطئ خاص",
                         },
-                        new MultiLanguage<string>
-                        {
-                            Ar =
-                                "خمسة مسابح (ثلاثة خارجيون، اثنان داخليان) وشاطئ خاص",
-                            En =
-                                @"Five swimming pools (three outdoor, two indoor) and a private beach",
-                            Ru =
-                                @"Пять плавательных бассейнов (три открытых и два крытых) и частный пляж"
+                        Ru = new List<string>{
+                            @"201 роскошный двухэтажный номер люкс",
+                            @"Девять ресторанов и баров мирового класса", 
+                            @"Пять плавательных бассейнов (три открытых и два крытых) и частный пляж"
                         }
                     },
-                    Pictures = new List<Picture>
+                    Pictures = new MultiLanguage<List<Picture>>
                     {
-                        new Picture
+                        En = new List<Picture>
                         {
-                            Caption = new MultiLanguage<string>
+                            new Picture
                             {
-                                Ar = "برج العرب جميرا", En = "Burj Al Arab Jumeirah"
-                            },
-                            Source =
+                                Caption = "Burj Al Arab Jumeirah",
+                                Source =
+                                    "https://mediastream.jumeirah.com/webimage/image1152x648//globalassets/global/hotels-and-resorts/dubai/burj-al-arab/homepage-audit/burj-al-arab-jumeirah-terrace-hero.jpg"
+                            }
+                        },
+                        Ru = new List<Picture>
+                        {
+                            new Picture
+                            {
+                                Caption = "برج العرب جميرا",
+                                Source =
                                 "https://mediastream.jumeirah.com/webimage/image1152x648//globalassets/global/hotels-and-resorts/dubai/burj-al-arab/homepage-audit/burj-al-arab-jumeirah-terrace-hero.jpg"
+                            }
                         }
                     },
                     CheckInTime = "14:00",
@@ -3272,20 +3130,11 @@ namespace Hiroshima.DirectContractsDataSeeder
                             Ru = "",
                             Ar = ""
                         },
-                        Amenities = new List<MultiLanguage<string>>
+                        Amenities = new MultiLanguage<List<string>>
                         {
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            },
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            }
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
                         },
                        
                         PermittedOccupancies = new PermittedOccupancies
@@ -3478,20 +3327,11 @@ namespace Hiroshima.DirectContractsDataSeeder
                             Ru = "",
                             Ar = ""
                         },
-                        Amenities = new List<MultiLanguage<string>>
+                        Amenities = new MultiLanguage<List<string>>
                         {
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            },
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            }
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
                         },
                        
                        PermittedOccupancies = new PermittedOccupancies
@@ -3684,20 +3524,11 @@ namespace Hiroshima.DirectContractsDataSeeder
                             Ru = "",
                             Ar = ""
                         },
-                        Amenities = new List<MultiLanguage<string>>
+                        Amenities = new MultiLanguage<List<string>>
                         {
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            },
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = "",
-                            }
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
                         },
                        
                         PermittedOccupancies = new PermittedOccupancies
@@ -4168,20 +3999,11 @@ namespace Hiroshima.DirectContractsDataSeeder
                             Ru = "",
                             Ar = ""
                         },
-                        Amenities = new List<MultiLanguage<string>>
+                        Amenities = new MultiLanguage<List<string>>
                         {
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = ""
-                            },
-                            new MultiLanguage<string>
-                            {
-                                En = "",
-                                Ru = "",
-                                Ar = ""
-                            }
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
                         },
                        
                         PermittedOccupancies = new PermittedOccupancies
@@ -5394,656 +5216,6 @@ namespace Hiroshima.DirectContractsDataSeeder
                 
                 #endregion
                 dbContext.SaveChanges();
-/*
-                          
-                #region AddRooms
-
-                dbContext.Rooms.AddRange(new[]
-                {
-                    new Room
-                    {
-                        Id = 71,
-                        AccommodationId = hotelId,
-                        Name = new MultiLanguage<string>
-                        {
-                            En = "One Bedroom Deluxe Suite"
-                        }
-                    },
-                    new Room
-                    {
-                        Id = 72,
-                        AccommodationId = hotelId,
-                        Name = new MultiLanguage<string>
-                        {
-                            En = "Panoramic One Bedroom Suite"
-                        }
-                    },
-                    new Room
-                    {
-                        Id = 73,
-                        AccommodationId = hotelId,
-                        Name = new MultiLanguage<string>
-                        {
-                            En = "Two Bedroom Delux Suite"
-                        }
-                    },
-                    new Room
-                    {
-                        Id = 74,
-                        AccommodationId = hotelId,
-                        Name = new MultiLanguage<string>
-                        {
-                            En = "Diplomatic Three Bedroom Suite"
-                        }
-                    }
-                });
-
-                #endregion
-
-
-                #region AddPrices
-
-                FillRates(
-                    dbContext,
-                    new[] {51},
-                    new List<(int, decimal)>
-                    {
-                        (71, 7321),
-                        (72, 7809),
-                        (73, 10981),
-                        (74, 18302)
-                    });
-
-                FillRates(
-                    dbContext,
-                    new[] {52},
-                    new List<(int, decimal)>
-                    {
-                        (71, 9273),
-                        (72, 10005),
-                        (73, 13909),
-                        (74, 23182)
-                    });
-
-                FillRates(
-                    dbContext,
-                    new[] {53},
-                    new List<(int, decimal)>
-                    {
-                        (71, 11225),
-                        (72, 12201),
-                        (73, 22450),
-                        (74, 33675)
-                    });
-
-                FillRates(
-                    dbContext,
-                    new[] {54},
-                    new List<(int, decimal)>
-                    {
-                        (71, 9273),
-                        (72, 10005),
-                        (73, 13909),
-                        (74, 23182)
-                    });
-
-                FillRates(
-                    dbContext,
-                    new[] {55},
-                    new List<(int, decimal)>
-                    {
-                        (71, 11225),
-                        (72, 12201),
-                        (73, 22450),
-                        (74, 33675)
-                    });
-
-                FillRates(
-                    dbContext,
-                    new[] {56},
-                    new List<(int, decimal)>
-                    {
-                        (71, 9273),
-                        (72, 10005),
-                        (73, 13909),
-                        (74, 23182)
-                    });
-
-                FillRates(
-                    dbContext,
-                    new[] {57},
-                    new List<(int, decimal)>
-                    {
-                        (71, 6345),
-                        (72, 6833),
-                        (73, 9517),
-                        (74, 15862)
-                    });
-
-                FillRates(
-                    dbContext,
-                    new[] {58},
-                    new List<(int, decimal)>
-                    {
-                        (71, 7321),
-                        (72, 7809),
-                        (73, 10981),
-                        (74, 18302)
-                    });
-
-                FillRates(
-                    dbContext,
-                    new[] {59},
-                    new List<(int, decimal)>
-                    {
-                        (71, 9273),
-                        (72, 10005),
-                        (73, 13909),
-                        (74, 23182)
-                    });
-
-                FillRates(
-                    dbContext,
-                    new[] {60},
-                    new List<(int, decimal)>
-                    {
-                        (71, 11225),
-                        (72, 12201),
-                        (73, 22450),
-                        (74, 33675)
-                    });
-
-                FillRates(
-                    dbContext,
-                    new[] {61},
-                    new List<(int, decimal)>
-                    {
-                        (71, 9273),
-                        (72, 10005),
-                        (73, 13909),
-                        (74, 23182)
-                    });
-
-                FillRates(
-                    dbContext,
-                    new[] {62},
-                    new List<(int, decimal)>
-                    {
-                        (71, 7321),
-                        (72, 7809),
-                        (73, 10981),
-                        (74, 18302)
-                    });
-
-                FillRates(
-                    dbContext,
-                    new[] {63},
-                    new List<(int, decimal)>
-                    {
-                        (71, 9273),
-                        (72, 10005),
-                        (73, 13909),
-                        (74, 23182)
-                    });
-
-                FillRates(
-                    dbContext,
-                    new[] {64},
-                    new List<(int, decimal)>
-                    {
-                        (71, 13177),
-                        (72, 14153),
-                        (73, 26355),
-                        (74, 39532)
-                    });
-
-                FillRates(
-                    dbContext,
-                    new[] {65},
-                    new List<(int, decimal)>
-                    {
-                        (71, 9273),
-                        (72, 10005),
-                        (73, 13909),
-                        (74, 23182)
-                    });
-
-                #endregion
-
-                #region AddStopSaleDates //Test data
-
-                //Panoramic Suite
-                dbContext.StopSaleDates.AddRange(new StopSaleDate
-                {
-                    RoomId = 72,
-                    StartDate = new DateTime(2019, 9, 28),
-                    EndDate = new DateTime(2019, 9, 28)
-                }, new StopSaleDate
-                {
-                    RoomId = 72,
-                    StartDate = new DateTime(2019, 9, 30),
-                    EndDate = new DateTime(2019, 9, 30)
-                },
-                new StopSaleDate
-                {
-                    RoomId = 72,
-                    StartDate = new DateTime(2019, 10, 1),
-                    EndDate = new DateTime(2019, 10, 1)
-                },
-                new StopSaleDate
-                {
-                    RoomId = 73,
-                    StartDate = new DateTime(2019, 10, 11),
-                    EndDate = new DateTime(2019, 10, 12)
-                },
-                new StopSaleDate
-                {
-                    RoomId = 73,
-                    StartDate = new DateTime(2020, 10, 19),
-                    EndDate = new DateTime(2020, 10, 19)
-                },
-                new StopSaleDate
-                {
-                    RoomId = 73,
-                    StartDate = new DateTime(2020, 10, 26),
-                    EndDate = new DateTime(2020, 10, 27)
-                });
-
-                #endregion
-
-                #region Permitted Occupancies
-
-                dbContext.PermittedOccupancies.AddRange(
-                    new PermittedOccupancy
-                    {
-                        RoomId = 71,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 71,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 71,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 1,
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 71,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 71,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 0,
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 71,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 2,
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 71,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 1,
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 71,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 2,
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 72,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 72,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 72,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 1
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 72,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 0
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 72,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 2
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 72,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 1
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 72,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 2
-                    },
-
-                    new PermittedOccupancy
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 1
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 0
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 2
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 0
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 1
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 2
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 3
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 5,
-                        ChildrenNumber = 0
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 1
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 2
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 3
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 4
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 5,
-                        ChildrenNumber = 1
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 2
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 3
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 4
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 5
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 5
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 1
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 0
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 2
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 0
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 1
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 2
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 3
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 5,
-                        ChildrenNumber = 0
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 1
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 2
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 3
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 4
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 6,
-                        ChildrenNumber = 0
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 5,
-                        ChildrenNumber = 1
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 2
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 3
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 4
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 1,
-                        ChildrenNumber =5
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 7,
-                        ChildrenNumber = 0
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 6,
-                        ChildrenNumber = 1
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 5,
-                        ChildrenNumber = 2
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 3
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 4
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 5
-                    },
-                    new PermittedOccupancy
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 6
-                    });
-
-                #endregion region
-
-               dbContext.SaveChanges();
-               */
             }
         }
 

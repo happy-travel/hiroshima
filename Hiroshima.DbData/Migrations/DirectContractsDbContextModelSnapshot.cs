@@ -35,10 +35,10 @@ namespace Hiroshima.DbData.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<List<MultiLanguage<string>>>("AccommodationAmenities")
+                    b.Property<MultiLanguage<List<string>>>("AccommodationAmenities")
                         .HasColumnType("jsonb");
 
-                    b.Property<Dictionary<string, MultiLanguage<string>>>("AdditionalInfo")
+                    b.Property<MultiLanguage<Dictionary<string, string>>>("AdditionalInfo")
                         .HasColumnType("jsonb");
 
                     b.Property<MultiLanguage<string>>("Address")
@@ -66,7 +66,7 @@ namespace Hiroshima.DbData.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
-                    b.Property<List<Picture>>("Pictures")
+                    b.Property<MultiLanguage<List<Picture>>>("Pictures")
                         .HasColumnType("jsonb");
 
                     b.Property<int>("PropertyType")
@@ -78,7 +78,7 @@ namespace Hiroshima.DbData.Migrations
                     b.Property<List<string>>("RoomAmenities")
                         .HasColumnType("jsonb");
 
-                    b.Property<List<TextualDescription>>("TextualDescription")
+                    b.Property<MultiLanguage<TextualDescription>>("TextualDescription")
                         .HasColumnType("jsonb");
 
                     b.HasKey("Id");
@@ -167,7 +167,7 @@ namespace Hiroshima.DbData.Migrations
                     b.Property<int>("AccommodationId")
                         .HasColumnType("integer");
 
-                    b.Property<List<MultiLanguage<string>>>("Amenities")
+                    b.Property<MultiLanguage<List<string>>>("Amenities")
                         .HasColumnType("jsonb");
 
                     b.Property<MultiLanguage<string>>("Description")

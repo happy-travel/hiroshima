@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Hiroshima.DbData.Migrations
 {
-    public partial class Addinitialmigrations : Migration
+    public partial class InitialMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -64,17 +64,17 @@ namespace Hiroshima.DbData.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<MultiLanguage<string>>(type: "jsonb", nullable: false),
                     Address = table.Column<MultiLanguage<string>>(type: "jsonb", nullable: false),
-                    TextualDescription = table.Column<List<TextualDescription>>(type: "jsonb", nullable: true),
+                    TextualDescription = table.Column<MultiLanguage<TextualDescription>>(type: "jsonb", nullable: true),
                     Coordinates = table.Column<Point>(type: "geometry (point)", nullable: false),
                     Rating = table.Column<int>(nullable: false),
                     CheckInTime = table.Column<string>(nullable: true),
                     CheckOutTime = table.Column<string>(nullable: true),
-                    Pictures = table.Column<List<Picture>>(type: "jsonb", nullable: true),
+                    Pictures = table.Column<MultiLanguage<List<Picture>>>(type: "jsonb", nullable: true),
                     Contacts = table.Column<Contacts>(type: "jsonb", nullable: false),
                     PropertyType = table.Column<int>(nullable: false),
-                    AccommodationAmenities = table.Column<List<MultiLanguage<string>>>(type: "jsonb", nullable: true),
+                    AccommodationAmenities = table.Column<MultiLanguage<List<string>>>(type: "jsonb", nullable: true),
                     RoomAmenities = table.Column<List<string>>(type: "jsonb", nullable: true),
-                    AdditionalInfo = table.Column<Dictionary<string, MultiLanguage<string>>>(type: "jsonb", nullable: true),
+                    AdditionalInfo = table.Column<MultiLanguage<Dictionary<string, string>>>(type: "jsonb", nullable: true),
                     LocationId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
@@ -97,7 +97,7 @@ namespace Hiroshima.DbData.Migrations
                     AccommodationId = table.Column<int>(nullable: false),
                     Name = table.Column<MultiLanguage<string>>(type: "jsonb", nullable: false),
                     Description = table.Column<MultiLanguage<string>>(type: "jsonb", nullable: true),
-                    Amenities = table.Column<List<MultiLanguage<string>>>(type: "jsonb", nullable: true),
+                    Amenities = table.Column<MultiLanguage<List<string>>>(type: "jsonb", nullable: true),
                     PermittedOccupancies = table.Column<PermittedOccupancies>(type: "jsonb", nullable: false)
                 },
                 constraints: table =>

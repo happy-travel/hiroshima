@@ -10,7 +10,7 @@ namespace Hiroshima.DbData.Models.Rooms
         public int AccommodationId { get; set; }
         public MultiLanguage<string> Name { get; set; }
         public MultiLanguage<string> Description { get; set; }
-        public List<MultiLanguage<string>> Amenities { get; set; }
+        public MultiLanguage<List<string>> Amenities { get; set; }
         public PermittedOccupancies PermittedOccupancies { get; set; } 
     }
 }

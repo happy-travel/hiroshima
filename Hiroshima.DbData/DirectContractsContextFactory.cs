@@ -24,7 +24,7 @@ namespace Hiroshima.DbData
             vaultClient.Login(configuration[configuration["Vault:Token"]]).GetAwaiter().GetResult();
             
             var connectionString = StartupHelper.GetDbConnectionString(vaultClient, configuration);
-            
+
             Console.WriteLine(connectionString);
             var dbContextOptions = new DbContextOptionsBuilder<DirectContractsDbContext>();
             dbContextOptions.UseNpgsql(connectionString, 
