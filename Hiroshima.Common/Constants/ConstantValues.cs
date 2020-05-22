@@ -5,15 +5,15 @@ namespace Hiroshima.Common.Constants
 {
     public class ConstantValues
     {
-        public static readonly Dictionary<string, Language> AvailableLanguages = new Dictionary<string, Language>
+        public static readonly Dictionary<string, Languages> AvailableLanguages = new Dictionary<string, Languages>
         {
-            {"ar", Language.Ar},
-            {"cn", Language.Cn},
-            {"de", Language.De},
-            {"en", Language.En},
-            {"es", Language.Es},
-            {"fr", Language.Fr},
-            {"ru", Language.Ru}
+            {"ar", Languages.Ar},
+            {"cn", Languages.Cn},
+            {"de", Languages.De},
+            {"en", Languages.En},
+            {"es", Languages.Es},
+            {"fr", Languages.Fr},
+            {"ru", Languages.Ru}
         };
     }
 }

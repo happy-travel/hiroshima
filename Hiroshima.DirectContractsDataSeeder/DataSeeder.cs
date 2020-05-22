@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using Hiroshima.Common.Models;
-using Hiroshima.Common.Models.Accommodation;
+using Hiroshima.Common.Models.Enums;
 using Hiroshima.DbData;
 using Hiroshima.DbData.Models.Accommodation;
-using Hiroshima.DbData.Models.Booking;
-using Hiroshima.DbData.Models.Location;
-using Hiroshima.DbData.Models.Rates;
 using Hiroshima.DbData.Models.Rooms;
+using Hiroshima.DbData.Models.Rooms.Occupancy;
+using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
-using NpgsqlTypes;
-using Location = Hiroshima.DbData.Models.Location.Location;
+using Newtonsoft.Json;
+using Location = Hiroshima.DbData.Models.Location;
 
 namespace Hiroshima.DirectContractsDataSeeder
 {
@@ -20,13 +19,45 @@ namespace Hiroshima.DirectContractsDataSeeder
     {
         internal static void AddData(DirectContractsDbContext dbContext)
         {
+            AddLocations(dbContext);
             AddOneAndOnlyContract(dbContext);
-            AddOneAndOnlyTestContract(dbContext);
             AddJumeriahContract(dbContext);
-            dbContext.SaveChanges();
         }
 
-
+        private static void AddLocations(DirectContractsDbContext dbContext)
+        {
+            #region AddLocation
+            dbContext.Locations.AddRange(
+                new Location.Location
+                {
+                    Id = 1,
+                    Name = new MultiLanguage<string>
+                    {
+                        En = "The United Arab Emirates",
+                        Ru = "Объединенные Арабские Эмираты",
+                        Ar = "الإمارات العربية المتحدة"
+                    },
+                    CountryCode = "AE",
+                    Type = Location.LocationTypes.Country,
+                    ParentId = 0
+                },
+                new Location.Location
+                {
+                    Id = 2,
+                    Name = new MultiLanguage<string>
+                    {
+                        Ar = "دبي", 
+                        En = "Dubai",
+                        Ru = "Дубай"
+                    },
+                    Type = Location.LocationTypes.City,
+                    CountryCode = "AE",
+                    ParentId = 1
+                });
+            #endregion
+        }
+        
+        
         private static void AddOneAndOnlyContract(DirectContractsDbContext dbContext)
         {
             var accommodation = dbContext.Accommodations.FirstOrDefault(a => a.Name.En.Equals("ONE&ONLY ROYAL MIRAGE"));
@@ -35,584 +66,1364 @@ namespace Hiroshima.DirectContractsDataSeeder
                 var hotelId = 1;
 
                 #region AddAccommodation
-
-                dbContext.Accommodations.Add(
-                    new Accommodation
-                    {
-                        Id = hotelId,
-                        Rating = AccommodationRatings.FiveStars,
-                        PropertyType = PropertyTypes.Hotels,
-                        Name = new MultiLanguage<string>
+                dbContext.Accommodations.Add(new Accommodation
+                {
+                    Id = hotelId,
+                    Rating = AccommodationRating.FiveStars,
+                    PropertyType = PropertyTypes.Hotels,
+                    Name = new MultiLanguage<string>
                         {
                             Ar = "ون آند اونلي رويال ميراج",
                             En = "ONE&ONLY ROYAL MIRAGE",
                             Ru = "ONE&ONLY ROYAL MIRAGE"
                         },
-                        Contacts = new Contacts
+                    TextualDescription = new MultiLanguage<TextualDescription>
+                    {
+                        En = new TextualDescription
                         {
-                            Email = "info@oneandonlythepalm.com",
-                            Phone = "+ 971 4 440 1010"
+                            Description = "Set in 65 acres of lush gardens and a kilometer of private beach, peaceful lives in remarkable opulence.",
                         },
-                        Schedule = new Schedule
+                        Ar = new TextualDescription
                         {
-                            CheckInTime = "15:00",
-                            CheckOutTime = "10:00",
-                            PortersStartTime = "11:00",
-                            PortersEndTime = "16:00"
+                            Description = "65 فدان من الحدائق الغناء وكيلومتر من الشواطئ الخاصة تمثل أنموذجاً للسلاموالرخاء منقطعا النظير."
                         },
-                        TextualDescription = new TextualDescription
+                        Ru = new TextualDescription
                         {
-                            Description = new MultiLanguage<string>
-                            {
-                                Ar =
-                                    "65 فدان من الحدائق الغناء وكيلومتر من الشواطئ الخاصة تمثل أنموذجاً للسلاموالرخاء منقطعا النظير.",
-                                En =
-                                    "Set in 65 acres of lush gardens and a kilometer of private beach, peaceful lives in remarkable opulence.",
-                                Ru =
-                                    "26 гектаров ландшафтных садов, собственный пляж протяженностью в один километр, умиротворенная обстановка и роскошное окружение."
-                            }
-                        },
-                        Amenities = new List<MultiLanguage<string>>
-                        {
-                            new MultiLanguage<string>
-                            {
-                                Ar =
-                                    @"يعتبر تناول الطعام في ون آند أونلي رويال ميراج متعة بحد ذاتها بفضل ثمانية مطاعم مختلفة في ذا بالاس والردهة العربية والإقامة والسبا. ويقدم كل منها تجربة فريدة لاكتشاف أشهى المأكولات في أجواء مميزة ومبتكرة. ويوفر ذا بالاس أربعة مطاعم مختلفة؛ حيث تُقدَّم القوائم المتوسطية في أوليفز، والمأكولات المغربية الاستثنائية في طاجين، والمأكولات العالمية الكلاسيكية في مطعم المشاهير، والسلطات الطازجة وثمار البحر في بار ومطعم الشاطئ للمشويات. ويمكن للضيوف اكتشاف أشهى النكهات الهندو-أوروبية في نينا، أو تذوق أصنافهم المفضلة طوال اليوم من أطباق الشرق الأوسط وشمال أوروبا في ذا روتيسيري، أو تناول الطعام في مجلس عائم مطل على الخليج العربي في مطعم أوزون الذي يقدم المأكولات العالمية بلمسة آسيوية. وتعرض قاعة الطعام قوائم ملهمة ومبتكرة حصريًا لضيوف المساكن والسبا.",
-                                En =
-                                    @"Dining at One&Only Royal Mirage is a unique journey within eight different restaurants between The Palace, Arabian Court and Residence & Spa. Each venue presents an authentic culinary experience in a distinctive environment. The Palace offers four different restaurants, including Mediterranean flavours at Olives, exceptional Moroccan fare at Tagine, an elegant dining on European cuisine at Celebrities, and fresh grilled seafood and bright salads at The Beach Bar & Grill. Within Arabian Court, guests may discover seductive Indo-European flavours at Nina, savour all-day dining on traditional recipes from the Middle East and northern Europe at The Rotisserie, or experience the floating majlis overlooking the Arabian Gulf at Eauzone featuring international cuisine with an Asian twist. Exclusive to guests at Residence & Spa, The Dining Room showcases inspired menus of fresh creativity.",
-                                Ru =
-                                    @"Ужин или обед на курорте One&Only Royal Mirage — это уникальное путешествие, в котором вас ждут восемь ресторанов, расположенных в корпусах The Palace, Arabian Court и Residence & Spa. Каждый из ресторанов дарит гостям уникальный гастрономический опыт в неповторимой обстановке. В корпусе The Palace расположены четыре ресторана, включая ресторан средиземноморской кухни Olives, ресторан марокканской кухни Tagine, ресторан Celebrities с элегантным интерьером и европейской кухней, а также гриль-бар Beach Bar & Grill, где вам предложат блюда из свежих морепродуктов на гриле и великолепные салаты. В корпусе Arabian Court гостей ждут соблазнительные блюда индоевропейской кухни ресторана Nina, а в ресторане The Rotisserie в течение всего дня можно оценить блюда, приготовленные по традиционным рецептам кухни Ближнего Востока и Северной Европы. В ресторане Eauzone можно удобно устроиться в плавающем меджлисе с видом на Персидский залив и заказать блюда международной кухни с азиатскими нотками. Ресторан Dining Room, обслуживающий исключительно гостей корпуса Residence & Spa, отличается творческим подходом к составлению меню и приготовлению блюд."
-                            },
-                            new MultiLanguage<string>
-                            {
-                                Ar =
-                                    @"تضم دبي 10 ملاعب جولف ضمن مسافة قريبة من ون آند أونلي رويال ميراج، ولا يبعد نادي الإمارات للجولف ونادي مونتغمري إلا بضع دقائق.",
-                                En =
-                                    @"Dubai boasts 10 spectacular golf courses within easy reach of One&Only Royal Mirage, with Emirates Golf Club and Montgomerie just minutes away.",
-                                Ru =
-                                    @"В Дубае, недалеко от курорта One&Only Royal Mirage, находится 10 роскошных полей для гольфа, а гольф-клубы Emirates Golf Club и Montgomerie также расположены в непосредственной близости."
-                            },
-                            new MultiLanguage<string>
-                            {
-                                Ar =
-                                    "ترتقي روحك وتسمو بينما تنغمس في ملذات التجارب الشاملة المصممة لاستعادة العقل والبدن والروح في منتجع ون آند أونلي سبا. ادخل الحمام الشرقي ودع بدنك يرتاح ببطء عبر الحرارة والبخار المتصاعد بينما تبث أصوات الماء المترقرقة الاسترخاء في العقل.",
-                                En =
-                                    @"Spirits elevate as you indulge in a range of holistic experiences designed to restore mind, body and soul at One&Only Spa. At the Traditional Oriental Hammam, let the body ease slowly into the rising heat and steam whilst the sounds of rippling water relaxes the mind.",
-                                Ru =
-                                    @"Процедуры для восстановления равновесия разума, тела и души в спа-центре One&Only обновят вашу жизненную энергию. Позвольте теплым парам традиционного восточного хаммама расслабить ваше тело, пока струящаяся вода успокаивает мысли."
-                            }
-                        },
-                        Picture = new Picture
-                        {
-                            Caption = new MultiLanguage<string>
-                            {
-                                Ar = "ون آند اونلي رويال ميراج",
-                                En = "ONE&ONLY ROYAL MIRAGE"
-                            },
-                            Source = "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6HkA4WClkmu3oOM0iuENG66UC6iKZNUrefe0iJ__MX5ZbValF"
+                            Description = "26 гектаров ландшафтных садов, собственный пляж протяженностью в один километр, умиротворенная обстановка и роскошное окружение."
                         }
-                    });
-
-                #endregion
-
-                #region AddLocation
-
-                dbContext.Locations.AddRange(new Location
-                {
-                    Coordinates = new Point(55.153219, 25.097596),
-                    AccommodationId = hotelId,
+                    },
                     Address = new MultiLanguage<string>
                     {
                         Ar = "شارع الملك سلمان بن عبدالعزيز آل سعود - دبي",
                         En = "King Salman Bin Abdulaziz Al Saud St - Dubai",
                         Ru = "King Salman Bin Abdulaziz Al Saud St - Dubai - ОАЭ"
                     },
-                    LocalityId = 1
-                });
-
-                #endregion
-
-                #region AddCancelationPolicies
-
-                dbContext.CancelationPolicies.Add(new CancelationPolicy
-                {
-                    Id = 21,
-                    CancelationPolicyDetails = new List<CancelationPolicyDetails>
+                    Contacts = new Contacts {Email = "info@oneandonlythepalm.com", Phone = "+ 971 4 440 1010"},
+                    AccommodationAmenities = new MultiLanguage<List<string>>
                     {
-                        new CancelationPolicyDetails
+                        En =  new List<string>
                         {
-                            FromDays = 45,
-                            ToDays = 0,
-                            Details = new MultiLanguage<string>
-                                {En = "New Year Peak Period: Full stay of tour operator rates if cancelled within 45 days of arrival"}
+                            @"Dining at One&Only Royal Mirage is a unique journey within eight different restaurants between The Palace, Arabian Court and Residence & Spa. Each venue presents an authentic culinary experience in a distinctive environment. The Palace offers four different restaurants, including Mediterranean flavours at Olives, exceptional Moroccan fare at Tagine, an elegant dining on European cuisine at Celebrities, and fresh grilled seafood and bright salads at The Beach Bar & Grill. Within Arabian Court, guests may discover seductive Indo-European flavours at Nina, savour all-day dining on traditional recipes from the Middle East and northern Europe at The Rotisserie, or experience the floating majlis overlooking the Arabian Gulf at Eauzone featuring international cuisine with an Asian twist. Exclusive to guests at Residence & Spa, The Dining Room showcases inspired menus of fresh creativity.", 
+                            @"Dubai boasts 10 spectacular golf courses within easy reach of One&Only Royal Mirage, with Emirates Golf Club and Montgomerie just minutes away.",
+                            @"Spirits elevate as you indulge in a range of holistic experiences designed to restore mind, body and soul at One&Only Spa. At the Traditional Oriental Hammam, let the body ease slowly into the rising heat and steam whilst the sounds of rippling water relaxes the mind."
+                        },
+                        Ar = new List<string>
+                        {
+                            @"يعتبر تناول الطعام في ون آند أونلي رويال ميراج متعة بحد ذاتها بفضل ثمانية مطاعم مختلفة في ذا بالاس والردهة العربية والإقامة والسبا. ويقدم كل منها تجربة فريدة لاكتشاف أشهى المأكولات في أجواء مميزة ومبتكرة. ويوفر ذا بالاس أربعة مطاعم مختلفة؛ حيث تُقدَّم القوائم المتوسطية في أوليفز، والمأكولات المغربية الاستثنائية في طاجين، والمأكولات العالمية الكلاسيكية في مطعم المشاهير، والسلطات الطازجة وثمار البحر في بار ومطعم الشاطئ للمشويات. ويمكن للضيوف اكتشاف أشهى النكهات الهندو-أوروبية في نينا، أو تذوق أصنافهم المفضلة طوال اليوم من أطباق الشرق الأوسط وشمال أوروبا في ذا روتيسيري، أو تناول الطعام في مجلس عائم مطل على الخليج العربي في مطعم أوزون الذي يقدم المأكولات العالمية بلمسة آسيوية. وتعرض قاعة الطعام قوائم ملهمة ومبتكرة حصريًا لضيوف المساكن والسبا.",
+                            @"تضم دبي 10 ملاعب جولف ضمن مسافة قريبة من ون آند أونلي رويال ميراج، ولا يبعد نادي الإمارات للجولف ونادي مونتغمري إلا بضع دقائق.",
+                            "ترتقي روحك وتسمو بينما تنغمس في ملذات التجارب الشاملة المصممة لاستعادة العقل والبدن والروح في منتجع ون آند أونلي سبا. ادخل الحمام الشرقي ودع بدنك يرتاح ببطء عبر الحرارة والبخار المتصاعد بينما تبث أصوات الماء المترقرقة الاسترخاء في العقل."
+                        },
+                        Ru = new List<string>
+                        {
+                            @"Ужин или обед на курорте One&Only Royal Mirage — это уникальное путешествие, в котором вас ждут восемь ресторанов, расположенных в корпусах The Palace, Arabian Court и Residence & Spa. Каждый из ресторанов дарит гостям уникальный гастрономический опыт в неповторимой обстановке. В корпусе The Palace расположены четыре ресторана, включая ресторан средиземноморской кухни Olives, ресторан марокканской кухни Tagine, ресторан Celebrities с элегантным интерьером и европейской кухней, а также гриль-бар Beach Bar & Grill, где вам предложат блюда из свежих морепродуктов на гриле и великолепные салаты. В корпусе Arabian Court гостей ждут соблазнительные блюда индоевропейской кухни ресторана Nina, а в ресторане The Rotisserie в течение всего дня можно оценить блюда, приготовленные по традиционным рецептам кухни Ближнего Востока и Северной Европы. В ресторане Eauzone можно удобно устроиться в плавающем меджлисе с видом на Персидский залив и заказать блюда международной кухни с азиатскими нотками. Ресторан Dining Room, обслуживающий исключительно гостей корпуса Residence & Spa, отличается творческим подходом к составлению меню и приготовлению блюд.",
+                            @"В Дубае, недалеко от курорта One&Only Royal Mirage, находится 10 роскошных полей для гольфа, а гольф-клубы Emirates Golf Club и Montgomerie также расположены в непосредственной близости.",
+                            @"Процедуры для восстановления равновесия разума, тела и души в спа-центре One&Only обновят вашу жизненную энергию. Позвольте теплым парам традиционного восточного хаммама расслабить ваше тело, пока струящаяся вода успокаивает мысли."
                         }
-                    }
-                });
-
-                dbContext.CancelationPolicies.Add(new CancelationPolicy
-                {
-                    Id = 22,
-                    CancelationPolicyDetails = new List<CancelationPolicyDetails>
+                    },
+                    Pictures = new MultiLanguage<List<Picture>>
                     {
-                        new CancelationPolicyDetails
+                        En = new List<Picture>
                         {
-                            FromDays = 35,
-                            ToDays = 0,
-                            Details = new MultiLanguage<string>
-                                {En = "Full stay of tour operator rates if cancelled within 45 days of arrival"}
-                        }
-                    }
-                });
-
-                dbContext.CancelationPolicies.Add(new CancelationPolicy
-                {
-                    Id = 23,
-                    CancelationPolicyDetails = new List<CancelationPolicyDetails>
-                    {
-                        new CancelationPolicyDetails
-                        {
-                            FromDays = 28,
-                            ToDays = 14,
-                            Details = new MultiLanguage<string>
+                            new Picture
                             {
-                                En =
-                                    "28-14 days prior to arrival: Cancellation penalty charge of 4 nights (or full stay if less than 4 nights) of full rate applicable"
+                                Source = "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6HkA4WClkmu3oOM0iuENG66UC6iKZNUrefe0iJ__MX5ZbValF",
+                                Caption = "ONE&ONLY ROYAL MIRAGE"
                             }
                         },
-                        new CancelationPolicyDetails
+                        Ar = new List<Picture>
                         {
-                            FromDays = 13,
-                            ToDays = 7,
-                            Details = new MultiLanguage<string>
+                            new Picture
                             {
-                                En =
-                                    "13-7 days prior to arrival: Cancellation penalty charge of 7 nights (or full stay if less than 7 nights) of full rate applicable"
+                                Source = "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6HkA4WClkmu3oOM0iuENG66UC6iKZNUrefe0iJ__MX5ZbValF",
+                                Caption = "ون آند اونلي رويال ميراج"
                             }
                         },
-                        new CancelationPolicyDetails
+                        Ru = new List<Picture>
                         {
-                            FromDays = 6,
-                            ToDays = 0,
-                            Details = new MultiLanguage<string>
-                                {En = "6 days-No show: Tour operator will be charged full length of booking"}
-                        }
-                    }
-                });
-
-                dbContext.CancelationPolicies.Add(new CancelationPolicy
-                {
-                    Id = 24,
-                    CancelationPolicyDetails = new List<CancelationPolicyDetails>
-                    {
-                        new CancelationPolicyDetails
-                        {
-                            FromDays = 13,
-                            ToDays = 7,
-                            Details = new MultiLanguage<string>
+                            new Picture
                             {
-                                En =
-                                    "13-07 days before guest arrival: Cancellation penalty charge of 3 nights (or full stay if less than 3 nights) of full rate applicable"
-                            }
-                        },
-                        new CancelationPolicyDetails
-                        {
-                            FromDays = 6,
-                            ToDays = 0,
-                            Details = new MultiLanguage<string>
-                            {
-                                En =
-                                    "6 days-Ni show: Cancellation penalty charge of 5 nights at full tour operator rate (or full stay if less than 5 nights) of full rate applicable"
+                                Source = "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6HkA4WClkmu3oOM0iuENG66UC6iKZNUrefe0iJ__MX5ZbValF",
+                                Caption = "ONE&ONLY ROYAL MIRAGE"
                             }
                         }
-                    }
+                    },
+                    CheckInTime = "13:00",
+                    CheckOutTime = "11:00",
+                    Coordinates = new Point(55.153219,25.097596),
+                    LocationId = 2
                 });
-
                 #endregion
-
-                #region AddSeasons
-
-                dbContext.Seasons.AddRange(
-                    new Season
-                    {
-                        Id = 11,
-                        AccommodationId = hotelId,
-                        Name = "HIGH I",
-                        StartDate = new DateTime(2020, 1, 8),
-                        EndDate = new DateTime(2020, 1, 14),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 12,
-                        AccommodationId = hotelId,
-                        Name = "HIGH II",
-                        StartDate = new DateTime(2020, 1, 15),
-                        EndDate = new DateTime(2020, 1, 24),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 13,
-                        AccommodationId = hotelId,
-                        Name = "HIGH I",
-                        StartDate = new DateTime(2020, 1, 25),
-                        EndDate = new DateTime(2020, 2, 7),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 14,
-                        AccommodationId = hotelId,
-                        Name = "PEAK I",
-                        StartDate = new DateTime(2020, 2, 8),
-                        EndDate = new DateTime(2020, 2, 21),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 15,
-                        AccommodationId = hotelId,
-                        Name = "HIGH I",
-                        StartDate = new DateTime(2020, 2, 22),
-                        EndDate = new DateTime(2020, 3, 20),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 16,
-                        AccommodationId = hotelId,
-                        Name = "PEAK I",
-                        StartDate = new DateTime(2020, 3, 21),
-                        EndDate = new DateTime(2020, 3, 27),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 17,
-                        AccommodationId = hotelId,
-                        Name = "PEAK II",
-                        StartDate = new DateTime(2020, 3, 28),
-                        EndDate = new DateTime(2020, 4, 12),
-                        CancelationPolicyId = 22
-                    },
-                    new Season
-                    {
-                        Id = 18,
-                        AccommodationId = hotelId,
-                        Name = "PEAK I",
-                        StartDate = new DateTime(2020, 4, 13),
-                        EndDate = new DateTime(2020, 4, 18),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 19,
-                        AccommodationId = hotelId,
-                        Name = "HIGH I",
-                        StartDate = new DateTime(2020, 4, 19),
-                        EndDate = new DateTime(2020, 5, 3),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 20,
-                        AccommodationId = hotelId,
-                        Name = "SHOULDER",
-                        StartDate = new DateTime(2020, 5, 4),
-                        EndDate = new DateTime(2020, 5, 31),
-                        CancelationPolicyId = 24
-                    },
-                    new Season
-                    {
-                        Id = 21,
-                        AccommodationId = hotelId,
-                        Name = "LOW",
-                        StartDate = new DateTime(2020, 7, 1),
-                        EndDate = new DateTime(2020, 9, 4),
-                        CancelationPolicyId = 24
-                    },
-                    new Season
-                    {
-                        Id = 22,
-                        AccommodationId = hotelId,
-                        Name = "SHOULDER",
-                        StartDate = new DateTime(2020, 9, 5),
-                        EndDate = new DateTime(2020, 9, 25),
-                        CancelationPolicyId = 24
-                    },
-                    new Season
-                    {
-                        Id = 23,
-                        AccommodationId = hotelId,
-                        Name = "HIGH II",
-                        StartDate = new DateTime(2020, 9, 26),
-                        EndDate = new DateTime(2020, 10, 9),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 24,
-                        AccommodationId = hotelId,
-                        Name = "HIGH I",
-                        StartDate = new DateTime(2020, 10, 10),
-                        EndDate = new DateTime(2020, 10, 16),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 25,
-                        AccommodationId = hotelId,
-                        Name = "PEAK I",
-                        StartDate = new DateTime(2020, 10, 17),
-                        EndDate = new DateTime(2020, 10, 23),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 26,
-                        AccommodationId = hotelId,
-                        Name = "PEAK II",
-                        StartDate = new DateTime(2020, 10, 24),
-                        EndDate = new DateTime(2020, 11, 6),
-                        CancelationPolicyId = 22
-                    },
-                    new Season
-                    {
-                        Id = 27,
-                        AccommodationId = hotelId,
-                        Name = "HIGH I",
-                        StartDate = new DateTime(2020, 11, 7),
-                        EndDate = new DateTime(2020, 12, 4),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 28,
-                        AccommodationId = hotelId,
-                        Name = "HIGH II",
-                        StartDate = new DateTime(2020, 12, 5),
-                        EndDate = new DateTime(2020, 12, 18),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 29,
-                        AccommodationId = hotelId,
-                        Name = "HIGH I",
-                        StartDate = new DateTime(2020, 12, 19),
-                        EndDate = new DateTime(2020, 12, 25),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 30,
-                        AccommodationId = hotelId,
-                        Name = "FESTIVE",
-                        StartDate = new DateTime(2020, 12, 26),
-                        EndDate = new DateTime(2021, 1, 3),
-                        CancelationPolicyId = 21
-                    },
-                    new Season
-                    {
-                        Id = 31,
-                        AccommodationId = hotelId,
-                        Name = "PEAK I",
-                        StartDate = new DateTime(2021, 1, 4),
-                        EndDate = new DateTime(2021, 1, 10),
-                        CancelationPolicyId = 23
-                    }, new Season
-                    {
-                        Id = 32,
-                        AccommodationId = hotelId,
-                        Name = "HIGH I",
-                        StartDate = new DateTime(2021, 1, 11),
-                        EndDate = new DateTime(2021, 2, 5),
-                        CancelationPolicyId = 23
-                    }, new Season
-                    {
-                        Id = 33,
-                        AccommodationId = hotelId,
-                        Name = "PEAK I",
-                        StartDate = new DateTime(2021, 2, 6),
-                        EndDate = new DateTime(2021, 2, 19),
-                        CancelationPolicyId = 23
-                    }, new Season
-                    {
-                        Id = 34,
-                        AccommodationId = hotelId,
-                        Name = "HIGH I",
-                        StartDate = new DateTime(2021, 2, 20),
-                        EndDate = new DateTime(2021, 3, 19),
-                        CancelationPolicyId = 23
-                    }, new Season
-                    {
-                        Id = 35,
-                        AccommodationId = hotelId,
-                        Name = "PEAK I",
-                        StartDate = new DateTime(2021, 3, 20),
-                        EndDate = new DateTime(2021, 3, 26),
-                        CancelationPolicyId = 23
-                    }, new Season
-                    {
-                        Id = 36,
-                        AccommodationId = hotelId,
-                        Name = "PEAK II",
-                        StartDate = new DateTime(2021, 3, 27),
-                        EndDate = new DateTime(2021, 4, 10),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 37,
-                        AccommodationId = hotelId,
-                        Name = "HIGH I",
-                        StartDate = new DateTime(2021, 4, 11),
-                        EndDate = new DateTime(2021, 5, 7),
-                        CancelationPolicyId = 23
-                    }
-                );
-
-                #endregion
-
+                dbContext.SaveChanges();
                 #region AddRooms
 
-                dbContext.Rooms.AddRange(new Room
-                {
-                    Id = 20,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
+                dbContext.Rooms.AddRange(
+                    new Room
                     {
-                        En = "Palace Superior Deluxe Room"
-                    }
-                }, new Room
-                {
-                    Id = 21,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
+                        Id = 20,
+                        AccommodationId = 1,
+                        Name = new MultiLanguage<string>
+                        {
+                            En = "Palace Superior Deluxe Room",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Description = new MultiLanguage<string>
+                        {
+                            En = "",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Amenities = new MultiLanguage<List<string>>
+                        {
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
+                        },
+                        #region PermittedOccupancies
+                        PermittedOccupancies = new PermittedOccupancies
+                        {
+                            RoomOccupancies = new List<List<RoomOccupancy>>
+                            {
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 16,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 3,
+                                            UpperBound = 12,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = false
+                                        },
+                                        NumberOfPersons = 1
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 0,
+                                            UpperBound = 3,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = false
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                }
+                            }
+                        }
+                        #endregion
+                    },
+                    new Room
                     {
-                        En = "Palace Gold Club Room"
-                    }
-                }, new Room
-                {
-                    Id = 22,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
+                        Id = 21,
+                        AccommodationId = 1,
+                        Name = new MultiLanguage<string>
+                        {
+                            En = "Palace Gold Club Room",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Description = new MultiLanguage<string>
+                        {
+                            En = "",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Amenities = new MultiLanguage<List<string>>
+                        {
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
+                        },
+                         #region PermittedOccupancies
+                        PermittedOccupancies = new PermittedOccupancies
+                        {
+                            RoomOccupancies = new List<List<RoomOccupancy>>
+                            {
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 16,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 3,
+                                            UpperBound = 12,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = false
+                                        },
+                                        NumberOfPersons = 1
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 0,
+                                            UpperBound = 3,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = false
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                }
+                            }
+                        }
+                        #endregion
+                    },
+                    new Room
                     {
-                        En = "Palace One Bedroom Executive Suite"
-                    }
-                }, new Room
-                {
-                    Id = 23,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
+                        Id = 22,
+                        AccommodationId = 1,
+                        Name = new MultiLanguage<string>
+                        {
+                            En = "Palace One Bedroom Executive Suite",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Description = new MultiLanguage<string>
+                        {
+                            En = "",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Amenities = new MultiLanguage<List<string>>
+                        {
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
+                        },
+                         #region PermittedOccupancies
+                        PermittedOccupancies = new PermittedOccupancies
+                        {
+                            RoomOccupancies = new List<List<RoomOccupancy>>
+                            {
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 16,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 3,
+                                            UpperBound = 12,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = false
+                                        },
+                                        NumberOfPersons = 1
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 0,
+                                            UpperBound = 3,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = false
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                }
+                            }
+                        }
+                        #endregion
+                    }, new Room
                     {
-                        En = "Palace One Bedroom Golf Club Suite"
-                    }
-                }, new Room
-                {
-                    Id = 24,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
+                        Id = 23,
+                        AccommodationId = 1,
+                        Name = new MultiLanguage<string>
+                        {
+                            En = "Palace One Bedroom Gold Club Suite",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Description = new MultiLanguage<string>
+                        {
+                            En = "",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Amenities = new MultiLanguage<List<string>>
+                        {
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
+                        },
+                         #region PermittedOccupancies
+                        PermittedOccupancies = new PermittedOccupancies
+                        {
+                            RoomOccupancies = new List<List<RoomOccupancy>>
+                            {
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 16,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 3,
+                                            UpperBound = 12,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = false
+                                        },
+                                        NumberOfPersons = 1
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 0,
+                                            UpperBound = 3,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = false
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                }
+                            }
+                        }
+                        #endregion
+                    },
+                    new Room
                     {
-                        En = "Palace Two Bedroom Executive Suite"
-                    }
-                }, new Room
-                {
-                    Id = 25,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
+                        Id = 24,
+                        AccommodationId = 1,
+                        Name = new MultiLanguage<string>
+                        {
+                            En = "Palace Two Bedroom Executive Suite",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Description = new MultiLanguage<string>
+                        {
+                            En = "",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Amenities = new MultiLanguage<List<string>>
+                        {
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
+                        },
+                        #region PermittedOccupancies
+                        PermittedOccupancies = new PermittedOccupancies
+                        {
+                            RoomOccupancies = new List<List<RoomOccupancy>>
+                            {
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 4
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 0,
+                                            UpperBound = 16,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                }
+                            }
+                        }
+                        #endregion
+                    },
+                    new Room
                     {
-                        En = "Palace Two Bedroom Golf Club Suite"
-                    }
-                }, new Room
-                {
-                    Id = 26,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
+                        Id = 25,
+                        AccommodationId = 1,
+                        Name = new MultiLanguage<string>
+                        {
+                            En = "Palace Two Bedroom Gold Club Suite",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Description = new MultiLanguage<string>
+                        {
+                            En = "",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Amenities = new MultiLanguage<List<string>>
+                        {
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
+                        },
+                        #region PermittedOccupancies
+                        PermittedOccupancies = new PermittedOccupancies
+                        {
+                            RoomOccupancies = new List<List<RoomOccupancy>>
+                            {
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 4
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 0,
+                                            UpperBound = 16,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                }
+                            }
+                        }
+                        #endregion
+                    },
+                    new Room
                     {
-                        En = "Palace Two Bedroom Royal Suite"
-                    }
-                }, new Room
-                {
-                    Id = 27,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
+                        Id = 26,
+                        AccommodationId = 1,
+                        Name = new MultiLanguage<string>
+                        {
+                            En = "Palace Two Bedroom Royal Suite",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Description = new MultiLanguage<string>
+                        {
+                            En = "",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Amenities = new MultiLanguage<List<string>>
+                        {
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
+                        },
+                        #region PermittedOccupancies
+                        PermittedOccupancies = new PermittedOccupancies
+                        {
+                            RoomOccupancies = new List<List<RoomOccupancy>>
+                            {
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 4
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 0,
+                                            UpperBound = 16,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                }
+                            }
+                        }
+                        #endregion
+                    },
+                    new Room
                     {
-                        En = "Arabian Court Delux Room"
-                    }
-                }, new Room
-                {
-                    Id = 28,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
+                        Id = 27,
+                        AccommodationId = 1,
+                        Name = new MultiLanguage<string>
+                        {
+                            En = "Arabian Court Deluxe Room",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Description = new MultiLanguage<string>
+                        {
+                            En = "",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Amenities = new MultiLanguage<List<string>>
+                        {
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
+                        },
+                         #region PermittedOccupancies
+                        PermittedOccupancies = new PermittedOccupancies
+                        {
+                            RoomOccupancies = new List<List<RoomOccupancy>>
+                            {
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 16,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 3,
+                                            UpperBound = 12,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = false
+                                        },
+                                        NumberOfPersons = 1
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 0,
+                                            UpperBound = 3,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = false
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                }
+                            }
+                        }
+                        #endregion
+                    },
+                    new Room
                     {
-                        En = "Arabian Court Two Deluxe Rooms Family Accommodation"
-                    }
-                }, new Room
-                {
-                    Id = 29,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
+                        Id = 28,
+                        AccommodationId = 1,
+                        Name = new MultiLanguage<string>
+                        {
+                            En = "Arabian Court Two Deluxe Rooms Family Accommodation",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Description = new MultiLanguage<string>
+                        {
+                            En = "",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Amenities = new MultiLanguage<List<string>>
+                        {
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
+                        },
+                         #region PermittedOccupancies
+                        PermittedOccupancies = new PermittedOccupancies
+                        {
+                            RoomOccupancies = new List<List<RoomOccupancy>>
+                            {
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 3
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 0,
+                                            UpperBound = 12,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = false
+                                        },
+                                        NumberOfPersons = 3
+                                    }
+                                }
+                            }
+                        }
+                        #endregion
+                    },
+                    new Room
                     {
-                        En = "Arabian Court One Bedroom Executive Suite"
-                    }
-                }, new Room
-                {
-                    Id = 30,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
+                        Id = 29,
+                        AccommodationId = 1,
+                        Name = new MultiLanguage<string>
+                        {
+                            En = "Arabian Court One Bedroom Executive Suite",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Description = new MultiLanguage<string>
+                        {
+                            En = "",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Amenities = new MultiLanguage<List<string>>
+                        {
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
+                        },
+                        #region PermittedOccupancies
+                        PermittedOccupancies = new PermittedOccupancies
+                        {
+                            RoomOccupancies = new List<List<RoomOccupancy>>
+                            {
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 16,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 3,
+                                            UpperBound = 12,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = false
+                                        },
+                                        NumberOfPersons = 1
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 0,
+                                            UpperBound = 3,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = false
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                }
+                            }
+                        }
+                        #endregion
+                    },
+                    new Room
                     {
-                        En = "Arabian Court Two Bedroom Executive Suite"
-                    }
-                }, new Room
-                {
-                    Id = 31,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
+                        Id = 30,
+                        AccommodationId = 1,
+                        Name = new MultiLanguage<string>
+                        {
+                            En = "Arabian Court Two Bedroom Executive Suite",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Description = new MultiLanguage<string>
+                        {
+                            En = "",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Amenities = new MultiLanguage<List<string>>
+                        {
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
+                        },
+                        #region PermittedOccupancies
+                        PermittedOccupancies = new PermittedOccupancies
+                        {
+                            RoomOccupancies = new List<List<RoomOccupancy>>
+                            {
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 4
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 0,
+                                            UpperBound = 16,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                }
+                            }
+                        }
+                        #endregion
+                    },
+                    new Room
                     {
-                        En = "Arabian Court Prince Suite"
-                    }
-                }, new Room
-                {
-                    Id = 32,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
+                        Id = 31,
+                        AccommodationId = 1,
+                        Name = new MultiLanguage<string>
+                        {
+                            En = "Arabian Court Prince Suite",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Description = new MultiLanguage<string>
+                        {
+                            En = "",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Amenities = new MultiLanguage<List<string>>
+                        {
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
+                        },
+                         #region PermittedOccupancies
+                        PermittedOccupancies = new PermittedOccupancies
+                        {
+                            RoomOccupancies = new List<List<RoomOccupancy>>
+                            {
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 16,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 3,
+                                            UpperBound = 12,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = false
+                                        },
+                                        NumberOfPersons = 1
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 0,
+                                            UpperBound = 3,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = false
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                }
+                            }
+                        }
+                        #endregion
+                    },
+                    new Room
                     {
-                        En = "Residence Prestige Room"
-                    }
-                }, new Room
-                {
-                    Id = 33,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
+                        Id = 32,
+                        AccommodationId = 1,
+                        Name = new MultiLanguage<string>
+                        {
+                            En = "Residence Prestige Room",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Description = new MultiLanguage<string>
+                        {
+                            En = "",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Amenities = new MultiLanguage<List<string>>
+                        {
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
+                        },
+                         #region PermittedOccupancies
+                        PermittedOccupancies = new PermittedOccupancies
+                        {
+                            RoomOccupancies = new List<List<RoomOccupancy>>
+                            {
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 16,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 3,
+                                            UpperBound = 12,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = false
+                                        },
+                                        NumberOfPersons = 1
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 0,
+                                            UpperBound = 3,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = false
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                }
+                            }
+                        }
+                        #endregion
+                    },
+                    new Room
                     {
-                        En = "Residence Junior Room"
-                    }
-                }, new Room
-                {
-                    Id = 34,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
+                        Id = 33,
+                        AccommodationId = 1,
+                        Name = new MultiLanguage<string>
+                        {
+                            En = "Residence Junior Suite",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Description = new MultiLanguage<string>
+                        {
+                            En = "",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Amenities = new MultiLanguage<List<string>>
+                        {
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
+                        },
+                         #region PermittedOccupancies
+                        PermittedOccupancies = new PermittedOccupancies
+                        {
+                            RoomOccupancies = new List<List<RoomOccupancy>>
+                            {
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 16,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 3,
+                                            UpperBound = 12,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = false
+                                        },
+                                        NumberOfPersons = 1
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 0,
+                                            UpperBound = 3,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = false
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                }
+                            }
+                        }
+                        #endregion
+                    },
+                    new Room
                     {
-                        En = "Residence Executive Suite"
-                    }
-                }, new Room
-                {
-                    Id = 35,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
+                        Id = 34,
+                        AccommodationId = 1,
+                        Name = new MultiLanguage<string>
+                        {
+                            En = "Residence Executive Suite",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Description = new MultiLanguage<string>
+                        {
+                            En = "",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Amenities = new MultiLanguage<List<string>>
+                        {
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
+                        },
+                         #region PermittedOccupancies
+                        PermittedOccupancies = new PermittedOccupancies
+                        {
+                            RoomOccupancies = new List<List<RoomOccupancy>>
+                            {
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 16,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 3,
+                                            UpperBound = 12,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = false
+                                        },
+                                        NumberOfPersons = 1
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 0,
+                                            UpperBound = 3,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = false
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                }
+                            }
+                        }
+                        #endregion
+                    },
+                    new Room
                     {
-                        En = "Residence Garden Beach Villa"
-                    }
-                });
+                        Id = 35,
+                        AccommodationId = 1,
+                        Name = new MultiLanguage<string>
+                        {
+                            En = "Residence Garden Beach Villa",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Description = new MultiLanguage<string>
+                        {
+                            En = "",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Amenities = new MultiLanguage<List<string>>
+                        {
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
+                        },
+                         #region PermittedOccupancies
+                        PermittedOccupancies = new PermittedOccupancies
+                        {
+                            RoomOccupancies = new List<List<RoomOccupancy>>
+                            {
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 18,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 4
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 0,
+                                            UpperBound = 16,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = false
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                }
+                            }
+                        }
+                        #endregion
+                    });
 
                 #endregion
-
+                dbContext.SaveChanges();
                 #region AddRates
-
                 FillRates(
                     dbContext,
-                    new[] {11, 13, 15, 19},
+                    new(DateTime , DateTime)[] { 
+                        (new DateTime(2020,01,8), new DateTime(2020,01,14)),
+                        (new DateTime(2020,01,25), new DateTime(2020,02,7)),
+                        (new DateTime(2020,02,22), new DateTime(2020,03,20)),
+                        (new DateTime(2020,04,19), new DateTime(2020,05,03))
+                    },
                     new List<(int, decimal)>
                     {
                         (20, 2465),
@@ -630,11 +1441,14 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (32, 3755),
                         (33, 6090),
                         (34, 8460),
-                        (35, 30000)
-                    });
+                        (35, 30000)});
                 FillRates(
                     dbContext,
-                    new[] {12, 23, 28},
+                    new[] {  
+                        (new DateTime(2020,01,15), new DateTime(2020,01,24)),
+                        (new DateTime(2020,09,26), new DateTime(2020,10,09)),
+                        (new DateTime(2020,12,5), new DateTime(2020,12,18)) 
+                    },
                     new List<(int, decimal)>
                     {
                         (20, 2100),
@@ -652,11 +1466,16 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (32, 3150),
                         (33, 5250),
                         (34, 6900),
-                        (35, 29000)
-                    });
+                        (35, 29000)});
                 FillRates(
                     dbContext,
-                    new[] {14, 16, 18, 25},
+                    new[]
+                    {
+                        (new DateTime(2020,02,8), new DateTime(2020,02,21)),
+                        (new DateTime(2020,03,21), new DateTime(2020,03,27)),
+                        (new DateTime(2020,04,13), new DateTime(2020,04,18)),
+                        (new DateTime(2020,10,17), new DateTime(2020,10,23))
+                    },
                     new List<(int, decimal)>
                     {
                         (20, 3170),
@@ -674,11 +1493,14 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (32, 4300),
                         (33, 7000),
                         (34, 9800),
-                        (35, 30000)
-                    });
+                        (35, 30000)});
                 FillRates(
                     dbContext,
-                    new[] {17, 26},
+                    //new[] { 17, 26 },
+                    new[] { 
+                        (new DateTime(2020,03,28), new DateTime(2020,04,12)), 
+                        (new DateTime(2020,10,24), new DateTime(2020,11,06))
+                    },
                     new List<(int, decimal)>
                     {
                         (20, 3780),
@@ -696,11 +1518,15 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (32, 5245),
                         (33, 8780),
                         (34, 11780),
-                        (35, 36000)
-                    });
+                        (35, 36000)});
                 FillRates(
                     dbContext,
-                    new[] {20, 22},
+                    //new[] { 20, 22 },
+                    new [] 
+                    {
+                        (new DateTime(2020,05,04), new DateTime(2020,05,31)),
+                        (new DateTime(2020,09,05), new DateTime(2020,09,25))
+                    },
                     new List<(int, decimal)>
                     {
                         (20, 1830),
@@ -718,11 +1544,13 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (32, 2835),
                         (33, 4700),
                         (34, 5400),
-                        (35, 24000)
-                    });
+                        (35, 24000)});
                 FillRates(
                     dbContext,
-                    new[] {21},
+                    new [] 
+                    {
+                        (new DateTime(2020,06,1), new DateTime(2020,09,04))
+                    },
                     new List<(int, decimal)>
                     {
                         (20, 1560),
@@ -740,11 +1568,16 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (32, 2300),
                         (33, 3540),
                         (34, 4900),
-                        (35, 24000)
-                    });
+                        (35, 24000)});
                 FillRates(
                     dbContext,
-                    new[] {24, 27, 29},
+                    //new[] { 24, 27, 29 },
+                    new [] 
+                    {
+                        (new DateTime(2020,10,10), new DateTime(2020,10,16)),
+                        (new DateTime(2020,11,07), new DateTime(2020,12,04)),
+                        (new DateTime(2020,12,19), new DateTime(2020,12,25))
+                    },
                     new List<(int, decimal)>
                     {
                         (20, 1560),
@@ -762,11 +1595,13 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (32, 2300),
                         (33, 3540),
                         (34, 4900),
-                        (35, 24000)
-                    });
+                        (35, 24000)});
                 FillRates(
                     dbContext,
-                    new[] {30},
+                    new [] 
+                    {
+                        (new DateTime(2020,12,26), new DateTime(2021,01,03))
+                    },
                     new List<(int, decimal)>
                     {
                         (20, 4600),
@@ -784,11 +1619,16 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (32, 6350),
                         (33, 9300),
                         (34, 11750),
-                        (35, 38000)
-                    });
+                        (35, 38000)});
                 FillRates(
                     dbContext,
-                    new[] {31, 33, 35},
+                    //new[] { 31, 33, 35 },
+                    new [] 
+                    {
+                        (new DateTime(2021,01,4), new DateTime(2021,01,10)),
+                        (new DateTime(2021, 02,06), new DateTime(2021,02,19)),
+                        (new DateTime(2021,03,20), new DateTime(2021,03,26))
+                    },
                     new List<(int, decimal)>
                     {
                         (20, 3170),
@@ -806,11 +1646,15 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (32, 4300),
                         (33, 7000),
                         (34, 9800),
-                        (35, 3000)
-                    });
+                        (35, 3000)});
                 FillRates(
                     dbContext,
-                    new[] {32, 34},
+                    //new[] { 32, 34 },
+                    new [] 
+                    {
+                        (new DateTime(2021,01,11), new DateTime(2021,02,05)),
+                        (new DateTime(2021, 02,20), new DateTime(2021,03,19))
+                    },
                     new List<(int, decimal)>
                     {
                         (20, 2465),
@@ -828,11 +1672,13 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (32, 3755),
                         (33, 6090),
                         (34, 8460),
-                        (35, 30000)
-                    });
+                        (35, 30000)});
                 FillRates(
                     dbContext,
-                    new[] {36},
+                    new [] 
+                    {
+                        (new DateTime(2021,03,27), new DateTime(2021,04,10))
+                    },
                     new List<(int, decimal)>
                     {
                         (20, 3780),
@@ -850,11 +1696,13 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (32, 5245),
                         (33, 8780),
                         (34, 11780),
-                        (35, 36000)
-                    });
+                        (35, 36000)});
                 FillRates(
                     dbContext,
-                    new[] {37},
+                    new [] 
+                    {
+                        (new DateTime(2021,04,11), new DateTime(2021,05,07))
+                    },
                     new List<(int, decimal)>
                     {
                         (20, 2465),
@@ -872,875 +1720,1305 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (32, 3755),
                         (33, 6090),
                         (34, 8460),
-                        (35, 30000)
-                    });
-
+                        (35, 30000)});
                 #endregion
-
-                #region DiscountRates
-
-                //palace
-                var offers =
-                    new (int discountPct, DateTime bookBy, DateTime validFrom, DateTime validTo, string bookingCode,
-                        MultiLanguage<string> details)[]
+                dbContext.SaveChanges();
+                #region AddPromotionalOffers
+                var promotionalOffers = new[]
+                {
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 25,
+                        BookByDate = new DateTime(2019, 12, 13),
+                        ValidFromDate = new DateTime(2020, 01, 08),
+                        ValidToDate = new DateTime(2020, 02, 07),
+                        BookingCode = "25% PROMO",
+                        Details = new MultiLanguage<string>
                         {
-                            (25, new DateTime(2019, 12, 13), new DateTime(2020, 1, 8), new DateTime(2020, 2, 21), "25% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, DECEMBER 13, 2019 receive a 25% discount"}),
-                            (20, new DateTime(2019, 12, 13), new DateTime(2020, 2, 22), new DateTime(2020, 3, 20), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, DECEMBER 13, 2019 receive a 20% discount"}),
-                            (30, new DateTime(2019, 12, 13), new DateTime(2020, 3, 21), new DateTime(2020, 3, 27), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, DECEMBER 13, 2019 receive a 30% discount"}),
-                            (35, new DateTime(2020, 2, 28), new DateTime(2020, 3, 28), new DateTime(2020, 4, 3), "35% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2020 receive a 35% discount"}),
-                            (20, new DateTime(2020, 2, 28), new DateTime(2020, 4, 4), new DateTime(2020, 4, 12), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2020 receive a 20% discount"}),
-
-                            (30, new DateTime(2020, 2, 28), new DateTime(2020, 4, 13), new DateTime(2020, 4, 18), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2020 receive a 30% discount"}),
-
-                            (25, new DateTime(2020, 2, 28), new DateTime(2020, 4, 19), new DateTime(2020, 5, 3), "25% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2020 receive a 25% discount"}),
-
-                            (30, new DateTime(2020, 4, 3), new DateTime(2020, 5, 4), new DateTime(2020, 5, 31), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, APRIL 28, 2020 receive a 30% discount"}),
-
-                            (30, new DateTime(2020, 5, 8), new DateTime(2020, 6, 1), new DateTime(2020, 9, 4), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, MAY 8, 2020 receive a 30% discount"}),
-
-                            (40, new DateTime(2020, 8, 14), new DateTime(2020, 9, 5), new DateTime(2020, 9, 25), "40% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, AUGUST 14, 2020 receive a 40% discount"}),
-
-                            (25, new DateTime(2020, 8, 14), new DateTime(2020, 9, 26), new DateTime(2020, 10, 16), "25% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, AUGUST 14, 2020 receive a 25% discount"}),
-
-                            (20, new DateTime(2020, 8, 14), new DateTime(2020, 10, 17), new DateTime(2020, 12, 4), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, AUGUST 14, 2020 receive a 20% discount"}),
-
-                            (30, new DateTime(2020, 10, 2), new DateTime(2020, 12, 5), new DateTime(2020, 12, 18), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, OCTOBER 2, 2020 receive a 30% discount"}),
-
-                            (20, new DateTime(2020, 11, 1), new DateTime(2020, 12, 19), new DateTime(2020, 12, 25), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, NOVEMBER 1, 2020 receive a 20% discount"}),
-
-                            (10, new DateTime(2020, 11, 1), new DateTime(2020, 12, 26), new DateTime(2021, 1, 3), "10% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, NOVEMBER 1, 2020 receive a 10% discount"}),
-
-                            (20, new DateTime(2020, 11, 1), new DateTime(2021, 1, 4), new DateTime(2021, 4, 10), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, NOVEMBER 1, 2020 receive a 20% discount"}),
-
-                            (20, new DateTime(2021, 2, 26), new DateTime(2021, 4, 11), new DateTime(2021, 5, 7), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2021 receive a 20% discount"})
-                        };
-                FillDiscountRates(dbContext, new[] {20, 21, 22, 23, 24, 25, 26}, offers);
-
-                //arabian court
-                offers =
-                    new (int discountPct, DateTime bookBy, DateTime validFrom, DateTime validTo, string bookingCode,
-                        MultiLanguage<string> details)[]
+                            En =
+                                "Book on or before Friday, DECEMBER 13, 2019, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 20,
+                        BookByDate = new DateTime(2019, 12, 13),
+                        ValidFromDate = new DateTime(2020, 02, 08),
+                        ValidToDate = new DateTime(2020, 03, 20),
+                        BookingCode = "20% PROMO",
+                        Details = new MultiLanguage<string>
                         {
-                            (30, new DateTime(2019, 12, 13), new DateTime(2020, 1, 8), new DateTime(2020, 2, 21), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, DECEMBER 13, 2019 receive a 30% discount"}),
-                            (25, new DateTime(2019, 12, 13), new DateTime(2020, 2, 22), new DateTime(2020, 3, 20), "25% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, DECEMBER 13, 2019 receive a 25% discount"}),
-                            (35, new DateTime(2019, 12, 13), new DateTime(2020, 3, 21), new DateTime(2020, 3, 27), "35% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, DECEMBER 13, 2019 receive a 35% discount"}),
-                            (35, new DateTime(2020, 2, 28), new DateTime(2020, 3, 28), new DateTime(2020, 4, 3), "35% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2020 receive a 35% discount"}),
-                            (25, new DateTime(2020, 2, 28), new DateTime(2020, 4, 4), new DateTime(2020, 4, 12), "25% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2020 receive a 25% discount"}),
-                            (35, new DateTime(2020, 2, 28), new DateTime(2020, 4, 13), new DateTime(2020, 4, 18), "35% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2020 receive a 35% discount"}),
-                            (30, new DateTime(2020, 2, 28), new DateTime(2020, 4, 19), new DateTime(2020, 5, 3), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2020 receive a 30% discount"}),
-                            (35, new DateTime(2020, 4, 3), new DateTime(2020, 5, 4), new DateTime(2020, 5, 31), "35% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, APRIL 28, 2020 receive a 35% discount"}),
-                            (30, new DateTime(2020, 5, 8), new DateTime(2020, 6, 1), new DateTime(2020, 9, 4), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, MAY 8, 2020 receive a 30% discount"}),
-                            (30, new DateTime(2020, 8, 14), new DateTime(2020, 9, 5), new DateTime(2020, 9, 25), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, AUGUST 14, 2020 receive a 30% discount"}),
-                            (30, new DateTime(2020, 8, 14), new DateTime(2020, 9, 26), new DateTime(2020, 10, 16), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, AUGUST 14, 2020 receive a 30% discount"}),
-                            (20, new DateTime(2020, 8, 14), new DateTime(2020, 10, 17), new DateTime(2020, 12, 4), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, AUGUST 14, 2020 receive a 20% discount"}),
-                            (30, new DateTime(2020, 10, 2), new DateTime(2020, 12, 5), new DateTime(2020, 12, 18), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, OCTOBER 2, 2020 receive a 30% discount"}),
-                            (20, new DateTime(2020, 11, 1), new DateTime(2020, 12, 19), new DateTime(2020, 12, 25), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, NOVEMBER 1, 2020 receive a 20% discount"}),
-                            (10, new DateTime(2020, 11, 1), new DateTime(2020, 12, 26), new DateTime(2021, 1, 3), "10% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, NOVEMBER 1, 2020 receive a 10% discount"}),
-                            (20, new DateTime(2020, 11, 1), new DateTime(2021, 1, 4), new DateTime(2021, 3, 10), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, NOVEMBER 1, 2020 receive a 20% discount"}),
-                            (20, new DateTime(2021, 2, 26), new DateTime(2021, 3, 11), new DateTime(2021, 5, 7), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 26, 2021 receive a 20% discount"})
-                        };
-                FillDiscountRates(dbContext, new[] {27, 28, 29, 30, 31}, offers);
-
-                //residence and spa
-                offers =
-                    new (int discountPct, DateTime bookBy, DateTime validFrom, DateTime validTo, string bookingCode,
-                        MultiLanguage<string> details)[]
+                            En =
+                                "Book on or before Friday, DECEMBER 13, 2019, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 25,
+                        BookByDate = new DateTime(2019, 12, 13),
+                        ValidFromDate = new DateTime(2020, 02, 08),
+                        ValidToDate = new DateTime(2020, 03, 20),
+                        BookingCode = "25% PROMO",
+                        Details = new MultiLanguage<string>
                         {
-                            (30, new DateTime(2019, 12, 13), new DateTime(2020, 1, 8), new DateTime(2020, 2, 21), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, DECEMBER 13, 2019 receive a 30% discount"}),
-                            (25, new DateTime(2019, 12, 13), new DateTime(2020, 2, 22), new DateTime(2020, 3, 20), "25% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, DECEMBER 13, 2019 receive a 25% discount"}),
-                            (35, new DateTime(2019, 12, 13), new DateTime(2020, 3, 21), new DateTime(2020, 3, 27), "35% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, DECEMBER 13, 2019 receive a 35% discount"}),
-                            (35, new DateTime(2020, 2, 28), new DateTime(2020, 3, 28), new DateTime(2020, 4, 3), "35% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2020 receive a 35% discount"}),
-                            (25, new DateTime(2020, 2, 28), new DateTime(2020, 4, 4), new DateTime(2020, 4, 12), "25% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2020 receive a 25% discount"}),
-                            (35, new DateTime(2020, 2, 28), new DateTime(2020, 4, 13), new DateTime(2020, 4, 18), "35% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2020 receive a 35% discount"}),
-                            (30, new DateTime(2020, 2, 28), new DateTime(2020, 4, 19), new DateTime(2020, 5, 3), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2020 receive a 30% discount"}),
-                            (35, new DateTime(2020, 4, 3), new DateTime(2020, 5, 4), new DateTime(2020, 5, 31), "35% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, APRIL 28, 2020 receive a 35% discount"}),
-                            (30, new DateTime(2020, 5, 8), new DateTime(2020, 6, 1), new DateTime(2020, 9, 4), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, MAY 8, 2020 receive a 30% discount"}),
-                            (30, new DateTime(2020, 8, 14), new DateTime(2020, 9, 5), new DateTime(2020, 9, 25), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, AUGUST 14, 2020 receive a 30% discount"}),
-                            (30, new DateTime(2020, 8, 14), new DateTime(2020, 9, 26), new DateTime(2020, 10, 16), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, AUGUST 14, 2020 receive a 30% discount"}),
-                            (20, new DateTime(2020, 8, 14), new DateTime(2020, 10, 17), new DateTime(2020, 12, 4), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, AUGUST 14, 2020 receive a 20% discount"}),
-                            (30, new DateTime(2020, 10, 2), new DateTime(2020, 12, 5), new DateTime(2020, 12, 18), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, OCTOBER 2, 2020 receive a 30% discount"}),
-                            (20, new DateTime(2020, 11, 1), new DateTime(2020, 12, 19), new DateTime(2020, 12, 25), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, NOVEMBER 1, 2020 receive a 20% discount"}),
-                            (10, new DateTime(2020, 11, 1), new DateTime(2020, 12, 26), new DateTime(2021, 1, 3), "10% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, NOVEMBER 1, 2020 receive a 10% discount"}),
-                            (20, new DateTime(2020, 11, 1), new DateTime(2021, 1, 4), new DateTime(2021, 3, 10), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, NOVEMBER 1, 2020 receive a 20% discount"}),
-                            (20, new DateTime(2021, 2, 26), new DateTime(2021, 3, 11), new DateTime(2021, 5, 7), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2021 receive a 20% discount"})
-                        };
-                FillDiscountRates(dbContext, new[] {32, 33, 34, 35}, offers);
+                            En =
+                                "Book on or before Friday, DECEMBER 13, 2019, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 20,
+                        BookByDate = new DateTime(2020, 02, 28),
+                        ValidFromDate = new DateTime(2020, 03, 28),
+                        ValidToDate = new DateTime(2020, 04, 03),
+                        BookingCode = "20% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, FEBRUARY 28, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 15,
+                        BookByDate = new DateTime(2020, 02, 28),
+                        ValidFromDate = new DateTime(2020, 04, 04),
+                        ValidToDate = new DateTime(2020, 04, 12),
+                        BookingCode = "15% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, FEBRUARY 28, 2020, receive 15% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 25,
+                        BookByDate = new DateTime(2020, 02, 28),
+                        ValidFromDate = new DateTime(2020, 04, 13),
+                        ValidToDate = new DateTime(2020, 04, 18),
+                        BookingCode = "25% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, FEBRUARY 28, 2020, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 20,
+                        BookByDate = new DateTime(2020, 02, 28),
+                        ValidFromDate = new DateTime(2020, 04, 19),
+                        ValidToDate = new DateTime(2020, 05, 03),
+                        BookingCode = "20% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, FEBRUARY 28, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 30,
+                        BookByDate = new DateTime(2020, 03, 03),
+                        ValidFromDate = new DateTime(2020, 05, 04),
+                        ValidToDate = new DateTime(2020, 05, 31),
+                        BookingCode = "30% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, APRIL 03, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 30,
+                        BookByDate = new DateTime(2020, 05, 08),
+                        ValidFromDate = new DateTime(2020, 06, 01),
+                        ValidToDate = new DateTime(2020, 09, 04),
+                        BookingCode = "30% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, MAY 08, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 30,
+                        BookByDate = new DateTime(2020, 08, 14),
+                        ValidFromDate = new DateTime(2020, 09, 05),
+                        ValidToDate = new DateTime(2020, 09, 20),
+                        BookingCode = "30% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, AUGUST 14, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 10,
+                        BookByDate = new DateTime(2020, 08, 14),
+                        ValidFromDate = new DateTime(2020, 10, 17),
+                        ValidToDate = new DateTime(2020, 11, 06),
+                        BookingCode = "10% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, AUGUST 14, 2020, receive 10% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 20,
+                        BookByDate = new DateTime(2020, 08, 14),
+                        ValidFromDate = new DateTime(2020, 11, 07),
+                        ValidToDate = new DateTime(2020, 12, 04),
+                        BookingCode = "20% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, AUGUST 14, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 30,
+                        BookByDate = new DateTime(2020, 10, 02),
+                        ValidFromDate = new DateTime(2020, 12, 05),
+                        ValidToDate = new DateTime(2020, 12, 18),
+                        BookingCode = "30% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, OCTOBER 02, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 20,
+                        BookByDate = new DateTime(2020, 11, 01),
+                        ValidFromDate = new DateTime(2020, 12, 19),
+                        ValidToDate = new DateTime(2020, 12, 25),
+                        BookingCode = "20% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, NOVEMBER 01, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 10,
+                        BookByDate = new DateTime(2020, 08, 14),
+                        ValidFromDate = new DateTime(2020, 12, 26),
+                        ValidToDate = new DateTime(2021, 01, 03),
+                        BookingCode = "10% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, AUGUST 14, 2020, receive 10% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 20,
+                        BookByDate = new DateTime(2020, 11, 01),
+                        ValidFromDate = new DateTime(2021, 01, 24),
+                        ValidToDate = new DateTime(2021, 03, 26),
+                        BookingCode = "20% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, NOVEMBER 01, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 10,
+                        BookByDate = new DateTime(2020, 11, 01),
+                        ValidFromDate = new DateTime(2021, 03, 27),
+                        ValidToDate = new DateTime(2021, 04, 10),
+                        BookingCode = "10% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, NOVEMBER 01, 2020, receive 10% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 20,
+                        BookByDate = new DateTime(2021, 02, 26),
+                        ValidFromDate = new DateTime(2021, 04, 11),
+                        ValidToDate = new DateTime(2021, 05, 07),
+                        BookingCode = "10% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, FEBRUARY 26, 2021, receive 10% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    }
+                };
+                AddPromotionalOffers(dbContext, new[] {32, 33, 34, 35}, promotionalOffers);
 
+                promotionalOffers = new[]
+                {
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 30,
+                        BookByDate = new DateTime(2019, 12, 13),
+                        ValidFromDate = new DateTime(2020, 01, 08),
+                        ValidToDate = new DateTime(2020, 02, 21),
+                        BookingCode = "30% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, DECEMBER 13, 2019, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 25,
+                        BookByDate = new DateTime(2019, 12, 13),
+                        ValidFromDate = new DateTime(2020, 02, 22),
+                        ValidToDate = new DateTime(2020, 03, 20),
+                        BookingCode = "25% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, DECEMBER 13, 2019, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 35,
+                        BookByDate = new DateTime(2019, 12, 13),
+                        ValidFromDate = new DateTime(2020, 03, 21),
+                        ValidToDate = new DateTime(2020, 03, 27),
+                        BookingCode = "35% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, DECEMBER 13, 2019, receive 35% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 35,
+                        BookByDate = new DateTime(2020, 02, 28),
+                        ValidFromDate = new DateTime(2020, 03, 28),
+                        ValidToDate = new DateTime(2020, 04, 03),
+                        BookingCode = "35% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, FEBRUARY 28, 2020, receive 35% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 25,
+                        BookByDate = new DateTime(2020, 02, 28),
+                        ValidFromDate = new DateTime(2020, 04, 04),
+                        ValidToDate = new DateTime(2020, 04, 12),
+                        BookingCode = "25% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, FEBRUARY 28, 2020, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 35,
+                        BookByDate = new DateTime(2020, 02, 28),
+                        ValidFromDate = new DateTime(2020, 04, 13),
+                        ValidToDate = new DateTime(2020, 04, 18),
+                        BookingCode = "35% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, FEBRUARY 28, 2020, receive 35% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 30,
+                        BookByDate = new DateTime(2020, 02, 28),
+                        ValidFromDate = new DateTime(2020, 04, 19),
+                        ValidToDate = new DateTime(2020, 05, 03),
+                        BookingCode = "30% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, FEBRUARY 28, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 35,
+                        BookByDate = new DateTime(2020, 04, 03),
+                        ValidFromDate = new DateTime(2020, 05, 04),
+                        ValidToDate = new DateTime(2020, 05, 31),
+                        BookingCode = "35% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, APRIL 03, 2020, receive 35% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 30,
+                        BookByDate = new DateTime(2020, 05, 08),
+                        ValidFromDate = new DateTime(2020, 06, 01),
+                        ValidToDate = new DateTime(2020, 09, 04),
+                        BookingCode = "30% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, MAY 08, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 30,
+                        BookByDate = new DateTime(2020, 08, 14),
+                        ValidFromDate = new DateTime(2020, 09, 05),
+                        ValidToDate = new DateTime(2020, 09, 25),
+                        BookingCode = "30% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, AUGUST 14, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 30,
+                        BookByDate = new DateTime(2020, 08, 14),
+                        ValidFromDate = new DateTime(2020, 09, 26),
+                        ValidToDate = new DateTime(2020, 10, 16),
+                        BookingCode = "30% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, AUGUST 14, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 20,
+                        BookByDate = new DateTime(2020, 08, 14),
+                        ValidFromDate = new DateTime(2020, 10, 17),
+                        ValidToDate = new DateTime(2020, 12, 04),
+                        BookingCode = "20% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, AUGUST 14, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 30,
+                        BookByDate = new DateTime(2020, 10, 02),
+                        ValidFromDate = new DateTime(2020, 12, 05),
+                        ValidToDate = new DateTime(2020, 12, 18),
+                        BookingCode = "30% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, OCTOBER 02, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 20,
+                        BookByDate = new DateTime(2020, 11, 01),
+                        ValidFromDate = new DateTime(2020, 12, 19),
+                        ValidToDate = new DateTime(2020, 12, 25),
+                        BookingCode = "20% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, NOVEMBER 01, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 10,
+                        BookByDate = new DateTime(2020, 11, 01),
+                        ValidFromDate = new DateTime(2020, 12, 26),
+                        ValidToDate = new DateTime(2021, 01, 03),
+                        BookingCode = "10% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, NOVEMBER 01, 2020, receive 10% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 20,
+                        BookByDate = new DateTime(2020, 11, 01),
+                        ValidFromDate = new DateTime(2021, 01, 04),
+                        ValidToDate = new DateTime(2021, 04, 10),
+                        BookingCode = "20% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, NOVEMBER 01, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 20,
+                        BookByDate = new DateTime(2021, 02, 26),
+                        ValidFromDate = new DateTime(2021, 04, 11),
+                        ValidToDate = new DateTime(2021, 05, 07),
+                        BookingCode = "20% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, FEBRUARY 26, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    }
+                };
+                AddPromotionalOffers(dbContext, new[] {27, 28, 29, 30, 31}, promotionalOffers);
+
+                promotionalOffers = new[]
+                {
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 25,
+                        BookByDate = new DateTime(2019, 12, 13),
+                        ValidFromDate = new DateTime(2020, 01, 08),
+                        ValidToDate = new DateTime(2020, 02, 21),
+                        BookingCode = "25% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, DECEMBER 13, 2019, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 20,
+                        BookByDate = new DateTime(2019, 12, 13),
+                        ValidFromDate = new DateTime(2020, 02, 22),
+                        ValidToDate = new DateTime(2020, 03, 20),
+                        BookingCode = "20% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, DECEMBER 13, 2019, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 30,
+                        BookByDate = new DateTime(2019, 12, 13),
+                        ValidFromDate = new DateTime(2020, 03, 21),
+                        ValidToDate = new DateTime(2020, 03, 27),
+                        BookingCode = "30% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, DECEMBER 13, 2019, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 20,
+                        BookByDate = new DateTime(2020, 02, 28),
+                        ValidFromDate = new DateTime(2020, 03, 28),
+                        ValidToDate = new DateTime(2020, 04, 03),
+                        BookingCode = "20% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, FEBRUARY 28, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 20,
+                        BookByDate = new DateTime(2020, 02, 28),
+                        ValidFromDate = new DateTime(2020, 04, 04),
+                        ValidToDate = new DateTime(2020, 04, 12),
+                        BookingCode = "20% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, FEBRUARY 28, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 30,
+                        BookByDate = new DateTime(2020, 02, 28),
+                        ValidFromDate = new DateTime(2020, 04, 13),
+                        ValidToDate = new DateTime(2020, 04, 18),
+                        BookingCode = "30% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, FEBRUARY 28, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 25,
+                        BookByDate = new DateTime(2020, 02, 28),
+                        ValidFromDate = new DateTime(2020, 04, 19),
+                        ValidToDate = new DateTime(2020, 05, 03),
+                        BookingCode = "25% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, FEBRUARY 28, 2020, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 30,
+                        BookByDate = new DateTime(2020, 04, 03),
+                        ValidFromDate = new DateTime(2020, 05, 04),
+                        ValidToDate = new DateTime(2020, 05, 31),
+                        BookingCode = "30% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, APRIL 04, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 30,
+                        BookByDate = new DateTime(2020, 04, 03),
+                        ValidFromDate = new DateTime(2020, 06, 01),
+                        ValidToDate = new DateTime(2020, 09, 04),
+                        BookingCode = "30% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, MAY 08, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 40,
+                        BookByDate = new DateTime(2020, 08, 14),
+                        ValidFromDate = new DateTime(2020, 09, 05),
+                        ValidToDate = new DateTime(2020, 09, 25),
+                        BookingCode = "40% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, AUGUST 14, 2020, receive 40% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 25,
+                        BookByDate = new DateTime(2020, 08, 14),
+                        ValidFromDate = new DateTime(2020, 09, 26),
+                        ValidToDate = new DateTime(2020, 10, 16),
+                        BookingCode = "25% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, AUGUST 14, 2020, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 20,
+                        BookByDate = new DateTime(2020, 08, 14),
+                        ValidFromDate = new DateTime(2020, 10, 17),
+                        ValidToDate = new DateTime(2020, 12, 04),
+                        BookingCode = "20% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, AUGUST 14, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 30,
+                        BookByDate = new DateTime(2020, 10, 02),
+                        ValidFromDate = new DateTime(2020, 12, 05),
+                        ValidToDate = new DateTime(2020, 12, 18),
+                        BookingCode = "30% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, OCTOBER 02, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 20,
+                        BookByDate = new DateTime(2020, 11, 01),
+                        ValidFromDate = new DateTime(2020, 12, 19),
+                        ValidToDate = new DateTime(2020, 12, 25),
+                        BookingCode = "20% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, NOVEMBER 01, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 10,
+                        BookByDate = new DateTime(2020, 11, 01),
+                        ValidFromDate = new DateTime(2020, 12, 26),
+                        ValidToDate = new DateTime(2021, 01, 03),
+                        BookingCode = "10% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, NOVEMBER 01, 2020, receive 10% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 20,
+                        BookByDate = new DateTime(2020, 11, 01),
+                        ValidFromDate = new DateTime(2021, 01, 04),
+                        ValidToDate = new DateTime(2021, 04, 10),
+                        BookingCode = "20% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, NOVEMBER 01, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    },
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 20,
+                        BookByDate = new DateTime(2021, 02, 26),
+                        ValidFromDate = new DateTime(2021, 04, 11),
+                        ValidToDate = new DateTime(2021, 05, 07),
+                        BookingCode = "20% PROMO",
+                        Details = new MultiLanguage<string>
+                        {
+                            En =
+                                "Book on or before Friday, FEBRUARY 26, 2021, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                        }
+                    }
+                };
+                AddPromotionalOffers(dbContext, new[] {20, 21, 22, 23, 24, 25, 26}, promotionalOffers);
                 #endregion
-
-                #region AddStopSaleDate //Test data
-
-                dbContext.StopSaleDates.AddRange(new StopSaleDate
-                    {
-                        RoomId = 20,
-                        StartDate = new DateTime(2020, 4, 1),
-                        EndDate = new DateTime(2020, 4, 10)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 20,
-                        StartDate = new DateTime(2020, 7, 10),
-                        EndDate = new DateTime(2020, 7, 13)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 20,
-                        StartDate = new DateTime(2020, 10, 15),
-                        EndDate = new DateTime(2020, 10, 18)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 20,
-                        StartDate = new DateTime(2021, 1, 10),
-                        EndDate = new DateTime(2021, 1, 12)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 21,
-                        StartDate = new DateTime(2020, 2, 5),
-                        EndDate = new DateTime(2020, 2, 7)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 21,
-                        StartDate = new DateTime(2020, 10, 15),
-                        EndDate = new DateTime(2020, 10, 18)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 21,
-                        StartDate = new DateTime(2020, 12, 28),
-                        EndDate = new DateTime(2021, 1, 2)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 22,
-                        StartDate = new DateTime(2020, 2, 5),
-                        EndDate = new DateTime(2020, 2, 7)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 22,
-                        StartDate = new DateTime(2020, 10, 15),
-                        EndDate = new DateTime(2020, 10, 18)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 22,
-                        StartDate = new DateTime(2020, 12, 28),
-                        EndDate = new DateTime(2020, 12, 29)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 23,
-                        StartDate = new DateTime(2020, 2, 5),
-                        EndDate = new DateTime(2020, 2, 10)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 23,
-                        StartDate = new DateTime(2020, 11, 1),
-                        EndDate = new DateTime(2020, 11, 3)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 23,
-                        StartDate = new DateTime(2020, 8, 7),
-                        EndDate = new DateTime(2020, 8, 10)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 24,
-                        StartDate = new DateTime(2020, 3, 8),
-                        EndDate = new DateTime(2020, 3, 10)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 24,
-                        StartDate = new DateTime(2020, 7, 1),
-                        EndDate = new DateTime(2020, 7, 3)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 24,
-                        StartDate = new DateTime(2020, 9, 3),
-                        EndDate = new DateTime(2020, 9, 5)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 25,
-                        StartDate = new DateTime(2020, 1, 29),
-                        EndDate = new DateTime(2020, 2, 1)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 25,
-                        StartDate = new DateTime(2020, 9, 15),
-                        EndDate = new DateTime(2020, 9, 16)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 25,
-                        StartDate = new DateTime(2020, 12, 30),
-                        EndDate = new DateTime(2021, 1, 2)
-                    },
-                    new StopSaleDate
-                    {
-                        RoomId = 26,
-                        StartDate = new DateTime(2020, 1, 10),
-                        EndDate = new DateTime(2020, 1, 12)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 26,
-                        StartDate = new DateTime(2020, 3, 4),
-                        EndDate = new DateTime(2020, 3, 7)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 26,
-                        StartDate = new DateTime(2020, 6, 9),
-                        EndDate = new DateTime(2020, 6, 11)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 27,
-                        StartDate = new DateTime(2020, 1, 18),
-                        EndDate = new DateTime(2020, 1, 19)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 27,
-                        StartDate = new DateTime(2020, 2, 27),
-                        EndDate = new DateTime(2020, 3, 1)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 27,
-                        StartDate = new DateTime(2020, 12, 26),
-                        EndDate = new DateTime(2020, 12, 27)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 28,
-                        StartDate = new DateTime(2020, 4, 5),
-                        EndDate = new DateTime(2020, 4, 7)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 28,
-                        StartDate = new DateTime(2020, 11, 3),
-                        EndDate = new DateTime(2020, 11, 5)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 28,
-                        StartDate = new DateTime(2020, 12, 31),
-                        EndDate = new DateTime(2021, 1, 1)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 29,
-                        StartDate = new DateTime(2020, 2, 7),
-                        EndDate = new DateTime(2020, 2, 10)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 29,
-                        StartDate = new DateTime(2020, 4, 3),
-                        EndDate = new DateTime(2020, 4, 5)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 29,
-                        StartDate = new DateTime(2020, 12, 1),
-                        EndDate = new DateTime(2021, 1, 1)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 30,
-                        StartDate = new DateTime(2020, 6, 1),
-                        EndDate = new DateTime(2020, 9, 1)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 30,
-                        StartDate = new DateTime(2020, 9, 2),
-                        EndDate = new DateTime(2020, 9, 4)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 30,
-                        StartDate = new DateTime(2020, 12, 1),
-                        EndDate = new DateTime(2021, 12, 2)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 31,
-                        StartDate = new DateTime(2020, 1, 6),
-                        EndDate = new DateTime(2020, 1, 8)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 31,
-                        StartDate = new DateTime(2020, 2, 14),
-                        EndDate = new DateTime(2020, 2, 16)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 31,
-                        StartDate = new DateTime(2020, 7, 5),
-                        EndDate = new DateTime(2021, 7, 8)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 32,
-                        StartDate = new DateTime(2020, 9, 12),
-                        EndDate = new DateTime(2020, 9, 15)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 32,
-                        StartDate = new DateTime(2020, 10, 2),
-                        EndDate = new DateTime(2020, 10, 4)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 32,
-                        StartDate = new DateTime(2019, 12, 3),
-                        EndDate = new DateTime(2019, 12, 4)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 33,
-                        StartDate = new DateTime(2020, 3, 6),
-                        EndDate = new DateTime(2020, 3, 8)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 33,
-                        StartDate = new DateTime(2020, 4, 10),
-                        EndDate = new DateTime(2020, 4, 13)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 33,
-                        StartDate = new DateTime(2020, 7, 1),
-                        EndDate = new DateTime(2020, 8, 1)
-                    },
-                    new StopSaleDate
-                    {
-                        RoomId = 34,
-                        StartDate = new DateTime(2020, 3, 3),
-                        EndDate = new DateTime(2020, 3, 5)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 34,
-                        StartDate = new DateTime(2020, 4, 16),
-                        EndDate = new DateTime(2020, 4, 19)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 34,
-                        StartDate = new DateTime(2020, 11, 23),
-                        EndDate = new DateTime(2020, 11, 26)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 35,
-                        StartDate = new DateTime(2020, 5, 1),
-                        EndDate = new DateTime(2020, 5, 6)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 35,
-                        StartDate = new DateTime(2020, 7, 19),
-                        EndDate = new DateTime(2020, 7, 21)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 35,
-                        StartDate = new DateTime(2020, 11, 28),
-                        EndDate = new DateTime(2020, 12, 3)
-                    });
-
+                dbContext.SaveChanges();
+                #region AddRoomAvailabilityRestrictions //Test data
+                dbContext.RoomAvailabilityRestrictions.AddRange(new RoomAvailabilityRestrictions()
+                {
+                    RoomId = 20,
+                    StartsFromDate = new DateTime(2020, 4, 1),
+                    EndsToDate = new DateTime(2020, 4, 10),
+                    Restrictions = SaleRestrictions.StopSale
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 20,
+                    StartsFromDate = new DateTime(2020, 7, 10),
+                    EndsToDate = new DateTime(2020, 7, 13)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 20,
+                    StartsFromDate = new DateTime(2020, 10, 15),
+                    EndsToDate = new DateTime(2020, 10, 18)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 20,
+                    StartsFromDate = new DateTime(2021, 1, 10),
+                    EndsToDate = new DateTime(2021, 1, 12)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 21,
+                    StartsFromDate = new DateTime(2020, 2, 5),
+                    EndsToDate = new DateTime(2020, 2, 7)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 21,
+                    StartsFromDate = new DateTime(2020, 10, 15),
+                    EndsToDate = new DateTime(2020, 10, 18)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 21,
+                    StartsFromDate = new DateTime(2020, 12, 28),
+                    EndsToDate = new DateTime(2021, 1, 2)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 22,
+                    StartsFromDate = new DateTime(2020, 2, 5),
+                    EndsToDate = new DateTime(2020, 2, 7)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 22,
+                    StartsFromDate = new DateTime(2020, 10, 15),
+                    EndsToDate = new DateTime(2020, 10, 18)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 22,
+                    StartsFromDate = new DateTime(2020, 12, 28),
+                    EndsToDate = new DateTime(2020, 12, 29)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 23,
+                    StartsFromDate = new DateTime(2020, 2, 5),
+                    EndsToDate = new DateTime(2020, 2, 10)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 23,
+                    StartsFromDate = new DateTime(2020, 11, 1),
+                    EndsToDate = new DateTime(2020, 11, 3)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 23,
+                    StartsFromDate = new DateTime(2020, 8, 7),
+                    EndsToDate = new DateTime(2020, 8, 10)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 24,
+                    StartsFromDate = new DateTime(2020, 3, 8),
+                    EndsToDate = new DateTime(2020, 3, 10)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 24,
+                    StartsFromDate = new DateTime(2020, 7, 1),
+                    EndsToDate = new DateTime(2020, 7, 3)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 24,
+                    StartsFromDate = new DateTime(2020, 9, 3),
+                    EndsToDate = new DateTime(2020, 9, 5)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 25,
+                    StartsFromDate = new DateTime(2020, 1, 29),
+                    EndsToDate = new DateTime(2020, 2, 1)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 25,
+                    StartsFromDate = new DateTime(2020, 9, 15),
+                    EndsToDate = new DateTime(2020, 9, 16)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 25,
+                    StartsFromDate = new DateTime(2020, 12, 30),
+                    EndsToDate = new DateTime(2021, 1, 2)
+                },
+                new RoomAvailabilityRestrictions
+                {
+                    RoomId = 26,
+                    StartsFromDate = new DateTime(2020, 1, 10),
+                    EndsToDate = new DateTime(2020, 1, 12)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 26,
+                    StartsFromDate = new DateTime(2020, 3, 4),
+                    EndsToDate = new DateTime(2020, 3, 7)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 26,
+                    StartsFromDate = new DateTime(2020, 6, 9),
+                    EndsToDate = new DateTime(2020, 6, 11)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 27,
+                    StartsFromDate = new DateTime(2020, 1, 18),
+                    EndsToDate = new DateTime(2020, 1, 19)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 27,
+                    StartsFromDate = new DateTime(2020, 2, 27),
+                    EndsToDate = new DateTime(2020, 3, 1)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 27,
+                    StartsFromDate = new DateTime(2020, 12, 26),
+                    EndsToDate = new DateTime(2020, 12, 27)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 28,
+                    StartsFromDate = new DateTime(2020, 4, 5),
+                    EndsToDate = new DateTime(2020, 4, 7)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 28,
+                    StartsFromDate = new DateTime(2020, 11, 3),
+                    EndsToDate = new DateTime(2020, 11, 5)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 28,
+                    StartsFromDate = new DateTime(2020, 12, 31),
+                    EndsToDate = new DateTime(2021, 1, 1)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 29,
+                    StartsFromDate = new DateTime(2020, 2, 7),
+                    EndsToDate = new DateTime(2020, 2, 10)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 29,
+                    StartsFromDate = new DateTime(2020, 4, 3),
+                    EndsToDate = new DateTime(2020, 4, 5)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 29,
+                    StartsFromDate = new DateTime(2020, 12, 1),
+                    EndsToDate = new DateTime(2021, 1, 1)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 30,
+                    StartsFromDate = new DateTime(2020, 6, 1),
+                    EndsToDate = new DateTime(2020, 9, 1)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 30,
+                    StartsFromDate = new DateTime(2020, 9, 2),
+                    EndsToDate = new DateTime(2020, 9, 4)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 30,
+                    StartsFromDate = new DateTime(2020, 12, 1),
+                    EndsToDate = new DateTime(2021, 12, 2)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 31,
+                    StartsFromDate = new DateTime(2020, 1, 6),
+                    EndsToDate = new DateTime(2020, 1, 8)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 31,
+                    StartsFromDate = new DateTime(2020, 2, 14),
+                    EndsToDate = new DateTime(2020, 2, 16)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 31,
+                    StartsFromDate = new DateTime(2020, 7, 5),
+                    EndsToDate = new DateTime(2021, 7, 8)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 32,
+                    StartsFromDate = new DateTime(2020, 9, 12),
+                    EndsToDate = new DateTime(2020, 9, 15)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 32,
+                    StartsFromDate = new DateTime(2020, 10, 2),
+                    EndsToDate = new DateTime(2020, 10, 4)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 32,
+                    StartsFromDate = new DateTime(2019, 12, 3),
+                    EndsToDate = new DateTime(2019, 12, 4)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 33,
+                    StartsFromDate = new DateTime(2020, 3, 6),
+                    EndsToDate = new DateTime(2020, 3, 8)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 33,
+                    StartsFromDate = new DateTime(2020, 4, 10),
+                    EndsToDate = new DateTime(2020, 4, 13)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 33,
+                    StartsFromDate = new DateTime(2020, 7, 1),
+                    EndsToDate = new DateTime(2020, 8, 1)
+                },
+                new RoomAvailabilityRestrictions
+                {
+                    RoomId = 34,
+                    StartsFromDate = new DateTime(2020, 3, 3),
+                    EndsToDate = new DateTime(2020, 3, 5)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 34,
+                    StartsFromDate = new DateTime(2020, 4, 16),
+                    EndsToDate = new DateTime(2020, 4, 19)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 34,
+                    StartsFromDate = new DateTime(2020, 11, 23),
+                    EndsToDate = new DateTime(2020, 11, 26)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 35,
+                    StartsFromDate = new DateTime(2020, 5, 1),
+                    EndsToDate = new DateTime(2020, 5, 6)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 35,
+                    StartsFromDate = new DateTime(2020, 7, 19),
+                    EndsToDate = new DateTime(2020, 7, 21)
+                }, new RoomAvailabilityRestrictions
+                {
+                    RoomId = 35,
+                    StartsFromDate = new DateTime(2020, 11, 28),
+                    EndsToDate = new DateTime(2020, 12, 3)
+                });
                 #endregion
+                dbContext.SaveChanges();
+                #region AddAllocationRequirements
+                var roomIds = new []{ 20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34}; 
+                var roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 21 },
+                        StartsFromDate = new DateTime(2020, 01, 08),
+                        EndsToDate = new DateTime(2020, 01, 14)
+                    },
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 21 },
+                        StartsFromDate = new DateTime(2020, 01, 25),
+                        EndsToDate = new DateTime(2020, 02, 07)
+                    },
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 21 },
+                        StartsFromDate = new DateTime(2020, 02, 22),
+                        EndsToDate = new DateTime(2020, 03, 20)
+                    },
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 21 },
+                        StartsFromDate = new DateTime(2020, 04, 19),
+                        EndsToDate = new DateTime(2020, 05, 03)
+                    },
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 21 },
+                        StartsFromDate = new DateTime(2020, 01, 15),
+                        EndsToDate = new DateTime(2020, 01, 24)
+                    },
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 21 },
+                        StartsFromDate = new DateTime(2020, 09, 26),
+                        EndsToDate = new DateTime(2020, 10, 09)
+                    },
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 21 },
+                        StartsFromDate = new DateTime(2020, 09, 26),
+                        EndsToDate = new DateTime(2020, 10, 09)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomIds = new []{ 20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 21 },
+                        StartsFromDate = new DateTime(2020, 02, 08),
+                        EndsToDate = new DateTime(2020, 02, 21)
+                    },
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 21 },
+                        StartsFromDate = new DateTime(2020, 03, 21),
+                        EndsToDate = new DateTime(2020, 03, 27)
+                    },
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 21 },
+                        StartsFromDate = new DateTime(2020, 04, 13),
+                        EndsToDate = new DateTime(2020, 04, 18)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomIds = new []{32, 33, 34};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 21 },
+                        MinimumStayNights = 5,
+                        StartsFromDate = new DateTime(2020, 02, 08),
+                        EndsToDate = new DateTime(2020, 02, 21)
+                    },
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 21 },
+                        MinimumStayNights = 5,
+                        StartsFromDate = new DateTime(2020, 03, 21),
+                        EndsToDate = new DateTime(2020, 03, 27)
+                    },
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 21 },
+                        MinimumStayNights = 5,
+                        StartsFromDate = new DateTime(2020, 04, 13),
+                        EndsToDate = new DateTime(2020, 04, 18)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomIds = new []{20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 28 },
+                        MinimumStayNights = 5,
+                        StartsFromDate = new DateTime(2020, 03, 28),
+                        EndsToDate = new DateTime(2020, 04, 12)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomIds = new []{20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 14 },
+                        StartsFromDate = new DateTime(2020, 05, 04),
+                        EndsToDate = new DateTime(2020, 05, 31)
+                    },
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 14 },
+                        StartsFromDate = new DateTime(2020, 09, 16),
+                        EndsToDate = new DateTime(2020, 09, 25)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomIds = new []{20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 7 },
+                        StartsFromDate = new DateTime(2020, 06, 01),
+                        EndsToDate = new DateTime(2020, 06, 14)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomIds = new []{20, 21, 22, 23, 24, 25, 32, 33, 34};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 7 },
+                        StartsFromDate = new DateTime(2020, 06, 15),
+                        EndsToDate = new DateTime(2020, 09, 04)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomIds = new []{20, 21, 22, 23, 24, 25, 32, 33, 34};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 7 },
+                        StartsFromDate = new DateTime(2020, 09, 05),
+                        EndsToDate = new DateTime(2020, 09, 15)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomIds = new []{20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 7 },
+                        StartsFromDate = new DateTime(2020, 10, 10),
+                        EndsToDate = new DateTime(2020, 10, 16)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 7 },
+                        MinimumStayNights = 3,
+                        StartsFromDate = new DateTime(2020, 10, 17),
+                        EndsToDate = new DateTime(2020, 10, 23)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 35 },
+                        MinimumStayNights = 5,
+                        StartsFromDate = new DateTime(2020, 10, 24),
+                        EndsToDate = new DateTime(2020, 11, 06)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 28 },
+                        MinimumStayNights = 3,
+                        StartsFromDate = new DateTime(2020, 11, 07),
+                        EndsToDate = new DateTime(2020, 12, 04)
+                    },
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 28 },
+                        MinimumStayNights = 3,
+                        StartsFromDate = new DateTime(2020, 12, 19),
+                        EndsToDate = new DateTime(2020, 12, 25)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 21 },
+                        MinimumStayNights = 3,
+                        StartsFromDate = new DateTime(2020, 12, 05),
+                        EndsToDate = new DateTime(2020, 12, 18)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Date = new DateTime(2020,11,01) },
+                        MinimumStayNights = 7,
+                        StartsFromDate = new DateTime(2020, 12, 26),
+                        EndsToDate = new DateTime(2021, 01, 03)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
 
-                #region AddRoomDetails
-
-                dbContext.RoomDetails.AddRange(
-                    //20
-                    new RoomDetails
+                roomIds = new[] {20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
                     {
-                        RoomId = 20,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(12, true, 16, true),
-                        InfantsNumber = 0
+                        ReleasePeriod = new ReleasePeriod { Days = 28 },
+                        MinimumStayNights = 3,
+                        StartsFromDate = new DateTime(2021, 01, 04),
+                        EndsToDate = new DateTime(2021, 01, 10)
+                    },
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 28 },
+                        MinimumStayNights = 3,
+                        StartsFromDate = new DateTime(2021, 02, 06),
+                        EndsToDate = new DateTime(2021, 02, 19)
+                    },
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod { Days = 28 },
+                        MinimumStayNights = 3,
+                        StartsFromDate = new DateTime(2021, 03, 21),
+                        EndsToDate = new DateTime(2021, 03, 26)
                     }
-                    , new RoomDetails
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomIds = new[] {32, 33, 34};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
                     {
-                        RoomId = 20,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true),
-                        InfantsNumber = 1
+                        ReleasePeriod = new ReleasePeriod { Days = 28 },
+                        MinimumStayNights = 5,
+                        StartsFromDate = new DateTime(2021, 01, 04),
+                        EndsToDate = new DateTime(2021, 01, 10)
                     },
-                    new RoomDetails
+                    new RoomAllocationRequirement
                     {
-                        RoomId = 20,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
+                        ReleasePeriod = new ReleasePeriod { Days = 28 },
+                        MinimumStayNights = 5,
+                        StartsFromDate = new DateTime(2021, 02, 06),
+                        EndsToDate = new DateTime(2021, 02, 19)
                     },
-                    new RoomDetails
+                    new RoomAllocationRequirement
                     {
-                        RoomId = 20,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    //21
-                    new RoomDetails
-                    {
-                        RoomId = 21,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true),
-                        InfantsNumber = 1
-                    }, new RoomDetails
-                    {
-                        RoomId = 21,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(12, true, 16, true),
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 21,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 21,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
+                        ReleasePeriod = new ReleasePeriod { Days = 28 },
+                        MinimumStayNights = 5,
+                        StartsFromDate = new DateTime(2021, 03, 21),
+                        EndsToDate = new DateTime(2021, 03, 26)
                     }
-                    //22
-                    , new RoomDetails
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomIds = new []{20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
                     {
-                        RoomId = 22,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(12, true, 16, true),
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 22,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true),
-                        InfantsNumber = 1
+                        ReleasePeriod = new ReleasePeriod { Days = 28 },
+                        MinimumStayNights = 3,
+                        StartsFromDate = new DateTime(2021, 01, 11),
+                        EndsToDate = new DateTime(2021, 02, 05)
                     },
-                    new RoomDetails
+                    new RoomAllocationRequirement
                     {
-                        RoomId = 22,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 22,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    //23
-                    new RoomDetails
-                    {
-                        RoomId = 23,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(12, true, 16, true),
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 23,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true),
-                        InfantsNumber = 1
-                    }, new RoomDetails
-                    {
-                        RoomId = 23,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 23,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    //24
-                    new RoomDetails
-                    {
-                        RoomId = 24,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 16, true),
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 24,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 24,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 24,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    //25
-                    new RoomDetails
-                    {
-                        RoomId = 25,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 16, true),
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 25,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 25,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 25,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    //26
-                    new RoomDetails
-                    {
-                        RoomId = 26,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 16, true),
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 26,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 26,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 26,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
+                        ReleasePeriod = new ReleasePeriod { Days = 28 },
+                        MinimumStayNights = 3,
+                        StartsFromDate = new DateTime(2021, 02, 20),
+                        EndsToDate = new DateTime(2021, 03, 19)
                     }
-                    //27
-                    , new RoomDetails
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomIds = new []{20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
                     {
-                        RoomId = 27,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(12, true, 16, true),
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 27,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true),
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 27,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 27,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    //28
-                    new RoomDetails
-                    {
-                        RoomId = 28,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 3,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    }, new RoomDetails
-                    {
-                        RoomId = 28,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 28,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 28,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    //29
-                    new RoomDetails
-                    {
-                        RoomId = 29,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(12, true, 16, true),
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 29,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true),
-                        InfantsNumber = 1
-                    }, new RoomDetails
-                    {
-                        RoomId = 29,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 29,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    //30
-                    new RoomDetails
-                    {
-                        RoomId = 30,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 16, true),
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 30,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 30,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    //31
-                    new RoomDetails
-                    {
-                        RoomId = 31,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(12, true, 16, true),
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 31,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true),
-                        InfantsNumber = 1
-                    }, new RoomDetails
-                    {
-                        RoomId = 31,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 31,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    //32
-                    new RoomDetails
-                    {
-                        RoomId = 32,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(12, true, 16, true),
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 32,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true),
-                        InfantsNumber = 1
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 32,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 32,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
+                        ReleasePeriod = new ReleasePeriod { Days = 35 },
+                        MinimumStayNights = 5,
+                        StartsFromDate = new DateTime(2021, 03, 27),
+                        EndsToDate = new DateTime(2021, 04, 10)
                     }
-                    //33
-                    , new RoomDetails
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomIds = new []{20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
                     {
-                        RoomId = 33,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(12, true, 16, true),
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 33,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true),
-                        InfantsNumber = 1
-                    }, new RoomDetails
-                    {
-                        RoomId = 33,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 33,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    //34
-                    new RoomDetails
-                    {
-                        RoomId = 34,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true),
-                        InfantsNumber = 1
-                    }, new RoomDetails
-                    {
-                        RoomId = 34,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(12, true, 16, true),
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 34,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 34,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    //35
-                    new RoomDetails
-                    {
-                        RoomId = 35,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 16, true),
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 35,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 35,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 35,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 35,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
+                        ReleasePeriod = new ReleasePeriod { Days = 21 },
+                        StartsFromDate = new DateTime(2021, 04, 11),
+                        EndsToDate = new DateTime(2021, 05, 07)
                     }
-                );
-
+                };
+                
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
                 #endregion
+                dbContext.SaveChanges();
             }
         }
 
-
+        
         private static void AddJumeriahContract(DirectContractsDbContext dbContext)
         {
             var accommodation = dbContext.Accommodations.FirstOrDefault(a => a.Name.En.Equals("Burj Al Arab Jumeirah"));
@@ -1749,11 +3027,10 @@ namespace Hiroshima.DirectContractsDataSeeder
                 var hotelId = 2;
 
                 #region AddAccommodation
-
-                dbContext.Accommodations.AddRange(new Accommodation
+                dbContext.Accommodations.Add(new Accommodation
                 {
                     Id = hotelId,
-                    Rating = AccommodationRatings.FiveStars,
+                    Rating = AccommodationRating.FiveStars,
                     PropertyType = PropertyTypes.Hotels,
                     Name = new MultiLanguage<string>
                     {
@@ -1761,345 +3038,1627 @@ namespace Hiroshima.DirectContractsDataSeeder
                         En = "Burj Al Arab Jumeirah",
                         Ru = "Burj Al Arab Jumeirah"
                     },
+                    TextualDescription = new MultiLanguage<TextualDescription>
+                    {
+                        En = new TextualDescription
+                        {
+                            Description = "The iconic sail-shaped silhoutte of Burj Al Arab Jumeirah stands tall as a beacon of modern Dubai, characterized by the finest hospitality you can ever experience."
+                        },
+                        Ar = new TextualDescription
+                        {
+                            Description = "يقف فندق برج العرب جميرا الشهير شامخًا على شكل شراع وكأنه منارة دبي الحديثة، ويتسم بأجود وأرقى الضيافات التي يمكن أن تمر بها على الإطلاق."
+                        },
+                        Ru = new TextualDescription
+                        {
+                            Description = "Легендарный отель Burj Al Arab Jumeirah известен своим непревзойденным уровнем обслуживания и гостеприимства, а его высокий силуэт в форме паруса служит маяком современного Дубая."
+                        }
+                    },
+                    Address = new MultiLanguage<string>
+                    {
+                        Ar = "شارع الملك سلمان بن عبدالعزيز آل سعود - دبي",
+                        En = "King Salman Bin Abdulaziz Al Saud St - Dubai",
+                        Ru = "King Salman Bin Abdulaziz Al Saud St - Dubai - ОАЭ"
+                    },
                     Contacts = new Contacts
                     {
                         Email = "info@jumeirah.com",
                         Phone = "+971 4 3665000"
                     },
-                    Schedule = new Schedule
+                    AccommodationAmenities = new MultiLanguage<List<string>>
                     {
-                        CheckInTime = "15:00",
-                        CheckOutTime = "10:00",
-                        PortersStartTime = "09:00",
-                        PortersEndTime = "19:00"
+                        En = new List<string>
+                        {
+                            @"201 luxurious duplex suites",
+                            @"Nine world-class restaurants and bars",
+                            @"Five swimming pools (three outdoor, two indoor) and a private beach"
+                        },
+                        Ar = new List<string>
+                        {
+                            @"201 جناح دوبلكس فخم",
+                            @"تسعة مقاهي ومطاعم عالمية",
+                            "خمسة مسابح (ثلاثة خارجيون، اثنان داخليان) وشاطئ خاص",
+                        },
+                        Ru = new List<string>{
+                            @"201 роскошный двухэтажный номер люкс",
+                            @"Девять ресторанов и баров мирового класса", 
+                            @"Пять плавательных бассейнов (три открытых и два крытых) и частный пляж"
+                        }
                     },
-                    TextualDescription = new TextualDescription
+                    Pictures = new MultiLanguage<List<Picture>>
                     {
+                        En = new List<Picture>
+                        {
+                            new Picture
+                            {
+                                Caption = "Burj Al Arab Jumeirah",
+                                Source =
+                                    "https://mediastream.jumeirah.com/webimage/image1152x648//globalassets/global/hotels-and-resorts/dubai/burj-al-arab/homepage-audit/burj-al-arab-jumeirah-terrace-hero.jpg"
+                            }
+                        },
+                        Ru = new List<Picture>
+                        {
+                            new Picture
+                            {
+                                Caption = "برج العرب جميرا",
+                                Source =
+                                "https://mediastream.jumeirah.com/webimage/image1152x648//globalassets/global/hotels-and-resorts/dubai/burj-al-arab/homepage-audit/burj-al-arab-jumeirah-terrace-hero.jpg"
+                            }
+                        }
+                    },
+                    CheckInTime = "14:00",
+                    CheckOutTime = "12:00",
+                    Coordinates = new Point(55.153219, 25.097596),
+                    LocationId = 2
+                });
+                #endregion
+                dbContext.SaveChanges();
+                #region AddRooms
+                dbContext.Rooms.AddRange(
+                    new Room
+                    {
+                        Id = 71,
+                        AccommodationId = 2,
+                        Name = new MultiLanguage<string>
+                        {
+                            En = "One Bedroom Deluxe Suite",
+                            Ru = "",
+                            Ar = ""
+                        },
                         Description = new MultiLanguage<string>
                         {
-                            Ar =
-                                "يقف فندق برج العرب جميرا الشهير شامخًا على شكل شراع وكأنه منارة دبي الحديثة، ويتسم بأجود وأرقى الضيافات التي يمكن أن تمر بها على الإطلاق.",
-                            En =
-                                "The iconic sail-shaped silhoutte of Burj Al Arab Jumeirah stands tall as a beacon of modern Dubai, characterized by the finest hospitality you can ever experience.",
-                            Ru =
-                                "Легендарный отель Burj Al Arab Jumeirah известен своим непревзойденным уровнем обслуживания и гостеприимства, а его высокий силуэт в форме паруса служит маяком современного Дубая."
+                            En = "",
+                            Ru = "",
+                            Ar = ""
                         },
-                        Type = TextualDescriptionTypes.General
-                    },
-                    Amenities = new List<MultiLanguage<string>>
-                    {
-                        new MultiLanguage<string>
+                        Amenities = new MultiLanguage<List<string>>
                         {
-                            Ar =
-                                @"201 جناح دوبلكس فخم",
-                            En =
-                                @"201 luxurious duplex suites",
-                            Ru =
-                                @"201 роскошный двухэтажный номер люкс"
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
                         },
-                        new MultiLanguage<string>
+                       
+                        PermittedOccupancies = new PermittedOccupancies
                         {
-                            Ar =
-                                @"تسعة مقاهي ومطاعم عالمية",
-                            En =
-                                @"Nine world-class restaurants and bars",
-                            Ru =
-                                @"Девять ресторанов и баров мирового класса"
+                            RoomOccupancies = new List<List<RoomOccupancy>>
+                            {
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 3
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 3
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    new Room
+                    {
+                        Id = 72,
+                        AccommodationId = 2,
+                        Name = new MultiLanguage<string>
+                        {
+                            En = "Panoramic One Bedroom Suite",
+                            Ru = "",
+                            Ar = ""
                         },
-                        new MultiLanguage<string>
+                        Description = new MultiLanguage<string>
                         {
-                            Ar =
-                                "خمسة مسابح (ثلاثة خارجيون، اثنان داخليان) وشاطئ خاص",
-                            En =
-                                @"Five swimming pools (three outdoor, two indoor) and a private beach",
-                            Ru =
-                                @"Пять плавательных бассейнов (три открытых и два крытых) и частный пляж"
-                        }
-                    }
-                });
-
-                #endregion
-
-                #region AddLocation
-
-                dbContext.Locations.AddRange(new Location
-                {
-                    Coordinates = new Point(55.1850, 25.1385),
-                    AccommodationId = hotelId,
-                    Address = new MultiLanguage<string>
-                    {
-                        Ar = "طريق المدينة الأكاديمية ص.ب. 214159 دبي، الإمارات العربية المتحدة",
-                        En = "Level 5, Building 5 Dubai Design District PO Box 73137 Dubai,UAE",
-                        Ru = "Level 5, Building 5 Dubai Design District PO Box 73137 Dubai,UAE"
-                    },
-                    LocalityId = 1
-                });
-
-                #endregion
-
-                #region AddCancelationPolicies
-
-                dbContext.CancelationPolicies.Add(new CancelationPolicy
-                {
-                    Id = 11,
-                    CancelationPolicyDetails = new List<CancelationPolicyDetails>
-                    {
-                        new CancelationPolicyDetails
+                            En = "",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Amenities = new MultiLanguage<List<string>>
                         {
-                            FromDays = 7,
-                            ToDays = 0,
-                            Details = new MultiLanguage<string>
-                                {En = "Within seven (7) days or less prior to arrival at 15:00 hours, 100% charge on total booking"}
-                        }
-                    }
-                });
-
-                dbContext.CancelationPolicies.Add(new CancelationPolicy
-                {
-                    Id = 12,
-                    CancelationPolicyDetails = new List<CancelationPolicyDetails>
-                    {
-                        new CancelationPolicyDetails
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
+                        },
+                       
+                       PermittedOccupancies = new PermittedOccupancies
                         {
-                            FromDays = 14,
-                            ToDays = 0,
-                            Details = new MultiLanguage<string>
-                                {En = "Within fourteen (14) days or less prior to arrival at 15:00 hours, 100% charge on total booking"}
+                            RoomOccupancies = new List<List<RoomOccupancy>>
+                            {
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 3
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 3
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    }
+                                }
+                            }
                         }
-                    }
-                });
-
-                dbContext.CancelationPolicies.Add(new CancelationPolicy
-                {
-                    Id = 13,
-                    CancelationPolicyDetails = new List<CancelationPolicyDetails>
+                    },
+                    new Room
                     {
-                        new CancelationPolicyDetails
+                        Id = 73,
+                        AccommodationId = 2,
+                        Name = new MultiLanguage<string>
                         {
-                            FromDays = 21,
-                            ToDays = 0,
-                            Details = new MultiLanguage<string>
-                                {En = "Within twenty one (21) days or less prior to arrival at 15:00 hours, 100% charge on total booking"}
-                        }
-                    }
-                });
-
-                dbContext.CancelationPolicies.Add(new CancelationPolicy
-                {
-                    Id = 14,
-                    CancelationPolicyDetails = new List<CancelationPolicyDetails>
-                    {
-                        new CancelationPolicyDetails
+                            En = "Two Bedroom Delux Suite",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Description = new MultiLanguage<string>
                         {
-                            FromDays = 35,
-                            ToDays = 0,
-                            Details = new MultiLanguage<string>
-                                {En = "Within thirty five (35) days or less prior to arrival at 15:00 hours, 100% charge on total booking"}
-                        }
-                    }
-                });
-
-                dbContext.CancelationPolicies.Add(new CancelationPolicy
-                {
-                    Id = 15,
-                    CancelationPolicyDetails = new List<CancelationPolicyDetails>
-                    {
-                        new CancelationPolicyDetails
+                            En = "",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Amenities = new MultiLanguage<List<string>>
                         {
-                            FromDays = 35,
-                            ToDays = 0,
-                            Details = new MultiLanguage<string>
-                                {En = "Within thirty five (35) days or less prior to arrival at 15:00 hours, 100% charge on total booking"}
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
+                        },
+                       
+                        PermittedOccupancies = new PermittedOccupancies
+                        {
+                            RoomOccupancies = new List<List<RoomOccupancy>>
+                            {
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 3
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 4
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 3
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 3
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 5
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 4
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 3
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 3
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 4
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 5
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 4
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 3
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 3
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 4
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 5
+                                    }
+                                }
+                            }
                         }
-                    }
-                });
-
-                #endregion
-
-                #region AddSeasons
-
-                dbContext.Seasons.AddRange(
-                    new Season
-                    {
-                        Id = 51,
-                        AccommodationId = hotelId,
-                        Name = "Shoulder",
-                        StartDate = new DateTime(2019, 1, 14),
-                        EndDate = new DateTime(2019, 1, 31),
-                        CancelationPolicyId = 12
                     },
-                    new Season
+                    new Room
                     {
-                        Id = 52,
-                        AccommodationId = hotelId,
-                        Name = "High",
-                        StartDate = new DateTime(2019, 2, 1),
-                        EndDate = new DateTime(2019, 2, 4),
-                        CancelationPolicyId = 13
-                    },
-                    new Season
-                    {
-                        Id = 53,
-                        AccommodationId = hotelId,
-                        Name = "Peak",
-                        StartDate = new DateTime(2019, 2, 5),
-                        EndDate = new DateTime(2019, 2, 11),
-                        CancelationPolicyId = 14
-                    },
-                    new Season
-                    {
-                        Id = 54,
-                        AccommodationId = hotelId,
-                        Name = "High",
-                        StartDate = new DateTime(2019, 2, 12),
-                        EndDate = new DateTime(2019, 3, 27),
-                        CancelationPolicyId = 13
-                    },
-                    new Season
-                    {
-                        Id = 55,
-                        AccommodationId = hotelId,
-                        Name = "Peak",
-                        StartDate = new DateTime(2019, 3, 28),
-                        EndDate = new DateTime(2019, 4, 21),
-                        CancelationPolicyId = 14
-                    },
-                    new Season
-                    {
-                        Id = 56,
-                        AccommodationId = hotelId,
-                        Name = "High",
-                        StartDate = new DateTime(2019, 4, 22),
-                        EndDate = new DateTime(2019, 5, 5),
-                        CancelationPolicyId = 13
-                    },
-                    new Season
-                    {
-                        Id = 57,
-                        AccommodationId = hotelId,
-                        Name = "Low",
-                        StartDate = new DateTime(2019, 5, 6),
-                        EndDate = new DateTime(2019, 8, 31),
-                        CancelationPolicyId = 11
-                    },
-                    new Season
-                    {
-                        Id = 58,
-                        AccommodationId = hotelId,
-                        Name = "Shoulder",
-                        StartDate = new DateTime(2019, 9, 1),
-                        EndDate = new DateTime(2019, 10, 12),
-                        CancelationPolicyId = 12
-                    },
-                    new Season
-                    {
-                        Id = 59,
-                        AccommodationId = hotelId,
-                        Name = "High",
-                        StartDate = new DateTime(2019, 10, 13),
-                        EndDate = new DateTime(2019, 10, 19),
-                        CancelationPolicyId = 13
-                    },
-                    new Season
-                    {
-                        Id = 60,
-                        AccommodationId = hotelId,
-                        Name = "Peak",
-                        StartDate = new DateTime(2019, 10, 20),
-                        EndDate = new DateTime(2019, 11, 9),
-                        CancelationPolicyId = 14
-                    },
-                    new Season
-                    {
-                        Id = 61,
-                        AccommodationId = hotelId,
-                        Name = "High",
-                        StartDate = new DateTime(2019, 11, 10),
-                        EndDate = new DateTime(2019, 12, 1),
-                        CancelationPolicyId = 13
-                    },
-                    new Season
-                    {
-                        Id = 62,
-                        AccommodationId = hotelId,
-                        Name = "Shoulder",
-                        StartDate = new DateTime(2019, 12, 2),
-                        EndDate = new DateTime(2019, 12, 21),
-                        CancelationPolicyId = 12
-                    },
-                    new Season
-                    {
-                        Id = 63,
-                        AccommodationId = hotelId,
-                        Name = "High",
-                        StartDate = new DateTime(2019, 12, 22),
-                        EndDate = new DateTime(2019, 12, 26),
-                        CancelationPolicyId = 13
-                    },
-                    new Season
-                    {
-                        Id = 64,
-                        AccommodationId = hotelId,
-                        Name = "Festive",
-                        StartDate = new DateTime(2019, 12, 27),
-                        EndDate = new DateTime(2020, 1, 4),
-                        CancelationPolicyId = 15
-                    },
-                    new Season
-                    {
-                        Id = 65,
-                        AccommodationId = hotelId,
-                        Name = "High",
-                        StartDate = new DateTime(2020, 1, 5),
-                        EndDate = new DateTime(2020, 1, 13),
-                        CancelationPolicyId = 13
+                        Id = 74,
+                        AccommodationId = 2,
+                        Name = new MultiLanguage<string>
+                        {
+                            En = "Diplomatic Three Bedroom Suite",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Description = new MultiLanguage<string>
+                        {
+                            En = "",
+                            Ru = "",
+                            Ar = ""
+                        },
+                        Amenities = new MultiLanguage<List<string>>
+                        {
+                            En = new List<string>(),
+                            Ar = new List<string>(),
+                            Ru = new List<string>(),
+                        },
+                       
+                        PermittedOccupancies = new PermittedOccupancies
+                        {
+                            RoomOccupancies = new List<List<RoomOccupancy>>
+                            {
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 3
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 4
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 3
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 3
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 5
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 4
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 3
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 3
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 4
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 6
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 5
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 4
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 3
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 3
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 4
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 5
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 7
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 6
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 1
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 5
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 4
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 3
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 3
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 4
+                                    }
+                                },
+                                new List<RoomOccupancy>
+                                {
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 12,
+                                            UpperBound = 190,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 2
+                                    },
+                                    new RoomOccupancy
+                                    {
+                                        AgeRange = new AgeRange
+                                        {
+                                            LowerBound = 4,
+                                            UpperBound = 11,
+                                            LowerBoundInclusive = true,
+                                            UpperBoundInclusive = true
+                                        },
+                                        NumberOfPersons = 5
+                                    }
+                                }
+                            }
+                        }
                     });
 
                 #endregion
+                dbContext.SaveChanges();
+                #region AddRoomAllocationRequirements //Test data
 
-                #region AddRooms
-
-                dbContext.Rooms.AddRange(new Room
-                {
-                    Id = 71,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
+                //Panoramic Suite
+                dbContext.RoomAllocationRequirements.AddRange(new RoomAllocationRequirement
                     {
-                        En = "One Bedroom Deluxe Suite"
-                    }
-                }, new Room
-                {
-                    Id = 72,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
+                        RoomId = 72,
+                        StartsFromDate = new DateTime(2019, 9, 28),
+                        EndsToDate = new DateTime(2019, 9, 28)
+                    }, new RoomAllocationRequirement
                     {
-                        En = "Panoramic One Bedroom Suite"
-                    }
-                }, new Room
-                {
-                    Id = 73,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
+                        RoomId = 72,
+                        StartsFromDate = new DateTime(2019, 9, 30),
+                        EndsToDate = new DateTime(2019, 9, 30)
+                    },
+                    new RoomAllocationRequirement
                     {
-                        En = "Two Bedroom Delux Suite"
-                    }
-                }, new Room
-                {
-                    Id = 74,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
+                        RoomId = 72,
+                        StartsFromDate = new DateTime(2019, 10, 1),
+                        EndsToDate = new DateTime(2019, 10, 1)
+                    },
+                    new RoomAllocationRequirement
                     {
-                        En = "Diplomatic Three Bedroom Suite"
-                    }
-                });
+                        RoomId = 73,
+                        StartsFromDate = new DateTime(2019, 10, 11),
+                        EndsToDate = new DateTime(2019, 10, 12)
+                    },
+                    new RoomAllocationRequirement
+                    {
+                        RoomId = 73,
+                        StartsFromDate = new DateTime(2020, 10, 19),
+                        EndsToDate = new DateTime(2020, 10, 19)
+                    },
+                    new RoomAllocationRequirement
+                    {
+                        RoomId = 73,
+                        StartsFromDate = new DateTime(2020, 10, 26),
+                        EndsToDate = new DateTime(2020, 10, 27)
+                    });
 
                 #endregion
-
-                #region AddPrices
-
+                dbContext.SaveChanges();
+                #region AddRates
                 FillRates(
                     dbContext,
-                    new[] {51},
+                    new[] {(new DateTime(2019,01,14), new DateTime(2019, 01, 31) )},
                     new List<(int, decimal)>
                     {
                         (71, 7321),
@@ -2110,7 +4669,7 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 FillRates(
                     dbContext,
-                    new[] {52},
+                    new[] {(new DateTime(2019,02,01), new DateTime(2019, 02, 04) )},
                     new List<(int, decimal)>
                     {
                         (71, 9273),
@@ -2121,7 +4680,7 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 FillRates(
                     dbContext,
-                    new[] {53},
+                    new[] {(new DateTime(2019,02,05), new DateTime(2019, 02, 11) )},
                     new List<(int, decimal)>
                     {
                         (71, 11225),
@@ -2132,7 +4691,7 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 FillRates(
                     dbContext,
-                    new[] {54},
+                    new[] {(new DateTime(2019,02,12), new DateTime(2019, 03, 27) )},
                     new List<(int, decimal)>
                     {
                         (71, 9273),
@@ -2143,7 +4702,7 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 FillRates(
                     dbContext,
-                    new[] {55},
+                    new[] {(new DateTime(2019,03,28), new DateTime(2019, 04, 21) )},
                     new List<(int, decimal)>
                     {
                         (71, 11225),
@@ -2154,7 +4713,7 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 FillRates(
                     dbContext,
-                    new[] {56},
+                    new[] {(new DateTime(2019,04,22), new DateTime(2019, 05, 05) )},
                     new List<(int, decimal)>
                     {
                         (71, 9273),
@@ -2165,7 +4724,7 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 FillRates(
                     dbContext,
-                    new[] {57},
+                    new[] {(new DateTime(2019,05,06), new DateTime(2019, 08, 31) )},
                     new List<(int, decimal)>
                     {
                         (71, 6345),
@@ -2176,7 +4735,7 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 FillRates(
                     dbContext,
-                    new[] {58},
+                    new[] {(new DateTime(2019,09,01), new DateTime(2019, 10, 12) )},
                     new List<(int, decimal)>
                     {
                         (71, 7321),
@@ -2187,7 +4746,7 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 FillRates(
                     dbContext,
-                    new[] {59},
+                    new[] {(new DateTime(2019,10,13), new DateTime(2019, 10, 19) )},
                     new List<(int, decimal)>
                     {
                         (71, 9273),
@@ -2198,7 +4757,7 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 FillRates(
                     dbContext,
-                    new[] {60},
+                    new[] {(new DateTime(2019,10,20), new DateTime(2019, 11, 09) )},
                     new List<(int, decimal)>
                     {
                         (71, 11225),
@@ -2209,7 +4768,7 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 FillRates(
                     dbContext,
-                    new[] {61},
+                    new[] {(new DateTime(2019,11,10), new DateTime(2019, 12, 01) )},
                     new List<(int, decimal)>
                     {
                         (71, 9273),
@@ -2220,7 +4779,7 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 FillRates(
                     dbContext,
-                    new[] {62},
+                    new[] {(new DateTime(2019,12,02), new DateTime(2019, 12, 21) )},
                     new List<(int, decimal)>
                     {
                         (71, 7321),
@@ -2231,7 +4790,7 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 FillRates(
                     dbContext,
-                    new[] {63},
+                    new[] {(new DateTime(2019,12,22), new DateTime(2019, 12, 26) )},
                     new List<(int, decimal)>
                     {
                         (71, 9273),
@@ -2242,7 +4801,7 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 FillRates(
                     dbContext,
-                    new[] {64},
+                    new[] {(new DateTime(2019,12,27), new DateTime(2020, 01, 04) )},
                     new List<(int, decimal)>
                     {
                         (71, 13177),
@@ -2253,7 +4812,7 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 FillRates(
                     dbContext,
-                    new[] {65},
+                    new[] {(new DateTime(2020,01,05), new DateTime(2020, 01, 13) )},
                     new List<(int, decimal)>
                     {
                         (71, 9273),
@@ -2261,2360 +4820,462 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (73, 13909),
                         (74, 23182)
                     });
-
                 #endregion
-
-                #region AddDiscountRates
-
-                var discounts =
-                    new (int discountPercent, DateTime bookBy, DateTime validFrom, DateTime validTo, string bookingCode,
-                        MultiLanguage<string> details)[]
-                        {
-                            (20, new DateTime(2018, 11, 29), new DateTime(2019, 1, 14), new DateTime(2019, 1, 31), "WWHL600",
-                                new MultiLanguage<string> {En = "Book by NOVEMBER 29, 2018 receive a 20% discount"}),
-
-                            (25, new DateTime(2018, 11, 29), new DateTime(2019, 2, 1), new DateTime(2019, 2, 4), "WWHL601",
-                                new MultiLanguage<string> {En = "Book by NOVEMBER 29, 2019 receive a 25% discount"}),
-
-                            (20, new DateTime(2018, 11, 29), new DateTime(2019, 2, 5), new DateTime(2019, 2, 11), "WWHL602",
-                                new MultiLanguage<string> {En = "Book by NOVEMBER 29, 2019 receive a 20% discount"}),
-
-                            (30, new DateTime(2018, 11, 29), new DateTime(2019, 2, 12), new DateTime(2019, 3, 27), "WWHL603",
-                                new MultiLanguage<string> {En = "Book by NOVEMBER 29, 2019 receive a 30% discount"}),
-
-                            (30, new DateTime(2019, 1, 31), new DateTime(2019, 3, 28), new DateTime(2019, 4, 21), "WWHL604",
-                                new MultiLanguage<string> {En = "Book by JANUARY 1, 2019 receive a 30% discount"}),
-
-                            (30, new DateTime(2019, 1, 31), new DateTime(2019, 4, 22), new DateTime(2019, 5, 5), "WWHL605",
-                                new MultiLanguage<string> {En = "Book by JANUARY 1, 2019 receive a 30% discount"}),
-
-                            (30, new DateTime(2019, 2, 28), new DateTime(2019, 5, 6), new DateTime(2019, 8, 31), "WWHL606",
-                                new MultiLanguage<string> {En = "Book by FEBRUARY 28, 2019 receive a 30% discount"}),
-
-                            (25, new DateTime(2019, 2, 28), new DateTime(2019, 9, 1), new DateTime(2020, 10, 12), "WWHL607",
-                                new MultiLanguage<string> {En = "Book by FEBRUARY 28, 2019 receive a 25% discount"}),
-
-                            (25, new DateTime(2019, 5, 30), new DateTime(2019, 10, 13), new DateTime(2019, 10, 19), "WWHL608",
-                                new MultiLanguage<string> {En = "Book by MAY 20, 2019 receive a 25% discount"}),
-
-                            (30, new DateTime(2019, 7, 31), new DateTime(2019, 10, 20), new DateTime(2019, 11, 9), "WWHL609",
-                                new MultiLanguage<string> {En = "Book by JULY 31, 2019 receive a 30% "}),
-
-                            (25, new DateTime(2019, 7, 31), new DateTime(2019, 11, 10), new DateTime(2019, 12, 1), "WWHL610",
-                                new MultiLanguage<string> {En = "Book by JULY 31, 2019 receive a 25% discount"}),
-
-                            (25, new DateTime(2019, 9, 30), new DateTime(2019, 12, 2), new DateTime(2019, 12, 21), "WWHL611",
-                                new MultiLanguage<string> {En = "Book by SEPTEMBER 30, 2019 receive a 25% discount"}),
-
-                            (15, new DateTime(2019, 9, 30), new DateTime(2019, 12, 22), new DateTime(2019, 12, 26), "WWHL612",
-                                new MultiLanguage<string> {En = "Book by SEPTEMBER 30, 2019 receive a 15% discount"}),
-
-                            (20, new DateTime(2019, 9, 30), new DateTime(2019, 12, 27), new DateTime(2020, 1, 4), "WWHL613",
-                                new MultiLanguage<string> {En = "Book by SEPTEMBER 30, 2019 receive a 20% discount"}),
-
-                            (20, new DateTime(2019, 9, 30), new DateTime(2020, 1, 5), new DateTime(2020, 1, 13), "WWHL614",
-                                new MultiLanguage<string> {En = "Book by SEPTEMBER 30, 2019 receive a 20% discount"})
-                        };
-                FillDiscountRates(dbContext, new[] {71, 72, 73, 74}, discounts);
-
+                dbContext.SaveChanges();
+                #region AddPromotionalOffers
+                var promotionalOffers = new[]
+                {
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 20,
+                        BookByDate = new DateTime(2018, 11, 29),
+                        ValidFromDate = new DateTime(2019, 01, 08),
+                        ValidToDate = new DateTime(2019, 01, 31),
+                        BookingCode = "WWHL600",
+                        Details = new MultiLanguage<string> {En = ""}
+                    }
+                };
+                AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
+                promotionalOffers = new[]
+                {
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 25,
+                        BookByDate = new DateTime(2018, 11, 29),
+                        ValidFromDate = new DateTime(2019, 02, 01),
+                        ValidToDate = new DateTime(2019, 02, 04),
+                        BookingCode = "WWHL601",
+                        Details = new MultiLanguage<string> {En = ""}
+                    }
+                };
+                AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
+                
+                promotionalOffers = new[]
+                {
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 20,
+                        BookByDate = new DateTime(2018, 11, 29),
+                        ValidFromDate = new DateTime(2019, 02, 05),
+                        ValidToDate = new DateTime(2019, 02, 11),
+                        BookingCode = "WWHL602",
+                        Details = new MultiLanguage<string> {En = ""}
+                    }
+                };
+                AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
+                
+                promotionalOffers = new[]
+                {
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 30,
+                        BookByDate = new DateTime(2018, 11, 29),
+                        ValidFromDate = new DateTime(2019, 02, 12),
+                        ValidToDate = new DateTime(2019, 03, 27),
+                        BookingCode = "WWHL603",
+                        Details = new MultiLanguage<string> {En = ""}
+                    }
+                };
+                AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
+                
+                promotionalOffers = new[]
+                {
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 30,
+                        BookByDate = new DateTime(2019, 01, 31),
+                        ValidFromDate = new DateTime(2019, 03, 28),
+                        ValidToDate = new DateTime(2019, 04, 21),
+                        BookingCode = "WWHL604",
+                        Details = new MultiLanguage<string> {En = ""}
+                    }
+                };
+                AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
+                
+                promotionalOffers = new[]
+                {
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 30,
+                        BookByDate = new DateTime(2019, 01, 31),
+                        ValidFromDate = new DateTime(2019, 03, 22),
+                        ValidToDate = new DateTime(2019, 05, 05),
+                        BookingCode = "WWHL605",
+                        Details = new MultiLanguage<string> {En = ""}
+                    }
+                };
+                AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
+                
+                promotionalOffers = new[]
+                {
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 30,
+                        BookByDate = new DateTime(2019, 02, 28),
+                        ValidFromDate = new DateTime(2019, 05, 06),
+                        ValidToDate = new DateTime(2019, 08, 31),
+                        BookingCode = "WWHL606",
+                        Details = new MultiLanguage<string> {En = ""}
+                    }
+                };
+                AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
+                
+                promotionalOffers = new[]
+                {
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 25,
+                        BookByDate = new DateTime(2019, 02, 28),
+                        ValidFromDate = new DateTime(2019, 09, 01),
+                        ValidToDate = new DateTime(2019, 10, 12),
+                        BookingCode = "WWHL607",
+                        Details = new MultiLanguage<string> {En = ""}
+                    }
+                };
+                AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
+                
+                promotionalOffers = new[]
+                {
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 25,
+                        BookByDate = new DateTime(2019, 05, 30),
+                        ValidFromDate = new DateTime(2019, 10, 13),
+                        ValidToDate = new DateTime(2019, 10, 19),
+                        BookingCode = "WWHL608",
+                        Details = new MultiLanguage<string> {En = ""}
+                    }
+                };
+                AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
+                
+                promotionalOffers = new[]
+                {
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 30,
+                        BookByDate = new DateTime(2019, 07, 31),
+                        ValidFromDate = new DateTime(2019, 10, 20),
+                        ValidToDate = new DateTime(2019, 11, 09),
+                        BookingCode = "WWHL609",
+                        Details = new MultiLanguage<string> {En = ""}
+                    }
+                };
+                AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
+                
+                promotionalOffers = new[]
+                {
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 25,
+                        BookByDate = new DateTime(2019, 07, 31),
+                        ValidFromDate = new DateTime(2019, 11, 10),
+                        ValidToDate = new DateTime(2019, 12, 01),
+                        BookingCode = "WWHL610",
+                        Details = new MultiLanguage<string> {En = ""}
+                    }
+                };
+                AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
+                
+                promotionalOffers = new[]
+                {
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 25,
+                        BookByDate = new DateTime(2019, 09, 30),
+                        ValidFromDate = new DateTime(2019, 12, 02),
+                        ValidToDate = new DateTime(2019, 12, 21),
+                        BookingCode = "WWHL611",
+                        Details = new MultiLanguage<string> {En = ""}
+                    }
+                };
+                AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
+                
+                promotionalOffers = new[]
+                {
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 15,
+                        BookByDate = new DateTime(2019, 09, 30),
+                        ValidFromDate = new DateTime(2019, 12, 22),
+                        ValidToDate = new DateTime(2019, 12, 26),
+                        BookingCode = "WWHL612",
+                        Details = new MultiLanguage<string> {En = ""}
+                    }
+                };
+                AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
+                
+                promotionalOffers = new[]
+                {
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 20,
+                        BookByDate = new DateTime(2019, 09, 30),
+                        ValidFromDate = new DateTime(2019, 12, 27),
+                        ValidToDate = new DateTime(2020, 01, 04),
+                        BookingCode = "WWHL613",
+                        Details = new MultiLanguage<string> {En = ""}
+                    }
+                };
+                AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
+                
+                promotionalOffers = new[]
+                {
+                    new RoomPromotionalOffer
+                    {
+                        DiscountPercent = 20,
+                        BookByDate = new DateTime(2019, 09, 30),
+                        ValidFromDate = new DateTime(2020, 01, 05),
+                        ValidToDate = new DateTime(2020, 01, 13),
+                        BookingCode = "WWHL614",
+                        Details = new MultiLanguage<string> {En = ""}
+                    }
+                };
+                AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
                 #endregion
-
-                #region AddStopSaleDates //Test data
-
-                //Panoramic Suite
-                dbContext.StopSaleDates.AddRange(new StopSaleDate
+                dbContext.SaveChanges();
+                #region AddAllocationRequirements
+                var roomIds = new []{ 71, 72, 73, 74};
+                var roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
                     {
-                        RoomId = 72,
-                        StartDate = new DateTime(2019, 9, 28),
-                        EndDate = new DateTime(2019, 9, 28)
-                    }, new StopSaleDate
+                        ReleasePeriod = new ReleasePeriod {Days = 14},
+                        StartsFromDate = new DateTime(2019, 01, 14),
+                        EndsToDate = new DateTime(2019, 01, 31)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                 roomIds = new []{ 71, 72, 73, 74};
+                 roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
                     {
-                        RoomId = 72,
-                        StartDate = new DateTime(2019, 9, 30),
-                        EndDate = new DateTime(2019, 9, 30)
-                    },
-                    new StopSaleDate
+                        ReleasePeriod = new ReleasePeriod {Days = 21},
+                        StartsFromDate = new DateTime(2019, 02, 01),
+                        EndsToDate = new DateTime(2019, 02, 04)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomIds = new []{ 71, 72, 73, 74};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
                     {
-                        RoomId = 72,
-                        StartDate = new DateTime(2019, 10, 1),
-                        EndDate = new DateTime(2019, 10, 1)
-                    },
-                    new StopSaleDate
+                        ReleasePeriod = new ReleasePeriod {Days = 35},
+                        StartsFromDate = new DateTime(2019, 02, 05),
+                        EndsToDate = new DateTime(2019, 02, 11)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomIds = new []{ 71, 72, 73, 74};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
                     {
-                        RoomId = 73,
-                        StartDate = new DateTime(2019, 10, 11),
-                        EndDate = new DateTime(2019, 10, 12)
-                    },
-                    new StopSaleDate
+                        ReleasePeriod = new ReleasePeriod {Days = 21},
+                        StartsFromDate = new DateTime(2019, 02, 12),
+                        EndsToDate = new DateTime(2019, 03, 27)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomIds = new []{ 71, 72, 73, 74};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
                     {
-                        RoomId = 73,
-                        StartDate = new DateTime(2020, 10, 19),
-                        EndDate = new DateTime(2020, 10, 19)
-                    },
-                    new StopSaleDate
+                        ReleasePeriod = new ReleasePeriod {Days = 35},
+                        StartsFromDate = new DateTime(2019, 03, 28),
+                        EndsToDate = new DateTime(2019, 04, 21)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomIds = new []{ 71, 72, 73, 74};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
                     {
-                        RoomId = 73,
-                        StartDate = new DateTime(2020, 10, 26),
-                        EndDate = new DateTime(2020, 10, 27)
-                    });
-
+                        ReleasePeriod = new ReleasePeriod {Days = 21},
+                        StartsFromDate = new DateTime(2019, 04, 22),
+                        EndsToDate = new DateTime(2019, 05, 05)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomIds = new []{ 71, 72, 73, 74};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 7},
+                        StartsFromDate = new DateTime(2019, 05, 06),
+                        EndsToDate = new DateTime(2019, 08, 31)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomIds = new []{ 71, 72, 73, 74};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 14},
+                        StartsFromDate = new DateTime(2019, 09, 01),
+                        EndsToDate = new DateTime(2019, 10, 12)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomIds = new []{ 71, 72, 73, 74};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 21},
+                        StartsFromDate = new DateTime(2019, 10, 13),
+                        EndsToDate = new DateTime(2019, 10, 19)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomIds = new []{ 71, 72, 73, 74};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 35},
+                        StartsFromDate = new DateTime(2019, 10, 20),
+                        EndsToDate = new DateTime(2019, 11, 09)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomIds = new []{ 71, 72, 73, 74};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 21},
+                        StartsFromDate = new DateTime(2019, 11, 10),
+                        EndsToDate = new DateTime(2019, 12, 01)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomIds = new []{ 71, 72, 73, 74};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 14},
+                        StartsFromDate = new DateTime(2019, 12, 02),
+                        EndsToDate = new DateTime(2019, 12, 21)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomIds = new []{ 71, 72, 73, 74};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 21},
+                        StartsFromDate = new DateTime(2019, 12, 22),
+                        EndsToDate = new DateTime(2019, 12, 26)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomIds = new []{ 71, 72, 73, 74};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 35},
+                        StartsFromDate = new DateTime(2019, 12, 27),
+                        EndsToDate = new DateTime(2020, 01, 04)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
+                roomIds = new []{ 71, 72, 73, 74};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 21},
+                        StartsFromDate = new DateTime(2020, 01, 05),
+                        EndsToDate = new DateTime(2020, 01, 13)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+                
                 #endregion
-
-                #region RoomDetails
-
-                dbContext.RoomDetails.AddRange(
-                    new RoomDetails
-                    {
-                        RoomId = 71,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 71,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 71,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 1,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 71,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 71,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 71,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 2,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 71,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 1,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 71,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 2,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 72,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 72,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 72,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 1,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 72,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 72,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 2,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 72,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 1,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 72,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 2,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 1,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 2,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 1,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 2,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 3,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 5,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 1,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 2,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 3,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 4,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 5,
-                        ChildrenNumber = 1,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 2,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 3,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 4,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 5,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 73,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 5,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 1,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 2,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 1,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 2,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 3,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 5,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 1,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 2,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 3,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 4,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 6,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 5,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 2,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 3,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 4,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 5,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 7,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 6,
-                        ChildrenNumber = 1,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 5,
-                        ChildrenNumber = 2,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 3,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 4,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 5,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 74,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 6,
-                        InfantsNumber = 0,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    });
-
-                #endregion region
-
                 dbContext.SaveChanges();
             }
         }
 
 
-        private static void AddOneAndOnlyTestContract(DirectContractsDbContext dbContext)
+        private static void FillRates(DirectContractsDbContext dbContext, (DateTime startDate, DateTime endDate)[] seasonsPeriods, List<(int, decimal)> roomIdsAndPrices)
         {
-            var accommodation = dbContext.Accommodations.FirstOrDefault(a => a.Name.En.Equals("Test ROYAL MIRAGE"));
-            if (accommodation == null)
+            foreach (var seasonPeriod in seasonsPeriods)
             {
-                var hotelId = 3;
-
-                #region AddTestLocation
-
-                dbContext.Localities.Add(new Locality {CountryCode = "IE", Id = 2, Name = new MultiLanguage<string> {En = "Test"}});
-
-                #endregion
-
-                #region AddAccommodation
-
-                dbContext.Accommodations.Add(
-                    new Accommodation
-                    {
-                        Id = hotelId,
-                        Rating = AccommodationRatings.FiveStars,
-                        PropertyType = PropertyTypes.Hotels,
-                        Name = new MultiLanguage<string>
-                        {
-                            Ar = "ون آند اونلي رويال Test",
-                            En = "Test ROYAL MIRAGE",
-                            Ru = "Test ROYAL MIRAGE"
-                        },
-                        Contacts = new Contacts
-                        {
-                            Email = "Test@oneandonlythepalm.com",
-                            Phone = "+ 933 4 440 1010"
-                        },
-                        Schedule = new Schedule
-                        {
-                            CheckInTime = "15:00",
-                            CheckOutTime = "10:00",
-                            PortersStartTime = "11:00",
-                            PortersEndTime = "16:00"
-                        },
-                        TextualDescription = new TextualDescription
-                        {
-                            Description = new MultiLanguage<string>
-                            {
-                                Ar =
-                                    "65 فدان من الحدائق الغناء وكيلومتر من الشواطئ الخاصة تمثل أنموذجاً للسلاموالرخاء منقطعا النظير. Test",
-                                En =
-                                    "Test Set in 65 acres of lush gardens and a kilometer of private beach, peaceful lives in remarkable opulence.",
-                                Ru =
-                                    " Test26 гектаров ландшафтных садов, собственный пляж протяженностью в один километр, умиротворенная обстановка и роскошное окружение."
-                            }
-                        },
-                        Amenities = new List<MultiLanguage<string>>
-                        {
-                            new MultiLanguage<string>
-                            {
-                                Ar =
-                                    @"يعتبر تناول الطعام في ون آند أونلي رويال ميراج متعة بحد ذاتها بفضل ثمانية مطاعم مختلفة في ذا بالاس والردهة العربية والإقامة والسبا. ويقدم كل منها تجربة فريدة لاكتشاف أشهى المأكولات في أجواء مميزة ومبتكرة. ويوفر ذا بالاس أربعة مطاعم مختلفة؛ حيث تُقدَّم القوائم المتوسطية في أوليفز، والمأكولات المغربية الاستثنائية في طاجين، والمأكولات العالمية الكلاسيكية في مطعم المشاهير، والسلطات الطازجة وثمار البحر في بار ومطعم الشاطئ للمشويات. ويمكن للضيوف اكتشاف أشهى النكهات الهندو-أوروبية في نينا، أو تذوق أصنافهم المفضلة طوال اليوم من أطباق الشرق الأوسط وشمال أوروبا في ذا روتيسيري، أو تناول الطعام في مجلس عائم مطل على الخليج العربي في مطعم أوزون الذي يقدم المأكولات العالمية بلمسة آسيوية. وتعرض قاعة الطعام قوائم ملهمة ومبتكرة حصريًا لضيوف المساكن والسبا. Test",
-                                En =
-                                    @"Test Dining at One&Only Royal Mirage is a unique journey within eight different restaurants between The Palace, Arabian Court and Residence & Spa. Each venue presents an authentic culinary experience in a distinctive environment. The Palace offers four different restaurants, including Mediterranean flavours at Olives, exceptional Moroccan fare at Tagine, an elegant dining on European cuisine at Celebrities, and fresh grilled seafood and bright salads at The Beach Bar & Grill. Within Arabian Court, guests may discover seductive Indo-European flavours at Nina, savour all-day dining on traditional recipes from the Middle East and northern Europe at The Rotisserie, or experience the floating majlis overlooking the Arabian Gulf at Eauzone featuring international cuisine with an Asian twist. Exclusive to guests at Residence & Spa, The Dining Room showcases inspired menus of fresh creativity.",
-                                Ru =
-                                    @"Test Ужин или обед на курорте One&Only Royal Mirage — это уникальное путешествие, в котором вас ждут восемь ресторанов, расположенных в корпусах The Palace, Arabian Court и Residence & Spa. Каждый из ресторанов дарит гостям уникальный гастрономический опыт в неповторимой обстановке. В корпусе The Palace расположены четыре ресторана, включая ресторан средиземноморской кухни Olives, ресторан марокканской кухни Tagine, ресторан Celebrities с элегантным интерьером и европейской кухней, а также гриль-бар Beach Bar & Grill, где вам предложат блюда из свежих морепродуктов на гриле и великолепные салаты. В корпусе Arabian Court гостей ждут соблазнительные блюда индоевропейской кухни ресторана Nina, а в ресторане The Rotisserie в течение всего дня можно оценить блюда, приготовленные по традиционным рецептам кухни Ближнего Востока и Северной Европы. В ресторане Eauzone можно удобно устроиться в плавающем меджлисе с видом на Персидский залив и заказать блюда международной кухни с азиатскими нотками. Ресторан Dining Room, обслуживающий исключительно гостей корпуса Residence & Spa, отличается творческим подходом к составлению меню и приготовлению блюд."
-                            },
-                            new MultiLanguage<string>
-                            {
-                                Ar =
-                                    @"تضم دبي 10 ملاعب جولف ضمن مسافة قريبة من ون آند أونلي رويال ميراج، ولا يبعد نادي الإمارات للجولف ونادي مونتغمري إلا بضع دقائق. Test",
-                                En =
-                                    @"Test Dubai boasts 10 spectacular golf courses within easy reach of One&Only Royal Mirage, with Emirates Golf Club and Montgomerie just minutes away.",
-                                Ru =
-                                    @"Test В Дубае, недалеко от курорта One&Only Royal Mirage, находится 10 роскошных полей для гольфа, а гольф-клубы Emirates Golf Club и Montgomerie также расположены в непосредственной близости."
-                            },
-                            new MultiLanguage<string>
-                            {
-                                Ar =
-                                    "ترتقي روحك وتسمو بينما تنغمس في ملذات التجارب الشاملة المصممة لاستعادة العقل والبدن والروح في منتجع ون آند أونلي سبا. ادخل الحمام الشرقي ودع بدنك يرتاح ببطء عبر الحرارة والبخار المتصاعد بينما تبث أصوات الماء المترقرقة الاسترخاء في العقل.Test",
-                                En =
-                                    @"Test Spirits elevate as you indulge in a range of holistic experiences designed to restore mind, body and soul at One&Only Spa. At the Traditional Oriental Hammam, let the body ease slowly into the rising heat and steam whilst the sounds of rippling water relaxes the mind.",
-                                Ru =
-                                    @"Test Процедуры для восстановления равновесия разума, тела и души в спа-центре One&Only обновят вашу жизненную энергию. Позвольте теплым парам традиционного восточного хаммама расслабить ваше тело, пока струящаяся вода успокаивает мысли."
-                            }
-                        },
-                        Picture = new Picture
-                        {
-                            Caption = new MultiLanguage<string>
-                            {
-                                Ar = "ون آند اونلي رويال ميراجTest",
-                                En = "Test ROYAL MIRAGE"
-                            },
-                            Source = "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6HkA4WClkmu3oOM0iuENG66UC6iKZNUrefe0iJ__MX5ZbValF"
-                        }
-                    });
-
-                #endregion
-
-                #region AddLocation
-
-                dbContext.Locations.AddRange(new Location
+                foreach (var roomIdsAndPrice in roomIdsAndPrices)
                 {
-                    Coordinates = new Point(55.151219, 25.091596),
-                    AccommodationId = hotelId,
-                    Address = new MultiLanguage<string>
+                    var rate = new RoomRate
                     {
-                        Ar = "شارع الملك سلمان بن عبدالعزيز آل سعود - دبيTest",
-                        En = "Test King Salman Bin Abdulaziz Al Saud St - Dubai",
-                        Ru = "Test King Salman Bin Abdulaziz Al Saud St - Dubai - ОАЭ"
-                    },
-                    LocalityId = 2
+                        StartsFromDate = seasonPeriod.startDate,
+                        EndsToDate = seasonPeriod.endDate,
+                        RoomId = roomIdsAndPrice.Item1,
+                        Price = roomIdsAndPrice.Item2,
+                        CurrencyCode = "AED"
+                    };
+                    dbContext.Entry(rate).State = EntityState.Detached;
+                    dbContext.RoomRates.Add(rate);
+                }
+            }
+        }
+
+        
+        private static void AddPromotionalOffers(DirectContractsDbContext dbContext, int[] roomIds,
+            RoomPromotionalOffer[] promotionalOffers)
+        {
+            foreach (var id in roomIds)
+            {
+                foreach (var promotionalOffer in promotionalOffers)
+                {
+                    promotionalOffer.RoomId = id;
+                }
+                var serialized = JsonConvert.SerializeObject(promotionalOffers, new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore
                 });
-
-                #endregion
-
-                #region AddCancelationPolicies
-
-                dbContext.CancelationPolicies.Add(new CancelationPolicy
-                {
-                    Id = 31,
-                    CancelationPolicyDetails = new List<CancelationPolicyDetails>
-                    {
-                        new CancelationPolicyDetails
-                        {
-                            FromDays = 45,
-                            ToDays = 45,
-                            Details = new MultiLanguage<string>
-                                {En = "Test New Year Peak Period: Full stay of tour operator rates if cancelled within 45 days of arrival"}
-                        }
-                    }
-                });
-
-                dbContext.CancelationPolicies.Add(new CancelationPolicy
-                {
-                    Id = 32,
-                    CancelationPolicyDetails = new List<CancelationPolicyDetails>
-                    {
-                        new CancelationPolicyDetails
-                        {
-                            FromDays = 35,
-                            ToDays = 35,
-                            Details = new MultiLanguage<string>
-                                {En = "Test Full stay of tour operator rates if cancelled within 45 days of arrival"}
-                        }
-                    }
-                });
-
-                dbContext.CancelationPolicies.Add(new CancelationPolicy
-                {
-                    Id = 33,
-                    CancelationPolicyDetails = new List<CancelationPolicyDetails>
-                    {
-                        new CancelationPolicyDetails
-                        {
-                            FromDays = 28,
-                            ToDays = 14,
-                            Details = new MultiLanguage<string>
-                            {
-                                En =
-                                    "Test 28-14 days prior to arrival: Cancellation penalty charge of 4 nights (or full stay if less than 4 nights) of full rate applicable"
-                            }
-                        },
-                        new CancelationPolicyDetails
-                        {
-                            FromDays = 13,
-                            ToDays = 7,
-                            Details = new MultiLanguage<string>
-                            {
-                                En =
-                                    "Test 13-7 days prior to arrival: Cancellation penalty charge of 7 nights (or full stay if less than 7 nights) of full rate applicable"
-                            }
-                        },
-                        new CancelationPolicyDetails
-                        {
-                            FromDays = 6,
-                            ToDays = 0,
-                            Details = new MultiLanguage<string>
-                                {En = "Test 6 days-No show: Tour operator will be charged full length of booking"}
-                        }
-                    }
-                });
-
-                dbContext.CancelationPolicies.Add(new CancelationPolicy
-                {
-                    Id = 34,
-                    CancelationPolicyDetails = new List<CancelationPolicyDetails>
-                    {
-                        new CancelationPolicyDetails
-                        {
-                            FromDays = 13,
-                            ToDays = 7,
-                            Details = new MultiLanguage<string>
-                            {
-                                En =
-                                    "Test 13-07 days before guest arrival: Cancellation penalty charge of 3 nights (or full stay if less than 3 nights) of full rate applicable"
-                            }
-                        },
-                        new CancelationPolicyDetails
-                        {
-                            FromDays = 6,
-                            ToDays = 0,
-                            Details = new MultiLanguage<string>
-                            {
-                                En =
-                                    "Test 6 days-Ni show: Cancellation penalty charge of 5 nights at full tour operator rate (or full stay if less than 5 nights) of full rate applicable"
-                            }
-                        }
-                    }
-                });
-
-                #endregion
-
-                #region AddSeasons
-
-                dbContext.Seasons.AddRange(
-                    new Season
-                    {
-                        Id = 111,
-                        AccommodationId = hotelId,
-                        Name = "TestHIGH I",
-                        StartDate = new DateTime(2020, 1, 8),
-                        EndDate = new DateTime(2020, 1, 14),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 121,
-                        AccommodationId = hotelId,
-                        Name = "TestHIGH II",
-                        StartDate = new DateTime(2020, 1, 15),
-                        EndDate = new DateTime(2020, 1, 24),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 131,
-                        AccommodationId = hotelId,
-                        Name = "TestHIGH I",
-                        StartDate = new DateTime(2020, 1, 25),
-                        EndDate = new DateTime(2020, 2, 7),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 141,
-                        AccommodationId = hotelId,
-                        Name = "TestPEAK I",
-                        StartDate = new DateTime(2020, 2, 8),
-                        EndDate = new DateTime(2020, 2, 21),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 151,
-                        AccommodationId = hotelId,
-                        Name = "TestHIGH I",
-                        StartDate = new DateTime(2020, 2, 22),
-                        EndDate = new DateTime(2020, 3, 20),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 161,
-                        AccommodationId = hotelId,
-                        Name = "TestPEAK I",
-                        StartDate = new DateTime(2020, 3, 21),
-                        EndDate = new DateTime(2020, 3, 27),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 171,
-                        AccommodationId = hotelId,
-                        Name = "TestPEAK II",
-                        StartDate = new DateTime(2020, 3, 28),
-                        EndDate = new DateTime(2020, 4, 12),
-                        CancelationPolicyId = 22
-                    },
-                    new Season
-                    {
-                        Id = 181,
-                        AccommodationId = hotelId,
-                        Name = "TestPEAK I",
-                        StartDate = new DateTime(2020, 4, 13),
-                        EndDate = new DateTime(2020, 4, 18),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 191,
-                        AccommodationId = hotelId,
-                        Name = "TestHIGH I",
-                        StartDate = new DateTime(2020, 4, 19),
-                        EndDate = new DateTime(2020, 5, 3),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 201,
-                        AccommodationId = hotelId,
-                        Name = "TestSHOULDER",
-                        StartDate = new DateTime(2020, 5, 4),
-                        EndDate = new DateTime(2020, 5, 31),
-                        CancelationPolicyId = 24
-                    },
-                    new Season
-                    {
-                        Id = 211,
-                        AccommodationId = hotelId,
-                        Name = "TestLOW",
-                        StartDate = new DateTime(2020, 7, 1),
-                        EndDate = new DateTime(2020, 9, 4),
-                        CancelationPolicyId = 24
-                    },
-                    new Season
-                    {
-                        Id = 221,
-                        AccommodationId = hotelId,
-                        Name = "TestSHOULDER",
-                        StartDate = new DateTime(2020, 9, 5),
-                        EndDate = new DateTime(2020, 9, 25),
-                        CancelationPolicyId = 24
-                    },
-                    new Season
-                    {
-                        Id = 231,
-                        AccommodationId = hotelId,
-                        Name = "TestHIGH II",
-                        StartDate = new DateTime(2020, 9, 26),
-                        EndDate = new DateTime(2020, 10, 9),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 241,
-                        AccommodationId = hotelId,
-                        Name = "TestHIGH I",
-                        StartDate = new DateTime(2020, 10, 10),
-                        EndDate = new DateTime(2020, 10, 16),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 251,
-                        AccommodationId = hotelId,
-                        Name = "TestPEAK I",
-                        StartDate = new DateTime(2020, 10, 17),
-                        EndDate = new DateTime(2020, 10, 23),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 261,
-                        AccommodationId = hotelId,
-                        Name = "TestPEAK II",
-                        StartDate = new DateTime(2020, 10, 24),
-                        EndDate = new DateTime(2020, 11, 6),
-                        CancelationPolicyId = 22
-                    },
-                    new Season
-                    {
-                        Id = 271,
-                        AccommodationId = hotelId,
-                        Name = "TestHIGH I",
-                        StartDate = new DateTime(2020, 11, 7),
-                        EndDate = new DateTime(2020, 12, 4),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 281,
-                        AccommodationId = hotelId,
-                        Name = "TestHIGH II",
-                        StartDate = new DateTime(2020, 12, 5),
-                        EndDate = new DateTime(2020, 12, 18),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 291,
-                        AccommodationId = hotelId,
-                        Name = "TestHIGH I",
-                        StartDate = new DateTime(2020, 12, 19),
-                        EndDate = new DateTime(2020, 12, 25),
-                        CancelationPolicyId = 23
-                    },
-                    new Season
-                    {
-                        Id = 301,
-                        AccommodationId = hotelId,
-                        Name = "TestFESTIVE",
-                        StartDate = new DateTime(2020, 12, 26),
-                        EndDate = new DateTime(2021, 1, 3),
-                        CancelationPolicyId = 21
-                    },
-                    new Season
-                    {
-                        Id = 311,
-                        AccommodationId = hotelId,
-                        Name = "TestPEAK I",
-                        StartDate = new DateTime(2021, 1, 4),
-                        EndDate = new DateTime(2021, 1, 10),
-                        CancelationPolicyId = 23
-                    }, new Season
-                    {
-                        Id = 321,
-                        AccommodationId = hotelId,
-                        Name = "TestHIGH I",
-                        StartDate = new DateTime(2021, 1, 11),
-                        EndDate = new DateTime(2021, 2, 5),
-                        CancelationPolicyId = 23
-                    }, new Season
-                    {
-                        Id = 331,
-                        AccommodationId = hotelId,
-                        Name = "TestPEAK I",
-                        StartDate = new DateTime(2021, 2, 6),
-                        EndDate = new DateTime(2021, 2, 19),
-                        CancelationPolicyId = 23
-                    }, new Season
-                    {
-                        Id = 341,
-                        AccommodationId = hotelId,
-                        Name = "TestHIGH I",
-                        StartDate = new DateTime(2021, 2, 20),
-                        EndDate = new DateTime(2021, 3, 19),
-                        CancelationPolicyId = 23
-                    }, new Season
-                    {
-                        Id = 351,
-                        AccommodationId = hotelId,
-                        Name = "TestPEAK I",
-                        StartDate = new DateTime(2021, 3, 20),
-                        EndDate = new DateTime(2021, 3, 26),
-                        CancelationPolicyId = 23
-                    }, new Season
-                    {
-                        Id = 361,
-                        AccommodationId = hotelId,
-                        Name = "TestPEAK II",
-                        StartDate = new DateTime(2021, 3, 27),
-                        EndDate = new DateTime(2021, 4, 10),
-                        CancelationPolicyId = 22
-                    },
-                    new Season
-                    {
-                        Id = 371,
-                        AccommodationId = hotelId,
-                        Name = "TestHIGH I",
-                        StartDate = new DateTime(2021, 4, 11),
-                        EndDate = new DateTime(2021, 5, 7),
-                        CancelationPolicyId = 23
-                    }
-                );
-
-                #endregion
-
-                #region AddRooms
-
-                dbContext.Rooms.AddRange(new Room
-                {
-                    Id = 201,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
-                    {
-                        En = "Test Palace Superior Deluxe Room"
-                    }
-                }, new Room
-                {
-                    Id = 211,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
-                    {
-                        En = "Test Palace Gold Club Room"
-                    }
-                }, new Room
-                {
-                    Id = 221,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
-                    {
-                        En = "Test Palace One Bedroom Executive Suite"
-                    }
-                }, new Room
-                {
-                    Id = 231,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
-                    {
-                        En = "Test Palace One Bedroom Golf Club Suite"
-                    }
-                }, new Room
-                {
-                    Id = 241,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
-                    {
-                        En = "Test Palace Two Bedroom Executive Suite"
-                    }
-                }, new Room
-                {
-                    Id = 251,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
-                    {
-                        En = "Test Palace Two Bedroom Golf Club Suite"
-                    }
-                }, new Room
-                {
-                    Id = 261,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
-                    {
-                        En = "Test Palace Two Bedroom Royal Suite"
-                    }
-                }, new Room
-                {
-                    Id = 271,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
-                    {
-                        En = "Test Arabian Court Delux Room"
-                    }
-                }, new Room
-                {
-                    Id = 281,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
-                    {
-                        En = "Test Arabian Court Two Deluxe Rooms Family Accommodation"
-                    }
-                }, new Room
-                {
-                    Id = 291,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
-                    {
-                        En = "Test Arabian Court One Bedroom Executive Suite"
-                    }
-                }, new Room
-                {
-                    Id = 301,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
-                    {
-                        En = "Test Arabian Court Two Bedroom Executive Suite"
-                    }
-                }, new Room
-                {
-                    Id = 311,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
-                    {
-                        En = "Test Arabian Court Prince Suite"
-                    }
-                }, new Room
-                {
-                    Id = 321,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
-                    {
-                        En = "Test Residence Prestige Room"
-                    }
-                }, new Room
-                {
-                    Id = 331,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
-                    {
-                        En = "Test Residence Junior Room"
-                    }
-                }, new Room
-                {
-                    Id = 341,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
-                    {
-                        En = "Test Residence Executive Suite"
-                    }
-                }, new Room
-                {
-                    Id = 351,
-                    AccommodationId = hotelId,
-                    Name = new MultiLanguage<string>
-                    {
-                        En = "Test Residence Garden Beach Villa"
-                    }
-                });
-
-                #endregion
-
-                #region AddRates
-
-                FillRates(
-                    dbContext,
-                    new[] {111, 131, 151, 191},
-                    new List<(int, decimal)>
-                    {
-                        (201, 2465),
-                        (211, 3150),
-                        (221, 5700),
-                        (231, 6700),
-                        (241, 8130),
-                        (251, 9850),
-                        (261, 2230),
-                        (271, 2465),
-                        (281, 4390),
-                        (291, 6750),
-                        (301, 9180),
-                        (311, 9100),
-                        (321, 3755),
-                        (331, 6090),
-                        (341, 8460),
-                        (351, 30000)
-                    });
-                FillRates(
-                    dbContext,
-                    new[] {121, 231, 281},
-                    new List<(int, decimal)>
-                    {
-                        (201, 2100),
-                        (211, 2700),
-                        (221, 4800),
-                        (231, 5800),
-                        (241, 6870),
-                        (251, 8500),
-                        (261, 20700),
-                        (271, 2100),
-                        (281, 4000),
-                        (291, 5750),
-                        (301, 7820),
-                        (311, 7475),
-                        (321, 3150),
-                        (331, 5250),
-                        (341, 6900),
-                        (351, 29000)
-                    });
-                FillRates(
-                    dbContext,
-                    new[] {141, 161, 181, 251},
-                    new List<(int, decimal)>
-                    {
-                        (201, 3170),
-                        (211, 3780),
-                        (221, 7000),
-                        (231, 8450),
-                        (241, 10200),
-                        (251, 12230),
-                        (261, 23100),
-                        (271, 3170),
-                        (281, 6000),
-                        (291, 8450),
-                        (301, 11600),
-                        (311, 10000),
-                        (321, 4300),
-                        (331, 7000),
-                        (341, 9800),
-                        (351, 30000)
-                    });
-                FillRates(
-                    dbContext,
-                    new[] {171, 261},
-                    new List<(int, decimal)>
-                    {
-                        (201, 3780),
-                        (211, 4590),
-                        (221, 8800),
-                        (231, 10500),
-                        (241, 12600),
-                        (251, 15100),
-                        (261, 26450),
-                        (271, 3780),
-                        (281, 7560),
-                        (291, 10700),
-                        (301, 14500),
-                        (311, 12850),
-                        (321, 5245),
-                        (331, 8780),
-                        (341, 11780),
-                        (351, 36000)
-                    });
-                FillRates(
-                    dbContext,
-                    new[] {201, 221},
-                    new List<(int, decimal)>
-                    {
-                        (201, 1830),
-                        (211, 2405),
-                        (221, 4200),
-                        (231, 5200),
-                        (241, 6000),
-                        (251, 7600),
-                        (261, 16600),
-                        (271, 1830),
-                        (281, 3650),
-                        (291, 5000),
-                        (301, 6800),
-                        (311, 6500),
-                        (321, 2835),
-                        (331, 4700),
-                        (341, 5400),
-                        (351, 24000)
-                    });
-                FillRates(
-                    dbContext,
-                    new[] {211},
-                    new List<(int, decimal)>
-                    {
-                        (201, 1560),
-                        (211, 2070),
-                        (221, 3500),
-                        (231, 4200),
-                        (241, 5000),
-                        (251, 6270),
-                        (261, 16600),
-                        (271, 1560),
-                        (281, 3000),
-                        (291, 4175),
-                        (301, 5680),
-                        (311, 5550),
-                        (321, 2300),
-                        (331, 3540),
-                        (341, 4900),
-                        (351, 24000)
-                    });
-                FillRates(
-                    dbContext,
-                    new[] {241, 271, 291},
-                    new List<(int, decimal)>
-                    {
-                        (201, 1560),
-                        (211, 2070),
-                        (221, 3500),
-                        (231, 4200),
-                        (241, 5000),
-                        (251, 6270),
-                        (261, 16600),
-                        (271, 1560),
-                        (281, 3000),
-                        (291, 4175),
-                        (301, 5680),
-                        (311, 5550),
-                        (321, 2300),
-                        (331, 3540),
-                        (341, 4900),
-                        (351, 24000)
-                    });
-                FillRates(
-                    dbContext,
-                    new[] {301},
-                    new List<(int, decimal)>
-                    {
-                        (201, 4600),
-                        (211, 5620),
-                        (221, 9350),
-                        (231, 11000),
-                        (241, 13850),
-                        (251, 16620),
-                        (261, 28700),
-                        (271, 4830),
-                        (281, 9200),
-                        (291, 11750),
-                        (301, 16600),
-                        (311, 14100),
-                        (321, 6350),
-                        (331, 9300),
-                        (341, 11750),
-                        (351, 38000)
-                    });
-                FillRates(
-                    dbContext,
-                    new[] {311, 331, 351},
-                    new List<(int, decimal)>
-                    {
-                        (201, 3170),
-                        (211, 3780),
-                        (221, 7000),
-                        (231, 8450),
-                        (241, 10200),
-                        (251, 12230),
-                        (261, 23100),
-                        (271, 3170),
-                        (281, 6000),
-                        (291, 8450),
-                        (301, 11600),
-                        (311, 10000),
-                        (321, 4300),
-                        (331, 7000),
-                        (341, 9800),
-                        (351, 3000)
-                    });
-                FillRates(
-                    dbContext,
-                    new[] {321, 341},
-                    new List<(int, decimal)>
-                    {
-                        (201, 2465),
-                        (211, 3150),
-                        (221, 5700),
-                        (231, 6700),
-                        (241, 8130),
-                        (251, 9850),
-                        (261, 22300),
-                        (271, 2465),
-                        (281, 4930),
-                        (291, 6750),
-                        (301, 9180),
-                        (311, 9100),
-                        (321, 3755),
-                        (331, 6090),
-                        (341, 8460),
-                        (351, 30000)
-                    });
-                FillRates(
-                    dbContext,
-                    new[] {361},
-                    new List<(int, decimal)>
-                    {
-                        (201, 3780),
-                        (211, 4590),
-                        (221, 8800),
-                        (231, 10500),
-                        (241, 12600),
-                        (251, 15100),
-                        (261, 26450),
-                        (271, 3780),
-                        (281, 7560),
-                        (291, 10700),
-                        (301, 14500),
-                        (311, 12850),
-                        (321, 5245),
-                        (331, 8780),
-                        (341, 11780),
-                        (351, 36000)
-                    });
-                FillRates(
-                    dbContext,
-                    new[] {371},
-                    new List<(int, decimal)>
-                    {
-                        (201, 2465),
-                        (211, 3150),
-                        (221, 5700),
-                        (231, 6700),
-                        (241, 8130),
-                        (251, 9850),
-                        (261, 22300),
-                        (271, 2465),
-                        (281, 4930),
-                        (291, 6750),
-                        (301, 9180),
-                        (311, 9100),
-                        (321, 3755),
-                        (331, 6090),
-                        (341, 8460),
-                        (351, 30000)
-                    });
-
-                #endregion
-
-                #region DiscountRates
-
-                //palace
-                var offers =
-                    new (int discountPct, DateTime bookBy, DateTime validFrom, DateTime validTo, string bookingCode,
-                        MultiLanguage<string> details)[]
-                        {
-                            (25, new DateTime(2019, 12, 13), new DateTime(2020, 1, 8), new DateTime(2020, 2, 21), "25% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, DECEMBER 13, 2019 receive a 25% discount"}),
-                            (20, new DateTime(2019, 12, 13), new DateTime(2020, 2, 22), new DateTime(2020, 3, 20), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, DECEMBER 13, 2019 receive a 20% discount"}),
-                            (30, new DateTime(2019, 12, 13), new DateTime(2020, 3, 21), new DateTime(2020, 3, 27), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, DECEMBER 13, 2019 receive a 30% discount"}),
-                            (20, new DateTime(2020, 2, 28), new DateTime(2020, 3, 28), new DateTime(2020, 4, 3), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2020 receive a 35% discount"}),
-                            (20, new DateTime(2020, 2, 28), new DateTime(2020, 4, 4), new DateTime(2020, 4, 12), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2020 receive a 20% discount"}),
-
-                            (30, new DateTime(2020, 2, 28), new DateTime(2020, 4, 13), new DateTime(2020, 4, 18), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2020 receive a 30% discount"}),
-
-                            (25, new DateTime(2020, 2, 28), new DateTime(2020, 4, 19), new DateTime(2020, 5, 3), "25% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2020 receive a 25% discount"}),
-
-                            (30, new DateTime(2020, 4, 3), new DateTime(2020, 5, 4), new DateTime(2020, 5, 31), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, APRIL 28, 2020 receive a 30% discount"}),
-
-                            (30, new DateTime(2020, 5, 8), new DateTime(2020, 6, 1), new DateTime(2020, 9, 4), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, MAY 8, 2020 receive a 30% discount"}),
-
-                            (40, new DateTime(2020, 8, 14), new DateTime(2020, 9, 5), new DateTime(2020, 9, 25), "40% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, AUGUST 14, 2020 receive a 40% discount"}),
-
-                            (25, new DateTime(2020, 8, 14), new DateTime(2020, 9, 26), new DateTime(2020, 10, 16), "25% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, AUGUST 14, 2020 receive a 25% discount"}),
-
-                            (20, new DateTime(2020, 8, 14), new DateTime(2020, 10, 17), new DateTime(2020, 12, 4), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, AUGUST 14, 2020 receive a 20% discount"}),
-
-                            (30, new DateTime(2020, 10, 2), new DateTime(2020, 12, 5), new DateTime(2020, 12, 18), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, OCTOBER 2, 2020 receive a 30% discount"}),
-
-                            (20, new DateTime(2020, 11, 1), new DateTime(2020, 12, 19), new DateTime(2020, 12, 25), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, NOVEMBER 1, 2020 receive a 20% discount"}),
-
-                            (10, new DateTime(2020, 11, 1), new DateTime(2020, 12, 26), new DateTime(2021, 1, 3), "10% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, NOVEMBER 1, 2020 receive a 10% discount"}),
-
-                            (20, new DateTime(2020, 11, 1), new DateTime(2021, 1, 4), new DateTime(2021, 4, 10), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, NOVEMBER 1, 2020 receive a 20% discount"}),
-
-                            (20, new DateTime(2021, 2, 26), new DateTime(2021, 4, 11), new DateTime(2021, 5, 7), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2021 receive a 20% discount"})
-                        };
-                FillDiscountRates(dbContext, new[] {201, 211, 221, 231, 241, 251, 261}, offers);
-
-                //arabian court
-                offers =
-                    new (int discountPct, DateTime bookBy, DateTime validFrom, DateTime validTo, string bookingCode,
-                        MultiLanguage<string> details)[]
-                        {
-                            (30, new DateTime(2019, 12, 13), new DateTime(2020, 1, 8), new DateTime(2020, 2, 21), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, DECEMBER 13, 2019 receive a 30% discount"}),
-                            (25, new DateTime(2019, 12, 13), new DateTime(2020, 2, 22), new DateTime(2020, 3, 20), "25% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, DECEMBER 13, 2019 receive a 25% discount"}),
-                            (35, new DateTime(2019, 12, 13), new DateTime(2020, 3, 21), new DateTime(2020, 3, 27), "35% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, DECEMBER 13, 2019 receive a 35% discount"}),
-                            (35, new DateTime(2020, 2, 28), new DateTime(2020, 3, 28), new DateTime(2020, 4, 3), "35% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2020 receive a 35% discount"}),
-                            (25, new DateTime(2020, 2, 28), new DateTime(2020, 4, 4), new DateTime(2020, 4, 12), "25% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2020 receive a 25% discount"}),
-                            (35, new DateTime(2020, 2, 28), new DateTime(2020, 4, 13), new DateTime(2020, 4, 18), "35% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2020 receive a 35% discount"}),
-                            (30, new DateTime(2020, 2, 28), new DateTime(2020, 4, 19), new DateTime(2020, 5, 3), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2020 receive a 30% discount"}),
-                            (35, new DateTime(2020, 4, 3), new DateTime(2020, 5, 4), new DateTime(2020, 5, 31), "35% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, APRIL 28, 2020 receive a 35% discount"}),
-                            (30, new DateTime(2020, 5, 8), new DateTime(2020, 6, 1), new DateTime(2020, 9, 4), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, MAY 8, 2020 receive a 30% discount"}),
-                            (30, new DateTime(2020, 8, 14), new DateTime(2020, 9, 5), new DateTime(2020, 9, 25), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, AUGUST 14, 2020 receive a 30% discount"}),
-                            (30, new DateTime(2020, 8, 14), new DateTime(2020, 9, 26), new DateTime(2020, 10, 16), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, AUGUST 14, 2020 receive a 30% discount"}),
-                            (20, new DateTime(2020, 8, 14), new DateTime(2020, 10, 17), new DateTime(2020, 12, 4), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, AUGUST 14, 2020 receive a 20% discount"}),
-                            (30, new DateTime(2020, 10, 2), new DateTime(2020, 12, 5), new DateTime(2020, 12, 18), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, OCTOBER 2, 2020 receive a 30% discount"}),
-                            (20, new DateTime(2020, 11, 1), new DateTime(2020, 12, 19), new DateTime(2020, 12, 25), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, NOVEMBER 1, 2020 receive a 20% discount"}),
-                            (10, new DateTime(2020, 11, 1), new DateTime(2020, 12, 26), new DateTime(2021, 1, 3), "10% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, NOVEMBER 1, 2020 receive a 10% discount"}),
-                            (20, new DateTime(2020, 11, 1), new DateTime(2021, 1, 4), new DateTime(2021, 3, 10), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, NOVEMBER 1, 2020 receive a 20% discount"}),
-                            (20, new DateTime(2021, 2, 26), new DateTime(2021, 3, 11), new DateTime(2021, 5, 7), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 26, 2021 receive a 20% discount"})
-                        };
-                FillDiscountRates(dbContext, new[] {271, 281, 291, 301, 311}, offers);
-
-                //residence and spa
-                offers =
-                    new (int discountPct, DateTime bookBy, DateTime validFrom, DateTime validTo, string bookingCode,
-                        MultiLanguage<string> details)[]
-                        {
-                            (30, new DateTime(2019, 12, 13), new DateTime(2020, 1, 8), new DateTime(2020, 2, 21), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, DECEMBER 13, 2019 receive a 30% discount"}),
-                            (25, new DateTime(2019, 12, 13), new DateTime(2020, 2, 22), new DateTime(2020, 3, 20), "25% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, DECEMBER 13, 2019 receive a 25% discount"}),
-                            (35, new DateTime(2019, 12, 13), new DateTime(2020, 3, 21), new DateTime(2020, 3, 27), "35% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, DECEMBER 13, 2019 receive a 35% discount"}),
-                            (35, new DateTime(2020, 2, 28), new DateTime(2020, 3, 28), new DateTime(2020, 4, 3), "35% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2020 receive a 35% discount"}),
-                            (25, new DateTime(2020, 2, 28), new DateTime(2020, 4, 4), new DateTime(2020, 4, 12), "25% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2020 receive a 25% discount"}),
-                            (35, new DateTime(2020, 2, 28), new DateTime(2020, 4, 13), new DateTime(2020, 4, 18), "35% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2020 receive a 35% discount"}),
-                            (30, new DateTime(2020, 2, 28), new DateTime(2020, 4, 19), new DateTime(2020, 5, 3), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2020 receive a 30% discount"}),
-                            (35, new DateTime(2020, 4, 3), new DateTime(2020, 5, 4), new DateTime(2020, 5, 31), "35% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, APRIL 28, 2020 receive a 35% discount"}),
-                            (30, new DateTime(2020, 5, 8), new DateTime(2020, 6, 1), new DateTime(2020, 9, 4), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, MAY 8, 2020 receive a 30% discount"}),
-                            (30, new DateTime(2020, 8, 14), new DateTime(2020, 9, 5), new DateTime(2020, 9, 25), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, AUGUST 14, 2020 receive a 30% discount"}),
-                            (30, new DateTime(2020, 8, 14), new DateTime(2020, 9, 26), new DateTime(2020, 10, 16), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, AUGUST 14, 2020 receive a 30% discount"}),
-                            (20, new DateTime(2020, 8, 14), new DateTime(2020, 10, 17), new DateTime(2020, 12, 4), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, AUGUST 14, 2020 receive a 20% discount"}),
-                            (30, new DateTime(2020, 10, 2), new DateTime(2020, 12, 5), new DateTime(2020, 12, 18), "30% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, OCTOBER 2, 2020 receive a 30% discount"}),
-                            (20, new DateTime(2020, 11, 1), new DateTime(2020, 12, 19), new DateTime(2020, 12, 25), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, NOVEMBER 1, 2020 receive a 20% discount"}),
-                            (10, new DateTime(2020, 11, 1), new DateTime(2020, 12, 26), new DateTime(2021, 1, 3), "10% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, NOVEMBER 1, 2020 receive a 10% discount"}),
-                            (20, new DateTime(2020, 11, 1), new DateTime(2021, 1, 4), new DateTime(2021, 3, 10), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, NOVEMBER 1, 2020 receive a 20% discount"}),
-                            (20, new DateTime(2021, 2, 26), new DateTime(2021, 3, 11), new DateTime(2021, 5, 7), "20% PROMO",
-                                new MultiLanguage<string> {En = "Book on or before Friday, FEBRUARY 28, 2021 receive a 20% discount"})
-                        };
-                FillDiscountRates(dbContext, new[] {321, 331, 341, 351}, offers);
-
-                #endregion
-
-                #region AddStopSaleDate
-
-                dbContext.StopSaleDates.AddRange(new StopSaleDate
-                    {
-                        RoomId = 201,
-                        StartDate = new DateTime(2020, 4, 1),
-                        EndDate = new DateTime(2020, 4, 10)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 201,
-                        StartDate = new DateTime(2020, 7, 10),
-                        EndDate = new DateTime(2020, 7, 13)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 201,
-                        StartDate = new DateTime(2020, 10, 15),
-                        EndDate = new DateTime(2020, 10, 18)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 201,
-                        StartDate = new DateTime(2021, 1, 10),
-                        EndDate = new DateTime(2021, 1, 12)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 211,
-                        StartDate = new DateTime(2020, 2, 5),
-                        EndDate = new DateTime(2020, 2, 7)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 211,
-                        StartDate = new DateTime(2020, 10, 15),
-                        EndDate = new DateTime(2020, 10, 18)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 211,
-                        StartDate = new DateTime(2020, 12, 28),
-                        EndDate = new DateTime(2021, 1, 2)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 221,
-                        StartDate = new DateTime(2020, 2, 5),
-                        EndDate = new DateTime(2020, 2, 7)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 221,
-                        StartDate = new DateTime(2020, 10, 15),
-                        EndDate = new DateTime(2020, 10, 18)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 221,
-                        StartDate = new DateTime(2020, 12, 28),
-                        EndDate = new DateTime(2020, 12, 29)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 231,
-                        StartDate = new DateTime(2020, 2, 5),
-                        EndDate = new DateTime(2020, 2, 10)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 231,
-                        StartDate = new DateTime(2020, 11, 1),
-                        EndDate = new DateTime(2020, 11, 3)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 231,
-                        StartDate = new DateTime(2020, 8, 7),
-                        EndDate = new DateTime(2020, 8, 10)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 241,
-                        StartDate = new DateTime(2020, 3, 8),
-                        EndDate = new DateTime(2020, 3, 10)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 241,
-                        StartDate = new DateTime(2020, 7, 1),
-                        EndDate = new DateTime(2020, 7, 3)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 241,
-                        StartDate = new DateTime(2020, 9, 3),
-                        EndDate = new DateTime(2020, 9, 5)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 251,
-                        StartDate = new DateTime(2020, 1, 29),
-                        EndDate = new DateTime(2020, 2, 1)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 251,
-                        StartDate = new DateTime(2020, 9, 15),
-                        EndDate = new DateTime(2020, 9, 16)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 251,
-                        StartDate = new DateTime(2020, 12, 30),
-                        EndDate = new DateTime(2021, 1, 2)
-                    },
-                    new StopSaleDate
-                    {
-                        RoomId = 261,
-                        StartDate = new DateTime(2020, 1, 10),
-                        EndDate = new DateTime(2020, 1, 12)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 261,
-                        StartDate = new DateTime(2020, 3, 4),
-                        EndDate = new DateTime(2020, 3, 7)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 261,
-                        StartDate = new DateTime(2020, 6, 9),
-                        EndDate = new DateTime(2020, 6, 11)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 271,
-                        StartDate = new DateTime(2020, 1, 18),
-                        EndDate = new DateTime(2020, 1, 19)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 271,
-                        StartDate = new DateTime(2020, 2, 27),
-                        EndDate = new DateTime(2020, 3, 1)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 271,
-                        StartDate = new DateTime(2020, 12, 26),
-                        EndDate = new DateTime(2020, 12, 27)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 281,
-                        StartDate = new DateTime(2020, 4, 5),
-                        EndDate = new DateTime(2020, 4, 7)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 281,
-                        StartDate = new DateTime(2020, 11, 3),
-                        EndDate = new DateTime(2020, 11, 5)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 281,
-                        StartDate = new DateTime(2020, 12, 31),
-                        EndDate = new DateTime(2021, 1, 1)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 291,
-                        StartDate = new DateTime(2020, 2, 7),
-                        EndDate = new DateTime(2020, 2, 10)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 291,
-                        StartDate = new DateTime(2020, 4, 3),
-                        EndDate = new DateTime(2020, 4, 5)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 291,
-                        StartDate = new DateTime(2020, 12, 1),
-                        EndDate = new DateTime(2021, 1, 1)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 301,
-                        StartDate = new DateTime(2020, 6, 1),
-                        EndDate = new DateTime(2020, 9, 1)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 301,
-                        StartDate = new DateTime(2020, 9, 2),
-                        EndDate = new DateTime(2020, 9, 4)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 301,
-                        StartDate = new DateTime(2020, 12, 1),
-                        EndDate = new DateTime(2021, 12, 2)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 311,
-                        StartDate = new DateTime(2020, 1, 6),
-                        EndDate = new DateTime(2020, 1, 8)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 311,
-                        StartDate = new DateTime(2020, 2, 14),
-                        EndDate = new DateTime(2020, 2, 16)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 311,
-                        StartDate = new DateTime(2020, 7, 5),
-                        EndDate = new DateTime(2021, 7, 8)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 321,
-                        StartDate = new DateTime(2020, 9, 12),
-                        EndDate = new DateTime(2020, 9, 15)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 321,
-                        StartDate = new DateTime(2020, 10, 2),
-                        EndDate = new DateTime(2020, 10, 4)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 321,
-                        StartDate = new DateTime(2019, 12, 3),
-                        EndDate = new DateTime(2019, 12, 4)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 331,
-                        StartDate = new DateTime(2020, 3, 6),
-                        EndDate = new DateTime(2020, 3, 8)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 331,
-                        StartDate = new DateTime(2020, 4, 10),
-                        EndDate = new DateTime(2020, 4, 13)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 331,
-                        StartDate = new DateTime(2020, 7, 1),
-                        EndDate = new DateTime(2020, 8, 1)
-                    },
-                    new StopSaleDate
-                    {
-                        RoomId = 341,
-                        StartDate = new DateTime(2020, 3, 3),
-                        EndDate = new DateTime(2020, 3, 5)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 341,
-                        StartDate = new DateTime(2020, 4, 16),
-                        EndDate = new DateTime(2020, 4, 19)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 341,
-                        StartDate = new DateTime(2020, 11, 23),
-                        EndDate = new DateTime(2020, 11, 26)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 351,
-                        StartDate = new DateTime(2020, 5, 1),
-                        EndDate = new DateTime(2020, 5, 6)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 351,
-                        StartDate = new DateTime(2020, 7, 19),
-                        EndDate = new DateTime(2020, 7, 21)
-                    }, new StopSaleDate
-                    {
-                        RoomId = 351,
-                        StartDate = new DateTime(2020, 11, 28),
-                        EndDate = new DateTime(2020, 12, 3)
-                    });
-
-                #endregion
-
-                #region AddPermittedOccupancy
-
-                dbContext.RoomDetails.AddRange(
-                    //201
-                    new RoomDetails
-                    {
-                        RoomId = 201,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(12, true, 16, true),
-                        InfantsNumber = 0
-                    }
-                    , new RoomDetails
-                    {
-                        RoomId = 201,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true),
-                        InfantsNumber = 1
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 201,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 201,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    //211
-                    new RoomDetails
-                    {
-                        RoomId = 211,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(12, true, 16, true),
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 211,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true),
-                        InfantsNumber = 1
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 211,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 211,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }
-                    //221
-                    , new RoomDetails
-                    {
-                        RoomId = 221,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(12, true, 16, true),
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 221,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true),
-                        InfantsNumber = 1
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 221,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 221,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    //231
-                    new RoomDetails
-                    {
-                        RoomId = 231,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(12, true, 16, true),
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 231,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true),
-                        InfantsNumber = 1
-                    }, new RoomDetails
-                    {
-                        RoomId = 231,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 231,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    //241
-                    new RoomDetails
-                    {
-                        RoomId = 241,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 16, true),
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 241,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 241,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 241,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    //251
-                    new RoomDetails
-                    {
-                        RoomId = 251,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 16, true),
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 251,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 251,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 251,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    //261
-                    new RoomDetails
-                    {
-                        RoomId = 261,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 16, true),
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 261,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 261,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 261,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }
-                    //271
-                    , new RoomDetails
-                    {
-                        RoomId = 271,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(12, true, 16, true),
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 271,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true),
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 271,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 271,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    //281
-                    new RoomDetails
-                    {
-                        RoomId = 281,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 3,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true)
-                    }, new RoomDetails
-                    {
-                        RoomId = 281,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 281,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 281,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    //291
-                    new RoomDetails
-                    {
-                        RoomId = 291,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(12, true, 16, true),
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 291,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true),
-                        InfantsNumber = 1
-                    }, new RoomDetails
-                    {
-                        RoomId = 291,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 291,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    //301
-                    new RoomDetails
-                    {
-                        RoomId = 301,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 16, true),
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 301,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 301,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    //31
-                    new RoomDetails
-                    {
-                        RoomId = 311,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(12, true, 16, true),
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 311,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true),
-                        InfantsNumber = 1
-                    }, new RoomDetails
-                    {
-                        RoomId = 311,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 311,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    //321
-                    new RoomDetails
-                    {
-                        RoomId = 321,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(12, true, 16, true),
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 321,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true),
-                        InfantsNumber = 1
-                    },
-                    new RoomDetails
-                    {
-                        RoomId = 321,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 321,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }
-                    //331
-                    , new RoomDetails
-                    {
-                        RoomId = 331,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(12, true, 16, true),
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 331,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true),
-                        InfantsNumber = 1
-                    }, new RoomDetails
-                    {
-                        RoomId = 331,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 331,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    //341
-                    new RoomDetails
-                    {
-                        RoomId = 341,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 11, true),
-                        InfantsNumber = 1
-                    }, new RoomDetails
-                    {
-                        RoomId = 341,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(12, true, 16, true),
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 341,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 341,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    },
-                    //351
-                    new RoomDetails
-                    {
-                        RoomId = 351,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 1,
-                        ChildrenAges = new NpgsqlRange<int>(4, true, 16, true),
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 351,
-                        AdultsNumber = 1,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 351,
-                        AdultsNumber = 2,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 351,
-                        AdultsNumber = 3,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }, new RoomDetails
-                    {
-                        RoomId = 351,
-                        AdultsNumber = 4,
-                        ChildrenNumber = 0,
-                        InfantsNumber = 0
-                    }
-                );
-
-                #endregion
+                dbContext.RoomPromotionalOffers.AddRange(JsonConvert.DeserializeObject<IEnumerable<RoomPromotionalOffer>>(serialized));
             }
         }
 
 
-        private static void FillRates(DirectContractsDbContext dbContext, int[] seasonsIds, List<(int, decimal)> roomIdsAndPrices)
+        private static void AddRoomAllocationRequirements(DirectContractsDbContext dbContext, int[] ids,
+            RoomAllocationRequirement[] roomAllocationRequirements)
         {
-            foreach (var seasonId in seasonsIds)
-            foreach (var roomIdsAndPrice in roomIdsAndPrices)
-                dbContext.Rates.Add(new ContractedRate
+            foreach (var id in ids)
+            {
+                foreach (var roomAllocationRequirement in roomAllocationRequirements)
                 {
-                    SeasonId = seasonId,
-                    RoomId = roomIdsAndPrice.Item1,
-                    SeasonPrice = roomIdsAndPrice.Item2,
-                    CurrencyCode = "AED"
-                });
-        }
-
-
-        private static void FillDiscountRates(DirectContractsDbContext dbContext, int[] roomIds,
-            (int discountPercent, DateTime bookBy, DateTime validFrom, DateTime validTo, string bookingCode, MultiLanguage<string> details)[] offers)
-        {
-            foreach (var roomId in roomIds)
-            foreach (var offer in offers)
-                dbContext.DiscountRates.Add(new DiscountRate
+                    roomAllocationRequirement.RoomId = id;
+                    dbContext.RoomAllocationRequirements.Add(roomAllocationRequirement);
+                }
+                var serialized = JsonConvert.SerializeObject(roomAllocationRequirements, new JsonSerializerSettings
                 {
-                    RoomId = roomId,
-                    DiscountPercent = offer.discountPercent,
-                    BookBy = offer.bookBy,
-                    ValidFrom = offer.validFrom,
-                    ValidTo = offer.validTo,
-                    BookingCode = offer.bookingCode,
-                    Details = offer.details
+                    NullValueHandling = NullValueHandling.Ignore
                 });
+                dbContext.RoomAllocationRequirements.AddRange(JsonConvert.DeserializeObject<IEnumerable<RoomAllocationRequirement>>(serialized));
+            }
         }
+        
     }
 }
