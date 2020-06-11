@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using Hiroshima.DirectContracts.Models.RawAvailiability;
+using Hiroshima.DirectContracts.Models.Internal;
 using NetTopologySuite.Geometries;
 
-namespace Hiroshima.DirectContracts.Services.Availability
+namespace Hiroshima.DirectContracts.Services.Availability.del
 {
     public interface IAvailabilityQueriesService
     {

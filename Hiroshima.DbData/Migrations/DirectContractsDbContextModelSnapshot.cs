@@ -2,10 +2,13 @@
 using System;
 using System.Collections.Generic;
 using Hiroshima.Common.Models;
+using Hiroshima.Common.Models.Enums;
 using Hiroshima.DbData;
 using Hiroshima.DbData.Models.Accommodation;
 using Hiroshima.DbData.Models.Booking;
+using Hiroshima.DbData.Models.Location;
 using Hiroshima.DbData.Models.Rooms;
+using Hiroshima.DbData.Models.Rooms.CancellationPolicies;
 using Hiroshima.DbData.Models.Rooms.Occupancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -22,10 +25,13 @@ namespace Hiroshima.DbData.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasAnnotation("Npgsql:Enum:accommodation_rating", "unknown,not_rated,one_star,two_stars,three_stars,four_stars,five_stars")
+                .HasAnnotation("Npgsql:Enum:location_types", "zone,city,country,point_of_interest")
+                .HasAnnotation("Npgsql:Enum:sale_restrictions", "stop_sale")
                 .HasAnnotation("Npgsql:PostgresExtension:postgis", ",,")
                 .HasAnnotation("Npgsql:PostgresExtension:uuid-ossp", ",,")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.1.3")
+                .HasAnnotation("ProductVersion", "3.1.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("Hiroshima.DbData.Models.Accommodation.Accommodation", b =>
@@ -66,14 +72,17 @@ namespace Hiroshima.DbData.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
+                    b.Property<OccupancyDefinition>("OccupancyDefinition")
+                        .HasColumnType("jsonb");
+
                     b.Property<MultiLanguage<List<Picture>>>("Pictures")
                         .HasColumnType("jsonb");
 
                     b.Property<int>("PropertyType")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Rating")
-                        .HasColumnType("integer");
+                    b.Property<AccommodationRating>("Rating")
+                        .HasColumnType("accommodation_rating");
 
                     b.Property<List<string>>("RoomAmenities")
                         .HasColumnType("jsonb");
@@ -83,12 +92,15 @@ namespace Hiroshima.DbData.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Coordinates")
+                        .HasAnnotation("Npgsql:IndexMethod", "GIST");
+
                     b.HasIndex("LocationId");
 
                     b.ToTable("Accommodations");
                 });
 
-            modelBuilder.Entity("Hiroshima.DbData.Models.Booking.BookingOrder", b =>
+            modelBuilder.Entity("Hiroshima.DbData.Models.Booking.Booking", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -132,6 +144,19 @@ namespace Hiroshima.DbData.Migrations
                     b.ToTable("BookingOrders");
                 });
 
+            modelBuilder.Entity("Hiroshima.DbData.Models.Location.Country", b =>
+                {
+                    b.Property<string>("Code")
+                        .HasColumnType("text");
+
+                    b.Property<MultiLanguage<string>>("Name")
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("Code");
+
+                    b.ToTable("Countries");
+                });
+
             modelBuilder.Entity("Hiroshima.DbData.Models.Location.Location", b =>
                 {
                     b.Property<int>("Id")
@@ -140,6 +165,7 @@ namespace Hiroshima.DbData.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("CountryCode")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<MultiLanguage<string>>("Name")
@@ -149,12 +175,39 @@ namespace Hiroshima.DbData.Migrations
                     b.Property<int>("ParentId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
+                    b.Property<LocationTypes>("Type")
+                        .HasColumnType("location_types");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CountryCode");
+
                     b.ToTable("Locations");
+                });
+
+            modelBuilder.Entity("Hiroshima.DbData.Models.Rooms.CancellationPolicies.RoomCancellationPolicy", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<List<CancellationPolicyData>>("CancellationPolicyData")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("RoomId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CancellationPolicies");
                 });
 
             modelBuilder.Entity("Hiroshima.DbData.Models.Rooms.Room", b =>
@@ -177,7 +230,7 @@ namespace Hiroshima.DbData.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
-                    b.Property<PermittedOccupancies>("PermittedOccupancies")
+                    b.Property<List<OccupancyConfiguration>>("OccupancyConfigurations")
                         .IsRequired()
                         .HasColumnType("jsonb");
 
@@ -196,11 +249,9 @@ namespace Hiroshima.DbData.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<int?>("Allotment")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0);
+                        .HasColumnType("integer");
 
-                    b.Property<DateTime>("EndsToDate")
+                    b.Property<DateTime>("EndDate")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<int?>("MinimumStayNights")
@@ -212,7 +263,7 @@ namespace Hiroshima.DbData.Migrations
                     b.Property<int>("RoomId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("StartsFromDate")
+                    b.Property<DateTime>("StartDate")
                         .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
@@ -229,17 +280,19 @@ namespace Hiroshima.DbData.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<DateTime>("EndsToDate")
-                        .HasColumnType("jsonb");
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<SaleRestrictions>("Restrictions")
-                        .HasColumnType("jsonb");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("sale_restrictions")
+                        .HasDefaultValue(SaleRestrictions.StopSale);
 
                     b.Property<int>("RoomId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("StartsFromDate")
-                        .HasColumnType("jsonb");
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -284,7 +337,7 @@ namespace Hiroshima.DbData.Migrations
                     b.ToTable("RoomPromotionalOffers");
                 });
 
-            modelBuilder.Entity("Hiroshima.DbData.Models.Rooms.RoomRate", b =>
+            modelBuilder.Entity("Hiroshima.DbData.Models.Rooms.RoomRateData", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -298,7 +351,7 @@ namespace Hiroshima.DbData.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("EndsToDate")
+                    b.Property<DateTime>("EndDate")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("MealPlan")
@@ -310,7 +363,7 @@ namespace Hiroshima.DbData.Migrations
                     b.Property<int>("RoomId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("StartsFromDate")
+                    b.Property<DateTime>("StartDate")
                         .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
@@ -325,6 +378,15 @@ namespace Hiroshima.DbData.Migrations
                     b.HasOne("Hiroshima.DbData.Models.Location.Location", null)
                         .WithMany()
                         .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Hiroshima.DbData.Models.Location.Location", b =>
+                {
+                    b.HasOne("Hiroshima.DbData.Models.Location.Country", null)
+                        .WithMany()
+                        .HasForeignKey("CountryCode")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -365,7 +427,7 @@ namespace Hiroshima.DbData.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Hiroshima.DbData.Models.Rooms.RoomRate", b =>
+            modelBuilder.Entity("Hiroshima.DbData.Models.Rooms.RoomRateData", b =>
                 {
                     b.HasOne("Hiroshima.DbData.Models.Rooms.Room", null)
                         .WithMany()

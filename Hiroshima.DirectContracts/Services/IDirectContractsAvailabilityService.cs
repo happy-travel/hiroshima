@@ -6,6 +6,6 @@ namespace Hiroshima.DirectContracts.Services
 {
     public interface IDirectContractsAvailabilityService
     {
-        Task<AvailabilityDetails> GetAvailabilities(AvailabilityRequest request, Language language);
+        Task<AvailabilityDetails> GetAvailable(AvailabilityRequest request, Languages language);
     }
 }

@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Hiroshima.WebApi.Services
 {
-    public interface IAvailability
+    public interface IAvailabilityService
     {
-        Task<Result<AvailabilityDetails, ProblemDetails>> GetAvailabilities(AvailabilityRequest request, string languageCode);
+       Task<Result<AvailabilityDetails, ProblemDetails>> GetAvailabilityDetails(AvailabilityRequest request, string languageCode);
     }
 }

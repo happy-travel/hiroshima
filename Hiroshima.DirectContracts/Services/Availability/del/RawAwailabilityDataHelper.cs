@@ -1,15 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Hiroshima.DbData.Models.Accommodation;
-using Hiroshima.DbData.Models.Rates;
-using Hiroshima.DbData.Models.Rooms;
-using Hiroshima.DirectContracts.Infrastructure.Utils;
-using Hiroshima.DirectContracts.Models.RawAvailiability;
+﻿//using Hiroshima.DbData.Models.Rates;
 
-namespace Hiroshima.DirectContracts.Services.Availability
+namespace Hiroshima.DirectContracts.Services.Availability.del
 {
     public static class RawAwailabilityDataHelper
     {
+        /*
         public static List<Accommodation> OrganizeAvailabilityData(List<RawAvailabilityData> rawAvailabilityData)
         {
             var accommodationsDictionary = new Dictionary<int, Accommodation>();
@@ -151,6 +146,6 @@ namespace Hiroshima.DirectContracts.Services.Availability
                     discountRatesDictionary.Add(discountRate.Id, discountRate);
                 }
             }
-        }
+        }*/
     }
 }

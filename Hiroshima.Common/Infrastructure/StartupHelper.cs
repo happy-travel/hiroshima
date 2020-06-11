@@ -19,13 +19,14 @@ namespace Hiroshima.Common.Infrastructure
         }
         
         
-        public static string GetDbConnectionString(VaultClient vaultClient, IConfiguration configuration)
+        public static string GetDbConnectionString(VaultClient vaultClient, string pathInAppSettings, IConfiguration configuration)
         {
-            var connectionOptions = vaultClient.Get(configuration["Database:ConnectionOptions"]).Result;
+            var connectionOptions = vaultClient.Get(configuration[$"{pathInAppSettings}:ConnectionOptions"]).Result;
             
-            return string.Format(configuration["Database:ConnectionString"],
+            return string.Format($"{configuration[$"{pathInAppSettings}:ConnectionString"]}",
                 connectionOptions["host"],
                 connectionOptions["port"],
+                connectionOptions["database"],
                 connectionOptions["userId"],
                 connectionOptions["password"]);
         }

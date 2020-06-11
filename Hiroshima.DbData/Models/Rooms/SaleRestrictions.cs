@@ -2,6 +2,6 @@
 {
     public enum SaleRestrictions
     {
-        StopSale
+        StopSale = 0
     }
 }

@@ -5,8 +5,10 @@ using HappyTravel.EdoContracts.Accommodations.Enums;
 using Hiroshima.Common.Models;
 using Hiroshima.Common.Models.Enums;
 using Hiroshima.DbData;
+using Hiroshima.DbData.Models;
 using Hiroshima.DbData.Models.Accommodation;
 using Hiroshima.DbData.Models.Rooms;
+using Hiroshima.DbData.Models.Rooms.CancellationPolicies;
 using Hiroshima.DbData.Models.Rooms.Occupancy;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
@@ -26,7 +28,23 @@ namespace Hiroshima.DirectContractsDataSeeder
 
         private static void AddLocations(DirectContractsDbContext dbContext)
         {
-            #region AddLocation
+            #region AddCountries
+
+            dbContext.Countries.AddRange(new Location.Country
+            {
+                Code = "AE",
+                Name = new MultiLanguage<string>
+                {
+                    En = "The United Arab Emirates",
+                    Ru = "Объединенные Арабские Эмираты",
+                    Ar = "الإمارات العربية المتحدة"
+                }
+            });
+
+            #endregion
+
+            #region AddLocations
+
             dbContext.Locations.AddRange(
                 new Location.Location
                 {
@@ -44,20 +62,17 @@ namespace Hiroshima.DirectContractsDataSeeder
                 new Location.Location
                 {
                     Id = 2,
-                    Name = new MultiLanguage<string>
-                    {
-                        Ar = "دبي", 
-                        En = "Dubai",
-                        Ru = "Дубай"
-                    },
+                    Name = new MultiLanguage<string> {Ar = "دبي", En = "Dubai", Ru = "Дубай"},
                     Type = Location.LocationTypes.City,
                     CountryCode = "AE",
                     ParentId = 1
                 });
+
             #endregion
+
+            dbContext.SaveChanges();
         }
-        
-        
+
         private static void AddOneAndOnlyContract(DirectContractsDbContext dbContext)
         {
             var accommodation = dbContext.Accommodations.FirstOrDefault(a => a.Name.En.Equals("ONE&ONLY ROYAL MIRAGE"));
@@ -66,94 +81,130 @@ namespace Hiroshima.DirectContractsDataSeeder
                 var hotelId = 1;
 
                 #region AddAccommodation
+
                 dbContext.Accommodations.Add(new Accommodation
                 {
                     Id = hotelId,
                     Rating = AccommodationRating.FiveStars,
                     PropertyType = PropertyTypes.Hotels,
-                    Name = new MultiLanguage<string>
+                    Name =
+                        new MultiLanguage<string>
                         {
                             Ar = "ون آند اونلي رويال ميراج",
                             En = "ONE&ONLY ROYAL MIRAGE",
                             Ru = "ONE&ONLY ROYAL MIRAGE"
                         },
-                    TextualDescription = new MultiLanguage<TextualDescription>
-                    {
-                        En = new TextualDescription
+                    TextualDescription =
+                        new MultiLanguage<TextualDescription>
                         {
-                            Description = "Set in 65 acres of lush gardens and a kilometer of private beach, peaceful lives in remarkable opulence.",
+                            En = new TextualDescription
+                            {
+                                Description =
+                                    "Set in 65 acres of lush gardens and a kilometer of private beach, peaceful lives in remarkable opulence.",
+                            },
+                            Ar = new TextualDescription
+                            {
+                                Description =
+                                    "65 فدان من الحدائق الغناء وكيلومتر من الشواطئ الخاصة تمثل أنموذجاً للسلاموالرخاء منقطعا النظير."
+                            },
+                            Ru = new TextualDescription
+                            {
+                                Description =
+                                    "26 гектаров ландшафтных садов, собственный пляж протяженностью в один километр, умиротворенная обстановка и роскошное окружение."
+                            }
                         },
-                        Ar = new TextualDescription
+                    Address =
+                        new MultiLanguage<string>
                         {
-                            Description = "65 فدان من الحدائق الغناء وكيلومتر من الشواطئ الخاصة تمثل أنموذجاً للسلاموالرخاء منقطعا النظير."
+                            Ar = "شارع الملك سلمان بن عبدالعزيز آل سعود - دبي",
+                            En = "King Salman Bin Abdulaziz Al Saud St - Dubai",
+                            Ru = "King Salman Bin Abdulaziz Al Saud St - Dubai - ОАЭ"
                         },
-                        Ru = new TextualDescription
-                        {
-                            Description = "26 гектаров ландшафтных садов, собственный пляж протяженностью в один километр, умиротворенная обстановка и роскошное окружение."
-                        }
-                    },
-                    Address = new MultiLanguage<string>
-                    {
-                        Ar = "شارع الملك سلمان بن عبدالعزيز آل سعود - دبي",
-                        En = "King Salman Bin Abdulaziz Al Saud St - Dubai",
-                        Ru = "King Salman Bin Abdulaziz Al Saud St - Dubai - ОАЭ"
-                    },
                     Contacts = new Contacts {Email = "info@oneandonlythepalm.com", Phone = "+ 971 4 440 1010"},
-                    AccommodationAmenities = new MultiLanguage<List<string>>
-                    {
-                        En =  new List<string>
+                    AccommodationAmenities =
+                        new MultiLanguage<List<string>>
                         {
-                            @"Dining at One&Only Royal Mirage is a unique journey within eight different restaurants between The Palace, Arabian Court and Residence & Spa. Each venue presents an authentic culinary experience in a distinctive environment. The Palace offers four different restaurants, including Mediterranean flavours at Olives, exceptional Moroccan fare at Tagine, an elegant dining on European cuisine at Celebrities, and fresh grilled seafood and bright salads at The Beach Bar & Grill. Within Arabian Court, guests may discover seductive Indo-European flavours at Nina, savour all-day dining on traditional recipes from the Middle East and northern Europe at The Rotisserie, or experience the floating majlis overlooking the Arabian Gulf at Eauzone featuring international cuisine with an Asian twist. Exclusive to guests at Residence & Spa, The Dining Room showcases inspired menus of fresh creativity.", 
-                            @"Dubai boasts 10 spectacular golf courses within easy reach of One&Only Royal Mirage, with Emirates Golf Club and Montgomerie just minutes away.",
-                            @"Spirits elevate as you indulge in a range of holistic experiences designed to restore mind, body and soul at One&Only Spa. At the Traditional Oriental Hammam, let the body ease slowly into the rising heat and steam whilst the sounds of rippling water relaxes the mind."
-                        },
-                        Ar = new List<string>
-                        {
-                            @"يعتبر تناول الطعام في ون آند أونلي رويال ميراج متعة بحد ذاتها بفضل ثمانية مطاعم مختلفة في ذا بالاس والردهة العربية والإقامة والسبا. ويقدم كل منها تجربة فريدة لاكتشاف أشهى المأكولات في أجواء مميزة ومبتكرة. ويوفر ذا بالاس أربعة مطاعم مختلفة؛ حيث تُقدَّم القوائم المتوسطية في أوليفز، والمأكولات المغربية الاستثنائية في طاجين، والمأكولات العالمية الكلاسيكية في مطعم المشاهير، والسلطات الطازجة وثمار البحر في بار ومطعم الشاطئ للمشويات. ويمكن للضيوف اكتشاف أشهى النكهات الهندو-أوروبية في نينا، أو تذوق أصنافهم المفضلة طوال اليوم من أطباق الشرق الأوسط وشمال أوروبا في ذا روتيسيري، أو تناول الطعام في مجلس عائم مطل على الخليج العربي في مطعم أوزون الذي يقدم المأكولات العالمية بلمسة آسيوية. وتعرض قاعة الطعام قوائم ملهمة ومبتكرة حصريًا لضيوف المساكن والسبا.",
-                            @"تضم دبي 10 ملاعب جولف ضمن مسافة قريبة من ون آند أونلي رويال ميراج، ولا يبعد نادي الإمارات للجولف ونادي مونتغمري إلا بضع دقائق.",
-                            "ترتقي روحك وتسمو بينما تنغمس في ملذات التجارب الشاملة المصممة لاستعادة العقل والبدن والروح في منتجع ون آند أونلي سبا. ادخل الحمام الشرقي ودع بدنك يرتاح ببطء عبر الحرارة والبخار المتصاعد بينما تبث أصوات الماء المترقرقة الاسترخاء في العقل."
-                        },
-                        Ru = new List<string>
-                        {
-                            @"Ужин или обед на курорте One&Only Royal Mirage — это уникальное путешествие, в котором вас ждут восемь ресторанов, расположенных в корпусах The Palace, Arabian Court и Residence & Spa. Каждый из ресторанов дарит гостям уникальный гастрономический опыт в неповторимой обстановке. В корпусе The Palace расположены четыре ресторана, включая ресторан средиземноморской кухни Olives, ресторан марокканской кухни Tagine, ресторан Celebrities с элегантным интерьером и европейской кухней, а также гриль-бар Beach Bar & Grill, где вам предложат блюда из свежих морепродуктов на гриле и великолепные салаты. В корпусе Arabian Court гостей ждут соблазнительные блюда индоевропейской кухни ресторана Nina, а в ресторане The Rotisserie в течение всего дня можно оценить блюда, приготовленные по традиционным рецептам кухни Ближнего Востока и Северной Европы. В ресторане Eauzone можно удобно устроиться в плавающем меджлисе с видом на Персидский залив и заказать блюда международной кухни с азиатскими нотками. Ресторан Dining Room, обслуживающий исключительно гостей корпуса Residence & Spa, отличается творческим подходом к составлению меню и приготовлению блюд.",
-                            @"В Дубае, недалеко от курорта One&Only Royal Mirage, находится 10 роскошных полей для гольфа, а гольф-клубы Emirates Golf Club и Montgomerie также расположены в непосредственной близости.",
-                            @"Процедуры для восстановления равновесия разума, тела и души в спа-центре One&Only обновят вашу жизненную энергию. Позвольте теплым парам традиционного восточного хаммама расслабить ваше тело, пока струящаяся вода успокаивает мысли."
-                        }
-                    },
-                    Pictures = new MultiLanguage<List<Picture>>
-                    {
-                        En = new List<Picture>
-                        {
-                            new Picture
+                            En =
+                                new List<string>
+                                {
+                                    @"Dining at One&Only Royal Mirage is a unique journey within eight different restaurants between The Palace, Arabian Court and Residence & Spa. Each venue presents an authentic culinary experience in a distinctive environment. The Palace offers four different restaurants, including Mediterranean flavours at Olives, exceptional Moroccan fare at Tagine, an elegant dining on European cuisine at Celebrities, and fresh grilled seafood and bright salads at The Beach Bar & Grill. Within Arabian Court, guests may discover seductive Indo-European flavours at Nina, savour all-day dining on traditional recipes from the Middle East and northern Europe at The Rotisserie, or experience the floating majlis overlooking the Arabian Gulf at Eauzone featuring international cuisine with an Asian twist. Exclusive to guests at Residence & Spa, The Dining Room showcases inspired menus of fresh creativity.",
+                                    @"Dubai boasts 10 spectacular golf courses within easy reach of One&Only Royal Mirage, with Emirates Golf Club and Montgomerie just minutes away.",
+                                    @"Spirits elevate as you indulge in a range of holistic experiences designed to restore mind, body and soul at One&Only Spa. At the Traditional Oriental Hammam, let the body ease slowly into the rising heat and steam whilst the sounds of rippling water relaxes the mind."
+                                },
+                            Ar =
+                                new List<string>
+                                {
+                                    @"يعتبر تناول الطعام في ون آند أونلي رويال ميراج متعة بحد ذاتها بفضل ثمانية مطاعم مختلفة في ذا بالاس والردهة العربية والإقامة والسبا. ويقدم كل منها تجربة فريدة لاكتشاف أشهى المأكولات في أجواء مميزة ومبتكرة. ويوفر ذا بالاس أربعة مطاعم مختلفة؛ حيث تُقدَّم القوائم المتوسطية في أوليفز، والمأكولات المغربية الاستثنائية في طاجين، والمأكولات العالمية الكلاسيكية في مطعم المشاهير، والسلطات الطازجة وثمار البحر في بار ومطعم الشاطئ للمشويات. ويمكن للضيوف اكتشاف أشهى النكهات الهندو-أوروبية في نينا، أو تذوق أصنافهم المفضلة طوال اليوم من أطباق الشرق الأوسط وشمال أوروبا في ذا روتيسيري، أو تناول الطعام في مجلس عائم مطل على الخليج العربي في مطعم أوزون الذي يقدم المأكولات العالمية بلمسة آسيوية. وتعرض قاعة الطعام قوائم ملهمة ومبتكرة حصريًا لضيوف المساكن والسبا.",
+                                    @"تضم دبي 10 ملاعب جولف ضمن مسافة قريبة من ون آند أونلي رويال ميراج، ولا يبعد نادي الإمارات للجولف ونادي مونتغمري إلا بضع دقائق.",
+                                    "ترتقي روحك وتسمو بينما تنغمس في ملذات التجارب الشاملة المصممة لاستعادة العقل والبدن والروح في منتجع ون آند أونلي سبا. ادخل الحمام الشرقي ودع بدنك يرتاح ببطء عبر الحرارة والبخار المتصاعد بينما تبث أصوات الماء المترقرقة الاسترخاء في العقل."
+                                },
+                            Ru = new List<string>
                             {
-                                Source = "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6HkA4WClkmu3oOM0iuENG66UC6iKZNUrefe0iJ__MX5ZbValF",
-                                Caption = "ONE&ONLY ROYAL MIRAGE"
+                                @"Ужин или обед на курорте One&Only Royal Mirage — это уникальное путешествие, в котором вас ждут восемь ресторанов, расположенных в корпусах The Palace, Arabian Court и Residence & Spa. Каждый из ресторанов дарит гостям уникальный гастрономический опыт в неповторимой обстановке. В корпусе The Palace расположены четыре ресторана, включая ресторан средиземноморской кухни Olives, ресторан марокканской кухни Tagine, ресторан Celebrities с элегантным интерьером и европейской кухней, а также гриль-бар Beach Bar & Grill, где вам предложат блюда из свежих морепродуктов на гриле и великолепные салаты. В корпусе Arabian Court гостей ждут соблазнительные блюда индоевропейской кухни ресторана Nina, а в ресторане The Rotisserie в течение всего дня можно оценить блюда, приготовленные по традиционным рецептам кухни Ближнего Востока и Северной Европы. В ресторане Eauzone можно удобно устроиться в плавающем меджлисе с видом на Персидский залив и заказать блюда международной кухни с азиатскими нотками. Ресторан Dining Room, обслуживающий исключительно гостей корпуса Residence & Spa, отличается творческим подходом к составлению меню и приготовлению блюд.",
+                                @"В Дубае, недалеко от курорта One&Only Royal Mirage, находится 10 роскошных полей для гольфа, а гольф-клубы Emirates Golf Club и Montgomerie также расположены в непосредственной близости.",
+                                @"Процедуры для восстановления равновесия разума, тела и души в спа-центре One&Only обновят вашу жизненную энергию. Позвольте теплым парам традиционного восточного хаммама расслабить ваше тело, пока струящаяся вода успокаивает мысли."
                             }
                         },
-                        Ar = new List<Picture>
+                    Pictures =
+                        new MultiLanguage<List<Picture>>
                         {
-                            new Picture
+                            En = new List<Picture>
                             {
-                                Source = "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6HkA4WClkmu3oOM0iuENG66UC6iKZNUrefe0iJ__MX5ZbValF",
-                                Caption = "ون آند اونلي رويال ميراج"
+                                new Picture
+                                {
+                                    Source =
+                                        "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6HkA4WClkmu3oOM0iuENG66UC6iKZNUrefe0iJ__MX5ZbValF",
+                                    Caption = "ONE&ONLY ROYAL MIRAGE"
+                                }
+                            },
+                            Ar = new List<Picture>
+                            {
+                                new Picture
+                                {
+                                    Source =
+                                        "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6HkA4WClkmu3oOM0iuENG66UC6iKZNUrefe0iJ__MX5ZbValF",
+                                    Caption = "ون آند اونلي رويال ميراج"
+                                }
+                            },
+                            Ru = new List<Picture>
+                            {
+                                new Picture
+                                {
+                                    Source =
+                                        "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6HkA4WClkmu3oOM0iuENG66UC6iKZNUrefe0iJ__MX5ZbValF",
+                                    Caption = "ONE&ONLY ROYAL MIRAGE"
+                                }
                             }
                         },
-                        Ru = new List<Picture>
-                        {
-                            new Picture
-                            {
-                                Source = "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6HkA4WClkmu3oOM0iuENG66UC6iKZNUrefe0iJ__MX5ZbValF",
-                                Caption = "ONE&ONLY ROYAL MIRAGE"
-                            }
-                        }
-                    },
                     CheckInTime = "13:00",
                     CheckOutTime = "11:00",
-                    Coordinates = new Point(55.153219,25.097596),
+                    Coordinates = new Point(55.153219, 25.097596),
+                    OccupancyDefinition = new OccupancyDefinition
+                    {
+                        Infant =
+                            new AgeRange
+                            {
+                                LowerBound = 0,
+                                UpperBound = 3
+                            },
+                        Child = new AgeRange
+                        {
+                            LowerBound = 4,
+                            UpperBound = 11
+                        },
+                        Adult = new AgeRange
+                        {
+                            LowerBound = 12,
+                            UpperBound = 200
+                        },
+                    },
                     LocationId = 2
                 });
+
                 #endregion
+
                 dbContext.SaveChanges();
+
                 #region AddRooms
 
                 dbContext.Rooms.AddRange(
@@ -161,1270 +212,438 @@ namespace Hiroshima.DirectContractsDataSeeder
                     {
                         Id = 20,
                         AccommodationId = 1,
-                        Name = new MultiLanguage<string>
-                        {
-                            En = "Palace Superior Deluxe Room",
-                            Ru = "",
-                            Ar = ""
-                        },
-                        Description = new MultiLanguage<string>
-                        {
-                            En = "",
-                            Ru = "",
-                            Ar = ""
-                        },
+                        Name = new MultiLanguage<string> {En = "Palace Superior Deluxe Room", Ru = "", Ar = ""},
+                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
                         Amenities = new MultiLanguage<List<string>>
                         {
-                            En = new List<string>(),
-                            Ar = new List<string>(),
-                            Ru = new List<string>(),
+                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                         },
-                        #region PermittedOccupancies
-                        PermittedOccupancies = new PermittedOccupancies
+                        OccupancyConfigurations = new List<OccupancyConfiguration>
                         {
-                            RoomOccupancies = new List<List<RoomOccupancy>>
-                            {
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 16,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 3,
-                                            UpperBound = 12,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = false
-                                        },
-                                        NumberOfPersons = 1
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 0,
-                                            UpperBound = 3,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = false
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                }
-                            }
+                            new OccupancyConfiguration {Adults = 2, Teenagers = 1},
+                            new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
                         }
-                        #endregion
                     },
                     new Room
                     {
                         Id = 21,
                         AccommodationId = 1,
-                        Name = new MultiLanguage<string>
-                        {
-                            En = "Palace Gold Club Room",
-                            Ru = "",
-                            Ar = ""
-                        },
-                        Description = new MultiLanguage<string>
-                        {
-                            En = "",
-                            Ru = "",
-                            Ar = ""
-                        },
+                        Name = new MultiLanguage<string> {En = "Palace Gold Club Room", Ru = "", Ar = ""},
+                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
                         Amenities = new MultiLanguage<List<string>>
                         {
-                            En = new List<string>(),
-                            Ar = new List<string>(),
-                            Ru = new List<string>(),
+                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                         },
-                         #region PermittedOccupancies
-                        PermittedOccupancies = new PermittedOccupancies
+                        OccupancyConfigurations = new List<OccupancyConfiguration>
                         {
-                            RoomOccupancies = new List<List<RoomOccupancy>>
-                            {
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 16,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 3,
-                                            UpperBound = 12,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = false
-                                        },
-                                        NumberOfPersons = 1
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 0,
-                                            UpperBound = 3,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = false
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                }
-                            }
+                            new OccupancyConfiguration {Adults = 2, Teenagers = 1},
+                            new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
                         }
-                        #endregion
                     },
                     new Room
                     {
                         Id = 22,
                         AccommodationId = 1,
-                        Name = new MultiLanguage<string>
-                        {
-                            En = "Palace One Bedroom Executive Suite",
-                            Ru = "",
-                            Ar = ""
-                        },
-                        Description = new MultiLanguage<string>
-                        {
-                            En = "",
-                            Ru = "",
-                            Ar = ""
-                        },
+                        Name =
+                            new MultiLanguage<string> {En = "Palace One Bedroom Executive Suite", Ru = "", Ar = ""},
+                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
                         Amenities = new MultiLanguage<List<string>>
                         {
-                            En = new List<string>(),
-                            Ar = new List<string>(),
-                            Ru = new List<string>(),
+                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                         },
-                         #region PermittedOccupancies
-                        PermittedOccupancies = new PermittedOccupancies
+                        OccupancyConfigurations = new List<OccupancyConfiguration>
                         {
-                            RoomOccupancies = new List<List<RoomOccupancy>>
-                            {
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 16,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 3,
-                                            UpperBound = 12,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = false
-                                        },
-                                        NumberOfPersons = 1
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 0,
-                                            UpperBound = 3,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = false
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                }
-                            }
+                            new OccupancyConfiguration {Adults = 2, Teenagers = 1},
+                            new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
                         }
-                        #endregion
-                    }, new Room
+                    },
+                    new Room
                     {
                         Id = 23,
                         AccommodationId = 1,
-                        Name = new MultiLanguage<string>
-                        {
-                            En = "Palace One Bedroom Gold Club Suite",
-                            Ru = "",
-                            Ar = ""
-                        },
-                        Description = new MultiLanguage<string>
-                        {
-                            En = "",
-                            Ru = "",
-                            Ar = ""
-                        },
+                        Name =
+                            new MultiLanguage<string> {En = "Palace One Bedroom Gold Club Suite", Ru = "", Ar = ""},
+                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
                         Amenities = new MultiLanguage<List<string>>
                         {
-                            En = new List<string>(),
-                            Ar = new List<string>(),
-                            Ru = new List<string>(),
+                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                         },
-                         #region PermittedOccupancies
-                        PermittedOccupancies = new PermittedOccupancies
+                        OccupancyConfigurations = new List<OccupancyConfiguration>
                         {
-                            RoomOccupancies = new List<List<RoomOccupancy>>
-                            {
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 16,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 3,
-                                            UpperBound = 12,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = false
-                                        },
-                                        NumberOfPersons = 1
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 0,
-                                            UpperBound = 3,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = false
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                }
-                            }
+                            new OccupancyConfiguration {Adults = 2, Teenagers = 1},
+                            new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
                         }
-                        #endregion
                     },
                     new Room
                     {
                         Id = 24,
                         AccommodationId = 1,
-                        Name = new MultiLanguage<string>
-                        {
-                            En = "Palace Two Bedroom Executive Suite",
-                            Ru = "",
-                            Ar = ""
-                        },
-                        Description = new MultiLanguage<string>
-                        {
-                            En = "",
-                            Ru = "",
-                            Ar = ""
-                        },
+                        Name =
+                            new MultiLanguage<string> {En = "Palace Two Bedroom Executive Suite", Ru = "", Ar = ""},
+                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
                         Amenities = new MultiLanguage<List<string>>
                         {
-                            En = new List<string>(),
-                            Ar = new List<string>(),
-                            Ru = new List<string>(),
+                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                         },
-                        #region PermittedOccupancies
-                        PermittedOccupancies = new PermittedOccupancies
+                        OccupancyConfigurations = new List<OccupancyConfiguration>
                         {
-                            RoomOccupancies = new List<List<RoomOccupancy>>
-                            {
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 4
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 0,
-                                            UpperBound = 16,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                }
-                            }
+                            new OccupancyConfiguration {Adults = 4, Teenagers = 1},
+                            new OccupancyConfiguration {Adults = 4, Children = 1},
+                            new OccupancyConfiguration {Adults = 4, Infants = 1}
                         }
-                        #endregion
                     },
                     new Room
                     {
                         Id = 25,
                         AccommodationId = 1,
-                        Name = new MultiLanguage<string>
-                        {
-                            En = "Palace Two Bedroom Gold Club Suite",
-                            Ru = "",
-                            Ar = ""
-                        },
-                        Description = new MultiLanguage<string>
-                        {
-                            En = "",
-                            Ru = "",
-                            Ar = ""
-                        },
+                        Name =
+                            new MultiLanguage<string> {En = "Palace Two Bedroom Gold Club Suite", Ru = "", Ar = ""},
+                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
                         Amenities = new MultiLanguage<List<string>>
                         {
-                            En = new List<string>(),
-                            Ar = new List<string>(),
-                            Ru = new List<string>(),
+                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                         },
-                        #region PermittedOccupancies
-                        PermittedOccupancies = new PermittedOccupancies
+                        OccupancyConfigurations = new List<OccupancyConfiguration>
                         {
-                            RoomOccupancies = new List<List<RoomOccupancy>>
-                            {
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 4
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 0,
-                                            UpperBound = 16,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                }
-                            }
+                            new OccupancyConfiguration {Adults = 4, Teenagers = 1},
+                            new OccupancyConfiguration {Adults = 4, Children = 1},
+                            new OccupancyConfiguration {Adults = 4, Infants = 1}
                         }
-                        #endregion
                     },
                     new Room
                     {
                         Id = 26,
                         AccommodationId = 1,
-                        Name = new MultiLanguage<string>
-                        {
-                            En = "Palace Two Bedroom Royal Suite",
-                            Ru = "",
-                            Ar = ""
-                        },
-                        Description = new MultiLanguage<string>
-                        {
-                            En = "",
-                            Ru = "",
-                            Ar = ""
-                        },
+                        Name = new MultiLanguage<string> {En = "Palace Two Bedroom Royal Suite", Ru = "", Ar = ""},
+                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
                         Amenities = new MultiLanguage<List<string>>
                         {
-                            En = new List<string>(),
-                            Ar = new List<string>(),
-                            Ru = new List<string>(),
+                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                         },
-                        #region PermittedOccupancies
-                        PermittedOccupancies = new PermittedOccupancies
+                        OccupancyConfigurations = new List<OccupancyConfiguration>
                         {
-                            RoomOccupancies = new List<List<RoomOccupancy>>
-                            {
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 4
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 0,
-                                            UpperBound = 16,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                }
-                            }
+                            new OccupancyConfiguration {Adults = 4, Teenagers = 1},
+                            new OccupancyConfiguration {Adults = 4, Children = 1},
+                            new OccupancyConfiguration {Adults = 4, Infants = 1}
                         }
-                        #endregion
                     },
                     new Room
                     {
                         Id = 27,
                         AccommodationId = 1,
-                        Name = new MultiLanguage<string>
-                        {
-                            En = "Arabian Court Deluxe Room",
-                            Ru = "",
-                            Ar = ""
-                        },
-                        Description = new MultiLanguage<string>
-                        {
-                            En = "",
-                            Ru = "",
-                            Ar = ""
-                        },
+                        Name = new MultiLanguage<string> {En = "Arabian Court Deluxe Room", Ru = "", Ar = ""},
+                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
                         Amenities = new MultiLanguage<List<string>>
                         {
-                            En = new List<string>(),
-                            Ar = new List<string>(),
-                            Ru = new List<string>(),
+                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                         },
-                         #region PermittedOccupancies
-                        PermittedOccupancies = new PermittedOccupancies
+                        OccupancyConfigurations = new List<OccupancyConfiguration>
                         {
-                            RoomOccupancies = new List<List<RoomOccupancy>>
-                            {
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 16,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 3,
-                                            UpperBound = 12,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = false
-                                        },
-                                        NumberOfPersons = 1
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 0,
-                                            UpperBound = 3,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = false
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                }
-                            }
+                            new OccupancyConfiguration {Adults = 2, Teenagers = 1},
+                            new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
                         }
-                        #endregion
                     },
                     new Room
                     {
                         Id = 28,
                         AccommodationId = 1,
-                        Name = new MultiLanguage<string>
-                        {
-                            En = "Arabian Court Two Deluxe Rooms Family Accommodation",
-                            Ru = "",
-                            Ar = ""
-                        },
-                        Description = new MultiLanguage<string>
-                        {
-                            En = "",
-                            Ru = "",
-                            Ar = ""
-                        },
-                        Amenities = new MultiLanguage<List<string>>
-                        {
-                            En = new List<string>(),
-                            Ar = new List<string>(),
-                            Ru = new List<string>(),
-                        },
-                         #region PermittedOccupancies
-                        PermittedOccupancies = new PermittedOccupancies
-                        {
-                            RoomOccupancies = new List<List<RoomOccupancy>>
+                        Name =
+                            new MultiLanguage<string>
                             {
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 3
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 0,
-                                            UpperBound = 12,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = false
-                                        },
-                                        NumberOfPersons = 3
-                                    }
-                                }
-                            }
+                                En = "Arabian Court Two Deluxe Rooms Family Accommodation", Ru = "", Ar = ""
+                            },
+                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
+                        Amenities =
+                            new MultiLanguage<List<string>>
+                            {
+                                En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
+                            },
+                        OccupancyConfigurations = new List<OccupancyConfiguration>
+                        {
+                            new OccupancyConfiguration {Adults = 3, Children = 3},
+                            new OccupancyConfiguration {Adults = 3, Infants = 3},
+                            new OccupancyConfiguration {Adults = 3, Children = 2, Infants = 1},
+                            new OccupancyConfiguration {Adults = 3, Children = 1, Infants = 2}
                         }
-                        #endregion
                     },
                     new Room
                     {
                         Id = 29,
                         AccommodationId = 1,
-                        Name = new MultiLanguage<string>
-                        {
-                            En = "Arabian Court One Bedroom Executive Suite",
-                            Ru = "",
-                            Ar = ""
-                        },
-                        Description = new MultiLanguage<string>
-                        {
-                            En = "",
-                            Ru = "",
-                            Ar = ""
-                        },
+                        Name =
+                            new MultiLanguage<string>
+                            {
+                                En = "Arabian Court One Bedroom Executive Suite", Ru = "", Ar = ""
+                            },
+                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
                         Amenities = new MultiLanguage<List<string>>
                         {
-                            En = new List<string>(),
-                            Ar = new List<string>(),
-                            Ru = new List<string>(),
+                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                         },
-                        #region PermittedOccupancies
-                        PermittedOccupancies = new PermittedOccupancies
+                        OccupancyConfigurations = new List<OccupancyConfiguration>
                         {
-                            RoomOccupancies = new List<List<RoomOccupancy>>
-                            {
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 16,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 3,
-                                            UpperBound = 12,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = false
-                                        },
-                                        NumberOfPersons = 1
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 0,
-                                            UpperBound = 3,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = false
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                }
-                            }
+                            new OccupancyConfiguration {Adults = 2, Teenagers = 1},
+                            new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
                         }
-                        #endregion
                     },
                     new Room
                     {
                         Id = 30,
                         AccommodationId = 1,
-                        Name = new MultiLanguage<string>
-                        {
-                            En = "Arabian Court Two Bedroom Executive Suite",
-                            Ru = "",
-                            Ar = ""
-                        },
-                        Description = new MultiLanguage<string>
-                        {
-                            En = "",
-                            Ru = "",
-                            Ar = ""
-                        },
+                        Name =
+                            new MultiLanguage<string>
+                            {
+                                En = "Arabian Court Two Bedroom Executive Suite", Ru = "", Ar = ""
+                            },
+                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
                         Amenities = new MultiLanguage<List<string>>
                         {
-                            En = new List<string>(),
-                            Ar = new List<string>(),
-                            Ru = new List<string>(),
+                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                         },
-                        #region PermittedOccupancies
-                        PermittedOccupancies = new PermittedOccupancies
+                        OccupancyConfigurations = new List<OccupancyConfiguration>
                         {
-                            RoomOccupancies = new List<List<RoomOccupancy>>
-                            {
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 4
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 0,
-                                            UpperBound = 16,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                }
-                            }
+                            new OccupancyConfiguration {Adults = 4, Teenagers = 1},
+                            new OccupancyConfiguration {Adults = 4, Children = 1},
+                            new OccupancyConfiguration {Adults = 4, Infants = 1}
                         }
-                        #endregion
                     },
                     new Room
                     {
                         Id = 31,
                         AccommodationId = 1,
-                        Name = new MultiLanguage<string>
-                        {
-                            En = "Arabian Court Prince Suite",
-                            Ru = "",
-                            Ar = ""
-                        },
-                        Description = new MultiLanguage<string>
-                        {
-                            En = "",
-                            Ru = "",
-                            Ar = ""
-                        },
+                        Name = new MultiLanguage<string> {En = "Arabian Court Prince Suite", Ru = "", Ar = ""},
+                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
                         Amenities = new MultiLanguage<List<string>>
                         {
-                            En = new List<string>(),
-                            Ar = new List<string>(),
-                            Ru = new List<string>(),
+                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                         },
-                         #region PermittedOccupancies
-                        PermittedOccupancies = new PermittedOccupancies
+                        OccupancyConfigurations = new List<OccupancyConfiguration>
                         {
-                            RoomOccupancies = new List<List<RoomOccupancy>>
-                            {
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 16,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 3,
-                                            UpperBound = 12,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = false
-                                        },
-                                        NumberOfPersons = 1
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 0,
-                                            UpperBound = 3,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = false
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                }
-                            }
+                            new OccupancyConfiguration {Adults = 2, Teenagers = 1},
+                            new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
                         }
-                        #endregion
                     },
                     new Room
                     {
                         Id = 32,
                         AccommodationId = 1,
-                        Name = new MultiLanguage<string>
-                        {
-                            En = "Residence Prestige Room",
-                            Ru = "",
-                            Ar = ""
-                        },
-                        Description = new MultiLanguage<string>
-                        {
-                            En = "",
-                            Ru = "",
-                            Ar = ""
-                        },
+                        Name = new MultiLanguage<string> {En = "Residence Prestige Room", Ru = "", Ar = ""},
+                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
                         Amenities = new MultiLanguage<List<string>>
                         {
-                            En = new List<string>(),
-                            Ar = new List<string>(),
-                            Ru = new List<string>(),
+                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                         },
-                         #region PermittedOccupancies
-                        PermittedOccupancies = new PermittedOccupancies
+                        OccupancyConfigurations = new List<OccupancyConfiguration>
                         {
-                            RoomOccupancies = new List<List<RoomOccupancy>>
-                            {
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 16,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 3,
-                                            UpperBound = 12,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = false
-                                        },
-                                        NumberOfPersons = 1
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 0,
-                                            UpperBound = 3,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = false
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                }
-                            }
+                            new OccupancyConfiguration {Adults = 2, Teenagers = 1},
+                            new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
                         }
-                        #endregion
                     },
                     new Room
                     {
                         Id = 33,
                         AccommodationId = 1,
-                        Name = new MultiLanguage<string>
-                        {
-                            En = "Residence Junior Suite",
-                            Ru = "",
-                            Ar = ""
-                        },
-                        Description = new MultiLanguage<string>
-                        {
-                            En = "",
-                            Ru = "",
-                            Ar = ""
-                        },
+                        Name = new MultiLanguage<string> {En = "Residence Junior Suite", Ru = "", Ar = ""},
+                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
                         Amenities = new MultiLanguage<List<string>>
                         {
-                            En = new List<string>(),
-                            Ar = new List<string>(),
-                            Ru = new List<string>(),
+                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                         },
-                         #region PermittedOccupancies
-                        PermittedOccupancies = new PermittedOccupancies
+                        OccupancyConfigurations = new List<OccupancyConfiguration>
                         {
-                            RoomOccupancies = new List<List<RoomOccupancy>>
-                            {
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 16,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 3,
-                                            UpperBound = 12,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = false
-                                        },
-                                        NumberOfPersons = 1
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 0,
-                                            UpperBound = 3,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = false
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                }
-                            }
+                            new OccupancyConfiguration {Adults = 2, Teenagers = 1},
+                            new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
                         }
-                        #endregion
                     },
                     new Room
                     {
                         Id = 34,
                         AccommodationId = 1,
-                        Name = new MultiLanguage<string>
-                        {
-                            En = "Residence Executive Suite",
-                            Ru = "",
-                            Ar = ""
-                        },
-                        Description = new MultiLanguage<string>
-                        {
-                            En = "",
-                            Ru = "",
-                            Ar = ""
-                        },
+                        Name = new MultiLanguage<string> {En = "Residence Executive Suite", Ru = "", Ar = ""},
+                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
                         Amenities = new MultiLanguage<List<string>>
                         {
-                            En = new List<string>(),
-                            Ar = new List<string>(),
-                            Ru = new List<string>(),
+                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                         },
-                         #region PermittedOccupancies
-                        PermittedOccupancies = new PermittedOccupancies
+                        OccupancyConfigurations = new List<OccupancyConfiguration>
                         {
-                            RoomOccupancies = new List<List<RoomOccupancy>>
-                            {
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 16,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 3,
-                                            UpperBound = 12,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = false
-                                        },
-                                        NumberOfPersons = 1
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 0,
-                                            UpperBound = 3,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = false
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                }
-                            }
+                            new OccupancyConfiguration {Adults = 2, Teenagers = 1},
+                            new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
                         }
-                        #endregion
                     },
                     new Room
                     {
                         Id = 35,
                         AccommodationId = 1,
-                        Name = new MultiLanguage<string>
-                        {
-                            En = "Residence Garden Beach Villa",
-                            Ru = "",
-                            Ar = ""
-                        },
-                        Description = new MultiLanguage<string>
-                        {
-                            En = "",
-                            Ru = "",
-                            Ar = ""
-                        },
+                        Name = new MultiLanguage<string> {En = "Residence Garden Beach Villa", Ru = "", Ar = ""},
+                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
                         Amenities = new MultiLanguage<List<string>>
                         {
-                            En = new List<string>(),
-                            Ar = new List<string>(),
-                            Ru = new List<string>(),
+                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                         },
-                         #region PermittedOccupancies
-                        PermittedOccupancies = new PermittedOccupancies
+                        OccupancyConfigurations = new List<OccupancyConfiguration>
                         {
-                            RoomOccupancies = new List<List<RoomOccupancy>>
-                            {
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 18,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 4
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 0,
-                                            UpperBound = 16,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = false
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                }
-                            }
+                            new OccupancyConfiguration {Adults = 4, Teenagers = 1},
+                            new OccupancyConfiguration {Adults = 4, Children = 1},
+                            new OccupancyConfiguration {Adults = 4, Infants = 1}
                         }
-                        #endregion
                     });
 
                 #endregion
+
                 dbContext.SaveChanges();
+
+                #region AddCancellationPolicies
+
+                var roomIds = new[] {20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35};
+                var seasonDates = new[]
+                {
+                    (new DateTime(2020, 12, 26), new DateTime(2021, 01, 21))
+                };
+                
+                var cancellationPolicy = new RoomCancellationPolicy
+                {
+                    CancellationPolicyData = new List<CancellationPolicyData>
+                    {
+                        new CancellationPolicyData
+                        {
+                            DaysInterval = new CancellationDaysInterval
+                            {
+                                FromDays = 0,
+                                ToDays = 45
+                            },
+                            PenaltyType = CancellationPenaltyTypes.Percent,
+                            PenaltyCharge = 100
+                        }
+                    }
+                };
+                
+                AddCancellationPolicies(dbContext, seasonDates, roomIds, cancellationPolicy);
+                dbContext.SaveChanges();
+                cancellationPolicy = new RoomCancellationPolicy
+                {
+                    CancellationPolicyData = new List<CancellationPolicyData>
+                    {
+                        new CancellationPolicyData
+                        {
+                            DaysInterval = new CancellationDaysInterval
+                            {
+                                FromDays = 0,
+                                ToDays = 35
+                            },
+                            PenaltyType = CancellationPenaltyTypes.Percent,
+                            PenaltyCharge = 100
+                        }
+                    }
+                };
+                
+                seasonDates = new[]
+                {
+                    (new DateTime(2020, 03, 28), new DateTime(2020, 04, 12)),
+                    (new DateTime(2020, 10, 24), new DateTime(2020, 11, 06))
+                };
+                AddCancellationPolicies(dbContext, seasonDates, roomIds, cancellationPolicy);
+                
+                cancellationPolicy = new RoomCancellationPolicy
+                {
+                    CancellationPolicyData = new List<CancellationPolicyData>
+                    {
+                        new CancellationPolicyData
+                        {
+                            DaysInterval = new CancellationDaysInterval
+                            {
+                                FromDays = 14,
+                                ToDays = 28
+                            },
+                            PenaltyType = CancellationPenaltyTypes.Nights,
+                            PenaltyCharge = 4
+                        },
+                        new CancellationPolicyData
+                        {
+                            DaysInterval = new CancellationDaysInterval
+                            {
+                                FromDays = 07,
+                                ToDays = 13
+                            },
+                            PenaltyType = CancellationPenaltyTypes.Nights,
+                            PenaltyCharge = 7
+                        },
+                        new CancellationPolicyData
+                        {
+                            DaysInterval = new CancellationDaysInterval
+                            {
+                                FromDays = 0,
+                                ToDays = 6
+                            },
+                            PenaltyType = CancellationPenaltyTypes.Percent,
+                            PenaltyCharge = 100
+                        }
+                    }
+                };
+                
+                seasonDates = new[]
+                {
+                    (new DateTime(2020, 02, 08), new DateTime(2020, 02, 21)),
+                    (new DateTime(2020, 03, 21), new DateTime(2020, 03, 27)),
+                    (new DateTime(2020, 04, 13), new DateTime(2020, 04, 18)),
+                    (new DateTime(2020, 10, 17), new DateTime(2020, 10, 23)),
+                    (new DateTime(2020, 01, 08), new DateTime(2020, 01, 14)),
+                    (new DateTime(2020, 01, 25), new DateTime(2020, 02, 07)),
+                    (new DateTime(2020, 02, 22), new DateTime(2020, 03, 20)),
+                    (new DateTime(2020, 04, 19), new DateTime(2020, 05, 03)),
+                    (new DateTime(2020, 01, 15), new DateTime(2020, 01, 24)),
+                    (new DateTime(2020, 09, 26), new DateTime(2020, 10, 09)),
+                    (new DateTime(2020, 12, 05), new DateTime(2020, 12, 18))
+                };
+                AddCancellationPolicies(dbContext, seasonDates, roomIds, cancellationPolicy);
+                
+                cancellationPolicy = new RoomCancellationPolicy
+                {
+                    CancellationPolicyData = new List<CancellationPolicyData>
+                    {
+                        new CancellationPolicyData
+                        {
+                            DaysInterval = new CancellationDaysInterval
+                            {
+                                FromDays = 07,
+                                ToDays = 14
+                            },
+                            PenaltyType = CancellationPenaltyTypes.Nights,
+                            PenaltyCharge = 03
+                        },
+                        new CancellationPolicyData
+                        {
+                            DaysInterval = new CancellationDaysInterval
+                            {
+                                FromDays = 0,
+                                ToDays = 06
+                            },
+                            PenaltyType = CancellationPenaltyTypes.Nights,
+                            PenaltyCharge = 05
+                        }
+                    }
+                };
+                
+                seasonDates = new[]
+                {
+                    (new DateTime(2020, 05, 04), new DateTime(2020, 05, 31)),
+                    (new DateTime(2020, 09, 05), new DateTime(2020, 09, 25)),
+                    (new DateTime(2020, 07, 01), new DateTime(2020, 09, 04))
+                };
+                AddCancellationPolicies(dbContext, seasonDates, roomIds, cancellationPolicy);
+                dbContext.SaveChanges();
+                #endregion
+                                
                 #region AddRates
-                FillRates(
-                    dbContext,
-                    new(DateTime , DateTime)[] { 
-                        (new DateTime(2020,01,8), new DateTime(2020,01,14)),
-                        (new DateTime(2020,01,25), new DateTime(2020,02,7)),
-                        (new DateTime(2020,02,22), new DateTime(2020,03,20)),
-                        (new DateTime(2020,04,19), new DateTime(2020,05,03))
-                    },
-                    new List<(int, decimal)>
+
+                FillRates(dbContext,
+                    new (DateTime, DateTime)[]
+                    {
+                        (new DateTime(2020, 01, 8), new DateTime(2020, 01, 14)),
+                        (new DateTime(2020, 01, 25), new DateTime(2020, 02, 7)),
+                        (new DateTime(2020, 02, 22), new DateTime(2020, 03, 20)),
+                        (new DateTime(2020, 04, 19), new DateTime(2020, 05, 03))
+                    }, new List<(int, decimal)>
                     {
                         (20, 2465),
                         (21, 3150),
@@ -1441,15 +660,15 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (32, 3755),
                         (33, 6090),
                         (34, 8460),
-                        (35, 30000)});
-                FillRates(
-                    dbContext,
-                    new[] {  
-                        (new DateTime(2020,01,15), new DateTime(2020,01,24)),
-                        (new DateTime(2020,09,26), new DateTime(2020,10,09)),
-                        (new DateTime(2020,12,5), new DateTime(2020,12,18)) 
-                    },
-                    new List<(int, decimal)>
+                        (35, 30000)
+                    });
+                FillRates(dbContext,
+                    new[]
+                    {
+                        (new DateTime(2020, 01, 15), new DateTime(2020, 01, 24)),
+                        (new DateTime(2020, 09, 26), new DateTime(2020, 10, 09)),
+                        (new DateTime(2020, 12, 5), new DateTime(2020, 12, 18))
+                    }, new List<(int, decimal)>
                     {
                         (20, 2100),
                         (21, 2700),
@@ -1466,17 +685,16 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (32, 3150),
                         (33, 5250),
                         (34, 6900),
-                        (35, 29000)});
-                FillRates(
-                    dbContext,
+                        (35, 29000)
+                    });
+                FillRates(dbContext,
                     new[]
                     {
-                        (new DateTime(2020,02,8), new DateTime(2020,02,21)),
-                        (new DateTime(2020,03,21), new DateTime(2020,03,27)),
-                        (new DateTime(2020,04,13), new DateTime(2020,04,18)),
-                        (new DateTime(2020,10,17), new DateTime(2020,10,23))
-                    },
-                    new List<(int, decimal)>
+                        (new DateTime(2020, 02, 8), new DateTime(2020, 02, 21)),
+                        (new DateTime(2020, 03, 21), new DateTime(2020, 03, 27)),
+                        (new DateTime(2020, 04, 13), new DateTime(2020, 04, 18)),
+                        (new DateTime(2020, 10, 17), new DateTime(2020, 10, 23))
+                    }, new List<(int, decimal)>
                     {
                         (20, 3170),
                         (21, 3780),
@@ -1493,15 +711,15 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (32, 4300),
                         (33, 7000),
                         (34, 9800),
-                        (35, 30000)});
-                FillRates(
-                    dbContext,
+                        (35, 30000)
+                    });
+                FillRates(dbContext,
                     //new[] { 17, 26 },
-                    new[] { 
-                        (new DateTime(2020,03,28), new DateTime(2020,04,12)), 
-                        (new DateTime(2020,10,24), new DateTime(2020,11,06))
-                    },
-                    new List<(int, decimal)>
+                    new[]
+                    {
+                        (new DateTime(2020, 03, 28), new DateTime(2020, 04, 12)),
+                        (new DateTime(2020, 10, 24), new DateTime(2020, 11, 06))
+                    }, new List<(int, decimal)>
                     {
                         (20, 3780),
                         (21, 4590),
@@ -1518,16 +736,15 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (32, 5245),
                         (33, 8780),
                         (34, 11780),
-                        (35, 36000)});
-                FillRates(
-                    dbContext,
+                        (35, 36000)
+                    });
+                FillRates(dbContext,
                     //new[] { 20, 22 },
-                    new [] 
+                    new[]
                     {
-                        (new DateTime(2020,05,04), new DateTime(2020,05,31)),
-                        (new DateTime(2020,09,05), new DateTime(2020,09,25))
-                    },
-                    new List<(int, decimal)>
+                        (new DateTime(2020, 05, 04), new DateTime(2020, 05, 31)),
+                        (new DateTime(2020, 09, 05), new DateTime(2020, 09, 25))
+                    }, new List<(int, decimal)>
                     {
                         (20, 1830),
                         (21, 2405),
@@ -1544,13 +761,9 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (32, 2835),
                         (33, 4700),
                         (34, 5400),
-                        (35, 24000)});
-                FillRates(
-                    dbContext,
-                    new [] 
-                    {
-                        (new DateTime(2020,06,1), new DateTime(2020,09,04))
-                    },
+                        (35, 24000)
+                    });
+                FillRates(dbContext, new[] {(new DateTime(2020, 06, 1), new DateTime(2020, 09, 04))},
                     new List<(int, decimal)>
                     {
                         (20, 1560),
@@ -1568,17 +781,16 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (32, 2300),
                         (33, 3540),
                         (34, 4900),
-                        (35, 24000)});
-                FillRates(
-                    dbContext,
+                        (35, 24000)
+                    });
+                FillRates(dbContext,
                     //new[] { 24, 27, 29 },
-                    new [] 
+                    new[]
                     {
-                        (new DateTime(2020,10,10), new DateTime(2020,10,16)),
-                        (new DateTime(2020,11,07), new DateTime(2020,12,04)),
-                        (new DateTime(2020,12,19), new DateTime(2020,12,25))
-                    },
-                    new List<(int, decimal)>
+                        (new DateTime(2020, 10, 10), new DateTime(2020, 10, 16)),
+                        (new DateTime(2020, 11, 07), new DateTime(2020, 12, 04)),
+                        (new DateTime(2020, 12, 19), new DateTime(2020, 12, 25))
+                    }, new List<(int, decimal)>
                     {
                         (20, 1560),
                         (21, 2070),
@@ -1595,13 +807,9 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (32, 2300),
                         (33, 3540),
                         (34, 4900),
-                        (35, 24000)});
-                FillRates(
-                    dbContext,
-                    new [] 
-                    {
-                        (new DateTime(2020,12,26), new DateTime(2021,01,03))
-                    },
+                        (35, 24000)
+                    });
+                FillRates(dbContext, new[] {(new DateTime(2020, 12, 26), new DateTime(2021, 01, 03))},
                     new List<(int, decimal)>
                     {
                         (20, 4600),
@@ -1619,17 +827,16 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (32, 6350),
                         (33, 9300),
                         (34, 11750),
-                        (35, 38000)});
-                FillRates(
-                    dbContext,
+                        (35, 38000)
+                    });
+                FillRates(dbContext,
                     //new[] { 31, 33, 35 },
-                    new [] 
+                    new[]
                     {
-                        (new DateTime(2021,01,4), new DateTime(2021,01,10)),
-                        (new DateTime(2021, 02,06), new DateTime(2021,02,19)),
-                        (new DateTime(2021,03,20), new DateTime(2021,03,26))
-                    },
-                    new List<(int, decimal)>
+                        (new DateTime(2021, 01, 4), new DateTime(2021, 01, 10)),
+                        (new DateTime(2021, 02, 06), new DateTime(2021, 02, 19)),
+                        (new DateTime(2021, 03, 20), new DateTime(2021, 03, 26))
+                    }, new List<(int, decimal)>
                     {
                         (20, 3170),
                         (21, 3780),
@@ -1646,16 +853,15 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (32, 4300),
                         (33, 7000),
                         (34, 9800),
-                        (35, 3000)});
-                FillRates(
-                    dbContext,
+                        (35, 3000)
+                    });
+                FillRates(dbContext,
                     //new[] { 32, 34 },
-                    new [] 
+                    new[]
                     {
-                        (new DateTime(2021,01,11), new DateTime(2021,02,05)),
-                        (new DateTime(2021, 02,20), new DateTime(2021,03,19))
-                    },
-                    new List<(int, decimal)>
+                        (new DateTime(2021, 01, 11), new DateTime(2021, 02, 05)),
+                        (new DateTime(2021, 02, 20), new DateTime(2021, 03, 19))
+                    }, new List<(int, decimal)>
                     {
                         (20, 2465),
                         (21, 3150),
@@ -1672,13 +878,9 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (32, 3755),
                         (33, 6090),
                         (34, 8460),
-                        (35, 30000)});
-                FillRates(
-                    dbContext,
-                    new [] 
-                    {
-                        (new DateTime(2021,03,27), new DateTime(2021,04,10))
-                    },
+                        (35, 30000)
+                    });
+                FillRates(dbContext, new[] {(new DateTime(2021, 03, 27), new DateTime(2021, 04, 10))},
                     new List<(int, decimal)>
                     {
                         (20, 3780),
@@ -1696,13 +898,9 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (32, 5245),
                         (33, 8780),
                         (34, 11780),
-                        (35, 36000)});
-                FillRates(
-                    dbContext,
-                    new [] 
-                    {
-                        (new DateTime(2021,04,11), new DateTime(2021,05,07))
-                    },
+                        (35, 36000)
+                    });
+                FillRates(dbContext, new[] {(new DateTime(2021, 04, 11), new DateTime(2021, 05, 07))},
                     new List<(int, decimal)>
                     {
                         (20, 2465),
@@ -1720,10 +918,15 @@ namespace Hiroshima.DirectContractsDataSeeder
                         (32, 3755),
                         (33, 6090),
                         (34, 8460),
-                        (35, 30000)});
+                        (35, 30000)
+                    });
+
                 #endregion
+
                 dbContext.SaveChanges();
+
                 #region AddPromotionalOffers
+
                 var promotionalOffers = new[]
                 {
                     new RoomPromotionalOffer
@@ -2414,502 +1617,354 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {20, 21, 22, 23, 24, 25, 26}, promotionalOffers);
+
                 #endregion
+
                 dbContext.SaveChanges();
+
                 #region AddRoomAvailabilityRestrictions //Test data
-                dbContext.RoomAvailabilityRestrictions.AddRange(new RoomAvailabilityRestrictions()
-                {
-                    RoomId = 20,
-                    StartsFromDate = new DateTime(2020, 4, 1),
-                    EndsToDate = new DateTime(2020, 4, 10),
-                    Restrictions = SaleRestrictions.StopSale
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 20,
-                    StartsFromDate = new DateTime(2020, 7, 10),
-                    EndsToDate = new DateTime(2020, 7, 13)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 20,
-                    StartsFromDate = new DateTime(2020, 10, 15),
-                    EndsToDate = new DateTime(2020, 10, 18)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 20,
-                    StartsFromDate = new DateTime(2021, 1, 10),
-                    EndsToDate = new DateTime(2021, 1, 12)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 21,
-                    StartsFromDate = new DateTime(2020, 2, 5),
-                    EndsToDate = new DateTime(2020, 2, 7)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 21,
-                    StartsFromDate = new DateTime(2020, 10, 15),
-                    EndsToDate = new DateTime(2020, 10, 18)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 21,
-                    StartsFromDate = new DateTime(2020, 12, 28),
-                    EndsToDate = new DateTime(2021, 1, 2)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 22,
-                    StartsFromDate = new DateTime(2020, 2, 5),
-                    EndsToDate = new DateTime(2020, 2, 7)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 22,
-                    StartsFromDate = new DateTime(2020, 10, 15),
-                    EndsToDate = new DateTime(2020, 10, 18)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 22,
-                    StartsFromDate = new DateTime(2020, 12, 28),
-                    EndsToDate = new DateTime(2020, 12, 29)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 23,
-                    StartsFromDate = new DateTime(2020, 2, 5),
-                    EndsToDate = new DateTime(2020, 2, 10)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 23,
-                    StartsFromDate = new DateTime(2020, 11, 1),
-                    EndsToDate = new DateTime(2020, 11, 3)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 23,
-                    StartsFromDate = new DateTime(2020, 8, 7),
-                    EndsToDate = new DateTime(2020, 8, 10)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 24,
-                    StartsFromDate = new DateTime(2020, 3, 8),
-                    EndsToDate = new DateTime(2020, 3, 10)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 24,
-                    StartsFromDate = new DateTime(2020, 7, 1),
-                    EndsToDate = new DateTime(2020, 7, 3)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 24,
-                    StartsFromDate = new DateTime(2020, 9, 3),
-                    EndsToDate = new DateTime(2020, 9, 5)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 25,
-                    StartsFromDate = new DateTime(2020, 1, 29),
-                    EndsToDate = new DateTime(2020, 2, 1)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 25,
-                    StartsFromDate = new DateTime(2020, 9, 15),
-                    EndsToDate = new DateTime(2020, 9, 16)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 25,
-                    StartsFromDate = new DateTime(2020, 12, 30),
-                    EndsToDate = new DateTime(2021, 1, 2)
-                },
-                new RoomAvailabilityRestrictions
-                {
-                    RoomId = 26,
-                    StartsFromDate = new DateTime(2020, 1, 10),
-                    EndsToDate = new DateTime(2020, 1, 12)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 26,
-                    StartsFromDate = new DateTime(2020, 3, 4),
-                    EndsToDate = new DateTime(2020, 3, 7)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 26,
-                    StartsFromDate = new DateTime(2020, 6, 9),
-                    EndsToDate = new DateTime(2020, 6, 11)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 27,
-                    StartsFromDate = new DateTime(2020, 1, 18),
-                    EndsToDate = new DateTime(2020, 1, 19)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 27,
-                    StartsFromDate = new DateTime(2020, 2, 27),
-                    EndsToDate = new DateTime(2020, 3, 1)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 27,
-                    StartsFromDate = new DateTime(2020, 12, 26),
-                    EndsToDate = new DateTime(2020, 12, 27)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 28,
-                    StartsFromDate = new DateTime(2020, 4, 5),
-                    EndsToDate = new DateTime(2020, 4, 7)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 28,
-                    StartsFromDate = new DateTime(2020, 11, 3),
-                    EndsToDate = new DateTime(2020, 11, 5)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 28,
-                    StartsFromDate = new DateTime(2020, 12, 31),
-                    EndsToDate = new DateTime(2021, 1, 1)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 29,
-                    StartsFromDate = new DateTime(2020, 2, 7),
-                    EndsToDate = new DateTime(2020, 2, 10)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 29,
-                    StartsFromDate = new DateTime(2020, 4, 3),
-                    EndsToDate = new DateTime(2020, 4, 5)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 29,
-                    StartsFromDate = new DateTime(2020, 12, 1),
-                    EndsToDate = new DateTime(2021, 1, 1)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 30,
-                    StartsFromDate = new DateTime(2020, 6, 1),
-                    EndsToDate = new DateTime(2020, 9, 1)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 30,
-                    StartsFromDate = new DateTime(2020, 9, 2),
-                    EndsToDate = new DateTime(2020, 9, 4)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 30,
-                    StartsFromDate = new DateTime(2020, 12, 1),
-                    EndsToDate = new DateTime(2021, 12, 2)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 31,
-                    StartsFromDate = new DateTime(2020, 1, 6),
-                    EndsToDate = new DateTime(2020, 1, 8)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 31,
-                    StartsFromDate = new DateTime(2020, 2, 14),
-                    EndsToDate = new DateTime(2020, 2, 16)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 31,
-                    StartsFromDate = new DateTime(2020, 7, 5),
-                    EndsToDate = new DateTime(2021, 7, 8)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 32,
-                    StartsFromDate = new DateTime(2020, 9, 12),
-                    EndsToDate = new DateTime(2020, 9, 15)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 32,
-                    StartsFromDate = new DateTime(2020, 10, 2),
-                    EndsToDate = new DateTime(2020, 10, 4)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 32,
-                    StartsFromDate = new DateTime(2019, 12, 3),
-                    EndsToDate = new DateTime(2019, 12, 4)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 33,
-                    StartsFromDate = new DateTime(2020, 3, 6),
-                    EndsToDate = new DateTime(2020, 3, 8)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 33,
-                    StartsFromDate = new DateTime(2020, 4, 10),
-                    EndsToDate = new DateTime(2020, 4, 13)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 33,
-                    StartsFromDate = new DateTime(2020, 7, 1),
-                    EndsToDate = new DateTime(2020, 8, 1)
-                },
-                new RoomAvailabilityRestrictions
-                {
-                    RoomId = 34,
-                    StartsFromDate = new DateTime(2020, 3, 3),
-                    EndsToDate = new DateTime(2020, 3, 5)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 34,
-                    StartsFromDate = new DateTime(2020, 4, 16),
-                    EndsToDate = new DateTime(2020, 4, 19)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 34,
-                    StartsFromDate = new DateTime(2020, 11, 23),
-                    EndsToDate = new DateTime(2020, 11, 26)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 35,
-                    StartsFromDate = new DateTime(2020, 5, 1),
-                    EndsToDate = new DateTime(2020, 5, 6)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 35,
-                    StartsFromDate = new DateTime(2020, 7, 19),
-                    EndsToDate = new DateTime(2020, 7, 21)
-                }, new RoomAvailabilityRestrictions
-                {
-                    RoomId = 35,
-                    StartsFromDate = new DateTime(2020, 11, 28),
-                    EndsToDate = new DateTime(2020, 12, 3)
-                });
+
+                dbContext.RoomAvailabilityRestrictions.AddRange(
+                    new RoomAvailabilityRestrictions()
+                    {
+                        RoomId = 20,
+                        StartDate = new DateTime(2020, 4, 1),
+                        EndDate = new DateTime(2020, 4, 10),
+                        Restrictions = SaleRestrictions.StopSale
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 20,
+                        StartDate = new DateTime(2020, 7, 10),
+                        EndDate = new DateTime(2020, 7, 13)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 20,
+                        StartDate = new DateTime(2020, 10, 15),
+                        EndDate = new DateTime(2020, 10, 18)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 20,
+                        StartDate = new DateTime(2021, 1, 10),
+                        EndDate = new DateTime(2021, 1, 12)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 21,
+                        StartDate = new DateTime(2020, 2, 5),
+                        EndDate = new DateTime(2020, 2, 7)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 21,
+                        StartDate = new DateTime(2020, 10, 15),
+                        EndDate = new DateTime(2020, 10, 18)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 21,
+                        StartDate = new DateTime(2020, 12, 28),
+                        EndDate = new DateTime(2021, 1, 2)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 22,
+                        StartDate = new DateTime(2020, 2, 5),
+                        EndDate = new DateTime(2020, 2, 7)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 22,
+                        StartDate = new DateTime(2020, 10, 15),
+                        EndDate = new DateTime(2020, 10, 18)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 22,
+                        StartDate = new DateTime(2020, 12, 28),
+                        EndDate = new DateTime(2020, 12, 29)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 23,
+                        StartDate = new DateTime(2020, 2, 5),
+                        EndDate = new DateTime(2020, 2, 10)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 23,
+                        StartDate = new DateTime(2020, 11, 1),
+                        EndDate = new DateTime(2020, 11, 3)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 23,
+                        StartDate = new DateTime(2020, 8, 7),
+                        EndDate = new DateTime(2020, 8, 10)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 24,
+                        StartDate = new DateTime(2020, 3, 8),
+                        EndDate = new DateTime(2020, 3, 10)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 24,
+                        StartDate = new DateTime(2020, 7, 1),
+                        EndDate = new DateTime(2020, 7, 3)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 24,
+                        StartDate = new DateTime(2020, 9, 3),
+                        EndDate = new DateTime(2020, 9, 5)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 25,
+                        StartDate = new DateTime(2020, 1, 29),
+                        EndDate = new DateTime(2020, 2, 1)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 25,
+                        StartDate = new DateTime(2020, 9, 15),
+                        EndDate = new DateTime(2020, 9, 16)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 25,
+                        StartDate = new DateTime(2020, 12, 30),
+                        EndDate = new DateTime(2021, 1, 2)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 26,
+                        StartDate = new DateTime(2020, 1, 10),
+                        EndDate = new DateTime(2020, 1, 12)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 26,
+                        StartDate = new DateTime(2020, 3, 4),
+                        EndDate = new DateTime(2020, 3, 7)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 26,
+                        StartDate = new DateTime(2020, 6, 9),
+                        EndDate = new DateTime(2020, 6, 11)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 27,
+                        StartDate = new DateTime(2020, 1, 18),
+                        EndDate = new DateTime(2020, 1, 19)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 27,
+                        StartDate = new DateTime(2020, 2, 27),
+                        EndDate = new DateTime(2020, 3, 1)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 27,
+                        StartDate = new DateTime(2020, 12, 26),
+                        EndDate = new DateTime(2020, 12, 27)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 28,
+                        StartDate = new DateTime(2020, 4, 5),
+                        EndDate = new DateTime(2020, 4, 7)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 28,
+                        StartDate = new DateTime(2020, 11, 3),
+                        EndDate = new DateTime(2020, 11, 5)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 28,
+                        StartDate = new DateTime(2020, 12, 31),
+                        EndDate = new DateTime(2021, 1, 1)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 29,
+                        StartDate = new DateTime(2020, 2, 7),
+                        EndDate = new DateTime(2020, 2, 10)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 29,
+                        StartDate = new DateTime(2020, 4, 3),
+                        EndDate = new DateTime(2020, 4, 5)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 29,
+                        StartDate = new DateTime(2020, 12, 1),
+                        EndDate = new DateTime(2021, 1, 1)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 30,
+                        StartDate = new DateTime(2020, 6, 1),
+                        EndDate = new DateTime(2020, 9, 1)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 30,
+                        StartDate = new DateTime(2020, 9, 2),
+                        EndDate = new DateTime(2020, 9, 4)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 30,
+                        StartDate = new DateTime(2020, 12, 1),
+                        EndDate = new DateTime(2021, 12, 2)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 31,
+                        StartDate = new DateTime(2020, 1, 6),
+                        EndDate = new DateTime(2020, 1, 8)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 31,
+                        StartDate = new DateTime(2020, 2, 14),
+                        EndDate = new DateTime(2020, 2, 16)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 31,
+                        StartDate = new DateTime(2020, 7, 5),
+                        EndDate = new DateTime(2021, 7, 8)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 32,
+                        StartDate = new DateTime(2020, 9, 12),
+                        EndDate = new DateTime(2020, 9, 15)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 32,
+                        StartDate = new DateTime(2020, 10, 2),
+                        EndDate = new DateTime(2020, 10, 4)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 32,
+                        StartDate = new DateTime(2019, 12, 3),
+                        EndDate = new DateTime(2019, 12, 4)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 33,
+                        StartDate = new DateTime(2020, 3, 6),
+                        EndDate = new DateTime(2020, 3, 8)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 33,
+                        StartDate = new DateTime(2020, 4, 10),
+                        EndDate = new DateTime(2020, 4, 13)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 33,
+                        StartDate = new DateTime(2020, 7, 1),
+                        EndDate = new DateTime(2020, 8, 1)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 34,
+                        StartDate = new DateTime(2020, 3, 3),
+                        EndDate = new DateTime(2020, 3, 5)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 34,
+                        StartDate = new DateTime(2020, 4, 16),
+                        EndDate = new DateTime(2020, 4, 19)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 34,
+                        StartDate = new DateTime(2020, 11, 23),
+                        EndDate = new DateTime(2020, 11, 26)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 35,
+                        StartDate = new DateTime(2020, 5, 1),
+                        EndDate = new DateTime(2020, 5, 6)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 35,
+                        StartDate = new DateTime(2020, 7, 19),
+                        EndDate = new DateTime(2020, 7, 21)
+                    },
+                    new RoomAvailabilityRestrictions
+                    {
+                        RoomId = 35,
+                        StartDate = new DateTime(2020, 11, 28),
+                        EndDate = new DateTime(2020, 12, 3)
+                    });
+
                 #endregion
+
                 dbContext.SaveChanges();
+
                 #region AddAllocationRequirements
-                var roomIds = new []{ 20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34}; 
+
+                roomIds = new[] {20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34};
                 var roomAllocationRequirements = new[]
                 {
                     new RoomAllocationRequirement
                     {
-                        ReleasePeriod = new ReleasePeriod { Days = 21 },
-                        StartsFromDate = new DateTime(2020, 01, 08),
-                        EndsToDate = new DateTime(2020, 01, 14)
+                        ReleasePeriod = new ReleasePeriod {Days = 21},
+                        StartDate = new DateTime(2020, 01, 08),
+                        EndDate = new DateTime(2020, 01, 14),
                     },
                     new RoomAllocationRequirement
                     {
-                        ReleasePeriod = new ReleasePeriod { Days = 21 },
-                        StartsFromDate = new DateTime(2020, 01, 25),
-                        EndsToDate = new DateTime(2020, 02, 07)
+                        ReleasePeriod = new ReleasePeriod {Days = 21},
+                        StartDate = new DateTime(2020, 01, 25),
+                        EndDate = new DateTime(2020, 02, 07)
                     },
                     new RoomAllocationRequirement
                     {
-                        ReleasePeriod = new ReleasePeriod { Days = 21 },
-                        StartsFromDate = new DateTime(2020, 02, 22),
-                        EndsToDate = new DateTime(2020, 03, 20)
+                        ReleasePeriod = new ReleasePeriod {Days = 21},
+                        StartDate = new DateTime(2020, 02, 22),
+                        EndDate = new DateTime(2020, 03, 20)
                     },
                     new RoomAllocationRequirement
                     {
-                        ReleasePeriod = new ReleasePeriod { Days = 21 },
-                        StartsFromDate = new DateTime(2020, 04, 19),
-                        EndsToDate = new DateTime(2020, 05, 03)
+                        ReleasePeriod = new ReleasePeriod {Days = 21},
+                        StartDate = new DateTime(2020, 04, 19),
+                        EndDate = new DateTime(2020, 05, 03)
                     },
                     new RoomAllocationRequirement
                     {
-                        ReleasePeriod = new ReleasePeriod { Days = 21 },
-                        StartsFromDate = new DateTime(2020, 01, 15),
-                        EndsToDate = new DateTime(2020, 01, 24)
+                        ReleasePeriod = new ReleasePeriod {Days = 21},
+                        StartDate = new DateTime(2020, 01, 15),
+                        EndDate = new DateTime(2020, 01, 24)
                     },
                     new RoomAllocationRequirement
                     {
-                        ReleasePeriod = new ReleasePeriod { Days = 21 },
-                        StartsFromDate = new DateTime(2020, 09, 26),
-                        EndsToDate = new DateTime(2020, 10, 09)
-                    },
-                    new RoomAllocationRequirement
-                    {
-                        ReleasePeriod = new ReleasePeriod { Days = 21 },
-                        StartsFromDate = new DateTime(2020, 09, 26),
-                        EndsToDate = new DateTime(2020, 10, 09)
-                    }
-                };
-                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomIds = new []{ 20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31};
-                roomAllocationRequirements = new[]
-                {
-                    new RoomAllocationRequirement
-                    {
-                        ReleasePeriod = new ReleasePeriod { Days = 21 },
-                        StartsFromDate = new DateTime(2020, 02, 08),
-                        EndsToDate = new DateTime(2020, 02, 21)
-                    },
-                    new RoomAllocationRequirement
-                    {
-                        ReleasePeriod = new ReleasePeriod { Days = 21 },
-                        StartsFromDate = new DateTime(2020, 03, 21),
-                        EndsToDate = new DateTime(2020, 03, 27)
-                    },
-                    new RoomAllocationRequirement
-                    {
-                        ReleasePeriod = new ReleasePeriod { Days = 21 },
-                        StartsFromDate = new DateTime(2020, 04, 13),
-                        EndsToDate = new DateTime(2020, 04, 18)
-                    }
-                };
-                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomIds = new []{32, 33, 34};
-                roomAllocationRequirements = new[]
-                {
-                    new RoomAllocationRequirement
-                    {
-                        ReleasePeriod = new ReleasePeriod { Days = 21 },
-                        MinimumStayNights = 5,
-                        StartsFromDate = new DateTime(2020, 02, 08),
-                        EndsToDate = new DateTime(2020, 02, 21)
-                    },
-                    new RoomAllocationRequirement
-                    {
-                        ReleasePeriod = new ReleasePeriod { Days = 21 },
-                        MinimumStayNights = 5,
-                        StartsFromDate = new DateTime(2020, 03, 21),
-                        EndsToDate = new DateTime(2020, 03, 27)
-                    },
-                    new RoomAllocationRequirement
-                    {
-                        ReleasePeriod = new ReleasePeriod { Days = 21 },
-                        MinimumStayNights = 5,
-                        StartsFromDate = new DateTime(2020, 04, 13),
-                        EndsToDate = new DateTime(2020, 04, 18)
-                    }
-                };
-                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomIds = new []{20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34};
-                roomAllocationRequirements = new[]
-                {
-                    new RoomAllocationRequirement
-                    {
-                        ReleasePeriod = new ReleasePeriod { Days = 28 },
-                        MinimumStayNights = 5,
-                        StartsFromDate = new DateTime(2020, 03, 28),
-                        EndsToDate = new DateTime(2020, 04, 12)
-                    }
-                };
-                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomIds = new []{20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34};
-                roomAllocationRequirements = new[]
-                {
-                    new RoomAllocationRequirement
-                    {
-                        ReleasePeriod = new ReleasePeriod { Days = 14 },
-                        StartsFromDate = new DateTime(2020, 05, 04),
-                        EndsToDate = new DateTime(2020, 05, 31)
-                    },
-                    new RoomAllocationRequirement
-                    {
-                        ReleasePeriod = new ReleasePeriod { Days = 14 },
-                        StartsFromDate = new DateTime(2020, 09, 16),
-                        EndsToDate = new DateTime(2020, 09, 25)
-                    }
-                };
-                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomIds = new []{20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34};
-                roomAllocationRequirements = new[]
-                {
-                    new RoomAllocationRequirement
-                    {
-                        ReleasePeriod = new ReleasePeriod { Days = 7 },
-                        StartsFromDate = new DateTime(2020, 06, 01),
-                        EndsToDate = new DateTime(2020, 06, 14)
-                    }
-                };
-                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomIds = new []{20, 21, 22, 23, 24, 25, 32, 33, 34};
-                roomAllocationRequirements = new[]
-                {
-                    new RoomAllocationRequirement
-                    {
-                        ReleasePeriod = new ReleasePeriod { Days = 7 },
-                        StartsFromDate = new DateTime(2020, 06, 15),
-                        EndsToDate = new DateTime(2020, 09, 04)
-                    }
-                };
-                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomIds = new []{20, 21, 22, 23, 24, 25, 32, 33, 34};
-                roomAllocationRequirements = new[]
-                {
-                    new RoomAllocationRequirement
-                    {
-                        ReleasePeriod = new ReleasePeriod { Days = 7 },
-                        StartsFromDate = new DateTime(2020, 09, 05),
-                        EndsToDate = new DateTime(2020, 09, 15)
-                    }
-                };
-                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomIds = new []{20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34};
-                roomAllocationRequirements = new[]
-                {
-                    new RoomAllocationRequirement
-                    {
-                        ReleasePeriod = new ReleasePeriod { Days = 7 },
-                        StartsFromDate = new DateTime(2020, 10, 10),
-                        EndsToDate = new DateTime(2020, 10, 16)
-                    }
-                };
-                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomAllocationRequirements = new[]
-                {
-                    new RoomAllocationRequirement
-                    {
-                        ReleasePeriod = new ReleasePeriod { Days = 7 },
-                        MinimumStayNights = 3,
-                        StartsFromDate = new DateTime(2020, 10, 17),
-                        EndsToDate = new DateTime(2020, 10, 23)
-                    }
-                };
-                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomAllocationRequirements = new[]
-                {
-                    new RoomAllocationRequirement
-                    {
-                        ReleasePeriod = new ReleasePeriod { Days = 35 },
-                        MinimumStayNights = 5,
-                        StartsFromDate = new DateTime(2020, 10, 24),
-                        EndsToDate = new DateTime(2020, 11, 06)
-                    }
-                };
-                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomAllocationRequirements = new[]
-                {
-                    new RoomAllocationRequirement
-                    {
-                        ReleasePeriod = new ReleasePeriod { Days = 28 },
-                        MinimumStayNights = 3,
-                        StartsFromDate = new DateTime(2020, 11, 07),
-                        EndsToDate = new DateTime(2020, 12, 04)
-                    },
-                    new RoomAllocationRequirement
-                    {
-                        ReleasePeriod = new ReleasePeriod { Days = 28 },
-                        MinimumStayNights = 3,
-                        StartsFromDate = new DateTime(2020, 12, 19),
-                        EndsToDate = new DateTime(2020, 12, 25)
-                    }
-                };
-                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomAllocationRequirements = new[]
-                {
-                    new RoomAllocationRequirement
-                    {
-                        ReleasePeriod = new ReleasePeriod { Days = 21 },
-                        MinimumStayNights = 3,
-                        StartsFromDate = new DateTime(2020, 12, 05),
-                        EndsToDate = new DateTime(2020, 12, 18)
-                    }
-                };
-                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomAllocationRequirements = new[]
-                {
-                    new RoomAllocationRequirement
-                    {
-                        ReleasePeriod = new ReleasePeriod { Date = new DateTime(2020,11,01) },
-                        MinimumStayNights = 7,
-                        StartsFromDate = new DateTime(2020, 12, 26),
-                        EndsToDate = new DateTime(2021, 01, 03)
+                        ReleasePeriod = new ReleasePeriod {Days = 21},
+                        StartDate = new DateTime(2020, 09, 26),
+                        EndDate = new DateTime(2020, 10, 09)
                     }
                 };
                 AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
@@ -2919,106 +1974,304 @@ namespace Hiroshima.DirectContractsDataSeeder
                 {
                     new RoomAllocationRequirement
                     {
-                        ReleasePeriod = new ReleasePeriod { Days = 28 },
-                        MinimumStayNights = 3,
-                        StartsFromDate = new DateTime(2021, 01, 04),
-                        EndsToDate = new DateTime(2021, 01, 10)
+                        ReleasePeriod = new ReleasePeriod {Days = 21},
+                        StartDate = new DateTime(2020, 02, 08),
+                        EndDate = new DateTime(2020, 02, 21)
                     },
                     new RoomAllocationRequirement
                     {
-                        ReleasePeriod = new ReleasePeriod { Days = 28 },
-                        MinimumStayNights = 3,
-                        StartsFromDate = new DateTime(2021, 02, 06),
-                        EndsToDate = new DateTime(2021, 02, 19)
+                        ReleasePeriod = new ReleasePeriod {Days = 21},
+                        StartDate = new DateTime(2020, 03, 21),
+                        EndDate = new DateTime(2020, 03, 27)
                     },
                     new RoomAllocationRequirement
                     {
-                        ReleasePeriod = new ReleasePeriod { Days = 28 },
-                        MinimumStayNights = 3,
-                        StartsFromDate = new DateTime(2021, 03, 21),
-                        EndsToDate = new DateTime(2021, 03, 26)
+                        ReleasePeriod = new ReleasePeriod {Days = 21},
+                        StartDate = new DateTime(2020, 04, 13),
+                        EndDate = new DateTime(2020, 04, 18)
                     }
                 };
                 AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
+
                 roomIds = new[] {32, 33, 34};
                 roomAllocationRequirements = new[]
                 {
                     new RoomAllocationRequirement
                     {
-                        ReleasePeriod = new ReleasePeriod { Days = 28 },
+                        ReleasePeriod = new ReleasePeriod {Days = 21},
                         MinimumStayNights = 5,
-                        StartsFromDate = new DateTime(2021, 01, 04),
-                        EndsToDate = new DateTime(2021, 01, 10)
+                        StartDate = new DateTime(2020, 02, 08),
+                        EndDate = new DateTime(2020, 02, 21)
                     },
                     new RoomAllocationRequirement
                     {
-                        ReleasePeriod = new ReleasePeriod { Days = 28 },
+                        ReleasePeriod = new ReleasePeriod {Days = 21},
                         MinimumStayNights = 5,
-                        StartsFromDate = new DateTime(2021, 02, 06),
-                        EndsToDate = new DateTime(2021, 02, 19)
+                        StartDate = new DateTime(2020, 03, 21),
+                        EndDate = new DateTime(2020, 03, 27)
                     },
                     new RoomAllocationRequirement
                     {
-                        ReleasePeriod = new ReleasePeriod { Days = 28 },
+                        ReleasePeriod = new ReleasePeriod {Days = 21},
                         MinimumStayNights = 5,
-                        StartsFromDate = new DateTime(2021, 03, 21),
-                        EndsToDate = new DateTime(2021, 03, 26)
+                        StartDate = new DateTime(2020, 04, 13),
+                        EndDate = new DateTime(2020, 04, 18)
                     }
                 };
                 AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomIds = new []{20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34};
+
+                roomIds = new[] {20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34};
                 roomAllocationRequirements = new[]
                 {
                     new RoomAllocationRequirement
                     {
-                        ReleasePeriod = new ReleasePeriod { Days = 28 },
+                        ReleasePeriod = new ReleasePeriod {Days = 28},
+                        MinimumStayNights = 5,
+                        StartDate = new DateTime(2020, 03, 28),
+                        EndDate = new DateTime(2020, 04, 12)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+
+                roomIds = new[] {20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 14},
+                        StartDate = new DateTime(2020, 05, 04),
+                        EndDate = new DateTime(2020, 05, 31)
+                    },
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 14},
+                        StartDate = new DateTime(2020, 09, 16),
+                        EndDate = new DateTime(2020, 09, 25)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+
+                roomIds = new[] {20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 7},
+                        StartDate = new DateTime(2020, 06, 01),
+                        EndDate = new DateTime(2020, 06, 14)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+
+                roomIds = new[] {20, 21, 22, 23, 24, 25, 32, 33, 34};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 7},
+                        StartDate = new DateTime(2020, 06, 15),
+                        EndDate = new DateTime(2020, 09, 04)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+
+                roomIds = new[] {20, 21, 22, 23, 24, 25, 32, 33, 34};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 7},
+                        StartDate = new DateTime(2020, 09, 05),
+                        EndDate = new DateTime(2020, 09, 15)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+
+                roomIds = new[] {20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 7},
+                        StartDate = new DateTime(2020, 10, 10),
+                        EndDate = new DateTime(2020, 10, 16)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 7},
                         MinimumStayNights = 3,
-                        StartsFromDate = new DateTime(2021, 01, 11),
-                        EndsToDate = new DateTime(2021, 02, 05)
+                        StartDate = new DateTime(2020, 10, 17),
+                        EndDate = new DateTime(2020, 10, 23)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 35},
+                        MinimumStayNights = 5,
+                        StartDate = new DateTime(2020, 10, 24),
+                        EndDate = new DateTime(2020, 11, 06)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 28},
+                        MinimumStayNights = 3,
+                        StartDate = new DateTime(2020, 11, 07),
+                        EndDate = new DateTime(2020, 12, 04)
                     },
                     new RoomAllocationRequirement
                     {
-                        ReleasePeriod = new ReleasePeriod { Days = 28 },
+                        ReleasePeriod = new ReleasePeriod {Days = 28},
                         MinimumStayNights = 3,
-                        StartsFromDate = new DateTime(2021, 02, 20),
-                        EndsToDate = new DateTime(2021, 03, 19)
+                        StartDate = new DateTime(2020, 12, 19),
+                        EndDate = new DateTime(2020, 12, 25)
                     }
                 };
                 AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomIds = new []{20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34};
+
                 roomAllocationRequirements = new[]
                 {
                     new RoomAllocationRequirement
                     {
-                        ReleasePeriod = new ReleasePeriod { Days = 35 },
+                        ReleasePeriod = new ReleasePeriod {Days = 21},
+                        MinimumStayNights = 3,
+                        StartDate = new DateTime(2020, 12, 05),
+                        EndDate = new DateTime(2020, 12, 18)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Date = new DateTime(2020, 11, 01)},
+                        MinimumStayNights = 7,
+                        StartDate = new DateTime(2020, 12, 26),
+                        EndDate = new DateTime(2021, 01, 03)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+
+                roomIds = new[] {20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 28},
+                        MinimumStayNights = 3,
+                        StartDate = new DateTime(2021, 01, 04),
+                        EndDate = new DateTime(2021, 01, 10)
+                    },
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 28},
+                        MinimumStayNights = 3,
+                        StartDate = new DateTime(2021, 02, 06),
+                        EndDate = new DateTime(2021, 02, 19)
+                    },
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 28},
+                        MinimumStayNights = 3,
+                        StartDate = new DateTime(2021, 03, 21),
+                        EndDate = new DateTime(2021, 03, 26)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+
+                roomIds = new[] {32, 33, 34};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 28},
                         MinimumStayNights = 5,
-                        StartsFromDate = new DateTime(2021, 03, 27),
-                        EndsToDate = new DateTime(2021, 04, 10)
+                        StartDate = new DateTime(2021, 01, 04),
+                        EndDate = new DateTime(2021, 01, 10)
+                    },
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 28},
+                        MinimumStayNights = 5,
+                        StartDate = new DateTime(2021, 02, 06),
+                        EndDate = new DateTime(2021, 02, 19)
+                    },
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 28},
+                        MinimumStayNights = 5,
+                        StartDate = new DateTime(2021, 03, 21),
+                        EndDate = new DateTime(2021, 03, 26)
                     }
                 };
                 AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomIds = new []{20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34};
+
+                roomIds = new[] {20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34};
                 roomAllocationRequirements = new[]
                 {
                     new RoomAllocationRequirement
                     {
-                        ReleasePeriod = new ReleasePeriod { Days = 21 },
-                        StartsFromDate = new DateTime(2021, 04, 11),
-                        EndsToDate = new DateTime(2021, 05, 07)
+                        ReleasePeriod = new ReleasePeriod {Days = 28},
+                        MinimumStayNights = 3,
+                        StartDate = new DateTime(2021, 01, 11),
+                        EndDate = new DateTime(2021, 02, 05)
+                    },
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 28},
+                        MinimumStayNights = 3,
+                        StartDate = new DateTime(2021, 02, 20),
+                        EndDate = new DateTime(2021, 03, 19)
                     }
                 };
-                
                 AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+
+                roomIds = new[] {20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 35},
+                        MinimumStayNights = 5,
+                        StartDate = new DateTime(2021, 03, 27),
+                        EndDate = new DateTime(2021, 04, 10)
+                    }
+                };
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+
+                roomIds = new[] {20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34};
+                roomAllocationRequirements = new[]
+                {
+                    new RoomAllocationRequirement
+                    {
+                        ReleasePeriod = new ReleasePeriod {Days = 21},
+                        StartDate = new DateTime(2021, 04, 11),
+                        EndDate = new DateTime(2021, 05, 07)
+                    }
+                };
+
+                AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
+
                 #endregion
+
                 dbContext.SaveChanges();
             }
         }
 
-        
         private static void AddJumeriahContract(DirectContractsDbContext dbContext)
         {
             var accommodation = dbContext.Accommodations.FirstOrDefault(a => a.Name.En.Equals("Burj Al Arab Jumeirah"));
@@ -3027,1802 +2280,482 @@ namespace Hiroshima.DirectContractsDataSeeder
                 var hotelId = 2;
 
                 #region AddAccommodation
+
                 dbContext.Accommodations.Add(new Accommodation
                 {
                     Id = hotelId,
                     Rating = AccommodationRating.FiveStars,
                     PropertyType = PropertyTypes.Hotels,
-                    Name = new MultiLanguage<string>
-                    {
-                        Ar = "برج العرب جميرا",
-                        En = "Burj Al Arab Jumeirah",
-                        Ru = "Burj Al Arab Jumeirah"
-                    },
-                    TextualDescription = new MultiLanguage<TextualDescription>
-                    {
-                        En = new TextualDescription
+                    Name =
+                        new MultiLanguage<string>
                         {
-                            Description = "The iconic sail-shaped silhoutte of Burj Al Arab Jumeirah stands tall as a beacon of modern Dubai, characterized by the finest hospitality you can ever experience."
+                            Ar = "برج العرب جميرا", En = "Burj Al Arab Jumeirah", Ru = "Burj Al Arab Jumeirah"
                         },
-                        Ar = new TextualDescription
+                    TextualDescription =
+                        new MultiLanguage<TextualDescription>
                         {
-                            Description = "يقف فندق برج العرب جميرا الشهير شامخًا على شكل شراع وكأنه منارة دبي الحديثة، ويتسم بأجود وأرقى الضيافات التي يمكن أن تمر بها على الإطلاق."
-                        },
-                        Ru = new TextualDescription
-                        {
-                            Description = "Легендарный отель Burj Al Arab Jumeirah известен своим непревзойденным уровнем обслуживания и гостеприимства, а его высокий силуэт в форме паруса служит маяком современного Дубая."
-                        }
-                    },
-                    Address = new MultiLanguage<string>
-                    {
-                        Ar = "شارع الملك سلمان بن عبدالعزيز آل سعود - دبي",
-                        En = "King Salman Bin Abdulaziz Al Saud St - Dubai",
-                        Ru = "King Salman Bin Abdulaziz Al Saud St - Dubai - ОАЭ"
-                    },
-                    Contacts = new Contacts
-                    {
-                        Email = "info@jumeirah.com",
-                        Phone = "+971 4 3665000"
-                    },
-                    AccommodationAmenities = new MultiLanguage<List<string>>
-                    {
-                        En = new List<string>
-                        {
-                            @"201 luxurious duplex suites",
-                            @"Nine world-class restaurants and bars",
-                            @"Five swimming pools (three outdoor, two indoor) and a private beach"
-                        },
-                        Ar = new List<string>
-                        {
-                            @"201 جناح دوبلكس فخم",
-                            @"تسعة مقاهي ومطاعم عالمية",
-                            "خمسة مسابح (ثلاثة خارجيون، اثنان داخليان) وشاطئ خاص",
-                        },
-                        Ru = new List<string>{
-                            @"201 роскошный двухэтажный номер люкс",
-                            @"Девять ресторанов и баров мирового класса", 
-                            @"Пять плавательных бассейнов (три открытых и два крытых) и частный пляж"
-                        }
-                    },
-                    Pictures = new MultiLanguage<List<Picture>>
-                    {
-                        En = new List<Picture>
-                        {
-                            new Picture
+                            En = new TextualDescription
                             {
-                                Caption = "Burj Al Arab Jumeirah",
-                                Source =
-                                    "https://mediastream.jumeirah.com/webimage/image1152x648//globalassets/global/hotels-and-resorts/dubai/burj-al-arab/homepage-audit/burj-al-arab-jumeirah-terrace-hero.jpg"
+                                Description =
+                                    "The iconic sail-shaped silhoutte of Burj Al Arab Jumeirah stands tall as a beacon of modern Dubai, characterized by the finest hospitality you can ever experience."
+                            },
+                            Ar = new TextualDescription
+                            {
+                                Description =
+                                    "يقف فندق برج العرب جميرا الشهير شامخًا على شكل شراع وكأنه منارة دبي الحديثة، ويتسم بأجود وأرقى الضيافات التي يمكن أن تمر بها على الإطلاق."
+                            },
+                            Ru = new TextualDescription
+                            {
+                                Description =
+                                    "Легендарный отель Burj Al Arab Jumeirah известен своим непревзойденным уровнем обслуживания и гостеприимства, а его высокий силуэт в форме паруса служит маяком современного Дубая."
                             }
                         },
-                        Ru = new List<Picture>
+                    Address =
+                        new MultiLanguage<string>
                         {
-                            new Picture
+                            Ar = "شارع الملك سلمان بن عبدالعزيز آل سعود - دبي",
+                            En = "King Salman Bin Abdulaziz Al Saud St - Dubai",
+                            Ru = "King Salman Bin Abdulaziz Al Saud St - Dubai - ОАЭ"
+                        },
+                    Contacts = new Contacts {Email = "info@jumeirah.com", Phone = "+971 4 3665000"},
+                    AccommodationAmenities =
+                        new MultiLanguage<List<string>>
+                        {
+                            En = new List<string>
                             {
-                                Caption = "برج العرب جميرا",
-                                Source =
-                                "https://mediastream.jumeirah.com/webimage/image1152x648//globalassets/global/hotels-and-resorts/dubai/burj-al-arab/homepage-audit/burj-al-arab-jumeirah-terrace-hero.jpg"
+                                @"201 luxurious duplex suites",
+                                @"Nine world-class restaurants and bars",
+                                @"Five swimming pools (three outdoor, two indoor) and a private beach"
+                            },
+                            Ar = new List<string>
+                            {
+                                @"201 جناح دوبلكس فخم",
+                                @"تسعة مقاهي ومطاعم عالمية",
+                                "خمسة مسابح (ثلاثة خارجيون، اثنان داخليان) وشاطئ خاص",
+                            },
+                            Ru = new List<string>
+                            {
+                                @"201 роскошный двухэтажный номер люкс",
+                                @"Девять ресторанов и баров мирового класса",
+                                @"Пять плавательных бассейнов (три открытых и два крытых) и частный пляж"
                             }
-                        }
-                    },
+                        },
+                    Pictures =
+                        new MultiLanguage<List<Picture>>
+                        {
+                            En = new List<Picture>
+                            {
+                                new Picture
+                                {
+                                    Caption = "Burj Al Arab Jumeirah",
+                                    Source =
+                                        "https://mediastream.jumeirah.com/webimage/image1152x648//globalassets/global/hotels-and-resorts/dubai/burj-al-arab/homepage-audit/burj-al-arab-jumeirah-terrace-hero.jpg"
+                                }
+                            },
+                            Ru = new List<Picture>
+                            {
+                                new Picture
+                                {
+                                    Caption = "برج العرب جميرا",
+                                    Source =
+                                        "https://mediastream.jumeirah.com/webimage/image1152x648//globalassets/global/hotels-and-resorts/dubai/burj-al-arab/homepage-audit/burj-al-arab-jumeirah-terrace-hero.jpg"
+                                }
+                            }
+                        },
                     CheckInTime = "14:00",
                     CheckOutTime = "12:00",
                     Coordinates = new Point(55.153219, 25.097596),
+                    OccupancyDefinition = new OccupancyDefinition
+                    {
+                        Infant =
+                            new AgeRange
+                            {
+                                LowerBound = 0,
+                                UpperBound = 3
+                            },
+                        Child =
+                            new AgeRange
+                            {
+                                LowerBound = 4,
+                                UpperBound = 11
+                            },
+                        Teenager =
+                            new AgeRange
+                            {
+                                LowerBound = 12,
+                                UpperBound = 16
+                            },
+                        Adult = new AgeRange
+                        {
+                            LowerBound = 17,
+                            UpperBound = 200
+                        },
+                    },
                     LocationId = 2
                 });
+
                 #endregion
+
                 dbContext.SaveChanges();
+
                 #region AddRooms
+
                 dbContext.Rooms.AddRange(
                     new Room
                     {
                         Id = 71,
                         AccommodationId = 2,
-                        Name = new MultiLanguage<string>
-                        {
-                            En = "One Bedroom Deluxe Suite",
-                            Ru = "",
-                            Ar = ""
-                        },
-                        Description = new MultiLanguage<string>
-                        {
-                            En = "",
-                            Ru = "",
-                            Ar = ""
-                        },
-                        Amenities = new MultiLanguage<List<string>>
-                        {
-                            En = new List<string>(),
-                            Ar = new List<string>(),
-                            Ru = new List<string>(),
-                        },
-                       
-                        PermittedOccupancies = new PermittedOccupancies
-                        {
-                            RoomOccupancies = new List<List<RoomOccupancy>>
+                        Name = new MultiLanguage<string> {En = "One Bedroom Deluxe Suite", Ru = "", Ar = ""},
+                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
+                        Amenities =
+                            new MultiLanguage<List<string>>
                             {
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 3
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 3
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    }
-                                }
-                            }
+                                En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
+                            },
+                        OccupancyConfigurations = new List<OccupancyConfiguration>
+                        {
+                            new OccupancyConfiguration {Adults = 1},
+                            new OccupancyConfiguration {Adults = 2},
+                            new OccupancyConfiguration {Adults = 1, Children = 1},
+                            new OccupancyConfiguration {Adults = 2, Children = 1},
+                            new OccupancyConfiguration {Adults = 3},
+                            new OccupancyConfiguration {Adults = 1, Children = 2},
+                            new OccupancyConfiguration {Adults = 3, Children = 1},
+                            new OccupancyConfiguration {Adults = 2, Children = 2}
                         }
                     },
                     new Room
                     {
                         Id = 72,
                         AccommodationId = 2,
-                        Name = new MultiLanguage<string>
-                        {
-                            En = "Panoramic One Bedroom Suite",
-                            Ru = "",
-                            Ar = ""
-                        },
-                        Description = new MultiLanguage<string>
-                        {
-                            En = "",
-                            Ru = "",
-                            Ar = ""
-                        },
-                        Amenities = new MultiLanguage<List<string>>
-                        {
-                            En = new List<string>(),
-                            Ar = new List<string>(),
-                            Ru = new List<string>(),
-                        },
-                       
-                       PermittedOccupancies = new PermittedOccupancies
-                        {
-                            RoomOccupancies = new List<List<RoomOccupancy>>
+                        Name = new MultiLanguage<string> {En = "Panoramic One Bedroom Suite", Ru = "", Ar = ""},
+                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
+                        Amenities =
+                            new MultiLanguage<List<string>>
                             {
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 3
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 3
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    }
-                                }
-                            }
+                                En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
+                            },
+                        OccupancyConfigurations = new List<OccupancyConfiguration>
+                        {
+                            new OccupancyConfiguration {Adults = 1},
+                            new OccupancyConfiguration {Adults = 2},
+                            new OccupancyConfiguration {Adults = 1, Children = 1},
+                            new OccupancyConfiguration {Adults = 2, Children = 1},
+                            new OccupancyConfiguration {Adults = 3},
+                            new OccupancyConfiguration {Adults = 1, Children = 2},
+                            new OccupancyConfiguration {Adults = 3, Children = 1},
+                            new OccupancyConfiguration {Adults = 2, Children = 2}
                         }
                     },
                     new Room
                     {
                         Id = 73,
                         AccommodationId = 2,
-                        Name = new MultiLanguage<string>
-                        {
-                            En = "Two Bedroom Delux Suite",
-                            Ru = "",
-                            Ar = ""
-                        },
-                        Description = new MultiLanguage<string>
-                        {
-                            En = "",
-                            Ru = "",
-                            Ar = ""
-                        },
-                        Amenities = new MultiLanguage<List<string>>
-                        {
-                            En = new List<string>(),
-                            Ar = new List<string>(),
-                            Ru = new List<string>(),
-                        },
-                       
-                        PermittedOccupancies = new PermittedOccupancies
-                        {
-                            RoomOccupancies = new List<List<RoomOccupancy>>
+                        Name = new MultiLanguage<string> {En = "Two Bedroom Delux Suite", Ru = "", Ar = ""},
+                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
+                        Amenities =
+                            new MultiLanguage<List<string>>
                             {
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 3
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 4
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 3
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 3
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 5
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 4
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 3
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 3
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 4
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 5
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 4
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 3
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 3
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 4
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 5
-                                    }
-                                }
-                            }
+                                En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
+                            },
+                        OccupancyConfigurations = new List<OccupancyConfiguration>
+                        {
+                            new OccupancyConfiguration {Adults = 1},
+                            new OccupancyConfiguration {Adults = 2},
+                            new OccupancyConfiguration {Adults = 1, Children = 1},
+                            new OccupancyConfiguration {Adults = 2, Children = 1},
+                            new OccupancyConfiguration {Adults = 3},
+                            new OccupancyConfiguration {Adults = 3, Children = 1},
+                            new OccupancyConfiguration {Adults = 2, Children = 2},
+                            new OccupancyConfiguration {Adults = 1, Children = 3},
+                            new OccupancyConfiguration {Adults = 5},
+                            new OccupancyConfiguration {Adults = 4, Children = 1},
+                            new OccupancyConfiguration {Adults = 3, Children = 2},
+                            new OccupancyConfiguration {Adults = 2, Children = 3},
+                            new OccupancyConfiguration {Adults = 1, Children = 4},
+                            new OccupancyConfiguration {Adults = 5, Children = 1},
+                            new OccupancyConfiguration {Adults = 4, Children = 2},
+                            new OccupancyConfiguration {Adults = 3, Children = 3},
+                            new OccupancyConfiguration {Adults = 2, Children = 4},
+                            new OccupancyConfiguration {Adults = 1, Children = 5}
                         }
                     },
                     new Room
                     {
                         Id = 74,
                         AccommodationId = 2,
-                        Name = new MultiLanguage<string>
-                        {
-                            En = "Diplomatic Three Bedroom Suite",
-                            Ru = "",
-                            Ar = ""
-                        },
-                        Description = new MultiLanguage<string>
-                        {
-                            En = "",
-                            Ru = "",
-                            Ar = ""
-                        },
-                        Amenities = new MultiLanguage<List<string>>
-                        {
-                            En = new List<string>(),
-                            Ar = new List<string>(),
-                            Ru = new List<string>(),
-                        },
-                       
-                        PermittedOccupancies = new PermittedOccupancies
-                        {
-                            RoomOccupancies = new List<List<RoomOccupancy>>
+                        Name = new MultiLanguage<string> {En = "Diplomatic Three Bedroom Suite", Ru = "", Ar = ""},
+                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
+                        Amenities =
+                            new MultiLanguage<List<string>>
                             {
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 3
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 4
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 3
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 3
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 5
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 4
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 3
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 3
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 4
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 6
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 5
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 4
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 3
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 3
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 4
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 5
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 7
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 6
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 1
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 5
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 4
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 3
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 3
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 4
-                                    }
-                                },
-                                new List<RoomOccupancy>
-                                {
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 12,
-                                            UpperBound = 190,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 2
-                                    },
-                                    new RoomOccupancy
-                                    {
-                                        AgeRange = new AgeRange
-                                        {
-                                            LowerBound = 4,
-                                            UpperBound = 11,
-                                            LowerBoundInclusive = true,
-                                            UpperBoundInclusive = true
-                                        },
-                                        NumberOfPersons = 5
-                                    }
-                                }
-                            }
+                                En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
+                            },
+                        OccupancyConfigurations = new List<OccupancyConfiguration>
+                        {
+                            new OccupancyConfiguration {Adults = 1},
+                            new OccupancyConfiguration {Adults = 2},
+                            new OccupancyConfiguration {Adults = 1},
+                            new OccupancyConfiguration {Adults = 1, Children = 1},
+                            new OccupancyConfiguration {Adults = 2, Children = 1},
+                            new OccupancyConfiguration {Adults = 3},
+                            new OccupancyConfiguration {Adults = 1, Children = 2},
+                            new OccupancyConfiguration {Adults = 4, Children = 1},
+                            new OccupancyConfiguration {Adults = 3, Children = 1},
+                            new OccupancyConfiguration {Adults = 2, Children = 2},
+                            new OccupancyConfiguration {Adults = 1, Children = 3},
+                            new OccupancyConfiguration {Adults = 5},
+                            new OccupancyConfiguration {Adults = 3, Children = 2},
+                            new OccupancyConfiguration {Adults = 2, Children = 3},
+                            new OccupancyConfiguration {Adults = 1, Children = 4},
+                            new OccupancyConfiguration {Adults = 6},
+                            new OccupancyConfiguration {Adults = 5, Children = 1},
+                            new OccupancyConfiguration {Adults = 4, Children = 2},
+                            new OccupancyConfiguration {Adults = 3, Children = 3},
+                            new OccupancyConfiguration {Adults = 2, Children = 4},
+                            new OccupancyConfiguration {Adults = 1, Children = 5},
+                            new OccupancyConfiguration {Adults = 7},
+                            new OccupancyConfiguration {Adults = 6, Children = 1},
+                            new OccupancyConfiguration {Adults = 5, Children = 2},
+                            new OccupancyConfiguration {Adults = 4, Children = 3},
+                            new OccupancyConfiguration {Adults = 3, Children = 4},
+                            new OccupancyConfiguration {Adults = 2, Children = 5}
                         }
                     });
 
                 #endregion
+
                 dbContext.SaveChanges();
+
+                #region AddCanellationPolicies
+
+                var roomIds = new[] { 71, 72, 73, 74};
+               
+                var seasonDates = new[]
+                {
+                    (new DateTime(2019, 05, 06), new DateTime(2019, 08, 31))
+                };
+                
+                var cancellationPolicy = new RoomCancellationPolicy
+                {
+                    CancellationPolicyData = new List<CancellationPolicyData>
+                    {
+                        new CancellationPolicyData
+                        {
+                            DaysInterval = new CancellationDaysInterval
+                            {
+                                FromDays = 0,
+                                ToDays = 7
+                            },
+                            PenaltyType = CancellationPenaltyTypes.Percent,
+                            PenaltyCharge = 100
+                        }
+                    }
+                };
+                AddCancellationPolicies(dbContext, seasonDates, roomIds, cancellationPolicy);
+                
+                seasonDates = new[]
+                {
+                    (new DateTime(2019, 01, 14), new DateTime(2019, 01, 31)),
+                    (new DateTime(2019, 09, 01), new DateTime(2019, 10, 12)),
+                    (new DateTime(2019, 12, 02), new DateTime(2019, 12, 21))
+                };
+                
+                cancellationPolicy = new RoomCancellationPolicy
+                {
+                    CancellationPolicyData = new List<CancellationPolicyData>
+                    {
+                        new CancellationPolicyData
+                        {
+                            DaysInterval = new CancellationDaysInterval
+                            {
+                                FromDays = 0,
+                                ToDays = 14
+                            },
+                            PenaltyType = CancellationPenaltyTypes.Percent,
+                            PenaltyCharge = 100
+                        }
+                    }
+                };
+                AddCancellationPolicies(dbContext, seasonDates, roomIds, cancellationPolicy);
+
+                seasonDates = new[]
+                {
+                    (new DateTime(2019, 02, 01), new DateTime(2019, 02, 04)),
+                    (new DateTime(2019, 02, 12), new DateTime(2019, 03, 27)),
+                    (new DateTime(2019, 04, 22), new DateTime(2019, 05, 05)),
+                    (new DateTime(2019, 10, 13), new DateTime(2019, 10 , 19)),
+                    (new DateTime(2019, 11, 10), new DateTime(2019, 12 , 01)),
+                    (new DateTime(2019, 12, 22), new DateTime(2019, 12 , 26)),
+                    (new DateTime(2020, 01, 05), new DateTime(2020, 01 , 13)),
+                };
+                
+                cancellationPolicy = new RoomCancellationPolicy
+                {
+                    CancellationPolicyData = new List<CancellationPolicyData>
+                    {
+                        new CancellationPolicyData
+                        {
+                            DaysInterval = new CancellationDaysInterval
+                            {
+                                FromDays = 0,
+                                ToDays = 21
+                            },
+                            PenaltyType = CancellationPenaltyTypes.Percent,
+                            PenaltyCharge = 100
+                        }
+                    }
+                };
+                
+                AddCancellationPolicies(dbContext, seasonDates, roomIds, cancellationPolicy);
+                
+                seasonDates = new[]
+                {
+                    (new DateTime(2019, 02, 05), new DateTime(2019, 02, 11)),
+                    (new DateTime(2019, 03, 28), new DateTime(2019, 04, 21)),
+                    (new DateTime(2019, 10, 20), new DateTime(2019, 11, 09))
+                };
+                
+                cancellationPolicy = new RoomCancellationPolicy
+                {
+                    CancellationPolicyData = new List<CancellationPolicyData>
+                    {
+                        new CancellationPolicyData
+                        {
+                            DaysInterval = new CancellationDaysInterval
+                            {
+                                FromDays = 0,
+                                ToDays = 35
+                            },
+                            PenaltyType = CancellationPenaltyTypes.Percent,
+                            PenaltyCharge = 100
+                        }
+                    }
+                };
+                AddCancellationPolicies(dbContext, seasonDates, roomIds, cancellationPolicy);
+                
+                seasonDates = new[]
+                {
+                    (new DateTime(2019, 12, 27), new DateTime(2020, 01, 04))
+                };
+                
+                cancellationPolicy = new RoomCancellationPolicy
+                {
+                    CancellationPolicyData = new List<CancellationPolicyData>
+                    {
+                        new CancellationPolicyData
+                        {
+                            DaysInterval = new CancellationDaysInterval
+                            {
+                                FromDays = 0,
+                                ToDays = 35
+                            },
+                            PenaltyType = CancellationPenaltyTypes.Percent,
+                            PenaltyCharge = 100
+                        }
+                    }
+                };
+                AddCancellationPolicies(dbContext, seasonDates, roomIds, cancellationPolicy);
+                
+                #endregion
                 #region AddRoomAllocationRequirements //Test data
 
                 //Panoramic Suite
-                dbContext.RoomAllocationRequirements.AddRange(new RoomAllocationRequirement
+                dbContext.RoomAllocationRequirements.AddRange(
+                    new RoomAllocationRequirement
                     {
                         RoomId = 72,
-                        StartsFromDate = new DateTime(2019, 9, 28),
-                        EndsToDate = new DateTime(2019, 9, 28)
-                    }, new RoomAllocationRequirement
-                    {
-                        RoomId = 72,
-                        StartsFromDate = new DateTime(2019, 9, 30),
-                        EndsToDate = new DateTime(2019, 9, 30)
+                        StartDate = new DateTime(2019, 9, 28),
+                        EndDate = new DateTime(2019, 9, 28)
                     },
                     new RoomAllocationRequirement
                     {
                         RoomId = 72,
-                        StartsFromDate = new DateTime(2019, 10, 1),
-                        EndsToDate = new DateTime(2019, 10, 1)
+                        StartDate = new DateTime(2019, 9, 30),
+                        EndDate = new DateTime(2019, 9, 30)
+                    },
+                    new RoomAllocationRequirement
+                    {
+                        RoomId = 72,
+                        StartDate = new DateTime(2019, 10, 1),
+                        EndDate = new DateTime(2019, 10, 1)
                     },
                     new RoomAllocationRequirement
                     {
                         RoomId = 73,
-                        StartsFromDate = new DateTime(2019, 10, 11),
-                        EndsToDate = new DateTime(2019, 10, 12)
+                        StartDate = new DateTime(2019, 10, 11),
+                        EndDate = new DateTime(2019, 10, 12)
                     },
                     new RoomAllocationRequirement
                     {
                         RoomId = 73,
-                        StartsFromDate = new DateTime(2020, 10, 19),
-                        EndsToDate = new DateTime(2020, 10, 19)
+                        StartDate = new DateTime(2020, 10, 19),
+                        EndDate = new DateTime(2020, 10, 19)
                     },
                     new RoomAllocationRequirement
                     {
                         RoomId = 73,
-                        StartsFromDate = new DateTime(2020, 10, 26),
-                        EndsToDate = new DateTime(2020, 10, 27)
+                        StartDate = new DateTime(2020, 10, 26),
+                        EndDate = new DateTime(2020, 10, 27)
                     });
 
                 #endregion
+
                 dbContext.SaveChanges();
+
                 #region AddRates
-                FillRates(
-                    dbContext,
-                    new[] {(new DateTime(2019,01,14), new DateTime(2019, 01, 31) )},
-                    new List<(int, decimal)>
-                    {
-                        (71, 7321),
-                        (72, 7809),
-                        (73, 10981),
-                        (74, 18302)
-                    });
 
-                FillRates(
-                    dbContext,
-                    new[] {(new DateTime(2019,02,01), new DateTime(2019, 02, 04) )},
-                    new List<(int, decimal)>
-                    {
-                        (71, 9273),
-                        (72, 10005),
-                        (73, 13909),
-                        (74, 23182)
-                    });
+                FillRates(dbContext, new[] {(new DateTime(2019, 01, 14), new DateTime(2019, 01, 31))},
+                    new List<(int, decimal)> {(71, 7321), (72, 7809), (73, 10981), (74, 18302)});
 
-                FillRates(
-                    dbContext,
-                    new[] {(new DateTime(2019,02,05), new DateTime(2019, 02, 11) )},
-                    new List<(int, decimal)>
-                    {
-                        (71, 11225),
-                        (72, 12201),
-                        (73, 22450),
-                        (74, 33675)
-                    });
+                FillRates(dbContext, new[] {(new DateTime(2019, 02, 01), new DateTime(2019, 02, 04))},
+                    new List<(int, decimal)> {(71, 9273), (72, 10005), (73, 13909), (74, 23182)});
 
-                FillRates(
-                    dbContext,
-                    new[] {(new DateTime(2019,02,12), new DateTime(2019, 03, 27) )},
-                    new List<(int, decimal)>
-                    {
-                        (71, 9273),
-                        (72, 10005),
-                        (73, 13909),
-                        (74, 23182)
-                    });
+                FillRates(dbContext, new[] {(new DateTime(2019, 02, 05), new DateTime(2019, 02, 11))},
+                    new List<(int, decimal)> {(71, 11225), (72, 12201), (73, 22450), (74, 33675)});
 
-                FillRates(
-                    dbContext,
-                    new[] {(new DateTime(2019,03,28), new DateTime(2019, 04, 21) )},
-                    new List<(int, decimal)>
-                    {
-                        (71, 11225),
-                        (72, 12201),
-                        (73, 22450),
-                        (74, 33675)
-                    });
+                FillRates(dbContext, new[] {(new DateTime(2019, 02, 12), new DateTime(2019, 03, 27))},
+                    new List<(int, decimal)> {(71, 9273), (72, 10005), (73, 13909), (74, 23182)});
 
-                FillRates(
-                    dbContext,
-                    new[] {(new DateTime(2019,04,22), new DateTime(2019, 05, 05) )},
-                    new List<(int, decimal)>
-                    {
-                        (71, 9273),
-                        (72, 10005),
-                        (73, 13909),
-                        (74, 23182)
-                    });
+                FillRates(dbContext, new[] {(new DateTime(2019, 03, 28), new DateTime(2019, 04, 21))},
+                    new List<(int, decimal)> {(71, 11225), (72, 12201), (73, 22450), (74, 33675)});
 
-                FillRates(
-                    dbContext,
-                    new[] {(new DateTime(2019,05,06), new DateTime(2019, 08, 31) )},
-                    new List<(int, decimal)>
-                    {
-                        (71, 6345),
-                        (72, 6833),
-                        (73, 9517),
-                        (74, 15862)
-                    });
+                FillRates(dbContext, new[] {(new DateTime(2019, 04, 22), new DateTime(2019, 05, 05))},
+                    new List<(int, decimal)> {(71, 9273), (72, 10005), (73, 13909), (74, 23182)});
 
-                FillRates(
-                    dbContext,
-                    new[] {(new DateTime(2019,09,01), new DateTime(2019, 10, 12) )},
-                    new List<(int, decimal)>
-                    {
-                        (71, 7321),
-                        (72, 7809),
-                        (73, 10981),
-                        (74, 18302)
-                    });
+                FillRates(dbContext, new[] {(new DateTime(2019, 05, 06), new DateTime(2019, 08, 31))},
+                    new List<(int, decimal)> {(71, 6345), (72, 6833), (73, 9517), (74, 15862)});
 
-                FillRates(
-                    dbContext,
-                    new[] {(new DateTime(2019,10,13), new DateTime(2019, 10, 19) )},
-                    new List<(int, decimal)>
-                    {
-                        (71, 9273),
-                        (72, 10005),
-                        (73, 13909),
-                        (74, 23182)
-                    });
+                FillRates(dbContext, new[] {(new DateTime(2019, 09, 01), new DateTime(2019, 10, 12))},
+                    new List<(int, decimal)> {(71, 7321), (72, 7809), (73, 10981), (74, 18302)});
 
-                FillRates(
-                    dbContext,
-                    new[] {(new DateTime(2019,10,20), new DateTime(2019, 11, 09) )},
-                    new List<(int, decimal)>
-                    {
-                        (71, 11225),
-                        (72, 12201),
-                        (73, 22450),
-                        (74, 33675)
-                    });
+                FillRates(dbContext, new[] {(new DateTime(2019, 10, 13), new DateTime(2019, 10, 19))},
+                    new List<(int, decimal)> {(71, 9273), (72, 10005), (73, 13909), (74, 23182)});
 
-                FillRates(
-                    dbContext,
-                    new[] {(new DateTime(2019,11,10), new DateTime(2019, 12, 01) )},
-                    new List<(int, decimal)>
-                    {
-                        (71, 9273),
-                        (72, 10005),
-                        (73, 13909),
-                        (74, 23182)
-                    });
+                FillRates(dbContext, new[] {(new DateTime(2019, 10, 20), new DateTime(2019, 11, 09))},
+                    new List<(int, decimal)> {(71, 11225), (72, 12201), (73, 22450), (74, 33675)});
 
-                FillRates(
-                    dbContext,
-                    new[] {(new DateTime(2019,12,02), new DateTime(2019, 12, 21) )},
-                    new List<(int, decimal)>
-                    {
-                        (71, 7321),
-                        (72, 7809),
-                        (73, 10981),
-                        (74, 18302)
-                    });
+                FillRates(dbContext, new[] {(new DateTime(2019, 11, 10), new DateTime(2019, 12, 01))},
+                    new List<(int, decimal)> {(71, 9273), (72, 10005), (73, 13909), (74, 23182)});
 
-                FillRates(
-                    dbContext,
-                    new[] {(new DateTime(2019,12,22), new DateTime(2019, 12, 26) )},
-                    new List<(int, decimal)>
-                    {
-                        (71, 9273),
-                        (72, 10005),
-                        (73, 13909),
-                        (74, 23182)
-                    });
+                FillRates(dbContext, new[] {(new DateTime(2019, 12, 02), new DateTime(2019, 12, 21))},
+                    new List<(int, decimal)> {(71, 7321), (72, 7809), (73, 10981), (74, 18302)});
 
-                FillRates(
-                    dbContext,
-                    new[] {(new DateTime(2019,12,27), new DateTime(2020, 01, 04) )},
-                    new List<(int, decimal)>
-                    {
-                        (71, 13177),
-                        (72, 14153),
-                        (73, 26355),
-                        (74, 39532)
-                    });
+                FillRates(dbContext, new[] {(new DateTime(2019, 12, 22), new DateTime(2019, 12, 26))},
+                    new List<(int, decimal)> {(71, 9273), (72, 10005), (73, 13909), (74, 23182)});
 
-                FillRates(
-                    dbContext,
-                    new[] {(new DateTime(2020,01,05), new DateTime(2020, 01, 13) )},
-                    new List<(int, decimal)>
-                    {
-                        (71, 9273),
-                        (72, 10005),
-                        (73, 13909),
-                        (74, 23182)
-                    });
+                FillRates(dbContext, new[] {(new DateTime(2019, 12, 27), new DateTime(2020, 01, 04))},
+                    new List<(int, decimal)> {(71, 13177), (72, 14153), (73, 26355), (74, 39532)});
+
+                FillRates(dbContext, new[] {(new DateTime(2020, 01, 05), new DateTime(2020, 01, 13))},
+                    new List<(int, decimal)> {(71, 9273), (72, 10005), (73, 13909), (74, 23182)});
+
                 #endregion
+
                 dbContext.SaveChanges();
+
                 #region AddPromotionalOffers
+
                 var promotionalOffers = new[]
                 {
                     new RoomPromotionalOffer
@@ -4849,7 +2782,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
-                
+
                 promotionalOffers = new[]
                 {
                     new RoomPromotionalOffer
@@ -4863,7 +2796,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
-                
+
                 promotionalOffers = new[]
                 {
                     new RoomPromotionalOffer
@@ -4877,7 +2810,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
-                
+
                 promotionalOffers = new[]
                 {
                     new RoomPromotionalOffer
@@ -4891,7 +2824,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
-                
+
                 promotionalOffers = new[]
                 {
                     new RoomPromotionalOffer
@@ -4905,7 +2838,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
-                
+
                 promotionalOffers = new[]
                 {
                     new RoomPromotionalOffer
@@ -4919,7 +2852,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
-                
+
                 promotionalOffers = new[]
                 {
                     new RoomPromotionalOffer
@@ -4933,7 +2866,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
-                
+
                 promotionalOffers = new[]
                 {
                     new RoomPromotionalOffer
@@ -4947,7 +2880,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
-                
+
                 promotionalOffers = new[]
                 {
                     new RoomPromotionalOffer
@@ -4961,7 +2894,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
-                
+
                 promotionalOffers = new[]
                 {
                     new RoomPromotionalOffer
@@ -4975,7 +2908,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
-                
+
                 promotionalOffers = new[]
                 {
                     new RoomPromotionalOffer
@@ -4989,7 +2922,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
-                
+
                 promotionalOffers = new[]
                 {
                     new RoomPromotionalOffer
@@ -5003,7 +2936,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
-                
+
                 promotionalOffers = new[]
                 {
                     new RoomPromotionalOffer
@@ -5017,7 +2950,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
-                
+
                 promotionalOffers = new[]
                 {
                     new RoomPromotionalOffer
@@ -5031,205 +2964,210 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
+
                 #endregion
+
                 dbContext.SaveChanges();
+
                 #region AddAllocationRequirements
-                var roomIds = new []{ 71, 72, 73, 74};
+
+                roomIds = new[] {71, 72, 73, 74};
                 var roomAllocationRequirements = new[]
                 {
                     new RoomAllocationRequirement
                     {
                         ReleasePeriod = new ReleasePeriod {Days = 14},
-                        StartsFromDate = new DateTime(2019, 01, 14),
-                        EndsToDate = new DateTime(2019, 01, 31)
+                        StartDate = new DateTime(2019, 01, 14),
+                        EndDate = new DateTime(2019, 01, 31)
                     }
                 };
                 AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                 roomIds = new []{ 71, 72, 73, 74};
-                 roomAllocationRequirements = new[]
+
+                roomIds = new[] {71, 72, 73, 74};
+                roomAllocationRequirements = new[]
                 {
                     new RoomAllocationRequirement
                     {
                         ReleasePeriod = new ReleasePeriod {Days = 21},
-                        StartsFromDate = new DateTime(2019, 02, 01),
-                        EndsToDate = new DateTime(2019, 02, 04)
+                        StartDate = new DateTime(2019, 02, 01),
+                        EndDate = new DateTime(2019, 02, 04)
                     }
                 };
                 AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomIds = new []{ 71, 72, 73, 74};
+
+                roomIds = new[] {71, 72, 73, 74};
                 roomAllocationRequirements = new[]
                 {
                     new RoomAllocationRequirement
                     {
                         ReleasePeriod = new ReleasePeriod {Days = 35},
-                        StartsFromDate = new DateTime(2019, 02, 05),
-                        EndsToDate = new DateTime(2019, 02, 11)
+                        StartDate = new DateTime(2019, 02, 05),
+                        EndDate = new DateTime(2019, 02, 11)
                     }
                 };
                 AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomIds = new []{ 71, 72, 73, 74};
+
+                roomIds = new[] {71, 72, 73, 74};
                 roomAllocationRequirements = new[]
                 {
                     new RoomAllocationRequirement
                     {
                         ReleasePeriod = new ReleasePeriod {Days = 21},
-                        StartsFromDate = new DateTime(2019, 02, 12),
-                        EndsToDate = new DateTime(2019, 03, 27)
+                        StartDate = new DateTime(2019, 02, 12),
+                        EndDate = new DateTime(2019, 03, 27)
                     }
                 };
                 AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomIds = new []{ 71, 72, 73, 74};
+
+                roomIds = new[] {71, 72, 73, 74};
                 roomAllocationRequirements = new[]
                 {
                     new RoomAllocationRequirement
                     {
                         ReleasePeriod = new ReleasePeriod {Days = 35},
-                        StartsFromDate = new DateTime(2019, 03, 28),
-                        EndsToDate = new DateTime(2019, 04, 21)
+                        StartDate = new DateTime(2019, 03, 28),
+                        EndDate = new DateTime(2019, 04, 21)
                     }
                 };
                 AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomIds = new []{ 71, 72, 73, 74};
+
+                roomIds = new[] {71, 72, 73, 74};
                 roomAllocationRequirements = new[]
                 {
                     new RoomAllocationRequirement
                     {
                         ReleasePeriod = new ReleasePeriod {Days = 21},
-                        StartsFromDate = new DateTime(2019, 04, 22),
-                        EndsToDate = new DateTime(2019, 05, 05)
+                        StartDate = new DateTime(2019, 04, 22),
+                        EndDate = new DateTime(2019, 05, 05)
                     }
                 };
                 AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomIds = new []{ 71, 72, 73, 74};
+
+                roomIds = new[] {71, 72, 73, 74};
                 roomAllocationRequirements = new[]
                 {
                     new RoomAllocationRequirement
                     {
                         ReleasePeriod = new ReleasePeriod {Days = 7},
-                        StartsFromDate = new DateTime(2019, 05, 06),
-                        EndsToDate = new DateTime(2019, 08, 31)
+                        StartDate = new DateTime(2019, 05, 06),
+                        EndDate = new DateTime(2019, 08, 31)
                     }
                 };
                 AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomIds = new []{ 71, 72, 73, 74};
+
+                roomIds = new[] {71, 72, 73, 74};
                 roomAllocationRequirements = new[]
                 {
                     new RoomAllocationRequirement
                     {
                         ReleasePeriod = new ReleasePeriod {Days = 14},
-                        StartsFromDate = new DateTime(2019, 09, 01),
-                        EndsToDate = new DateTime(2019, 10, 12)
+                        StartDate = new DateTime(2019, 09, 01),
+                        EndDate = new DateTime(2019, 10, 12)
                     }
                 };
                 AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomIds = new []{ 71, 72, 73, 74};
+
+                roomIds = new[] {71, 72, 73, 74};
                 roomAllocationRequirements = new[]
                 {
                     new RoomAllocationRequirement
                     {
                         ReleasePeriod = new ReleasePeriod {Days = 21},
-                        StartsFromDate = new DateTime(2019, 10, 13),
-                        EndsToDate = new DateTime(2019, 10, 19)
+                        StartDate = new DateTime(2019, 10, 13),
+                        EndDate = new DateTime(2019, 10, 19)
                     }
                 };
                 AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomIds = new []{ 71, 72, 73, 74};
+
+                roomIds = new[] {71, 72, 73, 74};
                 roomAllocationRequirements = new[]
                 {
                     new RoomAllocationRequirement
                     {
                         ReleasePeriod = new ReleasePeriod {Days = 35},
-                        StartsFromDate = new DateTime(2019, 10, 20),
-                        EndsToDate = new DateTime(2019, 11, 09)
+                        StartDate = new DateTime(2019, 10, 20),
+                        EndDate = new DateTime(2019, 11, 09)
                     }
                 };
                 AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomIds = new []{ 71, 72, 73, 74};
+
+                roomIds = new[] {71, 72, 73, 74};
                 roomAllocationRequirements = new[]
                 {
                     new RoomAllocationRequirement
                     {
                         ReleasePeriod = new ReleasePeriod {Days = 21},
-                        StartsFromDate = new DateTime(2019, 11, 10),
-                        EndsToDate = new DateTime(2019, 12, 01)
+                        StartDate = new DateTime(2019, 11, 10),
+                        EndDate = new DateTime(2019, 12, 01)
                     }
                 };
                 AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomIds = new []{ 71, 72, 73, 74};
+
+                roomIds = new[] {71, 72, 73, 74};
                 roomAllocationRequirements = new[]
                 {
                     new RoomAllocationRequirement
                     {
                         ReleasePeriod = new ReleasePeriod {Days = 14},
-                        StartsFromDate = new DateTime(2019, 12, 02),
-                        EndsToDate = new DateTime(2019, 12, 21)
+                        StartDate = new DateTime(2019, 12, 02),
+                        EndDate = new DateTime(2019, 12, 21)
                     }
                 };
                 AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomIds = new []{ 71, 72, 73, 74};
+
+                roomIds = new[] {71, 72, 73, 74};
                 roomAllocationRequirements = new[]
                 {
                     new RoomAllocationRequirement
                     {
                         ReleasePeriod = new ReleasePeriod {Days = 21},
-                        StartsFromDate = new DateTime(2019, 12, 22),
-                        EndsToDate = new DateTime(2019, 12, 26)
+                        StartDate = new DateTime(2019, 12, 22),
+                        EndDate = new DateTime(2019, 12, 26)
                     }
                 };
                 AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomIds = new []{ 71, 72, 73, 74};
+
+                roomIds = new[] {71, 72, 73, 74};
                 roomAllocationRequirements = new[]
                 {
                     new RoomAllocationRequirement
                     {
                         ReleasePeriod = new ReleasePeriod {Days = 35},
-                        StartsFromDate = new DateTime(2019, 12, 27),
-                        EndsToDate = new DateTime(2020, 01, 04)
+                        StartDate = new DateTime(2019, 12, 27),
+                        EndDate = new DateTime(2020, 01, 04)
                     }
                 };
                 AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
-                roomIds = new []{ 71, 72, 73, 74};
+
+                roomIds = new[] {71, 72, 73, 74};
                 roomAllocationRequirements = new[]
                 {
                     new RoomAllocationRequirement
                     {
                         ReleasePeriod = new ReleasePeriod {Days = 21},
-                        StartsFromDate = new DateTime(2020, 01, 05),
-                        EndsToDate = new DateTime(2020, 01, 13)
+                        StartDate = new DateTime(2020, 01, 05),
+                        EndDate = new DateTime(2020, 01, 13)
                     }
                 };
                 AddRoomAllocationRequirements(dbContext, roomIds, roomAllocationRequirements);
-                
+
                 #endregion
+
                 dbContext.SaveChanges();
             }
         }
 
-
-        private static void FillRates(DirectContractsDbContext dbContext, (DateTime startDate, DateTime endDate)[] seasonsPeriods, List<(int, decimal)> roomIdsAndPrices)
+        private static void FillRates(DirectContractsDbContext dbContext,
+            (DateTime startDate, DateTime endDate)[] seasonsPeriods, List<(int, decimal)> roomIdsAndPrices)
         {
             foreach (var seasonPeriod in seasonsPeriods)
             {
                 foreach (var roomIdsAndPrice in roomIdsAndPrices)
                 {
-                    var rate = new RoomRate
+                    var rate = new RoomRateData
                     {
-                        StartsFromDate = seasonPeriod.startDate,
-                        EndsToDate = seasonPeriod.endDate,
+                        StartDate = seasonPeriod.startDate,
+                        EndDate = seasonPeriod.endDate,
                         RoomId = roomIdsAndPrice.Item1,
                         Price = roomIdsAndPrice.Item2,
                         CurrencyCode = "AED"
@@ -5240,7 +3178,6 @@ namespace Hiroshima.DirectContractsDataSeeder
             }
         }
 
-        
         private static void AddPromotionalOffers(DirectContractsDbContext dbContext, int[] roomIds,
             RoomPromotionalOffer[] promotionalOffers)
         {
@@ -5250,14 +3187,13 @@ namespace Hiroshima.DirectContractsDataSeeder
                 {
                     promotionalOffer.RoomId = id;
                 }
-                var serialized = JsonConvert.SerializeObject(promotionalOffers, new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore
-                });
-                dbContext.RoomPromotionalOffers.AddRange(JsonConvert.DeserializeObject<IEnumerable<RoomPromotionalOffer>>(serialized));
+
+                var serialized = JsonConvert.SerializeObject(promotionalOffers,
+                    new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore});
+                dbContext.RoomPromotionalOffers.AddRange(
+                    JsonConvert.DeserializeObject<IEnumerable<RoomPromotionalOffer>>(serialized));
             }
         }
-
 
         private static void AddRoomAllocationRequirements(DirectContractsDbContext dbContext, int[] ids,
             RoomAllocationRequirement[] roomAllocationRequirements)
@@ -5267,15 +3203,30 @@ namespace Hiroshima.DirectContractsDataSeeder
                 foreach (var roomAllocationRequirement in roomAllocationRequirements)
                 {
                     roomAllocationRequirement.RoomId = id;
-                    dbContext.RoomAllocationRequirements.Add(roomAllocationRequirement);
                 }
-                var serialized = JsonConvert.SerializeObject(roomAllocationRequirements, new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore
-                });
-                dbContext.RoomAllocationRequirements.AddRange(JsonConvert.DeserializeObject<IEnumerable<RoomAllocationRequirement>>(serialized));
+
+                var serialized = JsonConvert.SerializeObject(roomAllocationRequirements,
+                    new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore});
+                dbContext.RoomAllocationRequirements.AddRange(
+                    JsonConvert.DeserializeObject<IEnumerable<RoomAllocationRequirement>>(serialized));
             }
         }
-        
+
+
+        private static void AddCancellationPolicies(DirectContractsDbContext dbContext,
+            (DateTime startsFrom, DateTime endsTo)[] seasonDates, int[] roomIds, RoomCancellationPolicy roomCancellationPolicy)
+        {
+            foreach (var (startsFrom, endsTo) in seasonDates)
+            {
+                foreach (var roomId in roomIds)
+                {
+                    roomCancellationPolicy.RoomId = roomId;
+                    roomCancellationPolicy.StartDate = startsFrom;
+                    roomCancellationPolicy.EndDate = endsTo;
+                    var serialized = JsonConvert.SerializeObject(roomCancellationPolicy);
+                    dbContext.CancellationPolicies.Add(JsonConvert.DeserializeObject<RoomCancellationPolicy>(serialized));
+                }
+            }
+        }
     }
 }

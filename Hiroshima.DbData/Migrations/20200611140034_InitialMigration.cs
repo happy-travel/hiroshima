@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using Hiroshima.Common.Models;
+using Hiroshima.Common.Models.Enums;
 using Hiroshima.DbData.Models.Accommodation;
 using Hiroshima.DbData.Models.Booking;
+using Hiroshima.DbData.Models.Location;
 using Hiroshima.DbData.Models.Rooms;
+using Hiroshima.DbData.Models.Rooms.CancellationPolicies;
 using Hiroshima.DbData.Models.Rooms.Occupancy;
 using Microsoft.EntityFrameworkCore.Migrations;
 using NetTopologySuite.Geometries;
@@ -16,6 +19,9 @@ namespace Hiroshima.DbData.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterDatabase()
+                .Annotation("Npgsql:Enum:accommodation_rating", "unknown,not_rated,one_star,two_stars,three_stars,four_stars,five_stars")
+                .Annotation("Npgsql:Enum:location_types", "zone,city,country,point_of_interest")
+                .Annotation("Npgsql:Enum:sale_restrictions", "stop_sale")
                 .Annotation("Npgsql:PostgresExtension:postgis", ",,")
                 .Annotation("Npgsql:PostgresExtension:uuid-ossp", ",,");
 
@@ -41,19 +47,53 @@ namespace Hiroshima.DbData.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CancellationPolicies",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    RoomId = table.Column<int>(nullable: false),
+                    StartDate = table.Column<DateTime>(nullable: false),
+                    EndDate = table.Column<DateTime>(nullable: false),
+                    CancellationPolicyData = table.Column<List<CancellationPolicyData>>(type: "jsonb", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CancellationPolicies", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Countries",
+                columns: table => new
+                {
+                    Code = table.Column<string>(nullable: false),
+                    Name = table.Column<MultiLanguage<string>>(type: "jsonb", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Countries", x => x.Code);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Locations",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<MultiLanguage<string>>(type: "jsonb", nullable: false),
-                    Type = table.Column<int>(nullable: false),
-                    CountryCode = table.Column<string>(nullable: true),
+                    Type = table.Column<LocationTypes>(nullable: false),
+                    CountryCode = table.Column<string>(nullable: false),
                     ParentId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Locations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Locations_Countries_CountryCode",
+                        column: x => x.CountryCode,
+                        principalTable: "Countries",
+                        principalColumn: "Code",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -66,7 +106,7 @@ namespace Hiroshima.DbData.Migrations
                     Address = table.Column<MultiLanguage<string>>(type: "jsonb", nullable: false),
                     TextualDescription = table.Column<MultiLanguage<TextualDescription>>(type: "jsonb", nullable: true),
                     Coordinates = table.Column<Point>(type: "geometry (point)", nullable: false),
-                    Rating = table.Column<int>(nullable: false),
+                    Rating = table.Column<AccommodationRating>(nullable: false),
                     CheckInTime = table.Column<string>(nullable: true),
                     CheckOutTime = table.Column<string>(nullable: true),
                     Pictures = table.Column<MultiLanguage<List<Picture>>>(type: "jsonb", nullable: true),
@@ -75,6 +115,7 @@ namespace Hiroshima.DbData.Migrations
                     AccommodationAmenities = table.Column<MultiLanguage<List<string>>>(type: "jsonb", nullable: true),
                     RoomAmenities = table.Column<List<string>>(type: "jsonb", nullable: true),
                     AdditionalInfo = table.Column<MultiLanguage<Dictionary<string, string>>>(type: "jsonb", nullable: true),
+                    OccupancyDefinition = table.Column<OccupancyDefinition>(type: "jsonb", nullable: true),
                     LocationId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
@@ -98,7 +139,7 @@ namespace Hiroshima.DbData.Migrations
                     Name = table.Column<MultiLanguage<string>>(type: "jsonb", nullable: false),
                     Description = table.Column<MultiLanguage<string>>(type: "jsonb", nullable: true),
                     Amenities = table.Column<MultiLanguage<List<string>>>(type: "jsonb", nullable: true),
-                    PermittedOccupancies = table.Column<PermittedOccupancies>(type: "jsonb", nullable: false)
+                    OccupancyConfigurations = table.Column<List<OccupancyConfiguration>>(type: "jsonb", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -118,11 +159,11 @@ namespace Hiroshima.DbData.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     RoomId = table.Column<int>(nullable: false),
-                    StartsFromDate = table.Column<DateTime>(nullable: false),
-                    EndsToDate = table.Column<DateTime>(nullable: false),
+                    StartDate = table.Column<DateTime>(nullable: false),
+                    EndDate = table.Column<DateTime>(nullable: false),
                     ReleasePeriod = table.Column<ReleasePeriod>(type: "jsonb", nullable: true),
                     MinimumStayNights = table.Column<int>(nullable: true),
-                    Allotment = table.Column<int>(nullable: true, defaultValue: 0)
+                    Allotment = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -142,9 +183,9 @@ namespace Hiroshima.DbData.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     RoomId = table.Column<int>(nullable: false),
-                    StartsFromDate = table.Column<DateTime>(type: "jsonb", nullable: false),
-                    EndsToDate = table.Column<DateTime>(type: "jsonb", nullable: false),
-                    Restrictions = table.Column<SaleRestrictions>(type: "jsonb", nullable: false)
+                    StartDate = table.Column<DateTime>(nullable: false),
+                    EndDate = table.Column<DateTime>(nullable: false),
+                    Restrictions = table.Column<SaleRestrictions>(nullable: false, defaultValue: SaleRestrictions.StopSale)
                 },
                 constraints: table =>
                 {
@@ -190,8 +231,8 @@ namespace Hiroshima.DbData.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     RoomId = table.Column<int>(nullable: false),
                     Price = table.Column<decimal>(nullable: false),
-                    StartsFromDate = table.Column<DateTime>(nullable: false),
-                    EndsToDate = table.Column<DateTime>(nullable: false),
+                    StartDate = table.Column<DateTime>(nullable: false),
+                    EndDate = table.Column<DateTime>(nullable: false),
                     CurrencyCode = table.Column<string>(nullable: false),
                     BoardBasis = table.Column<string>(nullable: true),
                     MealPlan = table.Column<string>(nullable: true)
@@ -208,9 +249,20 @@ namespace Hiroshima.DbData.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Accommodations_Coordinates",
+                table: "Accommodations",
+                column: "Coordinates")
+                .Annotation("Npgsql:IndexMethod", "GIST");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Accommodations_LocationId",
                 table: "Accommodations",
                 column: "LocationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Locations_CountryCode",
+                table: "Locations",
+                column: "CountryCode");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoomAllocationRequirements_RoomId",
@@ -244,6 +296,9 @@ namespace Hiroshima.DbData.Migrations
                 name: "BookingOrders");
 
             migrationBuilder.DropTable(
+                name: "CancellationPolicies");
+
+            migrationBuilder.DropTable(
                 name: "RoomAllocationRequirements");
 
             migrationBuilder.DropTable(
@@ -263,6 +318,9 @@ namespace Hiroshima.DbData.Migrations
 
             migrationBuilder.DropTable(
                 name: "Locations");
+
+            migrationBuilder.DropTable(
+                name: "Countries");
         }
     }
 }

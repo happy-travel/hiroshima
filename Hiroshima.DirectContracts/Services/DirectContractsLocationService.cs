@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -23,7 +24,7 @@ namespace Hiroshima.DirectContracts.Services
 
         public async Task<List<Location>> GetLocations()
         {
-            var locations = _dbContext.Locations
+           /* var locations = _dbContext.Locations
                 .Include(i => i.Accommodation)
                 .Include(i => i.Locality)
                 .Include(i => i.Locality.Country)
@@ -34,7 +35,8 @@ namespace Hiroshima.DirectContracts.Services
                     default,
                     default,
                     LocationTypes.Location));
-            return await locations.ToListAsync();
+            return await locations.ToListAsync();*/
+            throw new NotImplementedException();
         }
 
 

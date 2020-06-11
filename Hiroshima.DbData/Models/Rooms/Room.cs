@@ -11,6 +11,6 @@ namespace Hiroshima.DbData.Models.Rooms
         public MultiLanguage<string> Name { get; set; }
         public MultiLanguage<string> Description { get; set; }
         public MultiLanguage<List<string>> Amenities { get; set; }
-        public PermittedOccupancies PermittedOccupancies { get; set; } 
+        public List<OccupancyConfiguration> OccupancyConfigurations { get; set; }
     }
 }

@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Hiroshima.DbData.Models.Rates;
+// Hiroshima.DbData.Models.Rates;
 using Hiroshima.DirectContracts.Models.Internal;
+using Hiroshima.DirectContracts.Models.Internal.Response;
 
 namespace Hiroshima.DirectContracts.Services
 {
     public class PricesService : IPricesService
     {
-        public List<SeasonPrice> GetSeasonPrices(ICollection<ContractedRate> contractRates,
+      /*  public List<SeasonPrice> GetSeasonPrices(ICollection<ContractedRate> contractRates,
             ICollection<DiscountRate> discountRates, DateTime checkInDate,
             DateTime checkOutDate)
         {
@@ -111,7 +112,7 @@ namespace Hiroshima.DirectContracts.Services
             return day.Date >= startDate.Date &&
                    day.Date <= endDate.Date;
         }
-
+*/
 
         private static readonly List<SeasonPrice> EmptyDailyPrices = new List<SeasonPrice>(0);
     }

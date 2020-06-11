@@ -8,6 +8,7 @@ namespace Hiroshima.DirectContracts.Services
     {
         public DateTime GetDeadline(Room room, DateTime checkInDate)
         {
+            /*
             var startSeason = room.ContractRates.FirstOrDefault()?.Season;
 
             if (startSeason == default)
@@ -20,6 +21,8 @@ namespace Hiroshima.DirectContracts.Services
                 return default;
 
             return checkInDate.AddDays(-policyDetails.FromDays);
+            */
+            throw new NotImplementedException();
         }
     }
 }

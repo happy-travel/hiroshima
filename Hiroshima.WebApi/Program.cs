@@ -19,11 +19,7 @@ namespace Hiroshima.WebApi
                     webBuilder.UseStartup<Startup>();
                     webBuilder.ConfigureLogging(logging =>
                     {
-                        logging.AddConsole(options =>
-                        {
-                            options.LogToStandardErrorThreshold = LogLevel.Information;
-                            options.IncludeScopes = true;
-                        });
+                        logging.AddConsole();
                     });
                 });
     }

@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Net;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using HappyTravel.EdoContracts.Accommodations;
 using Hiroshima.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -9,35 +10,31 @@ namespace Hiroshima.WebApi.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}")]
+    [Route("api/{v:apiVersion}/accommodations")]
     [Produces("application/json")]
     public class AccommodationsController : Controller
     {
-        public AccommodationsController(IAvailability availability)
+        public AccommodationsController(IAvailabilityService availabilityService)
         {
-            _availability = availability;
+            _availabilityService = availabilityService;
         }
 
 
-        /// <summary>
-        ///     The method returns availability details
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        [HttpPost("accommodations/availabilities")]
-        [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(AvailabilityDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> SearchAvailabilities([FromBody] AvailabilityRequest request)
+        [HttpPost("availabilities")]
+        [ProducesResponseType(typeof(AvailabilityDetails), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetAvailability([FromBody] AvailabilityRequest request)
         {
-            var result = await _availability.GetAvailabilities(request, CultureInfo.CurrentCulture.Name);
+            //TODO change LanguageCode !!!
+            var (_, isFailure, value, error) = await _availabilityService.GetAvailabilityDetails(request, LanguageCode);
+            if (isFailure)
+                return BadRequest(error);
 
-            if (result.IsFailure)
-                return BadRequest(result.Error);
-
-            return Ok(result.Value);
+            return Ok(value);
         }
 
-
-        private readonly IAvailability _availability;
+        
+        private string LanguageCode => CultureInfo.CurrentCulture.Name;
+        private readonly IAvailabilityService _availabilityService;
     }
 }

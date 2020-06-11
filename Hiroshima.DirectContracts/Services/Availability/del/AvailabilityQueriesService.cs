@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Linq;
 using Hiroshima.DbData;
-using Hiroshima.DirectContracts.Models.RawAvailiability;
+using Hiroshima.DirectContracts.Models.Internal;
 using NetTopologySuite.Geometries;
 
-namespace Hiroshima.DirectContracts.Services.Availability
+namespace Hiroshima.DirectContracts.Services.Availability.del
 {
     public class AvailabilityQueriesService : IAvailabilityQueriesService
     {
+        
         public AvailabilityQueriesService(DirectContractsDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -36,7 +37,7 @@ namespace Hiroshima.DirectContracts.Services.Availability
 
         private IQueryable<RawAvailabilityData> GetAvailability(DateTime checkInDate, DateTime checkOutDate)
         {
-            var utcNowDate = DateTime.UtcNow.Date;
+         /*   var utcNowDate = DateTime.UtcNow.Date;
             var daysToCheckIn = (checkInDate - utcNowDate).Days;
             var daysOfStay = (checkOutDate - checkInDate).Days;
 
@@ -105,10 +106,11 @@ namespace Hiroshima.DirectContracts.Services.Availability
                     RoomDetails = permittedOccupancy,
                     DiscountRate = subPromotionalOffer,
                     CancelationPolicy = seasonAndRate.CancelationPolicy
-                };
+                };*/
+         throw new NotImplementedException();
         }
 
-
+    
         private readonly DirectContractsDbContext _dbContext;
     }
 }

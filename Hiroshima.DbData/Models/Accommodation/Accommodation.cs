@@ -22,6 +22,7 @@ namespace Hiroshima.DbData.Models.Accommodation
         public MultiLanguage<List<string>> AccommodationAmenities { get; set; }
         public List<string> RoomAmenities { get; set; }
         public MultiLanguage<Dictionary<string, string>> AdditionalInfo { get; set; }
+        public OccupancyDefinition OccupancyDefinition { get; set; }
         public int LocationId { get; set; }
     }
 }

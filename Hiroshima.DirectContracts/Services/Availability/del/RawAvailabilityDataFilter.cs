@@ -1,13 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using HappyTravel.EdoContracts.Accommodations.Internals;
-using Hiroshima.DirectContracts.Models.RawAvailiability;
-using NpgsqlTypes;
-
-namespace Hiroshima.DirectContracts.Services.Availability
+﻿namespace Hiroshima.DirectContracts.Services.Availability.del
 {
     public class RawAvailabilityDataFilter : IRawAvailabilityDataFilter
     {
+        /*
         public List<RawAvailabilityData> ByRoomDetails(List<RawAvailabilityData> availabilityData, List<RoomDetails> roomDetails)
         {
             var availabilityResult = new List<RawAvailabilityData>();
@@ -49,6 +44,6 @@ namespace Hiroshima.DirectContracts.Services.Availability
 
                 return false;
             }
-        }
+        }*/
     }
 }

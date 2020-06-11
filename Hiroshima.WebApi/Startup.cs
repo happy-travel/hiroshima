@@ -3,8 +3,11 @@ using System.Globalization;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Geography;
 using HappyTravel.VaultClient;
+using Hiroshima.Common.Infrastructure;
 using Hiroshima.DirectContracts.Extensions;
 using Hiroshima.DirectContracts.Infrastructure.Options;
+using Hiroshima.DirectContracts.Services;
+using Hiroshima.DirectContracts.Services.Availability;
 using Hiroshima.WebApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -39,25 +42,11 @@ namespace Hiroshima.WebApi
                 options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
             });
 
-            DbOptions bookingDbOptions;
-            using (var vaultClient = new VaultClient(new VaultOptions
-            {
-                Engine = Configuration["Vault:Engine"],
-                Role = Configuration["Vault:Role"],
-                BaseUrl = new Uri(Configuration[Configuration["Vault:Endpoint"]])
-            }, null))
-            {
-                vaultClient.Login(Configuration[Configuration["Vault:Token"]]).GetAwaiter().GetResult();
-                var dbOptions = vaultClient.Get(Configuration["DirectContracts:Database:Options"]).GetAwaiter()
-                    .GetResult();
-                bookingDbOptions = new DbOptions(
-                    dbOptions["host"],
-                    int.Parse(dbOptions["port"]),
-                    dbOptions["database"],
-                    dbOptions["userId"],
-                    dbOptions["password"]);
-            }
-
+            using var vaultClient = StartupHelper.CreateVaultClient(Configuration);
+            vaultClient.Login(Configuration[Configuration["Vault:Token"]]).GetAwaiter().GetResult();
+            //var dbConnectionString = StartupHelper.GetDbConnectionString(vaultClient, "DirectContracts:Database", Configuration);
+            var dbConnectionString = "Server=localhost;Port=5433;Database=directcontracts;Userid=postgres;Password=postgress";
+            
             services.AddApiVersioning(options =>
             {
                 options.AssumeDefaultVersionWhenUnspecified = false;
@@ -95,11 +84,11 @@ namespace Hiroshima.WebApi
                     options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider {Options = options});
                 });
 
-            services.AddDirectContractsServices(bookingDbOptions);
+            services.AddDirectContractsServices(new DcOptions{ConnectionString = dbConnectionString});
             services.AddSingleton(
                 NtsGeometryServices.Instance.CreateGeometryFactory(
                     GeoConstants.SpatialReferenceId));
-            services.AddTransient<IAvailability, Availability>();
+            services.AddTransient<IAvailabilityService, AvailabilityService>();
         }
 
 

@@ -1,21 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.EdoContracts.General;
-using HappyTravel.EdoContracts.General.Enums;
-using HappyTravel.Geography;
-using Hiroshima.Common.Models;
 using Hiroshima.Common.Models.Enums;
-using Hiroshima.Common.Utils.Languages;
 using Hiroshima.DbData.Models.Accommodation;
-using Hiroshima.DbData.Models.Location;
-using Hiroshima.DbData.Models.Rooms;
-using Hiroshima.DirectContracts.Models.RawAvailiability;
-using RoomDetails = HappyTravel.EdoContracts.Accommodations.Internals.RoomDetails;
 
-namespace Hiroshima.DirectContracts.Services.Availability
+//using RoomDetails = HappyTravel.EdoContracts.Accommodations.Internals.RoomDetails;
+
+namespace Hiroshima.DirectContracts.Services.Availability.del
 {
     public class AvailabilityResponseService : IAvailabilityResponseService
     {
@@ -29,37 +20,38 @@ namespace Hiroshima.DirectContracts.Services.Availability
 
         public AvailabilityDetails GetEmptyAvailabilityDetails(DateTime checkInDate, DateTime checkOutDate)
         {
-            return new AvailabilityDetails(default,
+           /* return new AvailabilityDetails(default,
                 CalculateNumberOfNights(checkInDate, checkOutDate),
                 checkInDate,
-                checkOutDate,
-                EmptySlimAvailabilityResults);
+                checkOutDate,*
+                EmptySlimAvailabilityResults);*/
+           throw new NotImplementedException();
         }
 
 
-        public AvailabilityDetails GetAvailabilityDetails(DateTime checkInDate,
+       /* public AvailabilityDetails GetAvailabilityDetails(DateTime checkInDate,
             DateTime checkOutDate,
             List<RawAvailabilityData> rawAvailabilityData,
-            Language language)
+            Languages languages)
         {
             if (!rawAvailabilityData.Any())
                 return GetEmptyAvailabilityDetails(checkInDate, checkOutDate);
 
             var accommodations = RawAwailabilityDataHelper.OrganizeAvailabilityData(rawAvailabilityData);
-            return CreateAvailabilityDetails(accommodations, checkInDate, checkOutDate, language);
+            return CreateAvailabilityDetails(accommodations, checkInDate, checkOutDate, languages);
         }
-
+*/
 
         private AvailabilityDetails CreateAvailabilityDetails(ICollection<Accommodation> accommodations,
             DateTime checkInDate, DateTime checkOutDate,
-            Language language)
+            Languages languages)
         {
-            var slimAvailabilityResult = new List<SlimAvailabilityResult>(accommodations.Count);
+            /*var slimAvailabilityResult = new List<SlimAvailabilityResult>(accommodations.Count);
 
             foreach (var accommodation in accommodations)
             {
-                var accommodationDetails = CreateSlimAccommodationDetails(accommodation, language);
-                var agreements = CreateAgreements(accommodation.Rooms, checkInDate, checkOutDate, language);
+                var accommodationDetails = CreateSlimAccommodationDetails(accommodation, languages);
+                var agreements = CreateAgreements(accommodation.Rooms, checkInDate, checkOutDate, languages);
                 slimAvailabilityResult.Add(new SlimAvailabilityResult(accommodationDetails, agreements));
             }
 
@@ -67,12 +59,13 @@ namespace Hiroshima.DirectContracts.Services.Availability
                 CalculateNumberOfNights(checkInDate, checkOutDate),
                 checkInDate,
                 checkOutDate,
-                slimAvailabilityResult);
+                slimAvailabilityResult);*/
+            throw new NotImplementedException();
         }
 
-
+/*
         private List<Agreement> CreateAgreements(ICollection<Room> rooms, DateTime checkInDate, DateTime checkOutDate,
-            Language language)
+            Languages languages)
         {
             var agreements = new List<Agreement>();
             foreach (var room in rooms)
@@ -96,7 +89,7 @@ namespace Hiroshima.DirectContracts.Services.Availability
                     new DailyPrice(i.StartDate, i.EndDate, currencyCode, i.TotalPrice, i.TotalPrice)).ToList();
 
                 var roomsDetails = GetRoomDetails(room.RoomDetails.ToList());
-                var contractType = room.Name.TryGetValue(language);
+                var contractType = room.Name.TryGetValue(languages);
                 var remarks = new Dictionary<string, string>(0);
 
                 agreements.Add(new Agreement(
@@ -119,18 +112,18 @@ namespace Hiroshima.DirectContracts.Services.Availability
 
             return agreements;
         }
-
-
-        private SlimAccommodationDetails CreateSlimAccommodationDetails(Accommodation accommodation, Language language)
+*/
+/*
+        private SlimAccommodationDetails CreateSlimAccommodationDetails(Accommodation accommodation, Languages languages)
         {
             var accommodationId = accommodation.Id.ToString();
-            var accommodationAmenities = GetAccommodationAmenities(accommodation, language);
-            var additionalInfo = GetAdditionalInfo(accommodation.AdditionalInfo, language);
+            var accommodationAmenities = GetAccommodationAmenities(accommodation, languages);
+            var additionalInfo = GetAdditionalInfo(accommodation.AdditionalInfo, languages);
             var featureInfo = GetFeaturesInfo(accommodation.Features);
-            var locationInfo = GetLocationInfo(accommodation.Location, language);
-            var picture = GetPicture(accommodation.Picture, language);
-            var roomAmenities = GetRoomAmenities(accommodation.RoomAmenities, language);
-            var textualDescription = GetTextualDescription(accommodation.TextualDescription, language);
+            var locationInfo = GetLocationInfo(accommodation.Location, languages);
+            var picture = GetPicture(accommodation.Picture, languages);
+            var roomAmenities = GetRoomAmenities(accommodation.RoomAmenities, languages);
+            var textualDescription = GetTextualDescription(accommodation.TextualDescription, languages);
 
             return new SlimAccommodationDetails(
                 accommodationId,
@@ -138,7 +131,7 @@ namespace Hiroshima.DirectContracts.Services.Availability
                 additionalInfo,
                 featureInfo,
                 locationInfo,
-                accommodation.Name.TryGetValue(language),
+                accommodation.Name.TryGetValue(languages),
                 picture,
                 accommodation.Rating,
                 roomAmenities,
@@ -147,12 +140,12 @@ namespace Hiroshima.DirectContracts.Services.Availability
         }
 
 
-        private List<string> GetAccommodationAmenities(Accommodation accommodation, Language language)
+        private List<string> GetAccommodationAmenities(Accommodation accommodation, Languages languages)
         {
             return accommodation.Amenities == null ||
                    !accommodation.Amenities.Any()
                 ? EmptyStringList
-                : accommodation.Amenities.Select(i => i.TryGetValue(language)).ToList();
+                : accommodation.Amenities.Select(i => i.TryGetValue(languages)).ToList();
         }
 
 
@@ -163,41 +156,41 @@ namespace Hiroshima.DirectContracts.Services.Availability
 
 
         private Dictionary<string, string> GetAdditionalInfo(Dictionary<string, MultiLanguage<string>> additionalInfo,
-            Language language)
+            Languages languages)
         {
             return additionalInfo == null ||
                    !additionalInfo.Any()
                 ? EmptyStringDictionary
                 : additionalInfo.ToDictionary(k => k.Key,
-                    v => v.Value.TryGetValue(language));
+                    v => v.Value.TryGetValue(languages));
         }
 
 
-        private SlimLocationInfo GetLocationInfo(Location location, Language language)
+        private SlimLocationInfo GetLocationInfo(Location location, Languages languages)
         {
-            return new SlimLocationInfo(location.Address.TryGetValue(language),
-                location.Locality.Country.Name.TryGetValue(language),
-                location.Locality.Name.TryGetValue(language),
+            return new SlimLocationInfo(location.Address.TryGetValue(languages),
+                location.Locality.Country.Name.TryGetValue(languages),
+                location.Locality.Name.TryGetValue(languages),
                 string.Empty,
                 new GeoPoint(location.Coordinates.X, location.Coordinates.Y));
         }
 
 
-        private Picture GetPicture(Common.Models.Accommodation.Picture picture, Language language)
+        private Picture GetPicture(Common.Models.Accommodation.Picture picture, Languages languages)
         {
             return picture == null
                 ? default
                 : new Picture(picture.Source,
-                    picture.Caption.TryGetValue(language));
+                    picture.Caption.TryGetValue(languages));
         }
 
 
-        private static List<string> GetRoomAmenities(List<MultiLanguage<string>> roomAmenities, Language language)
+        private static List<string> GetRoomAmenities(List<MultiLanguage<string>> roomAmenities, Languages languages)
         {
             return roomAmenities == null ||
                    !roomAmenities.Any()
                 ? EmptyStringList
-                : roomAmenities.Select(i => i.TryGetValue(language)).ToList();
+                : roomAmenities.Select(i => i.TryGetValue(languages)).ToList();
         }
 
 
@@ -210,11 +203,11 @@ namespace Hiroshima.DirectContracts.Services.Availability
 
 
         private TextualDescription GetTextualDescription(
-            Common.Models.Accommodation.TextualDescription textualDescription, Language language)
+            Common.Models.Accommodation.TextualDescription textualDescription, Languages languages)
         {
             return Equals(textualDescription, null)
                 ? default
-                : new TextualDescription(textualDescription.Type, textualDescription.Description.TryGetValue(language));
+                : new TextualDescription(textualDescription.Type, textualDescription.Description.TryGetValue(languages));
         }
 
 
@@ -222,14 +215,14 @@ namespace Hiroshima.DirectContracts.Services.Availability
         {
             return roomDetails.Select(i => new RoomDetails(i.AdultsNumber, i.ChildrenNumber)).ToList();
         }
-
+*/
 
         private static readonly List<string> EmptyStringList = new List<string>(0);
         private static readonly Dictionary<string, string> EmptyStringDictionary = new Dictionary<string, string>(0);
 
-        private static readonly List<SlimAvailabilityResult> EmptySlimAvailabilityResults =
+       /* private static readonly List<SlimAvailabilityResult> EmptySlimAvailabilityResults =
             new List<SlimAvailabilityResult>(0);
-
+*/
         private readonly ICancelationPoliciesService _cancelationPoliciesService;
 
 

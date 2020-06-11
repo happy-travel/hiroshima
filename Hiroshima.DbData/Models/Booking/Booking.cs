@@ -6,7 +6,7 @@ using Hiroshima.DbData.Models.Rooms;
 
 namespace Hiroshima.DbData.Models.Booking
 {
-    public class BookingOrder
+    public class Booking
     {
         public int Id { get; set; }
         public string ReferenceCode { get; set; }
