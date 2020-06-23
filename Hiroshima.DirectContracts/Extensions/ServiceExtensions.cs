@@ -15,7 +15,7 @@ namespace Hiroshima.DirectContracts.Extensions
             if (dcOptions == null)
                 throw new ArgumentNullException($"{nameof(dcOptions)} is null");
             
-            services.AddEntityFrameworkNpgsql().AddDbContextPool<DirectContractsDbContext>(options =>
+            services.AddEntityFrameworkNpgsql().AddDbContextPool<DcDbContext>(options =>
             {
                 options.UseNpgsql(dcOptions.ConnectionString, npgsqlOptions =>
                     {
@@ -27,18 +27,13 @@ namespace Hiroshima.DirectContracts.Extensions
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             }, 16);
 
-            services.AddTransient<IDirectContractsAvailabilityService, DirectContractsAvailabilityService>();
-            services.AddTransient<IDirectContractsRoomAvailabilityService, DirectContractsRoomAvailabilityService>();
-            services.AddTransient<IDirectContractsAccommodationAvailabilityService, DirectContractsAccommodationAvailabilityService>();
-            services.AddTransient<IDirectContractsRateAvailabilityService, DirectContractsRateAvailabilityService>();
-            services.AddTransient<IDirectContractsCancellationPoliciesService, DirectContractsCancellationPoliciesService>();
-       
-            /*services.AddTransient<IDirectContractsLocationService, DirectContractsLocationService>();
-            services.AddTransient<IAvailabilityQueriesService, AvailabilityQueriesService>();
-            services.AddTransient<IAvailabilityResponseService, AvailabilityResponseService>();
-            services.AddTransient<IRawAvailabilityDataFilter, RawAvailabilityDataFilter>();
-            services.AddTransient<IPricesService, PricesService>();
-            services.AddTransient<ICancelationPoliciesService, CancelationPoliciesService>();*/
+            services.AddTransient<IDcAvailabilityService, DcAvailabilityService>();
+            services.AddTransient<IDcRoomAvailabilityService, DcRoomAvailabilityService>();
+            services.AddTransient<IDcAccommodationAvailabilityService, DcAccommodationAvailabilityService>();
+            services.AddTransient<IDcRateAvailabilityService, DcRateAvailabilityService>();
+            services.AddTransient<IDcCancellationPoliciesService, DcCancellationPoliciesService>();
+            services.AddSingleton<IDcAvailableRatePaymentService, DcAvailableRatePaymentService>();
+            services.AddSingleton<IDcCancellationPoliciesService, DcCancellationPoliciesService>();
 
             return services;
         }

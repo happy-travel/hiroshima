@@ -5,6 +5,7 @@ using HappyTravel.EdoContracts.Accommodations.Enums;
 using Hiroshima.Common.Models;
 using Hiroshima.Common.Models.Enums;
 using Hiroshima.DbData;
+using Hiroshima.DbData.Extensions;
 using Hiroshima.DbData.Models;
 using Hiroshima.DbData.Models.Accommodation;
 using Hiroshima.DbData.Models.Rooms;
@@ -19,163 +20,101 @@ namespace Hiroshima.DirectContractsDataSeeder
 {
     internal static class DataSeeder
     {
-        internal static void AddData(DirectContractsDbContext dbContext)
+        internal static void AddData(DcDbContext dbContext)
         {
             AddLocations(dbContext);
             AddOneAndOnlyContract(dbContext);
             AddJumeriahContract(dbContext);
         }
 
-        private static void AddLocations(DirectContractsDbContext dbContext)
+        private static void AddLocations(DcDbContext dbContext)
         {
             #region AddCountries
 
-            dbContext.Countries.AddRange(new Location.Country
+            var country = new Location.Country
             {
-                Code = "AE",
-                Name = new MultiLanguage<string>
-                {
-                    En = "The United Arab Emirates",
-                    Ru = "Объединенные Арабские Эмираты",
-                    Ar = "الإمارات العربية المتحدة"
-                }
+                Code = "AE"
+            };
+
+            country.SetName(new MultiLanguage<string>
+            {
+                En = "The United Arab Emirates",
+                Ru = "Объединенные Арабские Эмираты",
+                Ar = "الإمارات العربية المتحدة"
             });
+
+            dbContext.Countries.Add(country);
 
             #endregion
 
             #region AddLocations
 
-            dbContext.Locations.AddRange(
-                new Location.Location
-                {
-                    Id = 1,
-                    Name = new MultiLanguage<string>
-                    {
-                        En = "The United Arab Emirates",
-                        Ru = "Объединенные Арабские Эмираты",
-                        Ar = "الإمارات العربية المتحدة"
-                    },
-                    CountryCode = "AE",
-                    Type = Location.LocationTypes.Country,
-                    ParentId = 0
-                },
-                new Location.Location
-                {
-                    Id = 2,
-                    Name = new MultiLanguage<string> {Ar = "دبي", En = "Dubai", Ru = "Дубай"},
-                    Type = Location.LocationTypes.City,
-                    CountryCode = "AE",
-                    ParentId = 1
-                });
+            var location = new Location.Location
+            {
+                Id = 1,
+                CountryCode = "AE",
+                Type = Location.LocationTypes.Country,
+                ParentId = 0
+            };
+
+            location.SetName(new MultiLanguage<string>
+            {
+                En = "The United Arab Emirates",
+                Ru = "Объединенные Арабские Эмираты",
+                Ar = "الإمارات العربية المتحدة"
+            });
+
+            dbContext.Locations.Add(location);
+
+            location = new Location.Location
+            {
+                Id = 2,
+                Type = Location.LocationTypes.City,
+                CountryCode = "AE",
+                ParentId = 1
+            };
+
+            location.SetName(new MultiLanguage<string>
+            {
+                Ar = "دبي",
+                En = "Dubai",
+                Ru = "Дубай"
+            });
+            dbContext.Locations.Add(location);
 
             #endregion
 
             dbContext.SaveChanges();
         }
 
-        private static void AddOneAndOnlyContract(DirectContractsDbContext dbContext)
+
+        private static int GetLocationId(DcDbContext dbContext)
         {
-            var accommodation = dbContext.Accommodations.FirstOrDefault(a => a.Name.En.Equals("ONE&ONLY ROYAL MIRAGE"));
-            if (accommodation == null)
+            var location = dbContext.Locations.Where(l =>
+                    l.Name.RootElement.GetProperty("en").GetString() == "Dubai" &&
+                    l.Type == Location.LocationTypes.City)
+                .SingleOrDefault();
+            return location.Id;
+        }
+
+
+        private static void AddOneAndOnlyContract(DcDbContext dbContext)
+        {
+            var accommodationWithLocation =
+              dbContext.GetAccommodations("ONE&ONLY ROYAL MIRAGE", "en").Result.FirstOrDefault();
+
+            if (accommodationWithLocation == null)
             {
                 var hotelId = 1;
 
                 #region AddAccommodation
 
-                dbContext.Accommodations.Add(new Accommodation
+                var accommodation = new Accommodation
                 {
                     Id = hotelId,
                     Rating = AccommodationRating.FiveStars,
                     PropertyType = PropertyTypes.Hotels,
-                    Name =
-                        new MultiLanguage<string>
-                        {
-                            Ar = "ون آند اونلي رويال ميراج",
-                            En = "ONE&ONLY ROYAL MIRAGE",
-                            Ru = "ONE&ONLY ROYAL MIRAGE"
-                        },
-                    TextualDescription =
-                        new MultiLanguage<TextualDescription>
-                        {
-                            En = new TextualDescription
-                            {
-                                Description =
-                                    "Set in 65 acres of lush gardens and a kilometer of private beach, peaceful lives in remarkable opulence.",
-                            },
-                            Ar = new TextualDescription
-                            {
-                                Description =
-                                    "65 فدان من الحدائق الغناء وكيلومتر من الشواطئ الخاصة تمثل أنموذجاً للسلاموالرخاء منقطعا النظير."
-                            },
-                            Ru = new TextualDescription
-                            {
-                                Description =
-                                    "26 гектаров ландшафтных садов, собственный пляж протяженностью в один километр, умиротворенная обстановка и роскошное окружение."
-                            }
-                        },
-                    Address =
-                        new MultiLanguage<string>
-                        {
-                            Ar = "شارع الملك سلمان بن عبدالعزيز آل سعود - دبي",
-                            En = "King Salman Bin Abdulaziz Al Saud St - Dubai",
-                            Ru = "King Salman Bin Abdulaziz Al Saud St - Dubai - ОАЭ"
-                        },
                     Contacts = new Contacts {Email = "info@oneandonlythepalm.com", Phone = "+ 971 4 440 1010"},
-                    AccommodationAmenities =
-                        new MultiLanguage<List<string>>
-                        {
-                            En =
-                                new List<string>
-                                {
-                                    @"Dining at One&Only Royal Mirage is a unique journey within eight different restaurants between The Palace, Arabian Court and Residence & Spa. Each venue presents an authentic culinary experience in a distinctive environment. The Palace offers four different restaurants, including Mediterranean flavours at Olives, exceptional Moroccan fare at Tagine, an elegant dining on European cuisine at Celebrities, and fresh grilled seafood and bright salads at The Beach Bar & Grill. Within Arabian Court, guests may discover seductive Indo-European flavours at Nina, savour all-day dining on traditional recipes from the Middle East and northern Europe at The Rotisserie, or experience the floating majlis overlooking the Arabian Gulf at Eauzone featuring international cuisine with an Asian twist. Exclusive to guests at Residence & Spa, The Dining Room showcases inspired menus of fresh creativity.",
-                                    @"Dubai boasts 10 spectacular golf courses within easy reach of One&Only Royal Mirage, with Emirates Golf Club and Montgomerie just minutes away.",
-                                    @"Spirits elevate as you indulge in a range of holistic experiences designed to restore mind, body and soul at One&Only Spa. At the Traditional Oriental Hammam, let the body ease slowly into the rising heat and steam whilst the sounds of rippling water relaxes the mind."
-                                },
-                            Ar =
-                                new List<string>
-                                {
-                                    @"يعتبر تناول الطعام في ون آند أونلي رويال ميراج متعة بحد ذاتها بفضل ثمانية مطاعم مختلفة في ذا بالاس والردهة العربية والإقامة والسبا. ويقدم كل منها تجربة فريدة لاكتشاف أشهى المأكولات في أجواء مميزة ومبتكرة. ويوفر ذا بالاس أربعة مطاعم مختلفة؛ حيث تُقدَّم القوائم المتوسطية في أوليفز، والمأكولات المغربية الاستثنائية في طاجين، والمأكولات العالمية الكلاسيكية في مطعم المشاهير، والسلطات الطازجة وثمار البحر في بار ومطعم الشاطئ للمشويات. ويمكن للضيوف اكتشاف أشهى النكهات الهندو-أوروبية في نينا، أو تذوق أصنافهم المفضلة طوال اليوم من أطباق الشرق الأوسط وشمال أوروبا في ذا روتيسيري، أو تناول الطعام في مجلس عائم مطل على الخليج العربي في مطعم أوزون الذي يقدم المأكولات العالمية بلمسة آسيوية. وتعرض قاعة الطعام قوائم ملهمة ومبتكرة حصريًا لضيوف المساكن والسبا.",
-                                    @"تضم دبي 10 ملاعب جولف ضمن مسافة قريبة من ون آند أونلي رويال ميراج، ولا يبعد نادي الإمارات للجولف ونادي مونتغمري إلا بضع دقائق.",
-                                    "ترتقي روحك وتسمو بينما تنغمس في ملذات التجارب الشاملة المصممة لاستعادة العقل والبدن والروح في منتجع ون آند أونلي سبا. ادخل الحمام الشرقي ودع بدنك يرتاح ببطء عبر الحرارة والبخار المتصاعد بينما تبث أصوات الماء المترقرقة الاسترخاء في العقل."
-                                },
-                            Ru = new List<string>
-                            {
-                                @"Ужин или обед на курорте One&Only Royal Mirage — это уникальное путешествие, в котором вас ждут восемь ресторанов, расположенных в корпусах The Palace, Arabian Court и Residence & Spa. Каждый из ресторанов дарит гостям уникальный гастрономический опыт в неповторимой обстановке. В корпусе The Palace расположены четыре ресторана, включая ресторан средиземноморской кухни Olives, ресторан марокканской кухни Tagine, ресторан Celebrities с элегантным интерьером и европейской кухней, а также гриль-бар Beach Bar & Grill, где вам предложат блюда из свежих морепродуктов на гриле и великолепные салаты. В корпусе Arabian Court гостей ждут соблазнительные блюда индоевропейской кухни ресторана Nina, а в ресторане The Rotisserie в течение всего дня можно оценить блюда, приготовленные по традиционным рецептам кухни Ближнего Востока и Северной Европы. В ресторане Eauzone можно удобно устроиться в плавающем меджлисе с видом на Персидский залив и заказать блюда международной кухни с азиатскими нотками. Ресторан Dining Room, обслуживающий исключительно гостей корпуса Residence & Spa, отличается творческим подходом к составлению меню и приготовлению блюд.",
-                                @"В Дубае, недалеко от курорта One&Only Royal Mirage, находится 10 роскошных полей для гольфа, а гольф-клубы Emirates Golf Club и Montgomerie также расположены в непосредственной близости.",
-                                @"Процедуры для восстановления равновесия разума, тела и души в спа-центре One&Only обновят вашу жизненную энергию. Позвольте теплым парам традиционного восточного хаммама расслабить ваше тело, пока струящаяся вода успокаивает мысли."
-                            }
-                        },
-                    Pictures =
-                        new MultiLanguage<List<Picture>>
-                        {
-                            En = new List<Picture>
-                            {
-                                new Picture
-                                {
-                                    Source =
-                                        "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6HkA4WClkmu3oOM0iuENG66UC6iKZNUrefe0iJ__MX5ZbValF",
-                                    Caption = "ONE&ONLY ROYAL MIRAGE"
-                                }
-                            },
-                            Ar = new List<Picture>
-                            {
-                                new Picture
-                                {
-                                    Source =
-                                        "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6HkA4WClkmu3oOM0iuENG66UC6iKZNUrefe0iJ__MX5ZbValF",
-                                    Caption = "ون آند اونلي رويال ميراج"
-                                }
-                            },
-                            Ru = new List<Picture>
-                            {
-                                new Picture
-                                {
-                                    Source =
-                                        "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6HkA4WClkmu3oOM0iuENG66UC6iKZNUrefe0iJ__MX5ZbValF",
-                                    Caption = "ONE&ONLY ROYAL MIRAGE"
-                                }
-                            }
-                        },
                     CheckInTime = "13:00",
                     CheckOutTime = "11:00",
                     Coordinates = new Point(55.153219, 25.097596),
@@ -198,8 +137,113 @@ namespace Hiroshima.DirectContractsDataSeeder
                             UpperBound = 200
                         },
                     },
-                    LocationId = 2
+                    LocationId = GetLocationId(dbContext)
+                };
+
+                accommodation.SetName(
+                    new MultiLanguage<string>
+                    {
+                        Ar = "ون آند اونلي رويال ميراج",
+                        En = "ONE&ONLY ROYAL MIRAGE",
+                        Ru = "ONE&ONLY ROYAL MIRAGE"
+                    });
+
+                accommodation.SetTextualDescription(new MultiLanguage<TextualDescription>
+                {
+                    En = new TextualDescription
+                    {
+                        Description =
+                            "Set in 65 acres of lush gardens and a kilometer of private beach, peaceful lives in remarkable opulence.",
+                    },
+                    Ar = new TextualDescription
+                    {
+                        Description =
+                            "65 فدان من الحدائق الغناء وكيلومتر من الشواطئ الخاصة تمثل أنموذجاً للسلاموالرخاء منقطعا النظير."
+                    },
+                    Ru = new TextualDescription
+                    {
+                        Description =
+                            "26 гектаров ландшафтных садов, собственный пляж протяженностью в один километр, умиротворенная обстановка и роскошное окружение."
+                    }
                 });
+
+                accommodation.SetAdditionalInfo(new MultiLanguage<Dictionary<string, string>>
+                {
+                    En = new Dictionary<string, string>
+                    {
+                        {"Info1", "Test Additional Info 1 (En)"},
+                        {"Info2", "Test Additional Info 2 (En)"}
+                    },
+                    Ar = new Dictionary<string, string>()
+                    {
+                        {"Info1", "Test Additional Info 1 (Ar)"},
+                        {"Info2", "Test Additional Info 2 (Ar)"}
+                    }
+                });
+
+                accommodation.SetAddress(new MultiLanguage<string>
+                {
+                    Ar = "شارع الملك سلمان بن عبدالعزيز آل سعود - دبي",
+                    En = "King Salman Bin Abdulaziz Al Saud St - Dubai",
+                    Ru = "King Salman Bin Abdulaziz Al Saud St - Dubai - ОАЭ"
+                });
+
+                accommodation.SetAccommodationAmenities(new MultiLanguage<List<string>>
+                {
+                    En =
+                        new List<string>
+                        {
+                            @"Dining at One&Only Royal Mirage is a unique journey within eight different restaurants between The Palace, Arabian Court and Residence & Spa. Each venue presents an authentic culinary experience in a distinctive environment. The Palace offers four different restaurants, including Mediterranean flavours at Olives, exceptional Moroccan fare at Tagine, an elegant dining on European cuisine at Celebrities, and fresh grilled seafood and bright salads at The Beach Bar & Grill. Within Arabian Court, guests may discover seductive Indo-European flavours at Nina, savour all-day dining on traditional recipes from the Middle East and northern Europe at The Rotisserie, or experience the floating majlis overlooking the Arabian Gulf at Eauzone featuring international cuisine with an Asian twist. Exclusive to guests at Residence & Spa, The Dining Room showcases inspired menus of fresh creativity.",
+                            @"Dubai boasts 10 spectacular golf courses within easy reach of One&Only Royal Mirage, with Emirates Golf Club and Montgomerie just minutes away.",
+                            @"Spirits elevate as you indulge in a range of holistic experiences designed to restore mind, body and soul at One&Only Spa. At the Traditional Oriental Hammam, let the body ease slowly into the rising heat and steam whilst the sounds of rippling water relaxes the mind."
+                        },
+                    Ar =
+                        new List<string>
+                        {
+                            @"يعتبر تناول الطعام في ون آند أونلي رويال ميراج متعة بحد ذاتها بفضل ثمانية مطاعم مختلفة في ذا بالاس والردهة العربية والإقامة والسبا. ويقدم كل منها تجربة فريدة لاكتشاف أشهى المأكولات في أجواء مميزة ومبتكرة. ويوفر ذا بالاس أربعة مطاعم مختلفة؛ حيث تُقدَّم القوائم المتوسطية في أوليفز، والمأكولات المغربية الاستثنائية في طاجين، والمأكولات العالمية الكلاسيكية في مطعم المشاهير، والسلطات الطازجة وثمار البحر في بار ومطعم الشاطئ للمشويات. ويمكن للضيوف اكتشاف أشهى النكهات الهندو-أوروبية في نينا، أو تذوق أصنافهم المفضلة طوال اليوم من أطباق الشرق الأوسط وشمال أوروبا في ذا روتيسيري، أو تناول الطعام في مجلس عائم مطل على الخليج العربي في مطعم أوزون الذي يقدم المأكولات العالمية بلمسة آسيوية. وتعرض قاعة الطعام قوائم ملهمة ومبتكرة حصريًا لضيوف المساكن والسبا.",
+                            @"تضم دبي 10 ملاعب جولف ضمن مسافة قريبة من ون آند أونلي رويال ميراج، ولا يبعد نادي الإمارات للجولف ونادي مونتغمري إلا بضع دقائق.",
+                            "ترتقي روحك وتسمو بينما تنغمس في ملذات التجارب الشاملة المصممة لاستعادة العقل والبدن والروح في منتجع ون آند أونلي سبا. ادخل الحمام الشرقي ودع بدنك يرتاح ببطء عبر الحرارة والبخار المتصاعد بينما تبث أصوات الماء المترقرقة الاسترخاء في العقل."
+                        },
+                    Ru = new List<string>
+                    {
+                        @"Ужин или обед на курорте One&Only Royal Mirage — это уникальное путешествие, в котором вас ждут восемь ресторанов, расположенных в корпусах The Palace, Arabian Court и Residence & Spa. Каждый из ресторанов дарит гостям уникальный гастрономический опыт в неповторимой обстановке. В корпусе The Palace расположены четыре ресторана, включая ресторан средиземноморской кухни Olives, ресторан марокканской кухни Tagine, ресторан Celebrities с элегантным интерьером и европейской кухней, а также гриль-бар Beach Bar & Grill, где вам предложат блюда из свежих морепродуктов на гриле и великолепные салаты. В корпусе Arabian Court гостей ждут соблазнительные блюда индоевропейской кухни ресторана Nina, а в ресторане The Rotisserie в течение всего дня можно оценить блюда, приготовленные по традиционным рецептам кухни Ближнего Востока и Северной Европы. В ресторане Eauzone можно удобно устроиться в плавающем меджлисе с видом на Персидский залив и заказать блюда международной кухни с азиатскими нотками. Ресторан Dining Room, обслуживающий исключительно гостей корпуса Residence & Spa, отличается творческим подходом к составлению меню и приготовлению блюд.",
+                        @"В Дубае, недалеко от курорта One&Only Royal Mirage, находится 10 роскошных полей для гольфа, а гольф-клубы Emirates Golf Club и Montgomerie также расположены в непосредственной близости.",
+                        @"Процедуры для восстановления равновесия разума, тела и души в спа-центре One&Only обновят вашу жизненную энергию. Позвольте теплым парам традиционного восточного хаммама расслабить ваше тело, пока струящаяся вода успокаивает мысли."
+                    }
+                });
+
+                accommodation.SetPictures(new MultiLanguage<List<Picture>>
+                {
+                    En = new List<Picture>
+                    {
+                        new Picture
+                        {
+                            Source =
+                                "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6HkA4WClkmu3oOM0iuENG66UC6iKZNUrefe0iJ__MX5ZbValF",
+                            Caption = "ONE&ONLY ROYAL MIRAGE"
+                        }
+                    },
+                    Ar = new List<Picture>
+                    {
+                        new Picture
+                        {
+                            Source =
+                                "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6HkA4WClkmu3oOM0iuENG66UC6iKZNUrefe0iJ__MX5ZbValF",
+                            Caption = "ون آند اونلي رويال ميراج"
+                        }
+                    },
+                    Ru = new List<Picture>
+                    {
+                        new Picture
+                        {
+                            Source =
+                                "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ6HkA4WClkmu3oOM0iuENG66UC6iKZNUrefe0iJ__MX5ZbValF",
+                            Caption = "ONE&ONLY ROYAL MIRAGE"
+                        }
+                    }
+                });
+
+                dbContext.Accommodations.Add(accommodation);
 
                 #endregion
 
@@ -207,287 +251,304 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 #region AddRooms
 
-                dbContext.Rooms.AddRange(
-                    new Room
+                var room = new Room
+                {
+                    Id = 20,
+                    AccommodationId = 1,
+                    OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
-                        Id = 20,
-                        AccommodationId = 1,
-                        Name = new MultiLanguage<string> {En = "Palace Superior Deluxe Room", Ru = "", Ar = ""},
-                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
-                        Amenities = new MultiLanguage<List<string>>
-                        {
-                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
-                        },
-                        OccupancyConfigurations = new List<OccupancyConfiguration>
-                        {
-                            new OccupancyConfiguration {Adults = 2, Teenagers = 1},
-                            new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
-                        }
-                    },
-                    new Room
+                        new OccupancyConfiguration {Adults = 2, Teenagers = 1},
+                        new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
+                    }
+                };
+
+                room.SetName(new MultiLanguage<string> {En = "Palace Superior Deluxe Room", Ru = "", Ar = ""});
+                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.SetAmenities(new MultiLanguage<List<string>>
+                {
+                    En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
+                });
+                dbContext.Rooms.Add(room);
+
+                room = new Room
+                {
+                    Id = 21,
+                    AccommodationId = 1,
+                    OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
-                        Id = 21,
-                        AccommodationId = 1,
-                        Name = new MultiLanguage<string> {En = "Palace Gold Club Room", Ru = "", Ar = ""},
-                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
-                        Amenities = new MultiLanguage<List<string>>
-                        {
-                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
-                        },
-                        OccupancyConfigurations = new List<OccupancyConfiguration>
-                        {
-                            new OccupancyConfiguration {Adults = 2, Teenagers = 1},
-                            new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
-                        }
-                    },
-                    new Room
+                        new OccupancyConfiguration {Adults = 2, Teenagers = 1},
+                        new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
+                    }
+                };
+                room.SetName(new MultiLanguage<string> {En = "Palace Gold Club Room", Ru = "", Ar = ""});
+                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.SetAmenities(new MultiLanguage<List<string>>
+                {
+                    En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
+                });
+                dbContext.Rooms.Add(room);
+
+                room = new Room
+                {
+                    Id = 22,
+                    AccommodationId = 1,
+                    OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
-                        Id = 22,
-                        AccommodationId = 1,
-                        Name =
-                            new MultiLanguage<string> {En = "Palace One Bedroom Executive Suite", Ru = "", Ar = ""},
-                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
-                        Amenities = new MultiLanguage<List<string>>
-                        {
-                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
-                        },
-                        OccupancyConfigurations = new List<OccupancyConfiguration>
-                        {
-                            new OccupancyConfiguration {Adults = 2, Teenagers = 1},
-                            new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
-                        }
-                    },
-                    new Room
+                        new OccupancyConfiguration {Adults = 2, Teenagers = 1},
+                        new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
+                    }
+                };
+                room.SetName(new MultiLanguage<string> {En = "Palace One Bedroom Executive Suite", Ru = "", Ar = ""});
+                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.SetAmenities(new MultiLanguage<List<string>>
+                {
+                    En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
+                });
+                dbContext.Rooms.Add(room);
+
+                room = new Room
+                {
+                    Id = 23,
+                    AccommodationId = 1,
+                    OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
-                        Id = 23,
-                        AccommodationId = 1,
-                        Name =
-                            new MultiLanguage<string> {En = "Palace One Bedroom Gold Club Suite", Ru = "", Ar = ""},
-                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
-                        Amenities = new MultiLanguage<List<string>>
-                        {
-                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
-                        },
-                        OccupancyConfigurations = new List<OccupancyConfiguration>
-                        {
-                            new OccupancyConfiguration {Adults = 2, Teenagers = 1},
-                            new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
-                        }
-                    },
-                    new Room
+                        new OccupancyConfiguration {Adults = 2, Teenagers = 1},
+                        new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
+                    }
+                };
+                room.SetName(new MultiLanguage<string> {En = "Palace One Bedroom Gold Club Suite", Ru = "", Ar = ""});
+                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.SetAmenities(new MultiLanguage<List<string>>
+                {
+                    En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
+                });
+                dbContext.Rooms.Add(room);
+
+                room = new Room
+                {
+                    Id = 24,
+                    AccommodationId = 1,
+                    OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
-                        Id = 24,
-                        AccommodationId = 1,
-                        Name =
-                            new MultiLanguage<string> {En = "Palace Two Bedroom Executive Suite", Ru = "", Ar = ""},
-                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
-                        Amenities = new MultiLanguage<List<string>>
-                        {
-                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
-                        },
-                        OccupancyConfigurations = new List<OccupancyConfiguration>
-                        {
-                            new OccupancyConfiguration {Adults = 4, Teenagers = 1},
-                            new OccupancyConfiguration {Adults = 4, Children = 1},
-                            new OccupancyConfiguration {Adults = 4, Infants = 1}
-                        }
-                    },
-                    new Room
+                        new OccupancyConfiguration {Adults = 4, Teenagers = 1},
+                        new OccupancyConfiguration {Adults = 4, Children = 1},
+                        new OccupancyConfiguration {Adults = 4, Infants = 1}
+                    }
+                };
+                room.SetName(new MultiLanguage<string> {En = "Palace Two Bedroom Executive Suite", Ru = "", Ar = ""});
+                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.SetAmenities(new MultiLanguage<List<string>>
+                {
+                    En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
+                });
+                dbContext.Rooms.Add(room);
+
+                room = new Room
+                {
+                    Id = 25,
+                    AccommodationId = 1,
+                    OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
-                        Id = 25,
-                        AccommodationId = 1,
-                        Name =
-                            new MultiLanguage<string> {En = "Palace Two Bedroom Gold Club Suite", Ru = "", Ar = ""},
-                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
-                        Amenities = new MultiLanguage<List<string>>
-                        {
-                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
-                        },
-                        OccupancyConfigurations = new List<OccupancyConfiguration>
-                        {
-                            new OccupancyConfiguration {Adults = 4, Teenagers = 1},
-                            new OccupancyConfiguration {Adults = 4, Children = 1},
-                            new OccupancyConfiguration {Adults = 4, Infants = 1}
-                        }
-                    },
-                    new Room
+                        new OccupancyConfiguration {Adults = 4, Teenagers = 1},
+                        new OccupancyConfiguration {Adults = 4, Children = 1},
+                        new OccupancyConfiguration {Adults = 4, Infants = 1}
+                    }
+                };
+                room.SetName(new MultiLanguage<string> {En = "Palace Two Bedroom Gold Club Suite", Ru = "", Ar = ""});
+                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.SetAmenities(new MultiLanguage<List<string>>
+                {
+                    En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
+                });
+                dbContext.Rooms.Add(room);
+
+                room = new Room
+                {
+                    Id = 26,
+                    AccommodationId = 1,
+                    OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
-                        Id = 26,
-                        AccommodationId = 1,
-                        Name = new MultiLanguage<string> {En = "Palace Two Bedroom Royal Suite", Ru = "", Ar = ""},
-                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
-                        Amenities = new MultiLanguage<List<string>>
-                        {
-                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
-                        },
-                        OccupancyConfigurations = new List<OccupancyConfiguration>
-                        {
-                            new OccupancyConfiguration {Adults = 4, Teenagers = 1},
-                            new OccupancyConfiguration {Adults = 4, Children = 1},
-                            new OccupancyConfiguration {Adults = 4, Infants = 1}
-                        }
-                    },
-                    new Room
+                        new OccupancyConfiguration {Adults = 4, Teenagers = 1},
+                        new OccupancyConfiguration {Adults = 4, Children = 1},
+                        new OccupancyConfiguration {Adults = 4, Infants = 1}
+                    }
+                };
+                room.SetName(new MultiLanguage<string> {En = "Palace Two Bedroom Royal Suite", Ru = "", Ar = ""});
+                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.SetAmenities(new MultiLanguage<List<string>>
+                {
+                    En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
+                });
+                dbContext.Rooms.Add(room);
+
+                room = new Room
+                {
+                    Id = 27,
+                    AccommodationId = 1,
+                    OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
-                        Id = 27,
-                        AccommodationId = 1,
-                        Name = new MultiLanguage<string> {En = "Arabian Court Deluxe Room", Ru = "", Ar = ""},
-                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
-                        Amenities = new MultiLanguage<List<string>>
-                        {
-                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
-                        },
-                        OccupancyConfigurations = new List<OccupancyConfiguration>
-                        {
-                            new OccupancyConfiguration {Adults = 2, Teenagers = 1},
-                            new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
-                        }
-                    },
-                    new Room
+                        new OccupancyConfiguration {Adults = 2, Teenagers = 1},
+                        new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
+                    }
+                };
+                room.SetName(new MultiLanguage<string> {En = "Arabian Court Deluxe Room", Ru = "", Ar = ""});
+                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.SetAmenities(new MultiLanguage<List<string>>
+                {
+                    En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
+                });
+                dbContext.Rooms.Add(room);
+
+                room = new Room
+                {
+                    Id = 28,
+                    AccommodationId = 1,
+                    OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
-                        Id = 28,
-                        AccommodationId = 1,
-                        Name =
-                            new MultiLanguage<string>
-                            {
-                                En = "Arabian Court Two Deluxe Rooms Family Accommodation", Ru = "", Ar = ""
-                            },
-                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
-                        Amenities =
-                            new MultiLanguage<List<string>>
-                            {
-                                En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
-                            },
-                        OccupancyConfigurations = new List<OccupancyConfiguration>
-                        {
-                            new OccupancyConfiguration {Adults = 3, Children = 3},
-                            new OccupancyConfiguration {Adults = 3, Infants = 3},
-                            new OccupancyConfiguration {Adults = 3, Children = 2, Infants = 1},
-                            new OccupancyConfiguration {Adults = 3, Children = 1, Infants = 2}
-                        }
-                    },
-                    new Room
+                        new OccupancyConfiguration {Adults = 3, Children = 3},
+                        new OccupancyConfiguration {Adults = 3, Infants = 3},
+                        new OccupancyConfiguration {Adults = 3, Children = 2, Infants = 1},
+                        new OccupancyConfiguration {Adults = 3, Children = 1, Infants = 2}
+                    }
+                };
+                room.SetName(new MultiLanguage<string>
+                    {En = "Arabian Court Two Deluxe Rooms Family Accommodation", Ru = "", Ar = ""});
+                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.SetAmenities(new MultiLanguage<List<string>>
+                {
+                    En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
+                });
+                dbContext.Rooms.Add(room);
+
+                room = new Room
+                {
+                    Id = 29,
+                    AccommodationId = 1,
+                    OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
-                        Id = 29,
-                        AccommodationId = 1,
-                        Name =
-                            new MultiLanguage<string>
-                            {
-                                En = "Arabian Court One Bedroom Executive Suite", Ru = "", Ar = ""
-                            },
-                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
-                        Amenities = new MultiLanguage<List<string>>
-                        {
-                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
-                        },
-                        OccupancyConfigurations = new List<OccupancyConfiguration>
-                        {
-                            new OccupancyConfiguration {Adults = 2, Teenagers = 1},
-                            new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
-                        }
-                    },
-                    new Room
+                        new OccupancyConfiguration {Adults = 2, Teenagers = 1},
+                        new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
+                    }
+                };
+                room.SetName(new MultiLanguage<string>
+                    {En = "Arabian Court One Bedroom Executive Suite", Ru = "", Ar = ""});
+                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.SetAmenities(new MultiLanguage<List<string>>
+                {
+                    En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
+                });
+                dbContext.Rooms.Add(room);
+
+                room = new Room
+                {
+                    Id = 30,
+                    AccommodationId = 1,
+                    OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
-                        Id = 30,
-                        AccommodationId = 1,
-                        Name =
-                            new MultiLanguage<string>
-                            {
-                                En = "Arabian Court Two Bedroom Executive Suite", Ru = "", Ar = ""
-                            },
-                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
-                        Amenities = new MultiLanguage<List<string>>
-                        {
-                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
-                        },
-                        OccupancyConfigurations = new List<OccupancyConfiguration>
-                        {
-                            new OccupancyConfiguration {Adults = 4, Teenagers = 1},
-                            new OccupancyConfiguration {Adults = 4, Children = 1},
-                            new OccupancyConfiguration {Adults = 4, Infants = 1}
-                        }
-                    },
-                    new Room
+                        new OccupancyConfiguration {Adults = 4, Teenagers = 1},
+                        new OccupancyConfiguration {Adults = 4, Children = 1},
+                        new OccupancyConfiguration {Adults = 4, Infants = 1}
+                    }
+                };
+                room.SetName(new MultiLanguage<string>
+                    {En = "Arabian Court Two Bedroom Executive Suite", Ru = "", Ar = ""});
+                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.SetAmenities(new MultiLanguage<List<string>>
+                {
+                    En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
+                });
+                dbContext.Rooms.Add(room);
+
+                room = new Room
+                {
+                    Id = 31,
+                    AccommodationId = 1,
+                    OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
-                        Id = 31,
-                        AccommodationId = 1,
-                        Name = new MultiLanguage<string> {En = "Arabian Court Prince Suite", Ru = "", Ar = ""},
-                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
-                        Amenities = new MultiLanguage<List<string>>
-                        {
-                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
-                        },
-                        OccupancyConfigurations = new List<OccupancyConfiguration>
-                        {
-                            new OccupancyConfiguration {Adults = 2, Teenagers = 1},
-                            new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
-                        }
-                    },
-                    new Room
+                        new OccupancyConfiguration {Adults = 2, Teenagers = 1},
+                        new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
+                    }
+                };
+                room.SetName(new MultiLanguage<string> {En = "Arabian Court Prince Suite", Ru = "", Ar = ""});
+                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.SetAmenities(new MultiLanguage<List<string>>
+                {
+                    En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
+                });
+                dbContext.Rooms.Add(room);
+
+                room = new Room
+                {
+                    Id = 32,
+                    AccommodationId = 1,
+                    OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
-                        Id = 32,
-                        AccommodationId = 1,
-                        Name = new MultiLanguage<string> {En = "Residence Prestige Room", Ru = "", Ar = ""},
-                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
-                        Amenities = new MultiLanguage<List<string>>
-                        {
-                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
-                        },
-                        OccupancyConfigurations = new List<OccupancyConfiguration>
-                        {
-                            new OccupancyConfiguration {Adults = 2, Teenagers = 1},
-                            new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
-                        }
-                    },
-                    new Room
+                        new OccupancyConfiguration {Adults = 2, Teenagers = 1},
+                        new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
+                    }
+                };
+                room.SetName(new MultiLanguage<string> {En = "Residence Prestige Room", Ru = "", Ar = ""});
+                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.SetAmenities(new MultiLanguage<List<string>>
+                {
+                    En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
+                });
+                dbContext.Rooms.Add(room);
+
+                room = new Room
+                {
+                    Id = 33,
+                    AccommodationId = 1,
+                    OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
-                        Id = 33,
-                        AccommodationId = 1,
-                        Name = new MultiLanguage<string> {En = "Residence Junior Suite", Ru = "", Ar = ""},
-                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
-                        Amenities = new MultiLanguage<List<string>>
-                        {
-                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
-                        },
-                        OccupancyConfigurations = new List<OccupancyConfiguration>
-                        {
-                            new OccupancyConfiguration {Adults = 2, Teenagers = 1},
-                            new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
-                        }
-                    },
-                    new Room
+                        new OccupancyConfiguration {Adults = 2, Teenagers = 1},
+                        new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
+                    }
+                };
+                room.SetName(new MultiLanguage<string> {En = "Residence Junior Suite", Ru = "", Ar = ""});
+                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.SetAmenities(new MultiLanguage<List<string>>
+                {
+                    En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
+                });
+                dbContext.Rooms.Add(room);
+
+                room = new Room
+                {
+                    Id = 34,
+                    AccommodationId = 1,
+                    OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
-                        Id = 34,
-                        AccommodationId = 1,
-                        Name = new MultiLanguage<string> {En = "Residence Executive Suite", Ru = "", Ar = ""},
-                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
-                        Amenities = new MultiLanguage<List<string>>
-                        {
-                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
-                        },
-                        OccupancyConfigurations = new List<OccupancyConfiguration>
-                        {
-                            new OccupancyConfiguration {Adults = 2, Teenagers = 1},
-                            new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
-                        }
-                    },
-                    new Room
+                        new OccupancyConfiguration {Adults = 2, Teenagers = 1},
+                        new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
+                    }
+                };
+                room.SetName(new MultiLanguage<string> {En = "Residence Executive Suite", Ru = "", Ar = ""});
+                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.SetAmenities(new MultiLanguage<List<string>>
+                {
+                    En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
+                });
+                dbContext.Rooms.Add(room);
+
+                room = new Room
+                {
+                    Id = 35,
+                    AccommodationId = 1,
+                    OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
-                        Id = 35,
-                        AccommodationId = 1,
-                        Name = new MultiLanguage<string> {En = "Residence Garden Beach Villa", Ru = "", Ar = ""},
-                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
-                        Amenities = new MultiLanguage<List<string>>
-                        {
-                            En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
-                        },
-                        OccupancyConfigurations = new List<OccupancyConfiguration>
-                        {
-                            new OccupancyConfiguration {Adults = 4, Teenagers = 1},
-                            new OccupancyConfiguration {Adults = 4, Children = 1},
-                            new OccupancyConfiguration {Adults = 4, Infants = 1}
-                        }
-                    });
+                        new OccupancyConfiguration {Adults = 4, Teenagers = 1},
+                        new OccupancyConfiguration {Adults = 4, Children = 1},
+                        new OccupancyConfiguration {Adults = 4, Infants = 1}
+                    }
+                };
+                room.SetName(new MultiLanguage<string> {En = "Residence Garden Beach Villa", Ru = "", Ar = ""});
+                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.SetAmenities(new MultiLanguage<List<string>>
+                {
+                    En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
+                });
+                dbContext.Rooms.Add(room);
 
                 #endregion
 
@@ -500,7 +561,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                 {
                     (new DateTime(2020, 12, 26), new DateTime(2021, 01, 21))
                 };
-                
+
                 var cancellationPolicy = new RoomCancellationPolicy
                 {
                     CancellationPolicyData = new List<CancellationPolicyData>
@@ -517,7 +578,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                         }
                     }
                 };
-                
+
                 AddCancellationPolicies(dbContext, seasonDates, roomIds, cancellationPolicy);
                 dbContext.SaveChanges();
                 cancellationPolicy = new RoomCancellationPolicy
@@ -536,14 +597,14 @@ namespace Hiroshima.DirectContractsDataSeeder
                         }
                     }
                 };
-                
+
                 seasonDates = new[]
                 {
                     (new DateTime(2020, 03, 28), new DateTime(2020, 04, 12)),
                     (new DateTime(2020, 10, 24), new DateTime(2020, 11, 06))
                 };
                 AddCancellationPolicies(dbContext, seasonDates, roomIds, cancellationPolicy);
-                
+
                 cancellationPolicy = new RoomCancellationPolicy
                 {
                     CancellationPolicyData = new List<CancellationPolicyData>
@@ -580,7 +641,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                         }
                     }
                 };
-                
+
                 seasonDates = new[]
                 {
                     (new DateTime(2020, 02, 08), new DateTime(2020, 02, 21)),
@@ -596,7 +657,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     (new DateTime(2020, 12, 05), new DateTime(2020, 12, 18))
                 };
                 AddCancellationPolicies(dbContext, seasonDates, roomIds, cancellationPolicy);
-                
+
                 cancellationPolicy = new RoomCancellationPolicy
                 {
                     CancellationPolicyData = new List<CancellationPolicyData>
@@ -623,7 +684,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                         }
                     }
                 };
-                
+
                 seasonDates = new[]
                 {
                     (new DateTime(2020, 05, 04), new DateTime(2020, 05, 31)),
@@ -632,8 +693,9 @@ namespace Hiroshima.DirectContractsDataSeeder
                 };
                 AddCancellationPolicies(dbContext, seasonDates, roomIds, cancellationPolicy);
                 dbContext.SaveChanges();
+
                 #endregion
-                                
+
                 #region AddRates
 
                 FillRates(dbContext,
@@ -927,695 +989,814 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 #region AddPromotionalOffers
 
-                var promotionalOffers = new[]
+                var promotionalOffers = new List<RoomPromotionalOffer>();
+                var promotionalOffer = new RoomPromotionalOffer
                 {
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 25,
-                        BookByDate = new DateTime(2019, 12, 13),
-                        ValidFromDate = new DateTime(2020, 01, 08),
-                        ValidToDate = new DateTime(2020, 02, 07),
-                        BookingCode = "25% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, DECEMBER 13, 2019, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 20,
-                        BookByDate = new DateTime(2019, 12, 13),
-                        ValidFromDate = new DateTime(2020, 02, 08),
-                        ValidToDate = new DateTime(2020, 03, 20),
-                        BookingCode = "20% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, DECEMBER 13, 2019, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 25,
-                        BookByDate = new DateTime(2019, 12, 13),
-                        ValidFromDate = new DateTime(2020, 02, 08),
-                        ValidToDate = new DateTime(2020, 03, 20),
-                        BookingCode = "25% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, DECEMBER 13, 2019, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 20,
-                        BookByDate = new DateTime(2020, 02, 28),
-                        ValidFromDate = new DateTime(2020, 03, 28),
-                        ValidToDate = new DateTime(2020, 04, 03),
-                        BookingCode = "20% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, FEBRUARY 28, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 15,
-                        BookByDate = new DateTime(2020, 02, 28),
-                        ValidFromDate = new DateTime(2020, 04, 04),
-                        ValidToDate = new DateTime(2020, 04, 12),
-                        BookingCode = "15% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, FEBRUARY 28, 2020, receive 15% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 25,
-                        BookByDate = new DateTime(2020, 02, 28),
-                        ValidFromDate = new DateTime(2020, 04, 13),
-                        ValidToDate = new DateTime(2020, 04, 18),
-                        BookingCode = "25% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, FEBRUARY 28, 2020, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 20,
-                        BookByDate = new DateTime(2020, 02, 28),
-                        ValidFromDate = new DateTime(2020, 04, 19),
-                        ValidToDate = new DateTime(2020, 05, 03),
-                        BookingCode = "20% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, FEBRUARY 28, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 30,
-                        BookByDate = new DateTime(2020, 03, 03),
-                        ValidFromDate = new DateTime(2020, 05, 04),
-                        ValidToDate = new DateTime(2020, 05, 31),
-                        BookingCode = "30% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, APRIL 03, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 30,
-                        BookByDate = new DateTime(2020, 05, 08),
-                        ValidFromDate = new DateTime(2020, 06, 01),
-                        ValidToDate = new DateTime(2020, 09, 04),
-                        BookingCode = "30% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, MAY 08, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 30,
-                        BookByDate = new DateTime(2020, 08, 14),
-                        ValidFromDate = new DateTime(2020, 09, 05),
-                        ValidToDate = new DateTime(2020, 09, 20),
-                        BookingCode = "30% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, AUGUST 14, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 10,
-                        BookByDate = new DateTime(2020, 08, 14),
-                        ValidFromDate = new DateTime(2020, 10, 17),
-                        ValidToDate = new DateTime(2020, 11, 06),
-                        BookingCode = "10% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, AUGUST 14, 2020, receive 10% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 20,
-                        BookByDate = new DateTime(2020, 08, 14),
-                        ValidFromDate = new DateTime(2020, 11, 07),
-                        ValidToDate = new DateTime(2020, 12, 04),
-                        BookingCode = "20% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, AUGUST 14, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 30,
-                        BookByDate = new DateTime(2020, 10, 02),
-                        ValidFromDate = new DateTime(2020, 12, 05),
-                        ValidToDate = new DateTime(2020, 12, 18),
-                        BookingCode = "30% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, OCTOBER 02, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 20,
-                        BookByDate = new DateTime(2020, 11, 01),
-                        ValidFromDate = new DateTime(2020, 12, 19),
-                        ValidToDate = new DateTime(2020, 12, 25),
-                        BookingCode = "20% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, NOVEMBER 01, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 10,
-                        BookByDate = new DateTime(2020, 08, 14),
-                        ValidFromDate = new DateTime(2020, 12, 26),
-                        ValidToDate = new DateTime(2021, 01, 03),
-                        BookingCode = "10% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, AUGUST 14, 2020, receive 10% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 20,
-                        BookByDate = new DateTime(2020, 11, 01),
-                        ValidFromDate = new DateTime(2021, 01, 24),
-                        ValidToDate = new DateTime(2021, 03, 26),
-                        BookingCode = "20% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, NOVEMBER 01, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 10,
-                        BookByDate = new DateTime(2020, 11, 01),
-                        ValidFromDate = new DateTime(2021, 03, 27),
-                        ValidToDate = new DateTime(2021, 04, 10),
-                        BookingCode = "10% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, NOVEMBER 01, 2020, receive 10% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 20,
-                        BookByDate = new DateTime(2021, 02, 26),
-                        ValidFromDate = new DateTime(2021, 04, 11),
-                        ValidToDate = new DateTime(2021, 05, 07),
-                        BookingCode = "10% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, FEBRUARY 26, 2021, receive 10% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    }
+                    DiscountPercent = 25,
+                    BookByDate = new DateTime(2019, 12, 13),
+                    ValidFromDate = new DateTime(2020, 01, 08),
+                    ValidToDate = new DateTime(2020, 02, 07),
+                    BookingCode = "25% PROMO"
                 };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, DECEMBER 13, 2019, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 20,
+                    BookByDate = new DateTime(2019, 12, 13),
+                    ValidFromDate = new DateTime(2020, 02, 08),
+                    ValidToDate = new DateTime(2020, 03, 20),
+                    BookingCode = "20% PROMO",
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, DECEMBER 13, 2019, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 25,
+                    BookByDate = new DateTime(2019, 12, 13),
+                    ValidFromDate = new DateTime(2020, 02, 08),
+                    ValidToDate = new DateTime(2020, 03, 20),
+                    BookingCode = "25% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, DECEMBER 13, 2019, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 20,
+                    BookByDate = new DateTime(2020, 02, 28),
+                    ValidFromDate = new DateTime(2020, 03, 28),
+                    ValidToDate = new DateTime(2020, 04, 03),
+                    BookingCode = "20% PROMO",
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, FEBRUARY 28, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 15,
+                    BookByDate = new DateTime(2020, 02, 28),
+                    ValidFromDate = new DateTime(2020, 04, 04),
+                    ValidToDate = new DateTime(2020, 04, 12),
+                    BookingCode = "15% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, FEBRUARY 28, 2020, receive 15% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 25,
+                    BookByDate = new DateTime(2020, 02, 28),
+                    ValidFromDate = new DateTime(2020, 04, 13),
+                    ValidToDate = new DateTime(2020, 04, 18),
+                    BookingCode = "25% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, FEBRUARY 28, 2020, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 20,
+                    BookByDate = new DateTime(2020, 02, 28),
+                    ValidFromDate = new DateTime(2020, 04, 19),
+                    ValidToDate = new DateTime(2020, 05, 03),
+                    BookingCode = "20% PROMO",
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, FEBRUARY 28, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 30,
+                    BookByDate = new DateTime(2020, 03, 03),
+                    ValidFromDate = new DateTime(2020, 05, 04),
+                    ValidToDate = new DateTime(2020, 05, 31),
+                    BookingCode = "30% PROMO",
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, APRIL 03, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 30,
+                    BookByDate = new DateTime(2020, 05, 08),
+                    ValidFromDate = new DateTime(2020, 06, 01),
+                    ValidToDate = new DateTime(2020, 09, 04),
+                    BookingCode = "30% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, MAY 08, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 30,
+                    BookByDate = new DateTime(2020, 08, 14),
+                    ValidFromDate = new DateTime(2020, 09, 05),
+                    ValidToDate = new DateTime(2020, 09, 20),
+                    BookingCode = "30% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, AUGUST 14, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 10,
+                    BookByDate = new DateTime(2020, 08, 14),
+                    ValidFromDate = new DateTime(2020, 10, 17),
+                    ValidToDate = new DateTime(2020, 11, 06),
+                    BookingCode = "10% PROMO"
+                };
+
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, AUGUST 14, 2020, receive 10% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 20,
+                    BookByDate = new DateTime(2020, 08, 14),
+                    ValidFromDate = new DateTime(2020, 11, 07),
+                    ValidToDate = new DateTime(2020, 12, 04),
+                    BookingCode = "20% PROMO"
+                };
+
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, AUGUST 14, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 30,
+                    BookByDate = new DateTime(2020, 10, 02),
+                    ValidFromDate = new DateTime(2020, 12, 05),
+                    ValidToDate = new DateTime(2020, 12, 18),
+                    BookingCode = "30% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, OCTOBER 02, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 20,
+                    BookByDate = new DateTime(2020, 11, 01),
+                    ValidFromDate = new DateTime(2020, 12, 19),
+                    ValidToDate = new DateTime(2020, 12, 25),
+                    BookingCode = "20% PROMO",
+                };
+
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, NOVEMBER 01, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 10,
+                    BookByDate = new DateTime(2020, 08, 14),
+                    ValidFromDate = new DateTime(2020, 12, 26),
+                    ValidToDate = new DateTime(2021, 01, 03),
+                    BookingCode = "10% PROMO",
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, AUGUST 14, 2020, receive 10% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 20,
+                    BookByDate = new DateTime(2020, 11, 01),
+                    ValidFromDate = new DateTime(2021, 01, 24),
+                    ValidToDate = new DateTime(2021, 03, 26),
+                    BookingCode = "20% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, NOVEMBER 01, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 10,
+                    BookByDate = new DateTime(2020, 11, 01),
+                    ValidFromDate = new DateTime(2021, 03, 27),
+                    ValidToDate = new DateTime(2021, 04, 10),
+                    BookingCode = "10% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, NOVEMBER 01, 2020, receive 10% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 20,
+                    BookByDate = new DateTime(2021, 02, 26),
+                    ValidFromDate = new DateTime(2021, 04, 11),
+                    ValidToDate = new DateTime(2021, 05, 07),
+                    BookingCode = "10% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, FEBRUARY 26, 2021, receive 10% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
                 AddPromotionalOffers(dbContext, new[] {32, 33, 34, 35}, promotionalOffers);
 
-                promotionalOffers = new[]
+                promotionalOffers = new List<RoomPromotionalOffer>();
+
+                promotionalOffer = new RoomPromotionalOffer
                 {
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 30,
-                        BookByDate = new DateTime(2019, 12, 13),
-                        ValidFromDate = new DateTime(2020, 01, 08),
-                        ValidToDate = new DateTime(2020, 02, 21),
-                        BookingCode = "30% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, DECEMBER 13, 2019, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 25,
-                        BookByDate = new DateTime(2019, 12, 13),
-                        ValidFromDate = new DateTime(2020, 02, 22),
-                        ValidToDate = new DateTime(2020, 03, 20),
-                        BookingCode = "25% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, DECEMBER 13, 2019, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 35,
-                        BookByDate = new DateTime(2019, 12, 13),
-                        ValidFromDate = new DateTime(2020, 03, 21),
-                        ValidToDate = new DateTime(2020, 03, 27),
-                        BookingCode = "35% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, DECEMBER 13, 2019, receive 35% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 35,
-                        BookByDate = new DateTime(2020, 02, 28),
-                        ValidFromDate = new DateTime(2020, 03, 28),
-                        ValidToDate = new DateTime(2020, 04, 03),
-                        BookingCode = "35% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, FEBRUARY 28, 2020, receive 35% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 25,
-                        BookByDate = new DateTime(2020, 02, 28),
-                        ValidFromDate = new DateTime(2020, 04, 04),
-                        ValidToDate = new DateTime(2020, 04, 12),
-                        BookingCode = "25% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, FEBRUARY 28, 2020, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 35,
-                        BookByDate = new DateTime(2020, 02, 28),
-                        ValidFromDate = new DateTime(2020, 04, 13),
-                        ValidToDate = new DateTime(2020, 04, 18),
-                        BookingCode = "35% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, FEBRUARY 28, 2020, receive 35% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 30,
-                        BookByDate = new DateTime(2020, 02, 28),
-                        ValidFromDate = new DateTime(2020, 04, 19),
-                        ValidToDate = new DateTime(2020, 05, 03),
-                        BookingCode = "30% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, FEBRUARY 28, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 35,
-                        BookByDate = new DateTime(2020, 04, 03),
-                        ValidFromDate = new DateTime(2020, 05, 04),
-                        ValidToDate = new DateTime(2020, 05, 31),
-                        BookingCode = "35% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, APRIL 03, 2020, receive 35% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 30,
-                        BookByDate = new DateTime(2020, 05, 08),
-                        ValidFromDate = new DateTime(2020, 06, 01),
-                        ValidToDate = new DateTime(2020, 09, 04),
-                        BookingCode = "30% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, MAY 08, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 30,
-                        BookByDate = new DateTime(2020, 08, 14),
-                        ValidFromDate = new DateTime(2020, 09, 05),
-                        ValidToDate = new DateTime(2020, 09, 25),
-                        BookingCode = "30% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, AUGUST 14, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 30,
-                        BookByDate = new DateTime(2020, 08, 14),
-                        ValidFromDate = new DateTime(2020, 09, 26),
-                        ValidToDate = new DateTime(2020, 10, 16),
-                        BookingCode = "30% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, AUGUST 14, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 20,
-                        BookByDate = new DateTime(2020, 08, 14),
-                        ValidFromDate = new DateTime(2020, 10, 17),
-                        ValidToDate = new DateTime(2020, 12, 04),
-                        BookingCode = "20% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, AUGUST 14, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 30,
-                        BookByDate = new DateTime(2020, 10, 02),
-                        ValidFromDate = new DateTime(2020, 12, 05),
-                        ValidToDate = new DateTime(2020, 12, 18),
-                        BookingCode = "30% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, OCTOBER 02, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 20,
-                        BookByDate = new DateTime(2020, 11, 01),
-                        ValidFromDate = new DateTime(2020, 12, 19),
-                        ValidToDate = new DateTime(2020, 12, 25),
-                        BookingCode = "20% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, NOVEMBER 01, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 10,
-                        BookByDate = new DateTime(2020, 11, 01),
-                        ValidFromDate = new DateTime(2020, 12, 26),
-                        ValidToDate = new DateTime(2021, 01, 03),
-                        BookingCode = "10% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, NOVEMBER 01, 2020, receive 10% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 20,
-                        BookByDate = new DateTime(2020, 11, 01),
-                        ValidFromDate = new DateTime(2021, 01, 04),
-                        ValidToDate = new DateTime(2021, 04, 10),
-                        BookingCode = "20% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, NOVEMBER 01, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 20,
-                        BookByDate = new DateTime(2021, 02, 26),
-                        ValidFromDate = new DateTime(2021, 04, 11),
-                        ValidToDate = new DateTime(2021, 05, 07),
-                        BookingCode = "20% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, FEBRUARY 26, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    }
+                    DiscountPercent = 30,
+                    BookByDate = new DateTime(2019, 12, 13),
+                    ValidFromDate = new DateTime(2020, 01, 08),
+                    ValidToDate = new DateTime(2020, 02, 21),
+                    BookingCode = "30% PROMO"
                 };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, DECEMBER 13, 2019, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 25,
+                    BookByDate = new DateTime(2019, 12, 13),
+                    ValidFromDate = new DateTime(2020, 02, 22),
+                    ValidToDate = new DateTime(2020, 03, 20),
+                    BookingCode = "25% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, DECEMBER 13, 2019, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 35,
+                    BookByDate = new DateTime(2019, 12, 13),
+                    ValidFromDate = new DateTime(2020, 03, 21),
+                    ValidToDate = new DateTime(2020, 03, 27),
+                    BookingCode = "35% PROMO"
+                };
+
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, DECEMBER 13, 2019, receive 35% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 35,
+                    BookByDate = new DateTime(2020, 02, 28),
+                    ValidFromDate = new DateTime(2020, 03, 28),
+                    ValidToDate = new DateTime(2020, 04, 03),
+                    BookingCode = "35% PROMO"
+                };
+
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, FEBRUARY 28, 2020, receive 35% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 25,
+                    BookByDate = new DateTime(2020, 02, 28),
+                    ValidFromDate = new DateTime(2020, 04, 04),
+                    ValidToDate = new DateTime(2020, 04, 12),
+                    BookingCode = "25% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, FEBRUARY 28, 2020, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 35,
+                    BookByDate = new DateTime(2020, 02, 28),
+                    ValidFromDate = new DateTime(2020, 04, 13),
+                    ValidToDate = new DateTime(2020, 04, 18),
+                    BookingCode = "35% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, FEBRUARY 28, 2020, receive 35% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 30,
+                    BookByDate = new DateTime(2020, 02, 28),
+                    ValidFromDate = new DateTime(2020, 04, 19),
+                    ValidToDate = new DateTime(2020, 05, 03),
+                    BookingCode = "30% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, FEBRUARY 28, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 35,
+                    BookByDate = new DateTime(2020, 04, 03),
+                    ValidFromDate = new DateTime(2020, 05, 04),
+                    ValidToDate = new DateTime(2020, 05, 31),
+                    BookingCode = "35% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, APRIL 03, 2020, receive 35% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 30,
+                    BookByDate = new DateTime(2020, 05, 08),
+                    ValidFromDate = new DateTime(2020, 06, 01),
+                    ValidToDate = new DateTime(2020, 09, 04),
+                    BookingCode = "30% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, MAY 08, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 30,
+                    BookByDate = new DateTime(2020, 08, 14),
+                    ValidFromDate = new DateTime(2020, 09, 05),
+                    ValidToDate = new DateTime(2020, 09, 25),
+                    BookingCode = "30% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, AUGUST 14, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 30,
+                    BookByDate = new DateTime(2020, 08, 14),
+                    ValidFromDate = new DateTime(2020, 09, 26),
+                    ValidToDate = new DateTime(2020, 10, 16),
+                    BookingCode = "30% PROMO",
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, AUGUST 14, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 20,
+                    BookByDate = new DateTime(2020, 08, 14),
+                    ValidFromDate = new DateTime(2020, 10, 17),
+                    ValidToDate = new DateTime(2020, 12, 04),
+                    BookingCode = "20% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, AUGUST 14, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 30,
+                    BookByDate = new DateTime(2020, 10, 02),
+                    ValidFromDate = new DateTime(2020, 12, 05),
+                    ValidToDate = new DateTime(2020, 12, 18),
+                    BookingCode = "30% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, OCTOBER 02, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 20,
+                    BookByDate = new DateTime(2020, 11, 01),
+                    ValidFromDate = new DateTime(2020, 12, 19),
+                    ValidToDate = new DateTime(2020, 12, 25),
+                    BookingCode = "20% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, NOVEMBER 01, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 10,
+                    BookByDate = new DateTime(2020, 11, 01),
+                    ValidFromDate = new DateTime(2020, 12, 26),
+                    ValidToDate = new DateTime(2021, 01, 03),
+                    BookingCode = "10% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, NOVEMBER 01, 2020, receive 10% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 20,
+                    BookByDate = new DateTime(2020, 11, 01),
+                    ValidFromDate = new DateTime(2021, 01, 04),
+                    ValidToDate = new DateTime(2021, 04, 10),
+                    BookingCode = "20% PROMO"
+                };
+
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, NOVEMBER 01, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 20,
+                    BookByDate = new DateTime(2021, 02, 26),
+                    ValidFromDate = new DateTime(2021, 04, 11),
+                    ValidToDate = new DateTime(2021, 05, 07),
+                    BookingCode = "20% PROMO"
+                };
+
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, FEBRUARY 26, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
                 AddPromotionalOffers(dbContext, new[] {27, 28, 29, 30, 31}, promotionalOffers);
 
-                promotionalOffers = new[]
+                promotionalOffers = new List<RoomPromotionalOffer>();
+
+                promotionalOffer = new RoomPromotionalOffer
                 {
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 25,
-                        BookByDate = new DateTime(2019, 12, 13),
-                        ValidFromDate = new DateTime(2020, 01, 08),
-                        ValidToDate = new DateTime(2020, 02, 21),
-                        BookingCode = "25% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, DECEMBER 13, 2019, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 20,
-                        BookByDate = new DateTime(2019, 12, 13),
-                        ValidFromDate = new DateTime(2020, 02, 22),
-                        ValidToDate = new DateTime(2020, 03, 20),
-                        BookingCode = "20% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, DECEMBER 13, 2019, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 30,
-                        BookByDate = new DateTime(2019, 12, 13),
-                        ValidFromDate = new DateTime(2020, 03, 21),
-                        ValidToDate = new DateTime(2020, 03, 27),
-                        BookingCode = "30% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, DECEMBER 13, 2019, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 20,
-                        BookByDate = new DateTime(2020, 02, 28),
-                        ValidFromDate = new DateTime(2020, 03, 28),
-                        ValidToDate = new DateTime(2020, 04, 03),
-                        BookingCode = "20% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, FEBRUARY 28, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 20,
-                        BookByDate = new DateTime(2020, 02, 28),
-                        ValidFromDate = new DateTime(2020, 04, 04),
-                        ValidToDate = new DateTime(2020, 04, 12),
-                        BookingCode = "20% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, FEBRUARY 28, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 30,
-                        BookByDate = new DateTime(2020, 02, 28),
-                        ValidFromDate = new DateTime(2020, 04, 13),
-                        ValidToDate = new DateTime(2020, 04, 18),
-                        BookingCode = "30% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, FEBRUARY 28, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 25,
-                        BookByDate = new DateTime(2020, 02, 28),
-                        ValidFromDate = new DateTime(2020, 04, 19),
-                        ValidToDate = new DateTime(2020, 05, 03),
-                        BookingCode = "25% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, FEBRUARY 28, 2020, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 30,
-                        BookByDate = new DateTime(2020, 04, 03),
-                        ValidFromDate = new DateTime(2020, 05, 04),
-                        ValidToDate = new DateTime(2020, 05, 31),
-                        BookingCode = "30% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, APRIL 04, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 30,
-                        BookByDate = new DateTime(2020, 04, 03),
-                        ValidFromDate = new DateTime(2020, 06, 01),
-                        ValidToDate = new DateTime(2020, 09, 04),
-                        BookingCode = "30% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, MAY 08, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 40,
-                        BookByDate = new DateTime(2020, 08, 14),
-                        ValidFromDate = new DateTime(2020, 09, 05),
-                        ValidToDate = new DateTime(2020, 09, 25),
-                        BookingCode = "40% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, AUGUST 14, 2020, receive 40% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 25,
-                        BookByDate = new DateTime(2020, 08, 14),
-                        ValidFromDate = new DateTime(2020, 09, 26),
-                        ValidToDate = new DateTime(2020, 10, 16),
-                        BookingCode = "25% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, AUGUST 14, 2020, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 20,
-                        BookByDate = new DateTime(2020, 08, 14),
-                        ValidFromDate = new DateTime(2020, 10, 17),
-                        ValidToDate = new DateTime(2020, 12, 04),
-                        BookingCode = "20% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, AUGUST 14, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 30,
-                        BookByDate = new DateTime(2020, 10, 02),
-                        ValidFromDate = new DateTime(2020, 12, 05),
-                        ValidToDate = new DateTime(2020, 12, 18),
-                        BookingCode = "30% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, OCTOBER 02, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 20,
-                        BookByDate = new DateTime(2020, 11, 01),
-                        ValidFromDate = new DateTime(2020, 12, 19),
-                        ValidToDate = new DateTime(2020, 12, 25),
-                        BookingCode = "20% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, NOVEMBER 01, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 10,
-                        BookByDate = new DateTime(2020, 11, 01),
-                        ValidFromDate = new DateTime(2020, 12, 26),
-                        ValidToDate = new DateTime(2021, 01, 03),
-                        BookingCode = "10% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, NOVEMBER 01, 2020, receive 10% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 20,
-                        BookByDate = new DateTime(2020, 11, 01),
-                        ValidFromDate = new DateTime(2021, 01, 04),
-                        ValidToDate = new DateTime(2021, 04, 10),
-                        BookingCode = "20% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, NOVEMBER 01, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    },
-                    new RoomPromotionalOffer
-                    {
-                        DiscountPercent = 20,
-                        BookByDate = new DateTime(2021, 02, 26),
-                        ValidFromDate = new DateTime(2021, 04, 11),
-                        ValidToDate = new DateTime(2021, 05, 07),
-                        BookingCode = "20% PROMO",
-                        Details = new MultiLanguage<string>
-                        {
-                            En =
-                                "Book on or before Friday, FEBRUARY 26, 2021, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
-                        }
-                    }
+                    DiscountPercent = 25,
+                    BookByDate = new DateTime(2019, 12, 13),
+                    ValidFromDate = new DateTime(2020, 01, 08),
+                    ValidToDate = new DateTime(2020, 02, 21),
+                    BookingCode = "25% PROMO"
                 };
+
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, DECEMBER 13, 2019, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 20,
+                    BookByDate = new DateTime(2019, 12, 13),
+                    ValidFromDate = new DateTime(2020, 02, 22),
+                    ValidToDate = new DateTime(2020, 03, 20),
+                    BookingCode = "20% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, DECEMBER 13, 2019, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 30,
+                    BookByDate = new DateTime(2019, 12, 13),
+                    ValidFromDate = new DateTime(2020, 03, 21),
+                    ValidToDate = new DateTime(2020, 03, 27),
+                    BookingCode = "30% PROMO"
+                };
+
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, DECEMBER 13, 2019, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 20,
+                    BookByDate = new DateTime(2020, 02, 28),
+                    ValidFromDate = new DateTime(2020, 03, 28),
+                    ValidToDate = new DateTime(2020, 04, 03),
+                    BookingCode = "20% PROMO"
+                };
+
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, FEBRUARY 28, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 20,
+                    BookByDate = new DateTime(2020, 02, 28),
+                    ValidFromDate = new DateTime(2020, 04, 04),
+                    ValidToDate = new DateTime(2020, 04, 12),
+                    BookingCode = "20% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, FEBRUARY 28, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 30,
+                    BookByDate = new DateTime(2020, 02, 28),
+                    ValidFromDate = new DateTime(2020, 04, 13),
+                    ValidToDate = new DateTime(2020, 04, 18),
+                    BookingCode = "30% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, FEBRUARY 28, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 25,
+                    BookByDate = new DateTime(2020, 02, 28),
+                    ValidFromDate = new DateTime(2020, 04, 19),
+                    ValidToDate = new DateTime(2020, 05, 03),
+                    BookingCode = "25% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, FEBRUARY 28, 2020, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 30,
+                    BookByDate = new DateTime(2020, 04, 03),
+                    ValidFromDate = new DateTime(2020, 05, 04),
+                    ValidToDate = new DateTime(2020, 05, 31),
+                    BookingCode = "30% PROMO"
+                };
+
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, APRIL 04, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 30,
+                    BookByDate = new DateTime(2020, 04, 03),
+                    ValidFromDate = new DateTime(2020, 06, 01),
+                    ValidToDate = new DateTime(2020, 09, 04),
+                    BookingCode = "30% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, MAY 08, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 40,
+                    BookByDate = new DateTime(2020, 08, 14),
+                    ValidFromDate = new DateTime(2020, 09, 05),
+                    ValidToDate = new DateTime(2020, 09, 25),
+                    BookingCode = "40% PROMO"
+                };
+
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, AUGUST 14, 2020, receive 40% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 25,
+                    BookByDate = new DateTime(2020, 08, 14),
+                    ValidFromDate = new DateTime(2020, 09, 26),
+                    ValidToDate = new DateTime(2020, 10, 16),
+                    BookingCode = "25% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, AUGUST 14, 2020, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 20,
+                    BookByDate = new DateTime(2020, 08, 14),
+                    ValidFromDate = new DateTime(2020, 10, 17),
+                    ValidToDate = new DateTime(2020, 12, 04),
+                    BookingCode = "20% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, AUGUST 14, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 30,
+                    BookByDate = new DateTime(2020, 10, 02),
+                    ValidFromDate = new DateTime(2020, 12, 05),
+                    ValidToDate = new DateTime(2020, 12, 18),
+                    BookingCode = "30% PROMO"
+                };
+
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, OCTOBER 02, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 20,
+                    BookByDate = new DateTime(2020, 11, 01),
+                    ValidFromDate = new DateTime(2020, 12, 19),
+                    ValidToDate = new DateTime(2020, 12, 25),
+                    BookingCode = "20% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, NOVEMBER 01, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 10,
+                    BookByDate = new DateTime(2020, 11, 01),
+                    ValidFromDate = new DateTime(2020, 12, 26),
+                    ValidToDate = new DateTime(2021, 01, 03),
+                    BookingCode = "10% PROMO",
+                };
+
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, NOVEMBER 01, 2020, receive 10% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 20,
+                    BookByDate = new DateTime(2020, 11, 01),
+                    ValidFromDate = new DateTime(2021, 01, 04),
+                    ValidToDate = new DateTime(2021, 04, 10),
+                    BookingCode = "20% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, NOVEMBER 01, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
+
+                promotionalOffer = new RoomPromotionalOffer
+                {
+                    DiscountPercent = 20,
+                    BookByDate = new DateTime(2021, 02, 26),
+                    ValidFromDate = new DateTime(2021, 04, 11),
+                    ValidToDate = new DateTime(2021, 05, 07),
+                    BookingCode = "20% PROMO"
+                };
+                promotionalOffer.SetDetails(new MultiLanguage<string>
+                {
+                    En =
+                        "Book on or before Friday, FEBRUARY 26, 2021, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
+                });
+                promotionalOffers.Add(promotionalOffer);
                 AddPromotionalOffers(dbContext, new[] {20, 21, 22, 23, 24, 25, 26}, promotionalOffers);
 
                 #endregion
@@ -2272,96 +2453,22 @@ namespace Hiroshima.DirectContractsDataSeeder
             }
         }
 
-        private static void AddJumeriahContract(DirectContractsDbContext dbContext)
+        private static void AddJumeriahContract(DcDbContext dbContext)
         {
-            var accommodation = dbContext.Accommodations.FirstOrDefault(a => a.Name.En.Equals("Burj Al Arab Jumeirah"));
-            if (accommodation == null)
+            var accommodationWithLocation =
+                dbContext.GetAccommodations("Burj Al Arab Jumeirah", "en").Result.FirstOrDefault();
+            if (accommodationWithLocation == null)
             {
                 var hotelId = 2;
 
                 #region AddAccommodation
 
-                dbContext.Accommodations.Add(new Accommodation
+                var accommodation = new Accommodation
                 {
                     Id = hotelId,
                     Rating = AccommodationRating.FiveStars,
                     PropertyType = PropertyTypes.Hotels,
-                    Name =
-                        new MultiLanguage<string>
-                        {
-                            Ar = "برج العرب جميرا", En = "Burj Al Arab Jumeirah", Ru = "Burj Al Arab Jumeirah"
-                        },
-                    TextualDescription =
-                        new MultiLanguage<TextualDescription>
-                        {
-                            En = new TextualDescription
-                            {
-                                Description =
-                                    "The iconic sail-shaped silhoutte of Burj Al Arab Jumeirah stands tall as a beacon of modern Dubai, characterized by the finest hospitality you can ever experience."
-                            },
-                            Ar = new TextualDescription
-                            {
-                                Description =
-                                    "يقف فندق برج العرب جميرا الشهير شامخًا على شكل شراع وكأنه منارة دبي الحديثة، ويتسم بأجود وأرقى الضيافات التي يمكن أن تمر بها على الإطلاق."
-                            },
-                            Ru = new TextualDescription
-                            {
-                                Description =
-                                    "Легендарный отель Burj Al Arab Jumeirah известен своим непревзойденным уровнем обслуживания и гостеприимства, а его высокий силуэт в форме паруса служит маяком современного Дубая."
-                            }
-                        },
-                    Address =
-                        new MultiLanguage<string>
-                        {
-                            Ar = "شارع الملك سلمان بن عبدالعزيز آل سعود - دبي",
-                            En = "King Salman Bin Abdulaziz Al Saud St - Dubai",
-                            Ru = "King Salman Bin Abdulaziz Al Saud St - Dubai - ОАЭ"
-                        },
                     Contacts = new Contacts {Email = "info@jumeirah.com", Phone = "+971 4 3665000"},
-                    AccommodationAmenities =
-                        new MultiLanguage<List<string>>
-                        {
-                            En = new List<string>
-                            {
-                                @"201 luxurious duplex suites",
-                                @"Nine world-class restaurants and bars",
-                                @"Five swimming pools (three outdoor, two indoor) and a private beach"
-                            },
-                            Ar = new List<string>
-                            {
-                                @"201 جناح دوبلكس فخم",
-                                @"تسعة مقاهي ومطاعم عالمية",
-                                "خمسة مسابح (ثلاثة خارجيون، اثنان داخليان) وشاطئ خاص",
-                            },
-                            Ru = new List<string>
-                            {
-                                @"201 роскошный двухэтажный номер люкс",
-                                @"Девять ресторанов и баров мирового класса",
-                                @"Пять плавательных бассейнов (три открытых и два крытых) и частный пляж"
-                            }
-                        },
-                    Pictures =
-                        new MultiLanguage<List<Picture>>
-                        {
-                            En = new List<Picture>
-                            {
-                                new Picture
-                                {
-                                    Caption = "Burj Al Arab Jumeirah",
-                                    Source =
-                                        "https://mediastream.jumeirah.com/webimage/image1152x648//globalassets/global/hotels-and-resorts/dubai/burj-al-arab/homepage-audit/burj-al-arab-jumeirah-terrace-hero.jpg"
-                                }
-                            },
-                            Ru = new List<Picture>
-                            {
-                                new Picture
-                                {
-                                    Caption = "برج العرب جميرا",
-                                    Source =
-                                        "https://mediastream.jumeirah.com/webimage/image1152x648//globalassets/global/hotels-and-resorts/dubai/burj-al-arab/homepage-audit/burj-al-arab-jumeirah-terrace-hero.jpg"
-                                }
-                            }
-                        },
                     CheckInTime = "14:00",
                     CheckOutTime = "12:00",
                     Coordinates = new Point(55.153219, 25.097596),
@@ -2391,8 +2498,85 @@ namespace Hiroshima.DirectContractsDataSeeder
                             UpperBound = 200
                         },
                     },
-                    LocationId = 2
+                    LocationId = GetLocationId(dbContext)
+                };
+
+                accommodation.SetName(new MultiLanguage<string>
+                {
+                    Ar = "برج العرب جميرا", En = "Burj Al Arab Jumeirah", Ru = "Burj Al Arab Jumeirah"
                 });
+
+                accommodation.SetTextualDescription(new MultiLanguage<TextualDescription>
+                {
+                    En = new TextualDescription
+                    {
+                        Description =
+                            "The iconic sail-shaped silhoutte of Burj Al Arab Jumeirah stands tall as a beacon of modern Dubai, characterized by the finest hospitality you can ever experience."
+                    },
+                    Ar = new TextualDescription
+                    {
+                        Description =
+                            "يقف فندق برج العرب جميرا الشهير شامخًا على شكل شراع وكأنه منارة دبي الحديثة، ويتسم بأجود وأرقى الضيافات التي يمكن أن تمر بها على الإطلاق."
+                    },
+                    Ru = new TextualDescription
+                    {
+                        Description =
+                            "Легендарный отель Burj Al Arab Jumeirah известен своим непревзойденным уровнем обслуживания и гостеприимства, а его высокий силуэт в форме паруса служит маяком современного Дубая."
+                    }
+                });
+
+                accommodation.SetAddress(new MultiLanguage<string>
+                {
+                    Ar = "شارع الملك سلمان بن عبدالعزيز آل سعود - دبي",
+                    En = "King Salman Bin Abdulaziz Al Saud St - Dubai",
+                    Ru = "King Salman Bin Abdulaziz Al Saud St - Dubai - ОАЭ"
+                });
+
+                accommodation.SetAccommodationAmenities(new MultiLanguage<List<string>>
+                {
+                    En = new List<string>
+                    {
+                        @"201 luxurious duplex suites",
+                        @"Nine world-class restaurants and bars",
+                        @"Five swimming pools (three outdoor, two indoor) and a private beach"
+                    },
+                    Ar = new List<string>
+                    {
+                        @"201 جناح دوبلكس فخم",
+                        @"تسعة مقاهي ومطاعم عالمية",
+                        "خمسة مسابح (ثلاثة خارجيون، اثنان داخليان) وشاطئ خاص",
+                    },
+                    Ru = new List<string>
+                    {
+                        @"201 роскошный двухэтажный номер люкс",
+                        @"Девять ресторанов и баров мирового класса",
+                        @"Пять плавательных бассейнов (три открытых и два крытых) и частный пляж"
+                    }
+                });
+
+                accommodation.SetPictures(new MultiLanguage<List<Picture>>
+                {
+                    En = new List<Picture>
+                    {
+                        new Picture
+                        {
+                            Caption = "Burj Al Arab Jumeirah",
+                            Source =
+                                "https://mediastream.jumeirah.com/webimage/image1152x648//globalassets/global/hotels-and-resorts/dubai/burj-al-arab/homepage-audit/burj-al-arab-jumeirah-terrace-hero.jpg"
+                        }
+                    },
+                    Ru = new List<Picture>
+                    {
+                        new Picture
+                        {
+                            Caption = "برج العرب جميرا",
+                            Source =
+                                "https://mediastream.jumeirah.com/webimage/image1152x648//globalassets/global/hotels-and-resorts/dubai/burj-al-arab/homepage-audit/burj-al-arab-jumeirah-terrace-hero.jpg"
+                        }
+                    }
+                });
+
+                dbContext.Accommodations.Add(accommodation);
 
                 #endregion
 
@@ -2400,128 +2584,131 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 #region AddRooms
 
-                dbContext.Rooms.AddRange(
-                    new Room
+                var room = new Room
+                {
+                    Id = 71,
+                    AccommodationId = 2,
+                    OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
-                        Id = 71,
-                        AccommodationId = 2,
-                        Name = new MultiLanguage<string> {En = "One Bedroom Deluxe Suite", Ru = "", Ar = ""},
-                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
-                        Amenities =
-                            new MultiLanguage<List<string>>
-                            {
-                                En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
-                            },
-                        OccupancyConfigurations = new List<OccupancyConfiguration>
-                        {
-                            new OccupancyConfiguration {Adults = 1},
-                            new OccupancyConfiguration {Adults = 2},
-                            new OccupancyConfiguration {Adults = 1, Children = 1},
-                            new OccupancyConfiguration {Adults = 2, Children = 1},
-                            new OccupancyConfiguration {Adults = 3},
-                            new OccupancyConfiguration {Adults = 1, Children = 2},
-                            new OccupancyConfiguration {Adults = 3, Children = 1},
-                            new OccupancyConfiguration {Adults = 2, Children = 2}
-                        }
-                    },
-                    new Room
+                        new OccupancyConfiguration {Adults = 1},
+                        new OccupancyConfiguration {Adults = 2},
+                        new OccupancyConfiguration {Adults = 1, Children = 1},
+                        new OccupancyConfiguration {Adults = 2, Children = 1},
+                        new OccupancyConfiguration {Adults = 3},
+                        new OccupancyConfiguration {Adults = 1, Children = 2},
+                        new OccupancyConfiguration {Adults = 3, Children = 1},
+                        new OccupancyConfiguration {Adults = 2, Children = 2}
+                    }
+                };
+                room.SetName(new MultiLanguage<string> {En = "One Bedroom Deluxe Suite", Ru = "", Ar = ""});
+                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.SetAmenities(new MultiLanguage<List<string>>
+                {
+                    En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
+                });
+                dbContext.Rooms.Add(room);
+
+                room = new Room
+                {
+                    Id = 72,
+                    AccommodationId = 2,
+                    OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
-                        Id = 72,
-                        AccommodationId = 2,
-                        Name = new MultiLanguage<string> {En = "Panoramic One Bedroom Suite", Ru = "", Ar = ""},
-                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
-                        Amenities =
-                            new MultiLanguage<List<string>>
-                            {
-                                En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
-                            },
-                        OccupancyConfigurations = new List<OccupancyConfiguration>
-                        {
-                            new OccupancyConfiguration {Adults = 1},
-                            new OccupancyConfiguration {Adults = 2},
-                            new OccupancyConfiguration {Adults = 1, Children = 1},
-                            new OccupancyConfiguration {Adults = 2, Children = 1},
-                            new OccupancyConfiguration {Adults = 3},
-                            new OccupancyConfiguration {Adults = 1, Children = 2},
-                            new OccupancyConfiguration {Adults = 3, Children = 1},
-                            new OccupancyConfiguration {Adults = 2, Children = 2}
-                        }
-                    },
-                    new Room
+                        new OccupancyConfiguration {Adults = 1},
+                        new OccupancyConfiguration {Adults = 2},
+                        new OccupancyConfiguration {Adults = 1, Children = 1},
+                        new OccupancyConfiguration {Adults = 2, Children = 1},
+                        new OccupancyConfiguration {Adults = 3},
+                        new OccupancyConfiguration {Adults = 1, Children = 2},
+                        new OccupancyConfiguration {Adults = 3, Children = 1},
+                        new OccupancyConfiguration {Adults = 2, Children = 2}
+                    }
+                };
+                room.SetName(new MultiLanguage<string> {En = "Panoramic One Bedroom Suite", Ru = "", Ar = ""});
+                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.SetAmenities(new MultiLanguage<List<string>>
+                {
+                    En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
+                });
+                dbContext.Rooms.Add(room);
+
+                room = new Room
+                {
+                    Id = 73,
+                    AccommodationId = 2,
+                    OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
-                        Id = 73,
-                        AccommodationId = 2,
-                        Name = new MultiLanguage<string> {En = "Two Bedroom Delux Suite", Ru = "", Ar = ""},
-                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
-                        Amenities =
-                            new MultiLanguage<List<string>>
-                            {
-                                En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
-                            },
-                        OccupancyConfigurations = new List<OccupancyConfiguration>
-                        {
-                            new OccupancyConfiguration {Adults = 1},
-                            new OccupancyConfiguration {Adults = 2},
-                            new OccupancyConfiguration {Adults = 1, Children = 1},
-                            new OccupancyConfiguration {Adults = 2, Children = 1},
-                            new OccupancyConfiguration {Adults = 3},
-                            new OccupancyConfiguration {Adults = 3, Children = 1},
-                            new OccupancyConfiguration {Adults = 2, Children = 2},
-                            new OccupancyConfiguration {Adults = 1, Children = 3},
-                            new OccupancyConfiguration {Adults = 5},
-                            new OccupancyConfiguration {Adults = 4, Children = 1},
-                            new OccupancyConfiguration {Adults = 3, Children = 2},
-                            new OccupancyConfiguration {Adults = 2, Children = 3},
-                            new OccupancyConfiguration {Adults = 1, Children = 4},
-                            new OccupancyConfiguration {Adults = 5, Children = 1},
-                            new OccupancyConfiguration {Adults = 4, Children = 2},
-                            new OccupancyConfiguration {Adults = 3, Children = 3},
-                            new OccupancyConfiguration {Adults = 2, Children = 4},
-                            new OccupancyConfiguration {Adults = 1, Children = 5}
-                        }
-                    },
-                    new Room
+                        new OccupancyConfiguration {Adults = 1},
+                        new OccupancyConfiguration {Adults = 2},
+                        new OccupancyConfiguration {Adults = 1, Children = 1},
+                        new OccupancyConfiguration {Adults = 2, Children = 1},
+                        new OccupancyConfiguration {Adults = 3},
+                        new OccupancyConfiguration {Adults = 3, Children = 1},
+                        new OccupancyConfiguration {Adults = 2, Children = 2},
+                        new OccupancyConfiguration {Adults = 1, Children = 3},
+                        new OccupancyConfiguration {Adults = 5},
+                        new OccupancyConfiguration {Adults = 4, Children = 1},
+                        new OccupancyConfiguration {Adults = 3, Children = 2},
+                        new OccupancyConfiguration {Adults = 2, Children = 3},
+                        new OccupancyConfiguration {Adults = 1, Children = 4},
+                        new OccupancyConfiguration {Adults = 5, Children = 1},
+                        new OccupancyConfiguration {Adults = 4, Children = 2},
+                        new OccupancyConfiguration {Adults = 3, Children = 3},
+                        new OccupancyConfiguration {Adults = 2, Children = 4},
+                        new OccupancyConfiguration {Adults = 1, Children = 5}
+                    }
+                };
+                room.SetName(new MultiLanguage<string> {En = "Two Bedroom Delux Suite", Ru = "", Ar = ""});
+                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.SetAmenities(new MultiLanguage<List<string>>
+                {
+                    En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
+                });
+                dbContext.Rooms.Add(room);
+
+
+                room = new Room
+                {
+                    Id = 74,
+                    AccommodationId = 2,
+                    OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
-                        Id = 74,
-                        AccommodationId = 2,
-                        Name = new MultiLanguage<string> {En = "Diplomatic Three Bedroom Suite", Ru = "", Ar = ""},
-                        Description = new MultiLanguage<string> {En = "", Ru = "", Ar = ""},
-                        Amenities =
-                            new MultiLanguage<List<string>>
-                            {
-                                En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
-                            },
-                        OccupancyConfigurations = new List<OccupancyConfiguration>
-                        {
-                            new OccupancyConfiguration {Adults = 1},
-                            new OccupancyConfiguration {Adults = 2},
-                            new OccupancyConfiguration {Adults = 1},
-                            new OccupancyConfiguration {Adults = 1, Children = 1},
-                            new OccupancyConfiguration {Adults = 2, Children = 1},
-                            new OccupancyConfiguration {Adults = 3},
-                            new OccupancyConfiguration {Adults = 1, Children = 2},
-                            new OccupancyConfiguration {Adults = 4, Children = 1},
-                            new OccupancyConfiguration {Adults = 3, Children = 1},
-                            new OccupancyConfiguration {Adults = 2, Children = 2},
-                            new OccupancyConfiguration {Adults = 1, Children = 3},
-                            new OccupancyConfiguration {Adults = 5},
-                            new OccupancyConfiguration {Adults = 3, Children = 2},
-                            new OccupancyConfiguration {Adults = 2, Children = 3},
-                            new OccupancyConfiguration {Adults = 1, Children = 4},
-                            new OccupancyConfiguration {Adults = 6},
-                            new OccupancyConfiguration {Adults = 5, Children = 1},
-                            new OccupancyConfiguration {Adults = 4, Children = 2},
-                            new OccupancyConfiguration {Adults = 3, Children = 3},
-                            new OccupancyConfiguration {Adults = 2, Children = 4},
-                            new OccupancyConfiguration {Adults = 1, Children = 5},
-                            new OccupancyConfiguration {Adults = 7},
-                            new OccupancyConfiguration {Adults = 6, Children = 1},
-                            new OccupancyConfiguration {Adults = 5, Children = 2},
-                            new OccupancyConfiguration {Adults = 4, Children = 3},
-                            new OccupancyConfiguration {Adults = 3, Children = 4},
-                            new OccupancyConfiguration {Adults = 2, Children = 5}
-                        }
-                    });
+                        new OccupancyConfiguration {Adults = 1},
+                        new OccupancyConfiguration {Adults = 2},
+                        new OccupancyConfiguration {Adults = 1},
+                        new OccupancyConfiguration {Adults = 1, Children = 1},
+                        new OccupancyConfiguration {Adults = 2, Children = 1},
+                        new OccupancyConfiguration {Adults = 3},
+                        new OccupancyConfiguration {Adults = 1, Children = 2},
+                        new OccupancyConfiguration {Adults = 4, Children = 1},
+                        new OccupancyConfiguration {Adults = 3, Children = 1},
+                        new OccupancyConfiguration {Adults = 2, Children = 2},
+                        new OccupancyConfiguration {Adults = 1, Children = 3},
+                        new OccupancyConfiguration {Adults = 5},
+                        new OccupancyConfiguration {Adults = 3, Children = 2},
+                        new OccupancyConfiguration {Adults = 2, Children = 3},
+                        new OccupancyConfiguration {Adults = 1, Children = 4},
+                        new OccupancyConfiguration {Adults = 6},
+                        new OccupancyConfiguration {Adults = 5, Children = 1},
+                        new OccupancyConfiguration {Adults = 4, Children = 2},
+                        new OccupancyConfiguration {Adults = 3, Children = 3},
+                        new OccupancyConfiguration {Adults = 2, Children = 4},
+                        new OccupancyConfiguration {Adults = 1, Children = 5},
+                        new OccupancyConfiguration {Adults = 7},
+                        new OccupancyConfiguration {Adults = 6, Children = 1},
+                        new OccupancyConfiguration {Adults = 5, Children = 2},
+                        new OccupancyConfiguration {Adults = 4, Children = 3},
+                        new OccupancyConfiguration {Adults = 3, Children = 4},
+                        new OccupancyConfiguration {Adults = 2, Children = 5}
+                    }
+                };
+                room.SetName(new MultiLanguage<string> {En = "Diplomatic Three Bedroom Suite", Ru = "", Ar = ""});
+                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.SetAmenities(new MultiLanguage<List<string>>
+                {
+                    En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
+                });
+                dbContext.Rooms.Add(room);
 
                 #endregion
 
@@ -2529,13 +2716,13 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 #region AddCanellationPolicies
 
-                var roomIds = new[] { 71, 72, 73, 74};
-               
+                var roomIds = new[] {71, 72, 73, 74};
+
                 var seasonDates = new[]
                 {
                     (new DateTime(2019, 05, 06), new DateTime(2019, 08, 31))
                 };
-                
+
                 var cancellationPolicy = new RoomCancellationPolicy
                 {
                     CancellationPolicyData = new List<CancellationPolicyData>
@@ -2553,14 +2740,14 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 };
                 AddCancellationPolicies(dbContext, seasonDates, roomIds, cancellationPolicy);
-                
+
                 seasonDates = new[]
                 {
                     (new DateTime(2019, 01, 14), new DateTime(2019, 01, 31)),
                     (new DateTime(2019, 09, 01), new DateTime(2019, 10, 12)),
                     (new DateTime(2019, 12, 02), new DateTime(2019, 12, 21))
                 };
-                
+
                 cancellationPolicy = new RoomCancellationPolicy
                 {
                     CancellationPolicyData = new List<CancellationPolicyData>
@@ -2584,12 +2771,12 @@ namespace Hiroshima.DirectContractsDataSeeder
                     (new DateTime(2019, 02, 01), new DateTime(2019, 02, 04)),
                     (new DateTime(2019, 02, 12), new DateTime(2019, 03, 27)),
                     (new DateTime(2019, 04, 22), new DateTime(2019, 05, 05)),
-                    (new DateTime(2019, 10, 13), new DateTime(2019, 10 , 19)),
-                    (new DateTime(2019, 11, 10), new DateTime(2019, 12 , 01)),
-                    (new DateTime(2019, 12, 22), new DateTime(2019, 12 , 26)),
-                    (new DateTime(2020, 01, 05), new DateTime(2020, 01 , 13)),
+                    (new DateTime(2019, 10, 13), new DateTime(2019, 10, 19)),
+                    (new DateTime(2019, 11, 10), new DateTime(2019, 12, 01)),
+                    (new DateTime(2019, 12, 22), new DateTime(2019, 12, 26)),
+                    (new DateTime(2020, 01, 05), new DateTime(2020, 01, 13)),
                 };
-                
+
                 cancellationPolicy = new RoomCancellationPolicy
                 {
                     CancellationPolicyData = new List<CancellationPolicyData>
@@ -2606,16 +2793,16 @@ namespace Hiroshima.DirectContractsDataSeeder
                         }
                     }
                 };
-                
+
                 AddCancellationPolicies(dbContext, seasonDates, roomIds, cancellationPolicy);
-                
+
                 seasonDates = new[]
                 {
                     (new DateTime(2019, 02, 05), new DateTime(2019, 02, 11)),
                     (new DateTime(2019, 03, 28), new DateTime(2019, 04, 21)),
                     (new DateTime(2019, 10, 20), new DateTime(2019, 11, 09))
                 };
-                
+
                 cancellationPolicy = new RoomCancellationPolicy
                 {
                     CancellationPolicyData = new List<CancellationPolicyData>
@@ -2633,12 +2820,12 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 };
                 AddCancellationPolicies(dbContext, seasonDates, roomIds, cancellationPolicy);
-                
+
                 seasonDates = new[]
                 {
                     (new DateTime(2019, 12, 27), new DateTime(2020, 01, 04))
                 };
-                
+
                 cancellationPolicy = new RoomCancellationPolicy
                 {
                     CancellationPolicyData = new List<CancellationPolicyData>
@@ -2656,8 +2843,9 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 };
                 AddCancellationPolicies(dbContext, seasonDates, roomIds, cancellationPolicy);
-                
+
                 #endregion
+
                 #region AddRoomAllocationRequirements //Test data
 
                 //Panoramic Suite
@@ -2756,7 +2944,7 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 #region AddPromotionalOffers
 
-                var promotionalOffers = new[]
+                var promotionalOffers = new List<RoomPromotionalOffer>
                 {
                     new RoomPromotionalOffer
                     {
@@ -2764,12 +2952,11 @@ namespace Hiroshima.DirectContractsDataSeeder
                         BookByDate = new DateTime(2018, 11, 29),
                         ValidFromDate = new DateTime(2019, 01, 08),
                         ValidToDate = new DateTime(2019, 01, 31),
-                        BookingCode = "WWHL600",
-                        Details = new MultiLanguage<string> {En = ""}
+                        BookingCode = "WWHL600"
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
-                promotionalOffers = new[]
+                promotionalOffers = new List<RoomPromotionalOffer>
                 {
                     new RoomPromotionalOffer
                     {
@@ -2777,13 +2964,12 @@ namespace Hiroshima.DirectContractsDataSeeder
                         BookByDate = new DateTime(2018, 11, 29),
                         ValidFromDate = new DateTime(2019, 02, 01),
                         ValidToDate = new DateTime(2019, 02, 04),
-                        BookingCode = "WWHL601",
-                        Details = new MultiLanguage<string> {En = ""}
+                        BookingCode = "WWHL601"
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
 
-                promotionalOffers = new[]
+                promotionalOffers = new List<RoomPromotionalOffer>
                 {
                     new RoomPromotionalOffer
                     {
@@ -2791,13 +2977,12 @@ namespace Hiroshima.DirectContractsDataSeeder
                         BookByDate = new DateTime(2018, 11, 29),
                         ValidFromDate = new DateTime(2019, 02, 05),
                         ValidToDate = new DateTime(2019, 02, 11),
-                        BookingCode = "WWHL602",
-                        Details = new MultiLanguage<string> {En = ""}
+                        BookingCode = "WWHL602"
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
 
-                promotionalOffers = new[]
+                promotionalOffers = new List<RoomPromotionalOffer>
                 {
                     new RoomPromotionalOffer
                     {
@@ -2805,13 +2990,12 @@ namespace Hiroshima.DirectContractsDataSeeder
                         BookByDate = new DateTime(2018, 11, 29),
                         ValidFromDate = new DateTime(2019, 02, 12),
                         ValidToDate = new DateTime(2019, 03, 27),
-                        BookingCode = "WWHL603",
-                        Details = new MultiLanguage<string> {En = ""}
+                        BookingCode = "WWHL603"
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
 
-                promotionalOffers = new[]
+                promotionalOffers = new List<RoomPromotionalOffer>
                 {
                     new RoomPromotionalOffer
                     {
@@ -2819,13 +3003,12 @@ namespace Hiroshima.DirectContractsDataSeeder
                         BookByDate = new DateTime(2019, 01, 31),
                         ValidFromDate = new DateTime(2019, 03, 28),
                         ValidToDate = new DateTime(2019, 04, 21),
-                        BookingCode = "WWHL604",
-                        Details = new MultiLanguage<string> {En = ""}
+                        BookingCode = "WWHL604"
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
 
-                promotionalOffers = new[]
+                promotionalOffers = new List<RoomPromotionalOffer>
                 {
                     new RoomPromotionalOffer
                     {
@@ -2833,13 +3016,12 @@ namespace Hiroshima.DirectContractsDataSeeder
                         BookByDate = new DateTime(2019, 01, 31),
                         ValidFromDate = new DateTime(2019, 03, 22),
                         ValidToDate = new DateTime(2019, 05, 05),
-                        BookingCode = "WWHL605",
-                        Details = new MultiLanguage<string> {En = ""}
+                        BookingCode = "WWHL605"
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
 
-                promotionalOffers = new[]
+                promotionalOffers = new List<RoomPromotionalOffer>
                 {
                     new RoomPromotionalOffer
                     {
@@ -2847,13 +3029,12 @@ namespace Hiroshima.DirectContractsDataSeeder
                         BookByDate = new DateTime(2019, 02, 28),
                         ValidFromDate = new DateTime(2019, 05, 06),
                         ValidToDate = new DateTime(2019, 08, 31),
-                        BookingCode = "WWHL606",
-                        Details = new MultiLanguage<string> {En = ""}
+                        BookingCode = "WWHL606"
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
 
-                promotionalOffers = new[]
+                promotionalOffers = new List<RoomPromotionalOffer>
                 {
                     new RoomPromotionalOffer
                     {
@@ -2861,13 +3042,12 @@ namespace Hiroshima.DirectContractsDataSeeder
                         BookByDate = new DateTime(2019, 02, 28),
                         ValidFromDate = new DateTime(2019, 09, 01),
                         ValidToDate = new DateTime(2019, 10, 12),
-                        BookingCode = "WWHL607",
-                        Details = new MultiLanguage<string> {En = ""}
+                        BookingCode = "WWHL607"
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
 
-                promotionalOffers = new[]
+                promotionalOffers = new List<RoomPromotionalOffer>
                 {
                     new RoomPromotionalOffer
                     {
@@ -2875,13 +3055,12 @@ namespace Hiroshima.DirectContractsDataSeeder
                         BookByDate = new DateTime(2019, 05, 30),
                         ValidFromDate = new DateTime(2019, 10, 13),
                         ValidToDate = new DateTime(2019, 10, 19),
-                        BookingCode = "WWHL608",
-                        Details = new MultiLanguage<string> {En = ""}
+                        BookingCode = "WWHL608"
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
 
-                promotionalOffers = new[]
+                promotionalOffers = new List<RoomPromotionalOffer>
                 {
                     new RoomPromotionalOffer
                     {
@@ -2889,13 +3068,12 @@ namespace Hiroshima.DirectContractsDataSeeder
                         BookByDate = new DateTime(2019, 07, 31),
                         ValidFromDate = new DateTime(2019, 10, 20),
                         ValidToDate = new DateTime(2019, 11, 09),
-                        BookingCode = "WWHL609",
-                        Details = new MultiLanguage<string> {En = ""}
+                        BookingCode = "WWHL609"
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
 
-                promotionalOffers = new[]
+                promotionalOffers = new List<RoomPromotionalOffer>
                 {
                     new RoomPromotionalOffer
                     {
@@ -2903,13 +3081,12 @@ namespace Hiroshima.DirectContractsDataSeeder
                         BookByDate = new DateTime(2019, 07, 31),
                         ValidFromDate = new DateTime(2019, 11, 10),
                         ValidToDate = new DateTime(2019, 12, 01),
-                        BookingCode = "WWHL610",
-                        Details = new MultiLanguage<string> {En = ""}
+                        BookingCode = "WWHL610"
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
 
-                promotionalOffers = new[]
+                promotionalOffers = new List<RoomPromotionalOffer>
                 {
                     new RoomPromotionalOffer
                     {
@@ -2917,13 +3094,12 @@ namespace Hiroshima.DirectContractsDataSeeder
                         BookByDate = new DateTime(2019, 09, 30),
                         ValidFromDate = new DateTime(2019, 12, 02),
                         ValidToDate = new DateTime(2019, 12, 21),
-                        BookingCode = "WWHL611",
-                        Details = new MultiLanguage<string> {En = ""}
+                        BookingCode = "WWHL611"
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
 
-                promotionalOffers = new[]
+                promotionalOffers = new List<RoomPromotionalOffer>
                 {
                     new RoomPromotionalOffer
                     {
@@ -2931,13 +3107,12 @@ namespace Hiroshima.DirectContractsDataSeeder
                         BookByDate = new DateTime(2019, 09, 30),
                         ValidFromDate = new DateTime(2019, 12, 22),
                         ValidToDate = new DateTime(2019, 12, 26),
-                        BookingCode = "WWHL612",
-                        Details = new MultiLanguage<string> {En = ""}
+                        BookingCode = "WWHL612"
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
 
-                promotionalOffers = new[]
+                promotionalOffers = new List<RoomPromotionalOffer>
                 {
                     new RoomPromotionalOffer
                     {
@@ -2945,13 +3120,12 @@ namespace Hiroshima.DirectContractsDataSeeder
                         BookByDate = new DateTime(2019, 09, 30),
                         ValidFromDate = new DateTime(2019, 12, 27),
                         ValidToDate = new DateTime(2020, 01, 04),
-                        BookingCode = "WWHL613",
-                        Details = new MultiLanguage<string> {En = ""}
+                        BookingCode = "WWHL613"
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
 
-                promotionalOffers = new[]
+                promotionalOffers = new List<RoomPromotionalOffer>
                 {
                     new RoomPromotionalOffer
                     {
@@ -2959,8 +3133,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                         BookByDate = new DateTime(2019, 09, 30),
                         ValidFromDate = new DateTime(2020, 01, 05),
                         ValidToDate = new DateTime(2020, 01, 13),
-                        BookingCode = "WWHL614",
-                        Details = new MultiLanguage<string> {En = ""}
+                        BookingCode = "WWHL614"
                     }
                 };
                 AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
@@ -3157,14 +3330,14 @@ namespace Hiroshima.DirectContractsDataSeeder
             }
         }
 
-        private static void FillRates(DirectContractsDbContext dbContext,
+        private static void FillRates(DcDbContext dbContext,
             (DateTime startDate, DateTime endDate)[] seasonsPeriods, List<(int, decimal)> roomIdsAndPrices)
         {
             foreach (var seasonPeriod in seasonsPeriods)
             {
                 foreach (var roomIdsAndPrice in roomIdsAndPrices)
                 {
-                    var rate = new RoomRateData
+                    var rate = new RoomRate
                     {
                         StartDate = seasonPeriod.startDate,
                         EndDate = seasonPeriod.endDate,
@@ -3178,24 +3351,31 @@ namespace Hiroshima.DirectContractsDataSeeder
             }
         }
 
-        private static void AddPromotionalOffers(DirectContractsDbContext dbContext, int[] roomIds,
-            RoomPromotionalOffer[] promotionalOffers)
+        private static void AddPromotionalOffers(DcDbContext dbContext, int[] roomIds,
+            List<RoomPromotionalOffer> promotionalOffers)
         {
-            foreach (var id in roomIds)
+            foreach (var roomId in roomIds)
             {
+                var promotionalOffersWithRoomIds = new List<RoomPromotionalOffer>();
                 foreach (var promotionalOffer in promotionalOffers)
                 {
-                    promotionalOffer.RoomId = id;
+                    promotionalOffersWithRoomIds.Add(new RoomPromotionalOffer
+                    {
+                        Details = promotionalOffer.Details,
+                        BookingCode = promotionalOffer.BookingCode,
+                        DiscountPercent = promotionalOffer.DiscountPercent,
+                        RoomId = roomId,
+                        BookByDate = promotionalOffer.BookByDate,
+                        ValidFromDate = promotionalOffer.ValidFromDate,
+                        ValidToDate = promotionalOffer.ValidToDate
+                    });
                 }
-
-                var serialized = JsonConvert.SerializeObject(promotionalOffers,
-                    new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore});
                 dbContext.RoomPromotionalOffers.AddRange(
-                    JsonConvert.DeserializeObject<IEnumerable<RoomPromotionalOffer>>(serialized));
+                    promotionalOffersWithRoomIds);
             }
         }
 
-        private static void AddRoomAllocationRequirements(DirectContractsDbContext dbContext, int[] ids,
+        private static void AddRoomAllocationRequirements(DcDbContext dbContext, int[] ids,
             RoomAllocationRequirement[] roomAllocationRequirements)
         {
             foreach (var id in ids)
@@ -3213,8 +3393,9 @@ namespace Hiroshima.DirectContractsDataSeeder
         }
 
 
-        private static void AddCancellationPolicies(DirectContractsDbContext dbContext,
-            (DateTime startsFrom, DateTime endsTo)[] seasonDates, int[] roomIds, RoomCancellationPolicy roomCancellationPolicy)
+        private static void AddCancellationPolicies(DcDbContext dbContext,
+            (DateTime startsFrom, DateTime endsTo)[] seasonDates, int[] roomIds,
+            RoomCancellationPolicy roomCancellationPolicy)
         {
             foreach (var (startsFrom, endsTo) in seasonDates)
             {
@@ -3224,7 +3405,8 @@ namespace Hiroshima.DirectContractsDataSeeder
                     roomCancellationPolicy.StartDate = startsFrom;
                     roomCancellationPolicy.EndDate = endsTo;
                     var serialized = JsonConvert.SerializeObject(roomCancellationPolicy);
-                    dbContext.CancellationPolicies.Add(JsonConvert.DeserializeObject<RoomCancellationPolicy>(serialized));
+                    dbContext.CancellationPolicies.Add(
+                        JsonConvert.DeserializeObject<RoomCancellationPolicy>(serialized));
                 }
             }
         }

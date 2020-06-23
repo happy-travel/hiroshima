@@ -3,7 +3,6 @@ using System.IO;
 using System.Reflection;
 using Hiroshima.Common.Infrastructure;
 using Hiroshima.DbData;
-using Hiroshima.DbData.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -19,7 +18,7 @@ namespace Hiroshima.DirectContractsDataSeeder
         }
 
 
-        private static DirectContractsDbContext CreateDbContext()
+        private static DcDbContext CreateDbContext()
         {
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))
@@ -29,13 +28,12 @@ namespace Hiroshima.DirectContractsDataSeeder
                 .AddEnvironmentVariables()
                 .Build();
             
-            var dbContextOptions = new DbContextOptionsBuilder<DirectContractsDbContext>();
+            var dbContextOptions = new DbContextOptionsBuilder<DcDbContext>();
             using var vaultClient = StartupHelper.CreateVaultClient(configuration);
             vaultClient.Login(configuration[configuration["Vault:Token"]]).GetAwaiter().GetResult();
-            //var connectionString = StartupHelper.GetDbConnectionString(vaultClient, "Database:ConnectionOptions", configuration);
-            var connectionString = "Server=localhost;Port=5433;Database=directcontracts;Userid=postgres;Password=postgress";
+            var connectionString = StartupHelper.GetDbConnectionString(vaultClient, "Database:ConnectionOptions", configuration);
             dbContextOptions.UseNpgsql(connectionString, builder => builder.UseNetTopologySuite());
-            return new DirectContractsDbContext(dbContextOptions.Options);
+            return new DcDbContext(dbContextOptions.Options);
         }
     }
 }

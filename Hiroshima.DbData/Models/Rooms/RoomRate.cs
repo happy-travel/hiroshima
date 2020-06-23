@@ -4,15 +4,16 @@ using Hiroshima.Common.Models;
 
 namespace Hiroshima.DbData.Models.Rooms
 {
-    public class RoomPromotionalOffer:BaseModel
+    public class RoomRate: BaseModel
     {
         public int Id { get; set; }
         public int RoomId { get; set; }
-        public DateTime BookByDate { get; set; }
-        public DateTime ValidFromDate { get; set; }
-        public DateTime ValidToDate { get; set; }
-        public double DiscountPercent { get; set; }
-        public string BookingCode { get; set; }
+        public decimal Price { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public string CurrencyCode { get; set; }
+        public string BoardBasis { get; set; }
+        public string MealPlan { get; set; }
         public JsonDocument Details { get; set; }
         
         

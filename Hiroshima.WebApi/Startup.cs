@@ -1,13 +1,9 @@
-using System;
 using System.Globalization;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Geography;
-using HappyTravel.VaultClient;
 using Hiroshima.Common.Infrastructure;
 using Hiroshima.DirectContracts.Extensions;
 using Hiroshima.DirectContracts.Infrastructure.Options;
-using Hiroshima.DirectContracts.Services;
-using Hiroshima.DirectContracts.Services.Availability;
 using Hiroshima.WebApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -44,9 +40,8 @@ namespace Hiroshima.WebApi
 
             using var vaultClient = StartupHelper.CreateVaultClient(Configuration);
             vaultClient.Login(Configuration[Configuration["Vault:Token"]]).GetAwaiter().GetResult();
-            //var dbConnectionString = StartupHelper.GetDbConnectionString(vaultClient, "DirectContracts:Database", Configuration);
-            var dbConnectionString = "Server=localhost;Port=5433;Database=directcontracts;Userid=postgres;Password=postgress";
-            
+            var dbConnectionString = StartupHelper.GetDbConnectionString(vaultClient, "DirectContracts:Database", Configuration);
+           
             services.AddApiVersioning(options =>
             {
                 options.AssumeDefaultVersionWhenUnspecified = false;
@@ -75,10 +70,20 @@ namespace Hiroshima.WebApi
                     options.SupportedCultures = new[]
                     {
                         new CultureInfo("ar"),
+                        new CultureInfo("bg"),
+                        new CultureInfo("de"),
+                        new CultureInfo("el"),
                         new CultureInfo("cn"),
                         new CultureInfo("en"),
                         new CultureInfo("es"),
                         new CultureInfo("fr"),
+                        new CultureInfo("it"),
+                        new CultureInfo("hu"),
+                        new CultureInfo("pl"),
+                        new CultureInfo("pt"),
+                        new CultureInfo("ro"),
+                        new CultureInfo("sr"),
+                        new CultureInfo("tr"),
                         new CultureInfo("ru")
                     };
                     options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider {Options = options});

@@ -1,59 +1,156 @@
-﻿using System;
-using System.Collections.Generic;
-using Hiroshima.Common.Models.Enums;
-using Hiroshima.Common.Utils.Languages;
+﻿using Hiroshima.Common.Constants;
 
 namespace Hiroshima.Common.Models
 {
     public class MultiLanguage<T>
     {
-        public List<T> GetValues()
-        {
-            var values = new List<T>();
-            foreach (var languageCode in Constants.ConstantValues.AvailableLanguages)
-            {
-                var language = GetValue(languageCode.Value);
-                if (language != null)
-                    values.Add(language);
-            }
-            return values;
-        }
-
-
-        public T GetValue(Languages languages) =>
-        languages switch
-        {
-            Languages.Ar => Ar,
-            Languages.Cn => Cn,
-            Languages.De => De,
-            Languages.En => En,
-            Languages.Es => Es,
-            Languages.Fr => Fr,
-            Languages.Ru => Ru,
-            _ => throw new ArgumentException(message: "invalid enum value", paramName: nameof(languages)),
-        };
+        public T Ar { get; set; }
+        public T Bg { get; set; }
+        public T De { get; set; }
+        public T El { get; set; }
+        public T En { get; set; }
+        public T Es { get; set; }
+        public T Fr { get; set; }
+        public T It { get; set; }
+        public T Hu { get; set; }
+        public T Pl { get; set; }
+        public T Pt { get; set; }
+        public T Ro { get; set; }
+        public T Ru { get; set; }
+        public T Sr { get; set; }
+        public T Tr { get; set; }
 
 
         public bool TryGetValue(string languageCode, out T value)
         {
-            var language = LanguageUtils.GetLanguage(languageCode);
-            if (language == Languages.Unknown)
+            switch (languageCode.ToUpperInvariant())
             {
-                value = default;
-                return false;
+                case "AR":
+                    value = Ar;
+                    break;
+                case "BG":
+                    value = Bg;
+                    break;
+                case "DE":
+                    value = De;
+                    break;
+                case "El":
+                    value = El;
+                    break;
+                case "EN":
+                    value = En;
+                    break;
+                case "ES":
+                    value = Es;
+                    break;
+                case "FR":
+                    value = Fr;
+                    break;
+                case "IT":
+                    value = It;
+                    break;
+                case "HU":
+                    value = Hu;
+                    break;
+                case "PL":
+                    value = Pl;
+                    break;
+                case "PT":
+                    value = Pt;
+                    break;
+                case "RO":
+                    value = Ro;
+                    break;
+                case "RU":
+                    value = Ru;
+                    break;
+                case "SR":
+                    value = Sr;
+                    break;
+                case "TR":
+                    value = Tr;
+                    break;
+                default:
+                    value = default;
+                    return false;
             }
-            value = GetValue(language);
-            return !(value is null);
+            
+            return value != null;
         }
 
-        
-        public T Ar { get; set; }
-        public T Cn { get; set; }
-        public T De { get; set; }
-        public T En { get; set; }
-        public T Es { get; set; }
-        public T Fr { get; set; }
-        public T Ru { get; set; }
 
+        public bool TryGetValueOrDefault(string languageCode, out T value)
+        {
+            if (TryGetValue(languageCode, out value))
+                return true;
+            
+            var defaultLanguageCode = Languages.GetLanguageCode(Languages.DefaultLanguage);
+            
+            return TryGetValue(defaultLanguageCode, out value);
+        }
+        
+        
+        public bool TryAddValue(string languageCode, T value)
+        {
+            if (!Languages.TryGetLanguage(languageCode, out var language)) 
+                return false;
+            
+            return TryAddValue(language, value);
+        }
+        
+        
+        public bool TryAddValue(DcLanguages etgLanguage, T value)
+        {
+            switch (etgLanguage)
+            {
+                case DcLanguages.Arabic:
+                    Bg = value;
+                    return true;
+                case DcLanguages.Bulgarian:
+                    Bg = value;
+                    return true;
+                case DcLanguages.German:
+                    De = value;
+                    return true;
+                case DcLanguages.Greek:
+                    El = value;
+                    return true;
+                case DcLanguages.English:
+                    En = value;
+                    return true;
+                case DcLanguages.Spanish:
+                    Es = value;
+                    return true;
+                case DcLanguages.French:
+                    Fr = value;
+                    return true;
+                case DcLanguages.Italian:
+                    It = value;
+                    return true;
+                case DcLanguages.Hungarian:
+                    Hu = value;
+                    return true;
+                case DcLanguages.Polish:
+                    Pl = value;
+                    return true;
+                case DcLanguages.Portuguese:
+                    Pt = value;
+                    return true;
+                case DcLanguages.Romanian:
+                    Ro = value;
+                    return true;
+                case DcLanguages.Russian:
+                    Ru = value;
+                    return true;
+                case DcLanguages.Serbian:
+                    Sr = value;
+                    return true;
+                case DcLanguages.Turkish:
+                    Tr = value;
+                    return true;
+                default:
+                    return false;
+            }
+        }
     }
 }

@@ -25,7 +25,6 @@ namespace Hiroshima.WebApi.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetAvailability([FromBody] AvailabilityRequest request)
         {
-            //TODO change LanguageCode !!!
             var (_, isFailure, value, error) = await _availabilityService.GetAvailabilityDetails(request, LanguageCode);
             if (isFailure)
                 return BadRequest(error);

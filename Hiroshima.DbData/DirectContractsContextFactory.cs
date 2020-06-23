@@ -7,9 +7,9 @@ using Microsoft.Extensions.Configuration;
 
 namespace Hiroshima.DbData
 {
-    class DirectContractsContextFactory : IDesignTimeDbContextFactory<DirectContractsDbContext>
+    class DirectContractsContextFactory : IDesignTimeDbContextFactory<DcDbContext>
     {
-        public DirectContractsDbContext CreateDbContext(string[] args)
+        public DcDbContext CreateDbContext(string[] args)
         {
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))
@@ -21,15 +21,13 @@ namespace Hiroshima.DbData
 
             using var vaultClient = StartupHelper.CreateVaultClient(configuration);
             vaultClient.Login(configuration[configuration["Vault:Token"]]).GetAwaiter().GetResult();
+            var connectionString = StartupHelper.GetDbConnectionString(vaultClient, "Database:ConnectionOptions",  configuration);
             
-            var connectionString = "Server=localhost;Port=5433;Database=directcontracts;Userid=postgres;Password=postgress";
-            // var connectionString = StartupHelper.GetDbConnectionString(vaultClient, configuration);
-            
-            var dbContextOptions = new DbContextOptionsBuilder<DirectContractsDbContext>();
+            var dbContextOptions = new DbContextOptionsBuilder<DcDbContext>();
             dbContextOptions.UseNpgsql(connectionString, 
                 builder => builder.UseNetTopologySuite());
 
-            return new DirectContractsDbContext(dbContextOptions.Options);
+            return new DcDbContext(dbContextOptions.Options);
         }
     }
 }
