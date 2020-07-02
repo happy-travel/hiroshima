@@ -7,9 +7,9 @@ using Microsoft.Extensions.Configuration;
 
 namespace Hiroshima.DbData
 {
-    class DirectContractsContextFactory : IDesignTimeDbContextFactory<DcDbContext>
+    class DirectContractsContextFactory : IDesignTimeDbContextFactory<DirectContractsDbContext>
     {
-        public DcDbContext CreateDbContext(string[] args)
+        public DirectContractsDbContext CreateDbContext(string[] args)
         {
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))
@@ -21,13 +21,13 @@ namespace Hiroshima.DbData
 
             using var vaultClient = StartupHelper.CreateVaultClient(configuration);
             vaultClient.Login(configuration[configuration["Vault:Token"]]).GetAwaiter().GetResult();
-            var connectionString = StartupHelper.GetDbConnectionString(vaultClient, "Database:ConnectionOptions",  configuration);
+            var connectionString = StartupHelper.GetDbConnectionString(vaultClient, "Database",  configuration);
             
-            var dbContextOptions = new DbContextOptionsBuilder<DcDbContext>();
+            var dbContextOptions = new DbContextOptionsBuilder<DirectContractsDbContext>();
             dbContextOptions.UseNpgsql(connectionString, 
                 builder => builder.UseNetTopologySuite());
 
-            return new DcDbContext(dbContextOptions.Options);
+            return new DirectContractsDbContext(dbContextOptions.Options);
         }
     }
 }

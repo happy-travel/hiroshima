@@ -1,6 +1,6 @@
 ﻿namespace Hiroshima.DirectContracts.Infrastructure.Options
 {
-    public class DcOptions
+    public struct DcOptions
     {
         public string ConnectionString { get; set; }
     }

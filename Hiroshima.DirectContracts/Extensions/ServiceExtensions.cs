@@ -12,10 +12,10 @@ namespace Hiroshima.DirectContracts.Extensions
     {
         public static IServiceCollection AddDirectContractsServices(this IServiceCollection services, DcOptions dcOptions)
         {
-            if (dcOptions == null)
+            if (dcOptions.Equals(default))
                 throw new ArgumentNullException($"{nameof(dcOptions)} is null");
             
-            services.AddEntityFrameworkNpgsql().AddDbContextPool<DcDbContext>(options =>
+            services.AddEntityFrameworkNpgsql().AddDbContextPool<DirectContractsDbContext>(options =>
             {
                 options.UseNpgsql(dcOptions.ConnectionString, npgsqlOptions =>
                     {
@@ -27,13 +27,13 @@ namespace Hiroshima.DirectContracts.Extensions
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             }, 16);
 
-            services.AddTransient<IDcAvailabilityService, DcAvailabilityService>();
-            services.AddTransient<IDcRoomAvailabilityService, DcRoomAvailabilityService>();
-            services.AddTransient<IDcAccommodationAvailabilityService, DcAccommodationAvailabilityService>();
-            services.AddTransient<IDcRateAvailabilityService, DcRateAvailabilityService>();
-            services.AddTransient<IDcCancellationPoliciesService, DcCancellationPoliciesService>();
-            services.AddSingleton<IDcAvailableRatePaymentService, DcAvailableRatePaymentService>();
-            services.AddSingleton<IDcCancellationPoliciesService, DcCancellationPoliciesService>();
+            services.AddTransient<IAvailabilityService, AvailabilityService>();
+            services.AddTransient<IRoomAvailabilityService, RoomAvailabilityService>();
+            services.AddTransient<IRateAvailabilityService, RateAvailabilityService>();
+            services.AddTransient<ICancellationPoliciesService, CancellationPoliciesService>();
+            services.AddSingleton<IPaymentDetailsService, PaymentDetailsService>();
+            services.AddSingleton<ICancellationPoliciesService, CancellationPoliciesService>();
+            services.AddScoped<IAvailabilityRepository, AvailabilityRepository>();
 
             return services;
         }

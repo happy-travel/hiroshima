@@ -70,20 +70,7 @@ namespace Hiroshima.WebApi
                     options.SupportedCultures = new[]
                     {
                         new CultureInfo("ar"),
-                        new CultureInfo("bg"),
-                        new CultureInfo("de"),
-                        new CultureInfo("el"),
-                        new CultureInfo("cn"),
                         new CultureInfo("en"),
-                        new CultureInfo("es"),
-                        new CultureInfo("fr"),
-                        new CultureInfo("it"),
-                        new CultureInfo("hu"),
-                        new CultureInfo("pl"),
-                        new CultureInfo("pt"),
-                        new CultureInfo("ro"),
-                        new CultureInfo("sr"),
-                        new CultureInfo("tr"),
                         new CultureInfo("ru")
                     };
                     options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider {Options = options});

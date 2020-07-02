@@ -18,7 +18,7 @@ namespace Hiroshima.DirectContractsDataSeeder
         }
 
 
-        private static DcDbContext CreateDbContext()
+        private static DirectContractsDbContext CreateDbContext()
         {
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))
@@ -28,12 +28,12 @@ namespace Hiroshima.DirectContractsDataSeeder
                 .AddEnvironmentVariables()
                 .Build();
             
-            var dbContextOptions = new DbContextOptionsBuilder<DcDbContext>();
+            var dbContextOptions = new DbContextOptionsBuilder<DirectContractsDbContext>();
             using var vaultClient = StartupHelper.CreateVaultClient(configuration);
             vaultClient.Login(configuration[configuration["Vault:Token"]]).GetAwaiter().GetResult();
-            var connectionString = StartupHelper.GetDbConnectionString(vaultClient, "Database:ConnectionOptions", configuration);
+            var connectionString = StartupHelper.GetDbConnectionString(vaultClient, "Database", configuration);
             dbContextOptions.UseNpgsql(connectionString, builder => builder.UseNetTopologySuite());
-            return new DcDbContext(dbContextOptions.Options);
+            return new DirectContractsDbContext(dbContextOptions.Options);
         }
     }
 }

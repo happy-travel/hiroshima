@@ -2,32 +2,32 @@
 using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.EdoContracts.Accommodations.Enums;
+using Hiroshima.Common.Infrastructure.Extensions;
 using Hiroshima.Common.Models;
 using Hiroshima.Common.Models.Enums;
 using Hiroshima.DbData;
-using Hiroshima.DbData.Extensions;
-using Hiroshima.DbData.Models;
 using Hiroshima.DbData.Models.Accommodation;
-using Hiroshima.DbData.Models.Rooms;
-using Hiroshima.DbData.Models.Rooms.CancellationPolicies;
-using Hiroshima.DbData.Models.Rooms.Occupancy;
+using Hiroshima.DbData.Models.Room;
+using Hiroshima.DbData.Models.Room.CancellationPolicies;
+using Hiroshima.DbData.Models.Room.Occupancy;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using Location = Hiroshima.DbData.Models.Location;
+using JsonDocumentUtilities = Hiroshima.Common.Infrastructure.Utilities.JsonDocumentUtilities;
 
 namespace Hiroshima.DirectContractsDataSeeder
 {
     internal static class DataSeeder
     {
-        internal static void AddData(DcDbContext dbContext)
+        internal static void AddData(DirectContractsDbContext dbContext)
         {
             AddLocations(dbContext);
             AddOneAndOnlyContract(dbContext);
             AddJumeriahContract(dbContext);
         }
 
-        private static void AddLocations(DcDbContext dbContext)
+        private static void AddLocations(DirectContractsDbContext dbContext)
         {
             #region AddCountries
 
@@ -36,7 +36,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                 Code = "AE"
             };
 
-            country.SetName(new MultiLanguage<string>
+            country.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
                 En = "The United Arab Emirates",
                 Ru = "Объединенные Арабские Эмираты",
@@ -57,7 +57,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                 ParentId = 0
             };
 
-            location.SetName(new MultiLanguage<string>
+            location.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
                 En = "The United Arab Emirates",
                 Ru = "Объединенные Арабские Эмираты",
@@ -74,7 +74,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                 ParentId = 1
             };
 
-            location.SetName(new MultiLanguage<string>
+            location.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
                 Ar = "دبي",
                 En = "Dubai",
@@ -88,7 +88,7 @@ namespace Hiroshima.DirectContractsDataSeeder
         }
 
 
-        private static int GetLocationId(DcDbContext dbContext)
+        private static int GetLocationId(DirectContractsDbContext dbContext)
         {
             var location = dbContext.Locations.Where(l =>
                     l.Name.RootElement.GetProperty("en").GetString() == "Dubai" &&
@@ -98,12 +98,19 @@ namespace Hiroshima.DirectContractsDataSeeder
         }
 
 
-        private static void AddOneAndOnlyContract(DcDbContext dbContext)
+        private static bool IsAccommodationExist(DirectContractsDbContext dbContext, string accommodationName)
         {
-            var accommodationWithLocation =
-              dbContext.GetAccommodations("ONE&ONLY ROYAL MIRAGE", "en").Result.FirstOrDefault();
-
-            if (accommodationWithLocation == null)
+            var accommodation = dbContext.Accommodations
+                .Where(a=> a.Name.RootElement.GetProperty("en")
+                .GetString() == accommodationName).SingleOrDefault();
+            
+            return accommodation != null;
+        }
+        
+        
+        private static void AddOneAndOnlyContract(DirectContractsDbContext dbContext)
+        {
+            if (!IsAccommodationExist(dbContext, "ONE&ONLY ROYAL MIRAGE"))
             {
                 var hotelId = 1;
 
@@ -140,15 +147,15 @@ namespace Hiroshima.DirectContractsDataSeeder
                     LocationId = GetLocationId(dbContext)
                 };
 
-                accommodation.SetName(
+                accommodation.Name = JsonDocumentUtilities.CreateJDocument(
                     new MultiLanguage<string>
                     {
                         Ar = "ون آند اونلي رويال ميراج",
                         En = "ONE&ONLY ROYAL MIRAGE",
                         Ru = "ONE&ONLY ROYAL MIRAGE"
                     });
-
-                accommodation.SetTextualDescription(new MultiLanguage<TextualDescription>
+                
+                accommodation.TextualDescription  = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<TextualDescription>
                 {
                     En = new TextualDescription
                     {
@@ -167,7 +174,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 });
 
-                accommodation.SetAdditionalInfo(new MultiLanguage<Dictionary<string, string>>
+                accommodation.AdditionalInfo = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<Dictionary<string, string>>
                 {
                     En = new Dictionary<string, string>
                     {
@@ -181,14 +188,14 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 });
 
-                accommodation.SetAddress(new MultiLanguage<string>
+                accommodation.Address = JsonDocumentUtilities.CreateJDocument (new MultiLanguage<string>
                 {
                     Ar = "شارع الملك سلمان بن عبدالعزيز آل سعود - دبي",
                     En = "King Salman Bin Abdulaziz Al Saud St - Dubai",
                     Ru = "King Salman Bin Abdulaziz Al Saud St - Dubai - ОАЭ"
                 });
 
-                accommodation.SetAccommodationAmenities(new MultiLanguage<List<string>>
+                accommodation.AccommodationAmenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>>
                 {
                     En =
                         new List<string>
@@ -212,7 +219,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 });
 
-                accommodation.SetPictures(new MultiLanguage<List<Picture>>
+                accommodation.Pictures = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<Picture>>
                 {
                     En = new List<Picture>
                     {
@@ -262,9 +269,9 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 };
 
-                room.SetName(new MultiLanguage<string> {En = "Palace Superior Deluxe Room", Ru = "", Ar = ""});
-                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
-                room.SetAmenities(new MultiLanguage<List<string>>
+                room.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "Palace Superior Deluxe Room", Ru = "", Ar = ""});
+                room.Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.Amenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>>
                 {
                     En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                 });
@@ -280,9 +287,9 @@ namespace Hiroshima.DirectContractsDataSeeder
                         new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
                     }
                 };
-                room.SetName(new MultiLanguage<string> {En = "Palace Gold Club Room", Ru = "", Ar = ""});
-                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
-                room.SetAmenities(new MultiLanguage<List<string>>
+                room.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "Palace Gold Club Room", Ru = "", Ar = ""});
+                room.Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.Amenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>>
                 {
                     En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                 });
@@ -298,9 +305,9 @@ namespace Hiroshima.DirectContractsDataSeeder
                         new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
                     }
                 };
-                room.SetName(new MultiLanguage<string> {En = "Palace One Bedroom Executive Suite", Ru = "", Ar = ""});
-                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
-                room.SetAmenities(new MultiLanguage<List<string>>
+                room.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "Palace One Bedroom Executive Suite", Ru = "", Ar = ""});
+                room.Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.Amenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>>
                 {
                     En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                 });
@@ -316,9 +323,9 @@ namespace Hiroshima.DirectContractsDataSeeder
                         new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
                     }
                 };
-                room.SetName(new MultiLanguage<string> {En = "Palace One Bedroom Gold Club Suite", Ru = "", Ar = ""});
-                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
-                room.SetAmenities(new MultiLanguage<List<string>>
+                room.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "Palace One Bedroom Gold Club Suite", Ru = "", Ar = ""});
+                room.Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.Amenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>>
                 {
                     En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                 });
@@ -335,9 +342,9 @@ namespace Hiroshima.DirectContractsDataSeeder
                         new OccupancyConfiguration {Adults = 4, Infants = 1}
                     }
                 };
-                room.SetName(new MultiLanguage<string> {En = "Palace Two Bedroom Executive Suite", Ru = "", Ar = ""});
-                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
-                room.SetAmenities(new MultiLanguage<List<string>>
+                room.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "Palace Two Bedroom Executive Suite", Ru = "", Ar = ""});
+                room.Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.Amenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>>
                 {
                     En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                 });
@@ -354,9 +361,9 @@ namespace Hiroshima.DirectContractsDataSeeder
                         new OccupancyConfiguration {Adults = 4, Infants = 1}
                     }
                 };
-                room.SetName(new MultiLanguage<string> {En = "Palace Two Bedroom Gold Club Suite", Ru = "", Ar = ""});
-                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
-                room.SetAmenities(new MultiLanguage<List<string>>
+                room.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "Palace Two Bedroom Gold Club Suite", Ru = "", Ar = ""});
+                room.Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.Amenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>>
                 {
                     En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                 });
@@ -373,9 +380,9 @@ namespace Hiroshima.DirectContractsDataSeeder
                         new OccupancyConfiguration {Adults = 4, Infants = 1}
                     }
                 };
-                room.SetName(new MultiLanguage<string> {En = "Palace Two Bedroom Royal Suite", Ru = "", Ar = ""});
-                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
-                room.SetAmenities(new MultiLanguage<List<string>>
+                room.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "Palace Two Bedroom Royal Suite", Ru = "", Ar = ""});
+                room.Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.Amenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>>
                 {
                     En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                 });
@@ -391,9 +398,9 @@ namespace Hiroshima.DirectContractsDataSeeder
                         new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
                     }
                 };
-                room.SetName(new MultiLanguage<string> {En = "Arabian Court Deluxe Room", Ru = "", Ar = ""});
-                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
-                room.SetAmenities(new MultiLanguage<List<string>>
+                room.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "Arabian Court Deluxe Room", Ru = "", Ar = ""});
+                room.Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.Amenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>>
                 {
                     En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                 });
@@ -411,10 +418,10 @@ namespace Hiroshima.DirectContractsDataSeeder
                         new OccupancyConfiguration {Adults = 3, Children = 1, Infants = 2}
                     }
                 };
-                room.SetName(new MultiLanguage<string>
+                room.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                     {En = "Arabian Court Two Deluxe Rooms Family Accommodation", Ru = "", Ar = ""});
-                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
-                room.SetAmenities(new MultiLanguage<List<string>>
+                room.Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.Amenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>>
                 {
                     En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                 });
@@ -430,10 +437,10 @@ namespace Hiroshima.DirectContractsDataSeeder
                         new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
                     }
                 };
-                room.SetName(new MultiLanguage<string>
+                room.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                     {En = "Arabian Court One Bedroom Executive Suite", Ru = "", Ar = ""});
-                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
-                room.SetAmenities(new MultiLanguage<List<string>>
+                room.Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.Amenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>>
                 {
                     En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                 });
@@ -450,10 +457,10 @@ namespace Hiroshima.DirectContractsDataSeeder
                         new OccupancyConfiguration {Adults = 4, Infants = 1}
                     }
                 };
-                room.SetName(new MultiLanguage<string>
+                room.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                     {En = "Arabian Court Two Bedroom Executive Suite", Ru = "", Ar = ""});
-                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
-                room.SetAmenities(new MultiLanguage<List<string>>
+                room.Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.Amenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>>
                 {
                     En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                 });
@@ -469,9 +476,9 @@ namespace Hiroshima.DirectContractsDataSeeder
                         new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
                     }
                 };
-                room.SetName(new MultiLanguage<string> {En = "Arabian Court Prince Suite", Ru = "", Ar = ""});
-                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
-                room.SetAmenities(new MultiLanguage<List<string>>
+                room.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "Arabian Court Prince Suite", Ru = "", Ar = ""});
+                room.Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.Amenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>>
                 {
                     En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                 });
@@ -487,9 +494,9 @@ namespace Hiroshima.DirectContractsDataSeeder
                         new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
                     }
                 };
-                room.SetName(new MultiLanguage<string> {En = "Residence Prestige Room", Ru = "", Ar = ""});
-                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
-                room.SetAmenities(new MultiLanguage<List<string>>
+                room.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "Residence Prestige Room", Ru = "", Ar = ""});
+                room.Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.Amenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>>
                 {
                     En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                 });
@@ -505,9 +512,9 @@ namespace Hiroshima.DirectContractsDataSeeder
                         new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
                     }
                 };
-                room.SetName(new MultiLanguage<string> {En = "Residence Junior Suite", Ru = "", Ar = ""});
-                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
-                room.SetAmenities(new MultiLanguage<List<string>>
+                room.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "Residence Junior Suite", Ru = "", Ar = ""});
+                room.Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.Amenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>>
                 {
                     En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                 });
@@ -523,9 +530,9 @@ namespace Hiroshima.DirectContractsDataSeeder
                         new OccupancyConfiguration {Adults = 2, Children = 1, Infants = 1}
                     }
                 };
-                room.SetName(new MultiLanguage<string> {En = "Residence Executive Suite", Ru = "", Ar = ""});
-                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
-                room.SetAmenities(new MultiLanguage<List<string>>
+                room.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "Residence Executive Suite", Ru = "", Ar = ""});
+                room.Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.Amenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>>
                 {
                     En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                 });
@@ -542,9 +549,9 @@ namespace Hiroshima.DirectContractsDataSeeder
                         new OccupancyConfiguration {Adults = 4, Infants = 1}
                     }
                 };
-                room.SetName(new MultiLanguage<string> {En = "Residence Garden Beach Villa", Ru = "", Ar = ""});
-                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
-                room.SetAmenities(new MultiLanguage<List<string>>
+                room.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "Residence Garden Beach Villa", Ru = "", Ar = ""});
+                room.Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.Amenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>>
                 {
                     En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                 });
@@ -564,7 +571,7 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 var cancellationPolicy = new RoomCancellationPolicy
                 {
-                    CancellationPolicyData = new List<CancellationPolicyData>
+                    Details = new List<CancellationPolicyData>
                     {
                         new CancellationPolicyData
                         {
@@ -583,7 +590,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                 dbContext.SaveChanges();
                 cancellationPolicy = new RoomCancellationPolicy
                 {
-                    CancellationPolicyData = new List<CancellationPolicyData>
+                    Details = new List<CancellationPolicyData>
                     {
                         new CancellationPolicyData
                         {
@@ -607,7 +614,7 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 cancellationPolicy = new RoomCancellationPolicy
                 {
-                    CancellationPolicyData = new List<CancellationPolicyData>
+                    Details = new List<CancellationPolicyData>
                     {
                         new CancellationPolicyData
                         {
@@ -660,7 +667,7 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 cancellationPolicy = new RoomCancellationPolicy
                 {
-                    CancellationPolicyData = new List<CancellationPolicyData>
+                    Details = new List<CancellationPolicyData>
                     {
                         new CancellationPolicyData
                         {
@@ -998,7 +1005,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 02, 07),
                     BookingCode = "25% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, DECEMBER 13, 2019, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1013,7 +1020,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 03, 20),
                     BookingCode = "20% PROMO",
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, DECEMBER 13, 2019, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1028,7 +1035,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 03, 20),
                     BookingCode = "25% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, DECEMBER 13, 2019, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1043,7 +1050,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 04, 03),
                     BookingCode = "20% PROMO",
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, FEBRUARY 28, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1058,7 +1065,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 04, 12),
                     BookingCode = "15% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, FEBRUARY 28, 2020, receive 15% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1073,7 +1080,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 04, 18),
                     BookingCode = "25% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, FEBRUARY 28, 2020, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1088,7 +1095,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 05, 03),
                     BookingCode = "20% PROMO",
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, FEBRUARY 28, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1103,7 +1110,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 05, 31),
                     BookingCode = "30% PROMO",
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, APRIL 03, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1117,7 +1124,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 09, 04),
                     BookingCode = "30% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, MAY 08, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1132,7 +1139,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 09, 20),
                     BookingCode = "30% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, AUGUST 14, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1148,7 +1155,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     BookingCode = "10% PROMO"
                 };
 
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, AUGUST 14, 2020, receive 10% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1164,7 +1171,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     BookingCode = "20% PROMO"
                 };
 
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, AUGUST 14, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1179,7 +1186,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 12, 18),
                     BookingCode = "30% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, OCTOBER 02, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1196,7 +1203,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     BookingCode = "20% PROMO",
                 };
 
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, NOVEMBER 01, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1211,7 +1218,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2021, 01, 03),
                     BookingCode = "10% PROMO",
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, AUGUST 14, 2020, receive 10% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1226,7 +1233,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2021, 03, 26),
                     BookingCode = "20% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, NOVEMBER 01, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1241,7 +1248,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2021, 04, 10),
                     BookingCode = "10% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, NOVEMBER 01, 2020, receive 10% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1256,7 +1263,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2021, 05, 07),
                     BookingCode = "10% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, FEBRUARY 26, 2021, receive 10% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1275,7 +1282,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 02, 21),
                     BookingCode = "30% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, DECEMBER 13, 2019, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1290,7 +1297,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 03, 20),
                     BookingCode = "25% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, DECEMBER 13, 2019, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1307,7 +1314,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     BookingCode = "35% PROMO"
                 };
 
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, DECEMBER 13, 2019, receive 35% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1323,7 +1330,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     BookingCode = "35% PROMO"
                 };
 
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, FEBRUARY 28, 2020, receive 35% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1338,7 +1345,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 04, 12),
                     BookingCode = "25% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, FEBRUARY 28, 2020, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1354,7 +1361,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 04, 18),
                     BookingCode = "35% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, FEBRUARY 28, 2020, receive 35% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1370,7 +1377,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 05, 03),
                     BookingCode = "30% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, FEBRUARY 28, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1385,7 +1392,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 05, 31),
                     BookingCode = "35% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, APRIL 03, 2020, receive 35% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1400,7 +1407,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 09, 04),
                     BookingCode = "30% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, MAY 08, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1415,7 +1422,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 09, 25),
                     BookingCode = "30% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, AUGUST 14, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1430,7 +1437,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 10, 16),
                     BookingCode = "30% PROMO",
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, AUGUST 14, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1445,7 +1452,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 12, 04),
                     BookingCode = "20% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, AUGUST 14, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1460,7 +1467,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 12, 18),
                     BookingCode = "30% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, OCTOBER 02, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1475,7 +1482,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 12, 25),
                     BookingCode = "20% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, NOVEMBER 01, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1490,7 +1497,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2021, 01, 03),
                     BookingCode = "10% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, NOVEMBER 01, 2020, receive 10% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1506,7 +1513,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     BookingCode = "20% PROMO"
                 };
 
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, NOVEMBER 01, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1522,7 +1529,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     BookingCode = "20% PROMO"
                 };
 
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, FEBRUARY 26, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1542,7 +1549,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     BookingCode = "25% PROMO"
                 };
 
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, DECEMBER 13, 2019, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1557,7 +1564,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 03, 20),
                     BookingCode = "20% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, DECEMBER 13, 2019, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1573,7 +1580,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     BookingCode = "30% PROMO"
                 };
 
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, DECEMBER 13, 2019, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1590,7 +1597,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     BookingCode = "20% PROMO"
                 };
 
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, FEBRUARY 28, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1606,7 +1613,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 04, 12),
                     BookingCode = "20% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, FEBRUARY 28, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1621,7 +1628,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 04, 18),
                     BookingCode = "30% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, FEBRUARY 28, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1636,7 +1643,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 05, 03),
                     BookingCode = "25% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, FEBRUARY 28, 2020, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1652,7 +1659,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     BookingCode = "30% PROMO"
                 };
 
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, APRIL 04, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1667,7 +1674,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 09, 04),
                     BookingCode = "30% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, MAY 08, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1684,7 +1691,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     BookingCode = "40% PROMO"
                 };
 
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, AUGUST 14, 2020, receive 40% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1699,7 +1706,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 10, 16),
                     BookingCode = "25% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, AUGUST 14, 2020, receive 25% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1714,7 +1721,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 12, 04),
                     BookingCode = "20% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, AUGUST 14, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1730,7 +1737,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     BookingCode = "30% PROMO"
                 };
 
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, OCTOBER 02, 2020, receive 30% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1745,7 +1752,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2020, 12, 25),
                     BookingCode = "20% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, NOVEMBER 01, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1761,7 +1768,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     BookingCode = "10% PROMO",
                 };
 
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, NOVEMBER 01, 2020, receive 10% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1776,7 +1783,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2021, 04, 10),
                     BookingCode = "20% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, NOVEMBER 01, 2020, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -1791,7 +1798,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     ValidToDate = new DateTime(2021, 05, 07),
                     BookingCode = "20% PROMO"
                 };
-                promotionalOffer.SetDetails(new MultiLanguage<string>
+                promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     En =
                         "Book on or before Friday, FEBRUARY 26, 2021, receive 20% discount, combinable with complimentary dinner dine-around offer on applicable dates"
@@ -2453,11 +2460,9 @@ namespace Hiroshima.DirectContractsDataSeeder
             }
         }
 
-        private static void AddJumeriahContract(DcDbContext dbContext)
+        private static void AddJumeriahContract(DirectContractsDbContext dbContext)
         {
-            var accommodationWithLocation =
-                dbContext.GetAccommodations("Burj Al Arab Jumeirah", "en").Result.FirstOrDefault();
-            if (accommodationWithLocation == null)
+            if (!IsAccommodationExist(dbContext, "Burj Al Arab Jumeirah"))
             {
                 var hotelId = 2;
 
@@ -2501,12 +2506,12 @@ namespace Hiroshima.DirectContractsDataSeeder
                     LocationId = GetLocationId(dbContext)
                 };
 
-                accommodation.SetName(new MultiLanguage<string>
+                accommodation.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     Ar = "برج العرب جميرا", En = "Burj Al Arab Jumeirah", Ru = "Burj Al Arab Jumeirah"
                 });
 
-                accommodation.SetTextualDescription(new MultiLanguage<TextualDescription>
+                accommodation.TextualDescription = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<TextualDescription>
                 {
                     En = new TextualDescription
                     {
@@ -2525,14 +2530,14 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 });
 
-                accommodation.SetAddress(new MultiLanguage<string>
+                accommodation.Address = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {
                     Ar = "شارع الملك سلمان بن عبدالعزيز آل سعود - دبي",
                     En = "King Salman Bin Abdulaziz Al Saud St - Dubai",
                     Ru = "King Salman Bin Abdulaziz Al Saud St - Dubai - ОАЭ"
                 });
 
-                accommodation.SetAccommodationAmenities(new MultiLanguage<List<string>>
+                accommodation.AccommodationAmenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>>
                 {
                     En = new List<string>
                     {
@@ -2554,7 +2559,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     }
                 });
 
-                accommodation.SetPictures(new MultiLanguage<List<Picture>>
+                accommodation.Pictures = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<Picture>>
                 {
                     En = new List<Picture>
                     {
@@ -2600,9 +2605,9 @@ namespace Hiroshima.DirectContractsDataSeeder
                         new OccupancyConfiguration {Adults = 2, Children = 2}
                     }
                 };
-                room.SetName(new MultiLanguage<string> {En = "One Bedroom Deluxe Suite", Ru = "", Ar = ""});
-                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
-                room.SetAmenities(new MultiLanguage<List<string>>
+                room.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "One Bedroom Deluxe Suite", Ru = "", Ar = ""});
+                room.Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.Amenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>>
                 {
                     En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                 });
@@ -2624,9 +2629,9 @@ namespace Hiroshima.DirectContractsDataSeeder
                         new OccupancyConfiguration {Adults = 2, Children = 2}
                     }
                 };
-                room.SetName(new MultiLanguage<string> {En = "Panoramic One Bedroom Suite", Ru = "", Ar = ""});
-                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
-                room.SetAmenities(new MultiLanguage<List<string>>
+                room.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "Panoramic One Bedroom Suite", Ru = "", Ar = ""});
+                room.Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.Amenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>>
                 {
                     En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                 });
@@ -2658,9 +2663,9 @@ namespace Hiroshima.DirectContractsDataSeeder
                         new OccupancyConfiguration {Adults = 1, Children = 5}
                     }
                 };
-                room.SetName(new MultiLanguage<string> {En = "Two Bedroom Delux Suite", Ru = "", Ar = ""});
-                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
-                room.SetAmenities(new MultiLanguage<List<string>>
+                room.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "Two Bedroom Delux Suite", Ru = "", Ar = ""});
+                room.Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.Amenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>>
                 {
                     En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                 });
@@ -2702,9 +2707,9 @@ namespace Hiroshima.DirectContractsDataSeeder
                         new OccupancyConfiguration {Adults = 2, Children = 5}
                     }
                 };
-                room.SetName(new MultiLanguage<string> {En = "Diplomatic Three Bedroom Suite", Ru = "", Ar = ""});
-                room.SetDescription(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
-                room.SetAmenities(new MultiLanguage<List<string>>
+                room.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "Diplomatic Three Bedroom Suite", Ru = "", Ar = ""});
+                room.Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = "", Ru = "", Ar = ""});
+                room.Amenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>>
                 {
                     En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
                 });
@@ -2725,7 +2730,7 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 var cancellationPolicy = new RoomCancellationPolicy
                 {
-                    CancellationPolicyData = new List<CancellationPolicyData>
+                    Details = new List<CancellationPolicyData>
                     {
                         new CancellationPolicyData
                         {
@@ -2750,7 +2755,7 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 cancellationPolicy = new RoomCancellationPolicy
                 {
-                    CancellationPolicyData = new List<CancellationPolicyData>
+                    Details = new List<CancellationPolicyData>
                     {
                         new CancellationPolicyData
                         {
@@ -2779,7 +2784,7 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 cancellationPolicy = new RoomCancellationPolicy
                 {
-                    CancellationPolicyData = new List<CancellationPolicyData>
+                    Details = new List<CancellationPolicyData>
                     {
                         new CancellationPolicyData
                         {
@@ -2805,7 +2810,7 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 cancellationPolicy = new RoomCancellationPolicy
                 {
-                    CancellationPolicyData = new List<CancellationPolicyData>
+                    Details = new List<CancellationPolicyData>
                     {
                         new CancellationPolicyData
                         {
@@ -2828,7 +2833,7 @@ namespace Hiroshima.DirectContractsDataSeeder
 
                 cancellationPolicy = new RoomCancellationPolicy
                 {
-                    CancellationPolicyData = new List<CancellationPolicyData>
+                    Details = new List<CancellationPolicyData>
                     {
                         new CancellationPolicyData
                         {
@@ -3330,7 +3335,7 @@ namespace Hiroshima.DirectContractsDataSeeder
             }
         }
 
-        private static void FillRates(DcDbContext dbContext,
+        private static void FillRates(DirectContractsDbContext dbContext,
             (DateTime startDate, DateTime endDate)[] seasonsPeriods, List<(int, decimal)> roomIdsAndPrices)
         {
             foreach (var seasonPeriod in seasonsPeriods)
@@ -3351,7 +3356,7 @@ namespace Hiroshima.DirectContractsDataSeeder
             }
         }
 
-        private static void AddPromotionalOffers(DcDbContext dbContext, int[] roomIds,
+        private static void AddPromotionalOffers(DirectContractsDbContext dbContext, int[] roomIds,
             List<RoomPromotionalOffer> promotionalOffers)
         {
             foreach (var roomId in roomIds)
@@ -3375,7 +3380,7 @@ namespace Hiroshima.DirectContractsDataSeeder
             }
         }
 
-        private static void AddRoomAllocationRequirements(DcDbContext dbContext, int[] ids,
+        private static void AddRoomAllocationRequirements(DirectContractsDbContext dbContext, int[] ids,
             RoomAllocationRequirement[] roomAllocationRequirements)
         {
             foreach (var id in ids)
@@ -3393,7 +3398,7 @@ namespace Hiroshima.DirectContractsDataSeeder
         }
 
 
-        private static void AddCancellationPolicies(DcDbContext dbContext,
+        private static void AddCancellationPolicies(DirectContractsDbContext dbContext,
             (DateTime startsFrom, DateTime endsTo)[] seasonDates, int[] roomIds,
             RoomCancellationPolicy roomCancellationPolicy)
         {

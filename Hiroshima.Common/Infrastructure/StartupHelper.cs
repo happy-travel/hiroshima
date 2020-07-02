@@ -19,6 +19,13 @@ namespace Hiroshima.Common.Infrastructure
         }
         
         
+        /// <summary>
+        /// The method to get a DB connection string from the Vault using options from appsettings.json
+        /// </summary>
+        /// <param name="vaultClient">The instance of the Vault client </param>
+        /// <param name="pathInAppSettings">The path in appsettings.json where connection options are located. E.g. DirectContracts:Database</param>
+        /// <param name="configuration">Represents the application configuration</param>
+        /// <returns></returns>
         public static string GetDbConnectionString(VaultClient vaultClient, string pathInAppSettings, IConfiguration configuration)
         {
             var connectionOptions = vaultClient.Get(configuration[$"{pathInAppSettings}:ConnectionOptions"]).Result;

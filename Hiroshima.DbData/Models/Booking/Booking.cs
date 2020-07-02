@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Hiroshima.Common.Models;
 using Hiroshima.Common.Models.Enums;
-using Hiroshima.DbData.Models.Rooms;
 
 namespace Hiroshima.DbData.Models.Booking
 {

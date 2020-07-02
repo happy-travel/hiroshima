@@ -10,9 +10,9 @@ namespace Hiroshima.WebApi.Services
     public class AvailabilityService : IAvailabilityService
     {
        public AvailabilityService(
-            IDcAvailabilityService dcAvailabilityService)
+            DirectContracts.Services.Availability.IAvailabilityService availabilityService)
         {
-            _dcAvailabilityService = dcAvailabilityService;
+            _availabilityService = availabilityService;
         }
 
 
@@ -20,13 +20,13 @@ namespace Hiroshima.WebApi.Services
             AvailabilityRequest availabilityRequest,
             string languageCode)
         {
-            var result = await _dcAvailabilityService.GetAvailable(availabilityRequest, languageCode);
+            var result = await _availabilityService.Get(availabilityRequest, languageCode);
             
             
             throw new NotImplementedException();
         }
 
 
-        private readonly IDcAvailabilityService _dcAvailabilityService;
+        private readonly DirectContracts.Services.Availability.IAvailabilityService _availabilityService;
     }
 }

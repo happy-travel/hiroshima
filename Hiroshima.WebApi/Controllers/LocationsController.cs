@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.EdoContracts.GeoData;
+using HappyTravel.EdoContracts.GeoData.Enums;
 using Hiroshima.DirectContracts.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,17 +15,29 @@ namespace Hiroshima.WebApi.Controllers
     [Produces("application/json")]
     public class LocationsController : Controller
     {
-        public LocationsController(IDcLocationService dcLocationService)
+        public LocationsController(ILocationService locationService)
         {
-            _dcLocationService = dcLocationService;
+            _locationService = locationService;
         }
 
 
-        [HttpGet]
+        /// <summary>
+        /// Returns locations to upload to Edo
+        /// </summary>
+        /// <param name="modified"></param>
+        /// <param name="locationType"></param>
+        /// <param name="skip"></param>
+        /// <param name="take"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        [HttpGet("{modified}")]
         [ProducesResponseType(typeof(List<Location>), (int) HttpStatusCode.OK)]
-        public async Task<IActionResult> GetLocations() => Ok(await _dcLocationService.GetLocations());
+        public async Task<IActionResult> GetLocations([FromRoute] DateTime modified, [FromQuery] LocationTypes locationType, [FromQuery] int skip = 0, [FromQuery] int take = 10000)
+        {
+            throw new NotImplementedException();
+        }
 
 
-        private readonly IDcLocationService _dcLocationService;
+        private readonly ILocationService _locationService;
     }
 }

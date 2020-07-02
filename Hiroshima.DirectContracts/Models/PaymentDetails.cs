@@ -9,6 +9,6 @@ namespace Hiroshima.DirectContracts.Models
         public List<decimal> DailyPrices { get; set; }
         public List<SeasonPriceDetails> SeasonPrices { get; set; }
         public Currencies Currency { get; set; }
-        public List<string> Details { get; set; }
+        public List<string>? Details { get; set; }
     }
 }
