@@ -554,10 +554,10 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysPriorToArrival = new DaysInterval
+                            DayPriorToArrival = new DayInterval
                             {
-                                FromDays = 0,
-                                ToDays = 45
+                                FromDay = 0,
+                                ToDay = 45
                             },
                             PenaltyType = CancellationPenaltyTypes.Percent,
                             PenaltyCharge = 100
@@ -573,10 +573,10 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysPriorToArrival = new DaysInterval
+                            DayPriorToArrival = new DayInterval
                             {
-                                FromDays = 0,
-                                ToDays = 35
+                                FromDay = 0,
+                                ToDay = 35
                             },
                             PenaltyType = CancellationPenaltyTypes.Percent,
                             PenaltyCharge = 100
@@ -597,30 +597,30 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysPriorToArrival = new DaysInterval
+                            DayPriorToArrival = new DayInterval
                             {
-                                FromDays = 14,
-                                ToDays = 28
+                                FromDay = 14,
+                                ToDay = 28
                             },
                             PenaltyType = CancellationPenaltyTypes.Nights,
                             PenaltyCharge = 4
                         },
                         new CancellationPolicyData
                         {
-                            DaysPriorToArrival = new DaysInterval
+                            DayPriorToArrival = new DayInterval
                             {
-                                FromDays = 07,
-                                ToDays = 13
+                                FromDay = 07,
+                                ToDay = 13
                             },
                             PenaltyType = CancellationPenaltyTypes.Nights,
                             PenaltyCharge = 7
                         },
                         new CancellationPolicyData
                         {
-                            DaysPriorToArrival = new DaysInterval
+                            DayPriorToArrival = new DayInterval
                             {
-                                FromDays = 0,
-                                ToDays = 6
+                                FromDay = 0,
+                                ToDay = 6
                             },
                             PenaltyType = CancellationPenaltyTypes.Percent,
                             PenaltyCharge = 100
@@ -650,20 +650,20 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysPriorToArrival = new DaysInterval
+                            DayPriorToArrival = new DayInterval
                             {
-                                FromDays = 07,
-                                ToDays = 14
+                                FromDay = 07,
+                                ToDay = 14
                             },
                             PenaltyType = CancellationPenaltyTypes.Nights,
                             PenaltyCharge = 03
                         },
                         new CancellationPolicyData
                         {
-                            DaysPriorToArrival = new DaysInterval
+                            DayPriorToArrival = new DayInterval
                             {
-                                FromDays = 0,
-                                ToDays = 06
+                                FromDay = 0,
+                                ToDay = 06
                             },
                             PenaltyType = CancellationPenaltyTypes.Nights,
                             PenaltyCharge = 05
@@ -2713,10 +2713,10 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysPriorToArrival = new DaysInterval
+                            DayPriorToArrival = new DayInterval
                             {
-                                FromDays = 0,
-                                ToDays = 7
+                                FromDay = 0,
+                                ToDay = 7
                             },
                             PenaltyType = CancellationPenaltyTypes.Percent,
                             PenaltyCharge = 100
@@ -2738,10 +2738,10 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysPriorToArrival = new DaysInterval
+                            DayPriorToArrival = new DayInterval
                             {
-                                FromDays = 0,
-                                ToDays = 14
+                                FromDay = 0,
+                                ToDay = 14
                             },
                             PenaltyType = CancellationPenaltyTypes.Percent,
                             PenaltyCharge = 100
@@ -2767,10 +2767,10 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysPriorToArrival = new DaysInterval
+                            DayPriorToArrival = new DayInterval
                             {
-                                FromDays = 0,
-                                ToDays = 21
+                                FromDay = 0,
+                                ToDay = 21
                             },
                             PenaltyType = CancellationPenaltyTypes.Percent,
                             PenaltyCharge = 100
@@ -2793,10 +2793,10 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysPriorToArrival = new DaysInterval
+                            DayPriorToArrival = new DayInterval
                             {
-                                FromDays = 0,
-                                ToDays = 35
+                                FromDay = 0,
+                                ToDay = 35
                             },
                             PenaltyType = CancellationPenaltyTypes.Percent,
                             PenaltyCharge = 100
@@ -2816,10 +2816,10 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysPriorToArrival = new DaysInterval
+                            DayPriorToArrival = new DayInterval
                             {
-                                FromDays = 0,
-                                ToDays = 35
+                                FromDay = 0,
+                                ToDay = 35
                             },
                             PenaltyType = CancellationPenaltyTypes.Percent,
                             PenaltyCharge = 100
