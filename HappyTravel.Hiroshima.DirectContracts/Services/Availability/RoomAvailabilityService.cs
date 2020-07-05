@@ -175,6 +175,5 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 
 
         private readonly IAvailabilityRepository _availabilityRepository;
-        private readonly DirectContractsDbContext _dbContext;
     }
 }

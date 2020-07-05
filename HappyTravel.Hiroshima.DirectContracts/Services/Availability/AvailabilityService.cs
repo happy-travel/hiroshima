@@ -27,21 +27,20 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 
         public async Task<List<AvailabilityDetails>> Get(AvailabilityRequest availabilityRequest, string languageCode)
         {
-            var accommodations = await GetAccommodations(availabilityRequest.Location, languageCode);
+            var accommodations = await GetAccommodations(availabilityRequest.Location);
             
             var roomsGroupedByOccupationRequest =
                 await _roomAvailabilityService.GetGroupedRooms(accommodations, availabilityRequest, languageCode);
+
+            var availableRates = await _rateAvailabilityService.GetAvailableRates(GetDistinctRooms(roomsGroupedByOccupationRequest), availabilityRequest.CheckInDate.Date, availabilityRequest.CheckOutDate.Date, languageCode);
             
-            var rooms = GetDistinctRooms(roomsGroupedByOccupationRequest);
-            
-            var availableRates = await _rateAvailabilityService.GetAvailableRates(rooms, availabilityRequest.CheckInDate.Date, availabilityRequest.CheckOutDate.Date, languageCode);
-            
+            //Match rooms' data with available rates' data. Rooms are grouped by roomOccupationRequest
             var availabilityDetails = ExtractAvailabilityDetails(roomsGroupedByOccupationRequest, availableRates);
 
             return availabilityDetails;
             
             
-            Task<List<AccommodationDetails>> GetAccommodations(Location location, string languageCode)
+            Task<List<AccommodationDetails>> GetAccommodations(Location location)
             {
                 switch (location.Type)
                 {

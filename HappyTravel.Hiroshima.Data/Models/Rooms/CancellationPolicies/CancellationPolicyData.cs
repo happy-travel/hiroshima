@@ -1,4 +1,6 @@
-﻿namespace HappyTravel.Hiroshima.Data.Models.Rooms.CancellationPolicies
+﻿using HappyTravel.Hiroshima.Common.Models;
+
+namespace HappyTravel.Hiroshima.Data.Models.Rooms.CancellationPolicies
 {
     /// <summary>
     /// Represents a cancellation policy during days interval 
@@ -10,7 +12,7 @@
         /// Days prior to arrival
         /// E.g. 28-14 days prior to arrival
         /// </summary>
-        public CancellationDaysInterval DaysIntervalPriorToArrival { get; set; } 
+        public DaysInterval DaysPriorToArrival { get; set; } 
         
         /// <summary>
         /// Type of the cancellation penalty

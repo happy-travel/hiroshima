@@ -554,7 +554,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysIntervalPriorToArrival = new CancellationDaysInterval
+                            DaysPriorToArrival = new DaysInterval
                             {
                                 FromDays = 0,
                                 ToDays = 45
@@ -573,7 +573,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysIntervalPriorToArrival = new CancellationDaysInterval
+                            DaysPriorToArrival = new DaysInterval
                             {
                                 FromDays = 0,
                                 ToDays = 35
@@ -597,7 +597,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysIntervalPriorToArrival = new CancellationDaysInterval
+                            DaysPriorToArrival = new DaysInterval
                             {
                                 FromDays = 14,
                                 ToDays = 28
@@ -607,7 +607,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                         },
                         new CancellationPolicyData
                         {
-                            DaysIntervalPriorToArrival = new CancellationDaysInterval
+                            DaysPriorToArrival = new DaysInterval
                             {
                                 FromDays = 07,
                                 ToDays = 13
@@ -617,7 +617,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                         },
                         new CancellationPolicyData
                         {
-                            DaysIntervalPriorToArrival = new CancellationDaysInterval
+                            DaysPriorToArrival = new DaysInterval
                             {
                                 FromDays = 0,
                                 ToDays = 6
@@ -650,7 +650,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysIntervalPriorToArrival = new CancellationDaysInterval
+                            DaysPriorToArrival = new DaysInterval
                             {
                                 FromDays = 07,
                                 ToDays = 14
@@ -660,7 +660,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                         },
                         new CancellationPolicyData
                         {
-                            DaysIntervalPriorToArrival = new CancellationDaysInterval
+                            DaysPriorToArrival = new DaysInterval
                             {
                                 FromDays = 0,
                                 ToDays = 06
@@ -2713,7 +2713,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysIntervalPriorToArrival = new CancellationDaysInterval
+                            DaysPriorToArrival = new DaysInterval
                             {
                                 FromDays = 0,
                                 ToDays = 7
@@ -2738,7 +2738,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysIntervalPriorToArrival = new CancellationDaysInterval
+                            DaysPriorToArrival = new DaysInterval
                             {
                                 FromDays = 0,
                                 ToDays = 14
@@ -2767,7 +2767,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysIntervalPriorToArrival = new CancellationDaysInterval
+                            DaysPriorToArrival = new DaysInterval
                             {
                                 FromDays = 0,
                                 ToDays = 21
@@ -2793,7 +2793,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysIntervalPriorToArrival = new CancellationDaysInterval
+                            DaysPriorToArrival = new DaysInterval
                             {
                                 FromDays = 0,
                                 ToDays = 35
@@ -2816,7 +2816,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysIntervalPriorToArrival = new CancellationDaysInterval
+                            DaysPriorToArrival = new DaysInterval
                             {
                                 FromDays = 0,
                                 ToDays = 35

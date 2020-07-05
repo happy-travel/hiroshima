@@ -17,8 +17,8 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
             {
                 var cancellationDetails = new CancellationPolicyDetails
                 {
-                    StartDate = checkInDate.Date.AddDays(-cancellationPolicyDataItem.DaysIntervalPriorToArrival.ToDays),
-                    EndDate = checkInDate.Date.AddDays(-cancellationPolicyDataItem.DaysIntervalPriorToArrival.FromDays),
+                    StartDate = checkInDate.Date.AddDays(-cancellationPolicyDataItem.DaysPriorToArrival.ToDays),
+                    EndDate = checkInDate.Date.AddDays(-cancellationPolicyDataItem.DaysPriorToArrival.FromDays),
                     Price = cancellationPolicyDataItem.PenaltyType == CancellationPenaltyTypes.Percent
                         ? CalculatePercentPenaltyPrice(cancellationPolicyDataItem.PenaltyCharge, paymentDetails)
                         : CalculateNightsPenaltyPrice((int) cancellationPolicyDataItem.PenaltyCharge, paymentDetails)
