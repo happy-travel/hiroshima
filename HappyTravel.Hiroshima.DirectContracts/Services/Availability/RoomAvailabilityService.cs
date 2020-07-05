@@ -111,10 +111,13 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                         occupationRequestDictionary.Add(occupationRequestId, new List<Room> {room});
                 }
                 else
-                    roomsGroupedByAccommodationIdAndOccupancyId.Add(room.AccommodationId, new Dictionary<int, List<Room>>
-                    {
-                        {occupationRequestId, new List<Room> {room}}
-                    });
+                {
+                    roomsGroupedByAccommodationIdAndOccupancyId.Add(room.AccommodationId,
+                        new Dictionary<int, List<Room>>
+                        {
+                            {occupationRequestId, new List<Room> {room}}
+                        });
+                }
             }
         }
 

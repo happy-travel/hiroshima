@@ -1,4 +1,5 @@
 using System.Globalization;
+using CacheFlow.Json.Extensions;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Infrastructure;
@@ -81,6 +82,8 @@ namespace HappyTravel.Hiroshima.WebApi
                 NtsGeometryServices.Instance.CreateGeometryFactory(
                     GeoConstants.SpatialReferenceId));
             services.AddTransient<IAvailabilityService, AvailabilityService>();
+            services.AddCacheFlow();
+            services.AddCacheFlowJsonSerialization();
         }
 
 
