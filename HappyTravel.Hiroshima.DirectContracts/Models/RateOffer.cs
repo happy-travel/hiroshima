@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using HappyTravel.Hiroshima.DbData.Models.Room;
+using HappyTravel.Hiroshima.Data.Models.Rooms;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Models
 {

@@ -2,11 +2,11 @@
 using System.IO;
 using System.Reflection;
 using HappyTravel.Hiroshima.Common.Infrastructure;
-using HappyTravel.Hiroshima.DbData;
+using HappyTravel.Hiroshima.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace Hiroshima.DirectContractsDataSeeder
+namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
 {
     public class Program
     {
@@ -29,9 +29,9 @@ namespace Hiroshima.DirectContractsDataSeeder
                 .Build();
             
             var dbContextOptions = new DbContextOptionsBuilder<DirectContractsDbContext>();
-            using var vaultClient = StartupHelper.CreateVaultClient(configuration);
+            using var vaultClient = VaultHelper.CreateVaultClient(configuration);
             vaultClient.Login(configuration[configuration["Vault:Token"]]).GetAwaiter().GetResult();
-            var connectionString = StartupHelper.GetDbConnectionString(vaultClient, "Database", configuration);
+            var connectionString = VaultHelper.GetDbConnectionString(vaultClient, "Database:ConnectionOptions", "Database:ConnectionString", configuration);
             dbContextOptions.UseNpgsql(connectionString, builder => builder.UseNetTopologySuite());
             return new DirectContractsDbContext(dbContextOptions.Options);
         }

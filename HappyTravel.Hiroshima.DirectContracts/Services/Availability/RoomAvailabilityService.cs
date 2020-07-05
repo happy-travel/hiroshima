@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.Hiroshima.Common.Models;
-using HappyTravel.Hiroshima.DbData;
-using HappyTravel.Hiroshima.DbData.Models.Room;
-using HappyTravel.Hiroshima.DbData.Models.Room.Occupancy;
+using HappyTravel.Hiroshima.Data;
+using HappyTravel.Hiroshima.Data.Models.Rooms;
+using HappyTravel.Hiroshima.Data.Models.Rooms.Occupancy;
 using HappyTravel.Hiroshima.DirectContracts.Models;
-using AccommodationDetails = HappyTravel.Hiroshima.DbData.Models.AccommodationDetails;
+using AccommodationDetails = HappyTravel.Hiroshima.Data.Models.AccommodationDetails;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 {

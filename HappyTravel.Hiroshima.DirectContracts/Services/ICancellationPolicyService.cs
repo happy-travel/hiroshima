@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using HappyTravel.Hiroshima.DbData.Models.Room.CancellationPolicies;
+using HappyTravel.Hiroshima.Data.Models.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.DirectContracts.Models;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services

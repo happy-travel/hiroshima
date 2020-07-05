@@ -22,14 +22,8 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers
 
 
         /// <summary>
-        /// Returns locations to upload to Edo
+        /// Returns available locations
         /// </summary>
-        /// <param name="modified"></param>
-        /// <param name="locationType"></param>
-        /// <param name="skip"></param>
-        /// <param name="take"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
         [HttpGet("{modified}")]
         [ProducesResponseType(typeof(List<Location>), (int) HttpStatusCode.OK)]
         public async Task<IActionResult> GetLocations([FromRoute] DateTime modified, [FromQuery] LocationTypes locationType, [FromQuery] int skip = 0, [FromQuery] int take = 10000)

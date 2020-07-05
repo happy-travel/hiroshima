@@ -20,6 +20,11 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers
         }
 
 
+        /// <summary>
+        /// Returns available accommodations with room contracts
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost("availabilities")]
         [ProducesResponseType(typeof(AvailabilityDetails), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]

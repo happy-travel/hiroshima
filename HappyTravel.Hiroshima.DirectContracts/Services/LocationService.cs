@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using HappyTravel.EdoContracts.GeoData;
-using HappyTravel.Hiroshima.DbData;
+using HappyTravel.Hiroshima.Data;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services
 {

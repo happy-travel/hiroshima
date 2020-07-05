@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using HappyTravel.Hiroshima.DbData.Models.Room.CancellationPolicies;
+using HappyTravel.Hiroshima.Data.Models.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.DirectContracts.Models;
 using HappyTravel.Money.Helpers;
 
@@ -18,12 +17,11 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
             {
                 var cancellationDetails = new CancellationPolicyDetails
                 {
-                    StartDate = checkInDate.Date.AddDays(-cancellationPolicyDataItem.DaysInterval.ToDays),
-                    EndDate = checkInDate.Date.AddDays(-cancellationPolicyDataItem.DaysInterval.FromDays),
+                    StartDate = checkInDate.Date.AddDays(-cancellationPolicyDataItem.DaysIntervalPriorToArrival.ToDays),
+                    EndDate = checkInDate.Date.AddDays(-cancellationPolicyDataItem.DaysIntervalPriorToArrival.FromDays),
                     Price = cancellationPolicyDataItem.PenaltyType == CancellationPenaltyTypes.Percent
                         ? CalculatePercentPenaltyPrice(cancellationPolicyDataItem.PenaltyCharge, paymentDetails)
-                        : CalculateNightsPenaltyPrice(cancellationPolicyDataItem.PenaltyCharge, paymentDetails,
-                            checkInDate)
+                        : CalculateNightsPenaltyPrice((int) cancellationPolicyDataItem.PenaltyCharge, paymentDetails)
                 };
                 cancellationPolicyDetails.Add(cancellationDetails);
             }
@@ -34,28 +32,25 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
 
         private decimal CalculatePercentPenaltyPrice(double percentToCharge, PaymentDetails paymentDetails)
         => MoneyRounder.Ceil(paymentDetails.TotalPrice * Convert.ToDecimal(percentToCharge) / 100, paymentDetails.Currency);
-        
-        
-        private decimal CalculateNightsPenaltyPrice(double nightsToCharge, PaymentDetails paymentDetails, DateTime checkInDate)
+
+
+        private decimal CalculateNightsPenaltyPrice(int nightsToCharge, PaymentDetails paymentDetails)
         {
             var penaltyPrice = 0m;
-            
-            for (var i = 0; i < nightsToCharge; i++)
-                penaltyPrice += GetSeasonPrice(checkInDate.AddDays(i));
+            var nights = nightsToCharge;
+            foreach (var seasonPrice in paymentDetails.SeasonPrices)
+            {
+                var nightsNumberLeft = seasonPrice.NumberOfNights - nights;
+                if (nightsNumberLeft >= 0)
+                {
+                    penaltyPrice += seasonPrice.RatePrice * nights;
+                    return penaltyPrice;
+                }
+                penaltyPrice += seasonPrice.RatePrice * seasonPrice.NumberOfNights;
+                nights = Math.Abs(nightsNumberLeft);
+            }
 
             return penaltyPrice;
-
-            decimal GetSeasonPrice(DateTime date)
-            {
-                foreach (var seasonPrice in paymentDetails.SeasonPrices)
-                {
-                    if (seasonPrice.StartDate <= date && date <= seasonPrice.EndDate)
-                        return seasonPrice.RatePrice;
-                }
-                
-                //TODO Add to log this strange case
-                return paymentDetails.SeasonPrices.Max(s => s.RatePrice);
-            }
         }
     }
 }

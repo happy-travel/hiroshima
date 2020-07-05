@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.Hiroshima.DirectContracts.Models;
-using AccommodationDetails = HappyTravel.Hiroshima.DbData.Models.AccommodationDetails;
+using AccommodationDetails = HappyTravel.Hiroshima.Data.Models.AccommodationDetails;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 {

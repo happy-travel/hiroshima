@@ -4,19 +4,18 @@ using System.Linq;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Enums;
-using HappyTravel.Hiroshima.DbData;
-using HappyTravel.Hiroshima.DbData.Models.Accommodation;
-using HappyTravel.Hiroshima.DbData.Models.Location;
-using HappyTravel.Hiroshima.DbData.Models.Room;
-using HappyTravel.Hiroshima.DbData.Models.Room.CancellationPolicies;
-using HappyTravel.Hiroshima.DbData.Models.Room.Occupancy;
+using HappyTravel.Hiroshima.Data;
+using HappyTravel.Hiroshima.Data.Models.Accommodations;
+using HappyTravel.Hiroshima.Data.Models.Location;
+using HappyTravel.Hiroshima.Data.Models.Rooms;
+using HappyTravel.Hiroshima.Data.Models.Rooms.CancellationPolicies;
+using HappyTravel.Hiroshima.Data.Models.Rooms.Occupancy;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using JsonDocumentUtilities = HappyTravel.Hiroshima.Common.Infrastructure.Utilities.JsonDocumentUtilities;
-using Location = NetTopologySuite.Geometries.Location;
 
-namespace Hiroshima.DirectContractsDataSeeder
+namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
 {
     internal static class DataSeeder
     {
@@ -49,37 +48,18 @@ namespace Hiroshima.DirectContractsDataSeeder
 
             #region AddLocations
 
-            var location = new HappyTravel.Hiroshima.DbData.Models.Location.Location
+            var location = new HappyTravel.Hiroshima.Data.Models.Location.Location
             {
                 Id = 1,
                 CountryCode = "AE",
-                Type = LocationTypes.Country,
-                ParentId = 0
+                Locality = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
+                {
+                    Ar = "دبي",
+                    En = "Dubai",
+                    Ru = "Дубай"
+                })
             };
 
-            location.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
-            {
-                En = "The United Arab Emirates",
-                Ru = "Объединенные Арабские Эмираты",
-                Ar = "الإمارات العربية المتحدة"
-            });
-
-            dbContext.Locations.Add(location);
-
-            location = new HappyTravel.Hiroshima.DbData.Models.Location.Location
-            {
-                Id = 2,
-                Type = LocationTypes.City,
-                CountryCode = "AE",
-                ParentId = 1
-            };
-
-            location.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
-            {
-                Ar = "دبي",
-                En = "Dubai",
-                Ru = "Дубай"
-            });
             dbContext.Locations.Add(location);
 
             #endregion
@@ -91,8 +71,7 @@ namespace Hiroshima.DirectContractsDataSeeder
         private static int GetLocationId(DirectContractsDbContext dbContext)
         {
             var location = dbContext.Locations.Where(l =>
-                    l.Name.RootElement.GetProperty("en").GetString() == "Dubai" &&
-                    l.Type == LocationTypes.City)
+                    l.Locality.RootElement.GetProperty("en").GetString() == "Dubai")
                 .SingleOrDefault();
             return location.Id;
         }
@@ -575,7 +554,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysInterval = new CancellationDaysInterval
+                            DaysIntervalPriorToArrival = new CancellationDaysInterval
                             {
                                 FromDays = 0,
                                 ToDays = 45
@@ -594,7 +573,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysInterval = new CancellationDaysInterval
+                            DaysIntervalPriorToArrival = new CancellationDaysInterval
                             {
                                 FromDays = 0,
                                 ToDays = 35
@@ -618,7 +597,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysInterval = new CancellationDaysInterval
+                            DaysIntervalPriorToArrival = new CancellationDaysInterval
                             {
                                 FromDays = 14,
                                 ToDays = 28
@@ -628,7 +607,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                         },
                         new CancellationPolicyData
                         {
-                            DaysInterval = new CancellationDaysInterval
+                            DaysIntervalPriorToArrival = new CancellationDaysInterval
                             {
                                 FromDays = 07,
                                 ToDays = 13
@@ -638,7 +617,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                         },
                         new CancellationPolicyData
                         {
-                            DaysInterval = new CancellationDaysInterval
+                            DaysIntervalPriorToArrival = new CancellationDaysInterval
                             {
                                 FromDays = 0,
                                 ToDays = 6
@@ -671,7 +650,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysInterval = new CancellationDaysInterval
+                            DaysIntervalPriorToArrival = new CancellationDaysInterval
                             {
                                 FromDays = 07,
                                 ToDays = 14
@@ -681,7 +660,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                         },
                         new CancellationPolicyData
                         {
-                            DaysInterval = new CancellationDaysInterval
+                            DaysIntervalPriorToArrival = new CancellationDaysInterval
                             {
                                 FromDays = 0,
                                 ToDays = 06
@@ -2734,7 +2713,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysInterval = new CancellationDaysInterval
+                            DaysIntervalPriorToArrival = new CancellationDaysInterval
                             {
                                 FromDays = 0,
                                 ToDays = 7
@@ -2759,7 +2738,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysInterval = new CancellationDaysInterval
+                            DaysIntervalPriorToArrival = new CancellationDaysInterval
                             {
                                 FromDays = 0,
                                 ToDays = 14
@@ -2788,7 +2767,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysInterval = new CancellationDaysInterval
+                            DaysIntervalPriorToArrival = new CancellationDaysInterval
                             {
                                 FromDays = 0,
                                 ToDays = 21
@@ -2814,7 +2793,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysInterval = new CancellationDaysInterval
+                            DaysIntervalPriorToArrival = new CancellationDaysInterval
                             {
                                 FromDays = 0,
                                 ToDays = 35
@@ -2837,7 +2816,7 @@ namespace Hiroshima.DirectContractsDataSeeder
                     {
                         new CancellationPolicyData
                         {
-                            DaysInterval = new CancellationDaysInterval
+                            DaysIntervalPriorToArrival = new CancellationDaysInterval
                             {
                                 FromDays = 0,
                                 ToDays = 35

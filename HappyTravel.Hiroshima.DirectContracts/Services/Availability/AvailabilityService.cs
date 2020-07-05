@@ -5,9 +5,9 @@ using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.GeoData;
 using HappyTravel.EdoContracts.GeoData.Enums;
 using HappyTravel.Hiroshima.Common.Infrastructure.Extensions;
-using HappyTravel.Hiroshima.DbData.Models.Room;
+using HappyTravel.Hiroshima.Data.Models.Rooms;
 using HappyTravel.Hiroshima.DirectContracts.Models;
-using AccommodationDetails = HappyTravel.Hiroshima.DbData.Models.AccommodationDetails;
+using AccommodationDetails = HappyTravel.Hiroshima.Data.Models.AccommodationDetails;
 using AvailabilityDetails = HappyTravel.Hiroshima.DirectContracts.Models.AvailabilityDetails;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
@@ -36,9 +36,9 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             
             var availableRates = await _rateAvailabilityService.GetAvailableRates(rooms, availabilityRequest.CheckInDate.Date, availabilityRequest.CheckOutDate.Date, languageCode);
             
-            var availableAccommodations = GetAvailabilityDetails(accommodations, roomsGroupedByOccupationRequest, availableRates);
+            var availabilityDetails = ExtractAvailabilityDetails(roomsGroupedByOccupationRequest, availableRates);
 
-            return availableAccommodations;
+            return availabilityDetails;
             
             
             Task<List<AccommodationDetails>> GetAccommodations(Location location, string languageCode)
@@ -56,9 +56,9 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         }
 
 
-        private List<AvailabilityDetails> GetAvailabilityDetails(List<AccommodationDetails> accommodations, List<RoomsGroupedByOccupation> roomsGroupedByOccupation, List<RateOffer> availableRates)
+        private List<AvailabilityDetails> ExtractAvailabilityDetails(List<RoomsGroupedByOccupation> roomsGroupedByOccupation, List<RateOffer> availableRates)
         { 
-            var availableAccommodations = new List<AvailabilityDetails>();
+            var availabilityDetails = new List<AvailabilityDetails>();
 
             var availableRatesDictionary = availableRates.ToDictionary(ar => ar.Room.Id);
             foreach (var groupedByOccupation in roomsGroupedByOccupation)
@@ -69,24 +69,24 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                     .CartesianProduct();
                 availableAccommodation.AccommodationDetails = groupedByOccupation.Accommodation;
                 availableAccommodation.AvailableRateOffers = GetAvailableRates(roomCombinations.ToList());
-                availableAccommodations.Add(availableAccommodation);
+                availabilityDetails.Add(availableAccommodation);
             }
 
-            return availableAccommodations;
+            return availabilityDetails;
             
             
             List<List<RateOffer>> GetAvailableRates(List<IEnumerable<Room>> roomCombinations)
             {
-                var availableRateSets = new List<List<RateOffer>>(roomCombinations.Count);
+                var availableRates = new List<List<RateOffer>>(roomCombinations.Count);
                 foreach (var roomCombination in roomCombinations)
                 {
-                    var availableRateSet = new List<RateOffer>(roomCombination
+                    var rateOffers = new List<RateOffer>(roomCombination
                         .Select(rc => availableRatesDictionary[rc.Id])
                         .ToList());
-                    availableRateSets.Add(availableRateSet);
+                    availableRates.Add(rateOffers);
                 }
 
-                return availableRateSets;
+                return availableRates;
             }
         }
 
@@ -97,10 +97,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             .GroupBy(r => r.Id)
             .Select(grp => grp.FirstOrDefault()).ToList();
 
-        
-        
-        
-        
+
         private readonly IRateAvailabilityService _rateAvailabilityService;
         private readonly IRoomAvailabilityService _roomAvailabilityService;
         private readonly IAvailabilityRepository _availabilityRepository;

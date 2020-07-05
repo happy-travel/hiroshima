@@ -8,6 +8,9 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure.Extensions
     {
         public static string GetFirstValue(this JsonDocument jsonDocument)
         {
+            if (jsonDocument is null)
+                return default;
+            
             var firstJsonElement = GetFirst(jsonDocument);
         
             return firstJsonElement.GetString();
@@ -16,12 +19,13 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure.Extensions
         
         public static TResult GetFirstValue<TResult>(this JsonDocument jsonDocument)
         {
+            if (jsonDocument is null)
+                return default;
+            
             var firstJsonElement = GetFirst(jsonDocument);
             
             return JsonSerializer.Deserialize<TResult>(firstJsonElement.ToString(), SerializeOptions);
         }
-        
-        
         
         
         private static JsonElement GetFirst(this JsonDocument jsonDocument)
@@ -30,7 +34,6 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure.Extensions
             
             return objectEnumerator.FirstOrDefault().Value;
         }
-
         
         
         private static readonly JsonSerializerOptions SerializeOptions = new JsonSerializerOptions

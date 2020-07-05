@@ -1,6 +1,5 @@
 ﻿using System;
-using HappyTravel.Hiroshima.DbData;
-using HappyTravel.Hiroshima.DirectContracts.Infrastructure.Options;
+using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.DirectContracts.Services;
 using HappyTravel.Hiroshima.DirectContracts.Services.Availability;
 using Microsoft.EntityFrameworkCore;
@@ -10,14 +9,14 @@ namespace HappyTravel.Hiroshima.DirectContracts.Extensions
 {
     public static class ServiceExtensions
     {
-        public static IServiceCollection AddDirectContractsServices(this IServiceCollection services, DcOptions dcOptions)
+        public static IServiceCollection AddDirectContractsServices(this IServiceCollection services, string dbConnectionString)
         {
-            if (dcOptions.Equals(default))
-                throw new ArgumentNullException($"{nameof(dcOptions)} is null");
+            if (string.IsNullOrEmpty(dbConnectionString))
+                throw new ArgumentNullException($"{nameof(dbConnectionString)} is null or empty");
             
             services.AddEntityFrameworkNpgsql().AddDbContextPool<DirectContractsDbContext>(options =>
             {
-                options.UseNpgsql(dcOptions.ConnectionString, npgsqlOptions =>
+                options.UseNpgsql(dbConnectionString, npgsqlOptions =>
                     {
                         npgsqlOptions.EnableRetryOnFailure();
                         npgsqlOptions.UseNetTopologySuite();

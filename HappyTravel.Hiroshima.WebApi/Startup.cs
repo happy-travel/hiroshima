@@ -3,7 +3,6 @@ using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Infrastructure;
 using HappyTravel.Hiroshima.DirectContracts.Extensions;
-using HappyTravel.Hiroshima.DirectContracts.Infrastructure.Options;
 using HappyTravel.Hiroshima.WebApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -12,6 +11,7 @@ using Microsoft.AspNetCore.Localization.Routing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTopologySuite;
 using Newtonsoft.Json;
@@ -38,9 +38,9 @@ namespace HappyTravel.Hiroshima.WebApi
                 options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
             });
 
-            using var vaultClient = StartupHelper.CreateVaultClient(Configuration);
+            using var vaultClient = VaultHelper.CreateVaultClient(Configuration);
             vaultClient.Login(Configuration[Configuration["Vault:Token"]]).GetAwaiter().GetResult();
-            var dbConnectionString = StartupHelper.GetDbConnectionString(vaultClient, "DirectContracts:Database", Configuration);
+            var dbConnectionString = VaultHelper.GetDbConnectionString(vaultClient, "DirectContracts:Database:ConnectionOptions", "DirectContracts:Database:ConnectionString", Configuration);
            
             services.AddApiVersioning(options =>
             {
@@ -76,7 +76,7 @@ namespace HappyTravel.Hiroshima.WebApi
                     options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider {Options = options});
                 });
 
-            services.AddDirectContractsServices(new DcOptions{ConnectionString = dbConnectionString});
+            services.AddDirectContractsServices(dbConnectionString);
             services.AddSingleton(
                 NtsGeometryServices.Instance.CreateGeometryFactory(
                     GeoConstants.SpatialReferenceId));
@@ -87,8 +87,9 @@ namespace HappyTravel.Hiroshima.WebApi
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env,
             IOptions<RequestLocalizationOptions> localizationOptions)
         {
-            app.UseRequestLocalization(localizationOptions.Value);
+            app.UseHsts();
             app.UseHttpsRedirection();
+            app.UseRequestLocalization(localizationOptions.Value);
             app.UseRouting();
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
