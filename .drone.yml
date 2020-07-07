@@ -1,0 +1,202 @@
+kind: pipeline
+type: docker
+name: Test
+
+trigger:
+  branch:
+    - master
+  event:
+    include:
+      - pull_request
+
+steps:
+- name: Test application 
+  image: mcr.microsoft.com/dotnet/core/sdk:3.1
+  environment:
+    GITHUB_TOKEN:
+      from_secret: GITHUB_TOKEN
+    HTDC_VAULT_TOKEN:
+      from_secret: VAULT_DEV_TOKEN
+    HTDC_VAULT_ENDPOINT:
+      from_secret: VAULT_DEV_ENDPOINT
+  commands:
+    - dotnet build -c Release
+    - dotnet test -c Release
+
+- name: discord-pr
+  pull: always
+  image: appleboy/drone-discord
+  settings:
+    avatar_url: https://www.pngitem.com/pimgs/m/86-868269_drone-logo-png-transparent-drone-ci-logo-png.png
+    message: "{{#success build.status}} ☑ Build #{{build.number}}\n`{{ build.event }}` of `{{repo.name}}` succeeded.\n Commit by {{commit.author}} on `{{commit.branch}}`:\n``` {{commit.message}} ```\n{{ build.link }} {{else}} ☒ Build #{{build.number}}\n`{{ build.event }}` of `{{repo.name}}` failed.\n Commit by {{commit.author}} on `{{commit.branch}}`:\n``` {{commit.message}} ```\n{{ build.link }} {{/success}}"
+    webhook_id:
+      from_secret: DISCORD_WEBHOOK_PR_ID
+    webhook_token:
+      from_secret: DISCORD_WEBHOOK_PR_TOKEN
+  when:
+    status: [success, failure]
+
+---
+kind: pipeline
+type: docker
+name: Build
+
+trigger:
+  branch:
+    - master
+  event:
+    include:
+      - push
+
+steps:
+- name: Run migrations
+  image: mcr.microsoft.com/dotnet/core/sdk:3.1
+  environment:
+    GITHUB_TOKEN:
+      from_secret: GITHUB_TOKEN
+    HTDC_VAULT_TOKEN:
+      from_secret: VAULT_DEV_TOKEN      
+    HTDC_VAULT_ENDPOINT:
+      from_secret: VAULT_DEV_ENDPOINT
+  commands:
+    - cd HappyTravel.Hiroshima.Data
+    - dotnet tool restore
+    - dotnet ef database update
+
+- name: Build docker image & push to repository
+  image: plugins/docker
+  environment:
+    GITHUB_TOKEN:
+      from_secret: GITHUB_TOKEN
+    VAULT_TOKEN:
+      from_secret: VAULT_DEV_TOKEN
+  settings:
+    registry: registry.dev.happytravel.com
+    repo: registry.dev.happytravel.com/dc
+    tags:
+      - ${DRONE_COMMIT_SHA:0:7}
+      - ${DRONE_COMMIT_BRANCH}
+    force_tag: true
+    use_cache: true
+    username:
+      from_secret: TRAVEL_DOCKER_LOGIN
+    password:
+      from_secret: TRAVEL_DOCKER_PASSWORD
+    build_args_from_env:
+      - GITHUB_TOKEN
+      - VAULT_TOKEN
+
+- name: Deploy to DEV
+  image: pelotech/drone-helm3
+  settings:
+    mode: upgrade
+    chart: ./Helm_v3/dc
+    release: dc-dev
+    values_files: ["Helm_v3/dc/values_dev.yaml"]
+    namespace: dev
+    skip_tls_verify: true
+    wait_for_upgrade: true
+    force_upgrade: true
+    values: image.tag=${DRONE_COMMIT_SHA:0:7}
+  environment:
+    KUBE_API_SERVER:
+      from_secret: KUBERNETES_DEV_API
+    KUBE_TOKEN:
+      from_secret: KUBERNETES_DEV_TOKEN
+
+- name: discord
+  pull: always
+  image: appleboy/drone-discord
+  settings:
+    avatar_url: https://www.pngitem.com/pimgs/m/86-868269_drone-logo-png-transparent-drone-ci-logo-png.png
+    message: "{{#success build.status}} ✔ Build #{{build.number}}\n`{{ build.event }}` of `{{repo.name}}` succeeded.\n Commit by {{commit.author}} on `{{commit.branch}}`:\n``` {{commit.message}} ```\n• duration: {{duration build.started build.finished}}\n {{ build.link }} {{else}} ✘ Build #{{build.number}}\n`{{ build.event }}` of `{{repo.name}}` failed.\n Commit by {{commit.author}} on `{{commit.branch}}`:\n``` {{commit.message}} ```\n• duration: {{duration build.started build.finished}}\n {{ build.link }} {{/success}}"
+    webhook_id:
+      from_secret: DISCORD_WEBHOOK_ID
+    webhook_token:
+      from_secret: DISCORD_WEBHOOK_TOKEN
+  when:
+    status: [success, failure]
+
+---
+kind: pipeline
+type: docker
+name: production
+
+trigger:
+  branches:
+    - master
+  event:
+    - promote
+  target:
+    - production
+
+steps:
+- name: Run migrations
+  image: mcr.microsoft.com/dotnet/core/sdk:3.1
+  environment:
+    GITHUB_TOKEN:
+      from_secret: GITHUB_TOKEN
+    HTDC_VAULT_TOKEN:
+      from_secret: VAULT_PROD_TOKEN      
+    HTDC_VAULT_ENDPOINT:
+      from_secret: VAULT_PROD_ENDPOINT
+  commands:
+    - cd Illusions.Data
+    - dotnet tool restore
+    - dotnet ef database update
+
+- name: Build docker image & push to repository
+  image: plugins/docker
+  environment:
+    DOCKER_BUILDKIT: 1
+    GITHUB_TOKEN:
+      from_secret: GITHUB_TOKEN
+    VAULT_TOKEN:
+      from_secret: VAULT_PROD_TOKEN
+    BUILD_VERSION: ${DRONE_COMMIT_SHA:0:7}
+  settings:
+    registry: registry.dev.happytravel.com
+    repo: registry.dev.happytravel.com/dc
+    tags:
+      - ${DRONE_COMMIT_SHA:0:7}
+      - ${DRONE_COMMIT_BRANCH}
+    force_tag: true
+    use_cache: true
+    username:
+      from_secret: TRAVEL_DOCKER_LOGIN
+    password:
+      from_secret: TRAVEL_DOCKER_PASSWORD
+    build_args_from_env:
+      - GITHUB_TOKEN
+      - VAULT_TOKEN
+      - BUILD_VERSION
+
+- name: Deploy to production
+  image: pelotech/drone-helm3
+  settings:
+    mode: upgrade
+    chart: ./Helm_v3/dc
+    release: dc-production
+    values_files: ["Helm_v3/dc/values_prod.yaml"]
+    namespace: production
+    skip_tls_verify: true
+    wait_for_upgrade: true
+    values: image.tag=${DRONE_COMMIT_SHA:0:7}
+  environment:
+    KUBE_API_SERVER:
+      from_secret: KUBERNETES_PROD_API
+    KUBE_TOKEN:
+      from_secret: KUBERNETES_PROD_TOKEN
+
+- name: discord
+  pull: always
+  image: appleboy/drone-discord
+  settings:
+    avatar_url: https://www.pngitem.com/pimgs/m/86-868269_drone-logo-png-transparent-drone-ci-logo-png.png
+    message: "{{#success build.status}} ☑ Build #{{build.number}}\n`{{ build.event }}` of `{{repo.name}}` on production succeeded.\n - `{{build.message}}` - \n Commit by {{commit.author}} on `{{commit.branch}}`:\n``` {{commit.message}} ```\n{{ build.link }} {{else}} ☒ Build #{{build.number}}\n`{{ build.event }}` of `{{repo.name}}` on production failed.\n Commit by {{commit.author}} on `{{commit.branch}}`:\n``` {{commit.message}} ```\n{{ build.link }} {{/success}}"
+    webhook_id:
+      from_secret: DISCORD_WEBHOOK_ID
+    webhook_token:
+      from_secret: DISCORD_WEBHOOK_TOKEN
+  when:
+    status: [success, failure]        

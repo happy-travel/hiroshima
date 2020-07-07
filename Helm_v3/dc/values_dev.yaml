@@ -1,0 +1,74 @@
+replicaCount: 1
+
+image:
+  repository: registry.dev.happytravel.com/dc
+  tag: latest
+  pullPolicy: Always
+imagePullSecrets: 
+  - name: travel-key-registry
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name:
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  annotations:
+    projectcontour.io/ingress.class: "contour"
+    projectcontour.io/retry-on: "5xx"
+    projectcontour.io/num-retries: "3"
+    projectcontour.io/per-try-timeout: "120s"
+    projectcontour.io/response-timeout: "120s"
+    ingress.kubernetes.io/force-ssl-redirect: "true"
+    kubernetes.io/ingress.allow-http: "false"
+    kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: dc-dev.happytravel.com
+      paths:
+        - /
+  tls:
+   - secretName: happytravel-tls
+     hosts:
+       - dc-dev.happytravel.com
+
+resources:
+  limits:
+    cpu: 1
+    memory: 768Mi
+  requests:
+    cpu: 100m
+    memory: 512Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+env:
+  ASPNETCORE_URLS: http://*:80
+  ASPNETCORE_ENVIRONMENT: "Development"
+  HTDC_VAULT_ENDPOINT: "https://vault.dev.happytravel.com/v1/"
+  HTDC_REDIS_HOST: "redis-dc"
