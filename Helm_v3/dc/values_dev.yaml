@@ -71,3 +71,4 @@ env:
   ASPNETCORE_URLS: http://*:80
   ASPNETCORE_ENVIRONMENT: "Development"
   HTDC_VAULT_ENDPOINT: "https://vault.dev.happytravel.com/v1/"
+  HTDC_REDIS_HOST: "redis-dc"
