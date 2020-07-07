@@ -83,6 +83,7 @@ namespace HappyTravel.Hiroshima.WebApi
                     GeoConstants.SpatialReferenceId));
             services.AddTransient<IAvailabilityService, AvailabilityService>();
             services.AddCacheFlow();
+            services.AddDistributedFlow();
             services.AddCacheFlowJsonSerialization();
         }
 
