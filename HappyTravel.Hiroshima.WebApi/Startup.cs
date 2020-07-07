@@ -42,14 +42,14 @@ namespace HappyTravel.Hiroshima.WebApi
             using var vaultClient = VaultHelper.CreateVaultClient(Configuration);
             vaultClient.Login(Configuration[Configuration["Vault:Token"]]).GetAwaiter().GetResult();
             var dbConnectionString = VaultHelper.GetDbConnectionString(vaultClient, "DirectContracts:Database:ConnectionOptions", "DirectContracts:Database:ConnectionString", Configuration);
-           
+            var redisEndpoint = Configuration[Configuration["Redis:Endpoint"]];
             services.AddApiVersioning(options =>
             {
                 options.AssumeDefaultVersionWhenUnspecified = false;
                 options.DefaultApiVersion = new ApiVersion(1, 0);
                 options.ReportApiVersions = true;
             });
-
+        
             services.AddMvcCore()
                 .AddControllersAsServices()
                 .AddFormatterMappings()
@@ -82,9 +82,13 @@ namespace HappyTravel.Hiroshima.WebApi
                 NtsGeometryServices.Instance.CreateGeometryFactory(
                     GeoConstants.SpatialReferenceId));
             services.AddTransient<IAvailabilityService, AvailabilityService>();
-            services.AddCacheFlow();
-            services.AddDistributedFlow();
+            services.AddMemoryCache();
+            services.AddStackExchangeRedisCache(options => { options.Configuration = redisEndpoint; });
+            services.AddDoubleFlow();
             services.AddCacheFlowJsonSerialization();
+            services.AddControllers()
+                .AddControllersAsServices();
+
         }
 
 
