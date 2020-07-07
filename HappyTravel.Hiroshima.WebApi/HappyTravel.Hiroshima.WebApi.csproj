@@ -31,6 +31,7 @@
   <ItemGroup>
     <ProjectReference Include="..\HappyTravel.Hiroshima.Common\HappyTravel.Hiroshima.Common.csproj" />
     <ProjectReference Include="..\HappyTravel.Hiroshima.DirectContracts\HappyTravel.Hiroshima.DirectContracts.csproj" />
+    <ProjectReference Include="..\HappyTravel.Hiroshima.DirectManager\HappyTravel.Hiroshima.DirectManager.csproj" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>

@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using HappyTravel.Hiroshima.Common.Models;
+using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Data.Models.Booking;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
 using HappyTravel.Hiroshima.Data.Models.Rooms.CancellationPolicies;
-using HappyTravel.Hiroshima.Data.Models.Rooms.Occupancy;
 using Microsoft.EntityFrameworkCore.Migrations;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;

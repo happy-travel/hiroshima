@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.Json;
+using HappyTravel.Hiroshima.Data.Models;
 using HappyTravel.Hiroshima.Data.Models.Accommodations;
 using HappyTravel.Hiroshima.Data.Models.Booking;
 using HappyTravel.Hiroshima.Data.Models.Location;
@@ -32,7 +33,9 @@ namespace HappyTravel.Hiroshima.Data
             modelBuilder.HasPostgresExtension("postgis")
                 .HasPostgresExtension("uuid-ossp");
             modelBuilder.UseIdentityColumns();
-            
+
+            AddUsers(modelBuilder);
+            AddContracts(modelBuilder);
             AddLocations(modelBuilder);
             AddAccommodations(modelBuilder);
             AddRooms(modelBuilder);
@@ -45,6 +48,35 @@ namespace HappyTravel.Hiroshima.Data
             AddCancellationPolicies(modelBuilder); 
         }
 
+
+        private void AddUsers(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Models.User>(e =>
+            {
+                e.ToTable("Users");
+                e.HasKey(c => c.Id);
+                e.Property(c => c.IdentityHash);
+                e.Property(c => c.FirstName);
+                e.Property(c => c.LastName);
+                e.Property(c => c.Email);
+                e.Property(c => c.Position);
+            });
+        }
+        
+        private void AddContracts(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Contract>(e =>
+            {
+                e.ToTable("Contracts");
+                e.HasKey(c => c.Id);
+                e.Property(c => c.ValidFrom).IsRequired();
+                e.Property(c => c.ValidTo).IsRequired();
+                e.Property(c => c.Name).IsRequired();
+                e.Property(c => c.Description).HasColumnType("jsonb");
+                e.HasOne<User>().WithMany().HasForeignKey(c=> c.UserId);
+            });
+        }
+        
         
         private void AddLocations(ModelBuilder modelBuilder)
         {
@@ -90,8 +122,10 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(a => a.CheckInTime);
                 e.Property(a => a.CheckOutTime);
                 e.Property(a => a.OccupancyDefinition).HasColumnType("jsonb");
+                e.Property(a => a.UserId);
                 e.HasIndex(a=> a.Coordinates).HasMethod("GIST");
                 e.HasOne<Models.Location.Location>().WithMany().HasForeignKey(a=> a.LocationId).IsRequired();
+                e.HasOne<User>().WithMany().HasForeignKey(a=> a.UserId);
             });
         }
 

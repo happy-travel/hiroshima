@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.Hiroshima.Common.Models;
+using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Enums;
 using NetTopologySuite.Geometries;
 
@@ -23,6 +24,7 @@ namespace HappyTravel.Hiroshima.Data.Models.Accommodations
         public JsonDocument AdditionalInfo { get; set; }
         public OccupancyDefinition OccupancyDefinition { get; set; }
         public int LocationId { get; set; }
+        public int UserId { get; set; }
     }
 }
 

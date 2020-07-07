@@ -4,6 +4,8 @@ using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Infrastructure;
 using HappyTravel.Hiroshima.DirectContracts.Extensions;
+using HappyTravel.Hiroshima.DirectContracts.Services.Management;
+using HappyTravel.Hiroshima.DirectManager.Extensions;
 using HappyTravel.Hiroshima.WebApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -12,7 +14,6 @@ using Microsoft.AspNetCore.Localization.Routing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTopologySuite;
 using Newtonsoft.Json;
@@ -43,6 +44,25 @@ namespace HappyTravel.Hiroshima.WebApi
             vaultClient.Login(Configuration[Configuration["Vault:Token"]]).GetAwaiter().GetResult();
             var dbConnectionString = VaultHelper.GetDbConnectionString(vaultClient, "DirectContracts:Database:ConnectionOptions", "DirectContracts:Database:ConnectionString", Configuration);
            
+            services.AddDirectContractsServices(dbConnectionString);
+            services.AddDirectManagerServices();
+            
+            services.AddSingleton(
+                NtsGeometryServices.Instance.CreateGeometryFactory(
+                    GeoConstants.SpatialReferenceId));
+            services.AddTransient<IAvailabilityService, AvailabilityService>();
+            services.AddCacheFlow();
+            services.AddDistributedFlow();
+            services.AddCacheFlowJsonSerialization();
+            
+            services.AddCors()
+                .AddLocalization()
+                .AddMemoryFlow()
+                .AddMemoryCache();
+
+            services.AddResponseCompression();
+            services.AddHealthChecks();
+            
             services.AddApiVersioning(options =>
             {
                 options.AssumeDefaultVersionWhenUnspecified = false;
@@ -57,13 +77,6 @@ namespace HappyTravel.Hiroshima.WebApi
                 .AddNewtonsoftJson(options => { options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Unspecified; })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
-            services.AddCors()
-                .AddLocalization()
-                .AddMemoryFlow()
-                .AddMemoryCache();
-
-            services.AddResponseCompression();
-            services.AddHealthChecks();
             services.AddOptions()
                 .Configure<RequestLocalizationOptions>(options =>
                 {
@@ -76,14 +89,6 @@ namespace HappyTravel.Hiroshima.WebApi
                     };
                     options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider {Options = options});
                 });
-
-            services.AddDirectContractsServices(dbConnectionString);
-            services.AddSingleton(
-                NtsGeometryServices.Instance.CreateGeometryFactory(
-                    GeoConstants.SpatialReferenceId));
-            services.AddTransient<IAvailabilityService, AvailabilityService>();
-            services.AddCacheFlow();
-            services.AddCacheFlowJsonSerialization();
         }
 
 

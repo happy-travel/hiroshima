@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using HappyTravel.EdoContracts.Extensions;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
-using HappyTravel.Hiroshima.Data.Models.Rooms.Occupancy;
+using HappyTravel.Hiroshima.Common.Models.Accommodations;
 
 namespace HappyTravel.Hiroshima.Data.Models.Rooms
 {

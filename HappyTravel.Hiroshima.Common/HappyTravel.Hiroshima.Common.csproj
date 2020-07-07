@@ -5,12 +5,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CSharpFunctionalExtensions" Version="2.9.0" />
     <PackageReference Include="FloxDc.CacheFlow" Version="1.7.0" />
     <PackageReference Include="FloxDc.CacheFlow.Json" Version="1.7.0" />
     <PackageReference Include="HappyTravel.EdoContracts" Version="1.3.1.3" />
     <PackageReference Include="HappyTravel.Geography" Version="1.1.1" />
     <PackageReference Include="HappyTravel.Money" Version="0.0.3" />
     <PackageReference Include="HappyTravel.VaultClient" Version="1.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
     <PackageReference Include="morelinq" Version="3.3.2" />
   </ItemGroup>
 
