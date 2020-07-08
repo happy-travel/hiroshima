@@ -6,6 +6,7 @@ using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Enums;
 using HappyTravel.Hiroshima.Data;
+using HappyTravel.Hiroshima.Data.Models;
 using HappyTravel.Hiroshima.Data.Models.Accommodations;
 using HappyTravel.Hiroshima.Data.Models.Location;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
@@ -21,11 +22,55 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
     {
         internal static void AddData(DirectContractsDbContext dbContext)
         {
+            AddUser(dbContext);
             AddLocations(dbContext);
             AddOneAndOnlyContract(dbContext);
             AddJumeriahContract(dbContext);
+            AddContract(dbContext);
         }
 
+        private static void AddContract(DirectContractsDbContext dbContext)
+        {
+            var contract = dbContext.Contracts.SingleOrDefault(c=> c.Id == 1);
+            if (contract is null)
+            {
+                dbContext.Contracts.Add(new Contract
+                {
+                    Id = int.MaxValue,
+                    Name = "Test Contract",
+                    Description = "Test Contract",
+                    UserId = int.MaxValue,
+                    ValidFrom = new DateTime(2020, 01, 01),
+                    ValidTo = new DateTime(2021, 01, 01)
+                });
+                dbContext.SaveChanges();
+                dbContext.ContractAccommodationRelations.Add(new ContractAccommodationRelation()
+                {
+                    AccommodationId = int.MaxValue,
+                    ContractId = int.MaxValue
+                });
+                dbContext.SaveChanges();
+            }
+        }
+        
+        private static void AddUser(DirectContractsDbContext dbContext)
+        {
+            var user = dbContext.Users.SingleOrDefault(u=> u.Id == int.MaxValue);
+            if (user is null)
+            {
+                dbContext.Users.Add(new User
+                {
+                    Id = int.MaxValue,
+                    Created = DateTime.UtcNow,
+                    Email = "test@mail.com",
+                    Position = "test user",
+                    FirstName = "John",
+                    LastName = "Doe",
+                });
+                dbContext.SaveChanges();
+            }
+        }
+        
         private static void AddLocations(DirectContractsDbContext dbContext)
         {
             #region AddCountries
@@ -91,13 +136,14 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
         {
             if (!IsAccommodationExist(dbContext, "ONE&ONLY ROYAL MIRAGE"))
             {
-                var hotelId = 1;
+                var hotelId = int.MaxValue;
 
                 #region AddAccommodation
 
                 var accommodation = new Accommodation
                 {
                     Id = hotelId,
+                    UserId = int.MaxValue,
                     Rating = AccommodationRating.FiveStars,
                     PropertyType = PropertyTypes.Hotels,
                     Contacts = new Contacts {Email = "info@oneandonlythepalm.com", Phone = "+ 971 4 440 1010"},
@@ -240,7 +286,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 var room = new Room
                 {
                     Id = 20,
-                    AccommodationId = 1,
+                    AccommodationId = hotelId,
                     OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
                         new OccupancyConfiguration {Adults = 2, Teenagers = 1},
@@ -259,7 +305,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 room = new Room
                 {
                     Id = 21,
-                    AccommodationId = 1,
+                    AccommodationId = hotelId,
                     OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
                         new OccupancyConfiguration {Adults = 2, Teenagers = 1},
@@ -277,7 +323,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 room = new Room
                 {
                     Id = 22,
-                    AccommodationId = 1,
+                    AccommodationId = hotelId,
                     OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
                         new OccupancyConfiguration {Adults = 2, Teenagers = 1},
@@ -295,7 +341,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 room = new Room
                 {
                     Id = 23,
-                    AccommodationId = 1,
+                    AccommodationId = hotelId,
                     OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
                         new OccupancyConfiguration {Adults = 2, Teenagers = 1},
@@ -313,7 +359,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 room = new Room
                 {
                     Id = 24,
-                    AccommodationId = 1,
+                    AccommodationId = hotelId,
                     OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
                         new OccupancyConfiguration {Adults = 4, Teenagers = 1},
@@ -332,7 +378,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 room = new Room
                 {
                     Id = 25,
-                    AccommodationId = 1,
+                    AccommodationId = hotelId,
                     OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
                         new OccupancyConfiguration {Adults = 4, Teenagers = 1},
@@ -351,7 +397,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 room = new Room
                 {
                     Id = 26,
-                    AccommodationId = 1,
+                    AccommodationId = hotelId,
                     OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
                         new OccupancyConfiguration {Adults = 4, Teenagers = 1},
@@ -370,7 +416,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 room = new Room
                 {
                     Id = 27,
-                    AccommodationId = 1,
+                    AccommodationId = hotelId,
                     OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
                         new OccupancyConfiguration {Adults = 2, Teenagers = 1},
@@ -388,7 +434,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 room = new Room
                 {
                     Id = 28,
-                    AccommodationId = 1,
+                    AccommodationId = hotelId,
                     OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
                         new OccupancyConfiguration {Adults = 3, Children = 3},
@@ -409,7 +455,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 room = new Room
                 {
                     Id = 29,
-                    AccommodationId = 1,
+                    AccommodationId = hotelId,
                     OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
                         new OccupancyConfiguration {Adults = 2, Teenagers = 1},
@@ -428,7 +474,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 room = new Room
                 {
                     Id = 30,
-                    AccommodationId = 1,
+                    AccommodationId = hotelId,
                     OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
                         new OccupancyConfiguration {Adults = 4, Teenagers = 1},
@@ -448,7 +494,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 room = new Room
                 {
                     Id = 31,
-                    AccommodationId = 1,
+                    AccommodationId = hotelId,
                     OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
                         new OccupancyConfiguration {Adults = 2, Teenagers = 1},
@@ -466,7 +512,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 room = new Room
                 {
                     Id = 32,
-                    AccommodationId = 1,
+                    AccommodationId = hotelId,
                     OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
                         new OccupancyConfiguration {Adults = 2, Teenagers = 1},
@@ -484,7 +530,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 room = new Room
                 {
                     Id = 33,
-                    AccommodationId = 1,
+                    AccommodationId = hotelId,
                     OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
                         new OccupancyConfiguration {Adults = 2, Teenagers = 1},
@@ -502,7 +548,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 room = new Room
                 {
                     Id = 34,
-                    AccommodationId = 1,
+                    AccommodationId = hotelId,
                     OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
                         new OccupancyConfiguration {Adults = 2, Teenagers = 1},
@@ -520,7 +566,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 room = new Room
                 {
                     Id = 35,
-                    AccommodationId = 1,
+                    AccommodationId = hotelId,
                     OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
                         new OccupancyConfiguration {Adults = 4, Teenagers = 1},
@@ -2443,13 +2489,14 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
         {
             if (!IsAccommodationExist(dbContext, "Burj Al Arab Jumeirah"))
             {
-                var hotelId = 2;
+                var hotelId = int.MaxValue-1;
 
                 #region AddAccommodation
 
                 var accommodation = new Accommodation
                 {
                     Id = hotelId,
+                    UserId = int.MaxValue,
                     Rating = AccommodationRating.FiveStars,
                     PropertyType = PropertyTypes.Hotels,
                     Contacts = new Contacts {Email = "info@jumeirah.com", Phone = "+971 4 3665000"},
@@ -2571,7 +2618,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 var room = new Room
                 {
                     Id = 71,
-                    AccommodationId = 2,
+                    AccommodationId = hotelId,
                     OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
                         new OccupancyConfiguration {Adults = 1},
@@ -2595,7 +2642,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 room = new Room
                 {
                     Id = 72,
-                    AccommodationId = 2,
+                    AccommodationId = hotelId,
                     OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
                         new OccupancyConfiguration {Adults = 1},
@@ -2619,7 +2666,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 room = new Room
                 {
                     Id = 73,
-                    AccommodationId = 2,
+                    AccommodationId = hotelId,
                     OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
                         new OccupancyConfiguration {Adults = 1},
@@ -2654,7 +2701,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 room = new Room
                 {
                     Id = 74,
-                    AccommodationId = 2,
+                    AccommodationId = hotelId,
                     OccupancyConfigurations = new List<OccupancyConfiguration>
                     {
                         new OccupancyConfiguration {Adults = 1},

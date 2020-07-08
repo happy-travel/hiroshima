@@ -82,12 +82,17 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.Property<JsonDocument>("TextualDescription")
                         .HasColumnType("jsonb");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Coordinates")
                         .HasAnnotation("Npgsql:IndexMethod", "GIST");
 
                     b.HasIndex("LocationId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Accommodations");
                 });
@@ -134,6 +139,58 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("BookingOrders");
+                });
+
+            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.Contract", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("ValidFrom")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("ValidTo")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Contracts");
+                });
+
+            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.ContractAccommodationRelation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<int>("AccommodationId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ContractId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccommodationId");
+
+                    b.HasIndex("ContractId");
+
+                    b.ToTable("ContractAccommodationRelations");
                 });
 
             modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.Location.Country", b =>
@@ -365,11 +422,73 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.ToTable("RoomRates");
                 });
 
+            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("IdentityHash")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Position")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
+                });
+
             modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.Accommodations.Accommodation", b =>
                 {
                     b.HasOne("HappyTravel.Hiroshima.Data.Models.Location.Location", null)
                         .WithMany()
                         .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HappyTravel.Hiroshima.Data.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.Contract", b =>
+                {
+                    b.HasOne("HappyTravel.Hiroshima.Data.Models.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.ContractAccommodationRelation", b =>
+                {
+                    b.HasOne("HappyTravel.Hiroshima.Data.Models.Accommodations.Accommodation", null)
+                        .WithMany()
+                        .HasForeignKey("AccommodationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HappyTravel.Hiroshima.Data.Models.Contract", null)
+                        .WithMany()
+                        .HasForeignKey("ContractId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

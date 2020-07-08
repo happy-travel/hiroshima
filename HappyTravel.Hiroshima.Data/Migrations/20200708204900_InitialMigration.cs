@@ -70,6 +70,24 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    IdentityHash = table.Column<string>(nullable: true),
+                    Email = table.Column<string>(nullable: false),
+                    FirstName = table.Column<string>(nullable: false),
+                    LastName = table.Column<string>(nullable: true),
+                    Position = table.Column<string>(nullable: true),
+                    Created = table.Column<DateTime>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Locations",
                 columns: table => new
                 {
@@ -87,6 +105,29 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         column: x => x.CountryCode,
                         principalTable: "Countries",
                         principalColumn: "Code",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Contracts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ValidFrom = table.Column<DateTime>(nullable: false),
+                    ValidTo = table.Column<DateTime>(nullable: false),
+                    Name = table.Column<string>(nullable: false),
+                    Description = table.Column<string>(nullable: true),
+                    UserId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Contracts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Contracts_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -109,7 +150,8 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     AccommodationAmenities = table.Column<JsonDocument>(type: "jsonb", nullable: true),
                     AdditionalInfo = table.Column<JsonDocument>(type: "jsonb", nullable: true),
                     OccupancyDefinition = table.Column<OccupancyDefinition>(type: "jsonb", nullable: true),
-                    LocationId = table.Column<int>(nullable: false)
+                    LocationId = table.Column<int>(nullable: false),
+                    UserId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -118,6 +160,38 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         name: "FK_Accommodations_Locations_LocationId",
                         column: x => x.LocationId,
                         principalTable: "Locations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Accommodations_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ContractAccommodationRelations",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ContractId = table.Column<int>(nullable: false),
+                    AccommodationId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ContractAccommodationRelations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ContractAccommodationRelations_Accommodations_Accommodation~",
+                        column: x => x.AccommodationId,
+                        principalTable: "Accommodations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ContractAccommodationRelations_Contracts_ContractId",
+                        column: x => x.ContractId,
+                        principalTable: "Contracts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -254,6 +328,26 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                 column: "LocationId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Accommodations_UserId",
+                table: "Accommodations",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ContractAccommodationRelations_AccommodationId",
+                table: "ContractAccommodationRelations",
+                column: "AccommodationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ContractAccommodationRelations_ContractId",
+                table: "ContractAccommodationRelations",
+                column: "ContractId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Contracts_UserId",
+                table: "Contracts",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Locations_CountryCode",
                 table: "Locations",
                 column: "CountryCode");
@@ -282,35 +376,6 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                 name: "IX_Rooms_AccommodationId",
                 table: "Rooms",
                 column: "AccommodationId");
-            
-            var langFromJsonbFunctionSql = @"CREATE FUNCTION lang_from_jsonb(multilangjson jsonb, languagecode text) returns jsonb
-                                            IMMUTABLE
-                                            LANGUAGE plpgsql
-                                            AS
-                                            $$
-                                            DECLARE result jsonb;
-                                                available_languages text[] := '{""ar"", ""bg"", ""de"", ""el"", ""en"", ""es"", ""fr"", ""it"", ""hu"", ""pl"", ""pt"", ""ro"", ""ru"", ""sr"", ""tr""}';
-                                                lowerLanguage text := lower(languageCode);
-                                            BEGIN
-                                                IF NOT lowerLanguage = ANY(available_languages) THEN
-                                                    RAISE 'Unknown language code: %', languageCode;
-                                                END IF;
-        
-                                                SELECT jsonb_build_object(key, value) INTO result
-                                                FROM jsonb_each(multiLangJson)
-                                                WHERE key = lowerLanguage;
-        
-                                                IF result IS NULL THEN
-                                                    SELECT jsonb_build_object(key, value) INTO result
-                                                    FROM jsonb_each(multiLangJson)
-                                                    WHERE key = 'en';
-                                                END IF;
-        
-                                            RETURN result;
-                                            END
-                                            $$;";
-            
-            migrationBuilder.Sql(langFromJsonbFunctionSql);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -320,6 +385,9 @@ namespace HappyTravel.Hiroshima.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "CancellationPolicies");
+
+            migrationBuilder.DropTable(
+                name: "ContractAccommodationRelations");
 
             migrationBuilder.DropTable(
                 name: "RoomAllocationRequirements");
@@ -334,6 +402,9 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                 name: "RoomRates");
 
             migrationBuilder.DropTable(
+                name: "Contracts");
+
+            migrationBuilder.DropTable(
                 name: "Rooms");
 
             migrationBuilder.DropTable(
@@ -343,9 +414,10 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                 name: "Locations");
 
             migrationBuilder.DropTable(
+                name: "Users");
+
+            migrationBuilder.DropTable(
                 name: "Countries");
-            
-            migrationBuilder.Sql("DROP FUNCTION lang_from_jsonb(multilangjson jsonb, languagecode text)");
         }
     }
 }

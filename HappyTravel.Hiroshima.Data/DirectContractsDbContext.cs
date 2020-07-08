@@ -45,23 +45,25 @@ namespace HappyTravel.Hiroshima.Data
             AddRoomAllocationRequirements(modelBuilder);
             AddBooking(modelBuilder);
             AddCountries(modelBuilder);
-            AddCancellationPolicies(modelBuilder); 
+            AddCancellationPolicies(modelBuilder);
+            AddContractAccommodationRelation(modelBuilder);
         }
 
 
         private void AddUsers(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Models.User>(e =>
+            modelBuilder.Entity<User>(e =>
             {
                 e.ToTable("Users");
                 e.HasKey(c => c.Id);
                 e.Property(c => c.IdentityHash);
-                e.Property(c => c.FirstName);
+                e.Property(c => c.FirstName).IsRequired();
                 e.Property(c => c.LastName);
-                e.Property(c => c.Email);
+                e.Property(c => c.Email).IsRequired();
                 e.Property(c => c.Position);
             });
         }
+        
         
         private void AddContracts(ModelBuilder modelBuilder)
         {
@@ -72,7 +74,8 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(c => c.ValidFrom).IsRequired();
                 e.Property(c => c.ValidTo).IsRequired();
                 e.Property(c => c.Name).IsRequired();
-                e.Property(c => c.Description).HasColumnType("jsonb");
+                e.Property(c => c.Description);
+                e.Property(c => c.UserId).IsRequired();
                 e.HasOne<User>().WithMany().HasForeignKey(c=> c.UserId);
             });
         }
@@ -122,7 +125,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(a => a.CheckInTime);
                 e.Property(a => a.CheckOutTime);
                 e.Property(a => a.OccupancyDefinition).HasColumnType("jsonb");
-                e.Property(a => a.UserId);
+                e.Property(a => a.UserId).IsRequired();
                 e.HasIndex(a=> a.Coordinates).HasMethod("GIST");
                 e.HasOne<Models.Location.Location>().WithMany().HasForeignKey(a=> a.LocationId).IsRequired();
                 e.HasOne<User>().WithMany().HasForeignKey(a=> a.UserId);
@@ -240,6 +243,20 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(bo => bo.RoomId).IsRequired();
             });
         }
+
+
+        private void AddContractAccommodationRelation(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ContractAccommodationRelation>(e =>
+            {
+                e.ToTable("ContractAccommodationRelations");
+                e.HasKey(car => car.Id);
+                e.Property(car => car.AccommodationId).IsRequired();
+                e.Property(car => car.ContractId).IsRequired();
+                e.HasOne<Contract>().WithMany().HasForeignKey(rar => rar.ContractId);
+                e.HasOne<Accommodation>().WithMany().HasForeignKey(rar => rar.AccommodationId);
+            });
+        }
         
         
         public virtual DbSet<Models.Location.Location> Locations { get; set; }
@@ -252,5 +269,8 @@ namespace HappyTravel.Hiroshima.Data
         public virtual DbSet<RoomPromotionalOffer> RoomPromotionalOffers { get; set; }
         public virtual DbSet<Booking> Booking { get; set; }
         public virtual DbSet<RoomCancellationPolicy> CancellationPolicies { get; set; }
+        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Contract> Contracts { get; set; }
+        public virtual DbSet<ContractAccommodationRelation> ContractAccommodationRelations { get; set; }
     }
 }
