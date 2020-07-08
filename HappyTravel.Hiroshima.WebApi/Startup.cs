@@ -4,6 +4,7 @@ using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Infrastructure;
 using HappyTravel.Hiroshima.DirectContracts.Extensions;
+using HappyTravel.Hiroshima.WebApi.Infrastructure;
 using HappyTravel.Hiroshima.WebApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -61,9 +62,7 @@ namespace HappyTravel.Hiroshima.WebApi
                 .AddLocalization()
                 .AddMemoryFlow()
                 .AddMemoryCache();
-
-            services.AddResponseCompression();
-            services.AddHealthChecks();
+            
             services.AddOptions()
                 .Configure<RequestLocalizationOptions>(options =>
                 {
@@ -88,7 +87,9 @@ namespace HappyTravel.Hiroshima.WebApi
             services.AddCacheFlowJsonSerialization();
             services.AddControllers()
                 .AddControllersAsServices();
-
+            services.AddHealthChecks()
+                .AddCheck<ControllerResolveHealthCheck>(nameof(ControllerResolveHealthCheck));
+            services.AddResponseCompression();
         }
 
 
@@ -103,7 +104,11 @@ namespace HappyTravel.Hiroshima.WebApi
                 .AllowAnyOrigin()
                 .AllowAnyHeader());
             app.UseResponseCompression();
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapHealthChecks("/health");
+                endpoints.MapControllers();
+            });
         }
     }
 }
