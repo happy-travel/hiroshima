@@ -5,7 +5,7 @@ using HappyTravel.Hiroshima.Common.Models.Enums;
 using HappyTravel.Hiroshima.Data.Models.Accommodations;
 using NetTopologySuite.Geometries;
 
-namespace HappyTravel.DirectManager.Models.Requests
+namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
 {
     public class Accommodation
     {
@@ -18,8 +18,8 @@ namespace HappyTravel.DirectManager.Models.Requests
         public string CheckOutTime { get; set; }
         public MultiLanguage<List<Picture>> Pictures { get; set; }
         public Contacts Contacts { get; set; }
-        public AccommodationTypes AccommodationType { get; set; }
-        public MultiLanguage<string> AccommodationAmenities { get; set; }
+        public AccommodationTypes Type { get; set; }
+        public MultiLanguage<List<string>> AccommodationAmenities { get; set; }
         public MultiLanguage<string> AdditionalInfo { get; set; }
         public OccupancyDefinition OccupancyDefinition { get; set; }
         public List<Room> Rooms { get; set; }

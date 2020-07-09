@@ -376,6 +376,35 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                 name: "IX_Rooms_AccommodationId",
                 table: "Rooms",
                 column: "AccommodationId");
+            
+            var langFromJsonbFunctionSql = @"CREATE FUNCTION lang_from_jsonb(multilangjson jsonb, languagecode text) returns jsonb
+                                            IMMUTABLE
+                                            LANGUAGE plpgsql
+                                            AS
+                                            $$
+                                            DECLARE result jsonb;
+                                                available_languages text[] := '{""ar"", ""bg"", ""de"", ""el"", ""en"", ""es"", ""fr"", ""it"", ""hu"", ""pl"", ""pt"", ""ro"", ""ru"", ""sr"", ""tr""}';
+                                                lowerLanguage text := lower(languageCode);
+                                            BEGIN
+                                                IF NOT lowerLanguage = ANY(available_languages) THEN
+                                                    RAISE 'Unknown language code: %', languageCode;
+                                                END IF;
+        
+                                                SELECT jsonb_build_object(key, value) INTO result
+                                                FROM jsonb_each(multiLangJson)
+                                                WHERE key = lowerLanguage;
+        
+                                                IF result IS NULL THEN
+                                                    SELECT jsonb_build_object(key, value) INTO result
+                                                    FROM jsonb_each(multiLangJson)
+                                                    WHERE key = 'en';
+                                                END IF;
+        
+                                            RETURN result;
+                                            END
+                                            $$;";
+            
+            migrationBuilder.Sql(langFromJsonbFunctionSql);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -418,6 +447,8 @@ namespace HappyTravel.Hiroshima.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Countries");
+            
+            migrationBuilder.Sql("DROP FUNCTION lang_from_jsonb(multilangjson jsonb, languagecode text)");
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using System.Net;
-/*using CSharpFunctionalExtensions;
+using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Hiroshima.Common.Infrastructure
@@ -17,4 +17,4 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure
         public static Result<T, ProblemDetails> Fail<T>(string details, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
             => Result.Failure<T, ProblemDetails>(Build(details, statusCode));
     }
-}*/
+}

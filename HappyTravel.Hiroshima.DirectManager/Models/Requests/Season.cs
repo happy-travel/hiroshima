@@ -1,7 +1,7 @@
 ﻿using System;
 using HappyTravel.Hiroshima.Common.Models;
 
-namespace HappyTravel.DirectManager.Models.Requests
+namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
 {
     public class Season
     {

@@ -2,11 +2,12 @@
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.DirectManager.Models.Responses;
+using HappyTravel.Hiroshima.Common.Infrastructure;
+using HappyTravel.Hiroshima.DirectManager.Models.Responses;
 using HappyTravel.Hiroshima.DirectManager.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.DirectManager.Controllers
+namespace HappyTravel.Hiroshima.DirectManager.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
@@ -20,66 +21,91 @@ namespace HappyTravel.DirectManager.Controllers
         }
         
         
+        /// <summary>
+        /// Returns a direct contract data by ID
+        /// </summary>
+        /// <param name="contractId"></param>
+        /// <returns></returns>
         [HttpGet("{contractId}")]
-        [ProducesResponseType(typeof(Models.Responses.Contract), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Contract), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetContract([FromQuery] int contractId)
         {
-            var (_, isFailure, response, error) = await  _contractManagementService.GetContract(contractId);
+            var (_, isFailure, response, error) = await _contractManagementService.GetContract(contractId);
             if (isFailure)
-                return BadRequest(error);
+                return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return Ok(response);
         }
         
         
+        /// <summary>
+        /// Gets all user's contracts
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
-        [ProducesResponseType(typeof(List<Models.Responses.Contract>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<Contract>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetContracts()
         {
             var (_, isFailure, response, error) = await _contractManagementService.GetContracts();
             if (isFailure)
-                return BadRequest(error);
+                return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return Ok(response);
         }
         
         
+        /// <summary>
+        /// Adds a new contract
+        /// </summary>
+        /// <param name="contract"></param>
+        /// <returns></returns>
         [HttpPost]
-        [ProducesResponseType(typeof(Models.Responses.Contract), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Contract), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> AddContract([FromBody] Contract contract)
+        public async Task<IActionResult> AddContract([FromBody] Models.Requests.Contract contract)
         {
             var (_, isFailure, response, error) = await _contractManagementService.AddContract(contract);
             if (isFailure)
-                return BadRequest(error);
+                return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return Ok(response);
         }
         
         
+        /// <summary>
+        /// Updates a contract by ID
+        /// </summary>
+        /// <param name="contractId"></param>
+        /// <param name="contract"></param>
+        /// <returns></returns>
         [HttpPut("{contractId}")]
-        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> UpdateContract([FromRoute] int contractId, [FromBody] Contract contract)
+        public async Task<IActionResult> UpdateContract([FromRoute] int contractId, [FromBody] Models.Requests.Contract contract)
         {
             var (_, isFailure, error) = await _contractManagementService.UpdateContract(contractId, contract);
             if (isFailure)
-                return BadRequest(error);
+                return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return Ok();
         }
 
         
+        /// <summary>
+        /// Deletes a contract by ID
+        /// </summary>
+        /// <param name="contractId"></param>
+        /// <returns></returns>
         [HttpDelete("{contractId}")]
-        [ProducesResponseType(typeof(Models.Responses.Contract), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> DeleteContract([FromRoute] int contractId)
         {
             var (_, isFailure, error) = await _contractManagementService.DeleteContract(contractId);
             if (isFailure)
-                return BadRequest(error);
+                return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return Ok();
         }

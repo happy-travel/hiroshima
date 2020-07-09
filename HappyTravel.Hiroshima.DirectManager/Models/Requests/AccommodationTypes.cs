@@ -1,4 +1,4 @@
-﻿namespace HappyTravel.DirectManager.Models.Requests
+﻿namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
 {
     public enum AccommodationTypes
     {

@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
-using HappyTravel.DirectManager.Models.Requests;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Enums;
 using HappyTravel.Hiroshima.Data.Models.Accommodations;
+using HappyTravel.Hiroshima.DirectManager.Models.Requests;
 using NetTopologySuite.Geometries;
 
-namespace HappyTravel.DirectManager.Models.Responses
+namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
     public class Accommodation
     {

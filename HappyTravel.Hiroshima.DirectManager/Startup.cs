@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ApiVersion = Microsoft.AspNetCore.Mvc.ApiVersion;
 
-namespace HappyTravel.DirectManager
+namespace HappyTravel.Hiroshima.DirectManager
 {
     public class Startup
     {

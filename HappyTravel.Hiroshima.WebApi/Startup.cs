@@ -1,6 +1,7 @@
 using System.Globalization;
 using CacheFlow.Json.Extensions;
 using FloxDc.CacheFlow.Extensions;
+using FluentValidation.AspNetCore;
 using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Infrastructure;
 using HappyTravel.Hiroshima.DirectContracts.Extensions;
@@ -76,6 +77,7 @@ namespace HappyTravel.Hiroshima.WebApi
                 .AddFormatterMappings()
                 .AddApiExplorer()
                 .AddNewtonsoftJson(options => { options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Unspecified; })
+                .AddFluentValidation()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             services.AddOptions()

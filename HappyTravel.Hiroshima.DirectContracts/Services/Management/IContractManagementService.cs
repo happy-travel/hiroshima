@@ -2,15 +2,17 @@
 using System.Threading.Tasks;
 using HappyTravel.Hiroshima.Data.Models;
 using HappyTravel.Hiroshima.Data.Models.Accommodations;
-using HappyTravel.Hiroshima.Data.Models.Rooms;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
 {
     public interface IContractManagementService
     {
-        Task<int> AddContract(Contract contract);
-        Task<bool> UpdateContract(Contract contract);
-        Task<Contract> GetContract(int contractId);
-        Task<bool> DeleteContract(int contractId);
+        Task<Contract> GetContract(int userId, int contractId);
+        Task<List<Contract>> GetContracts(int userId);
+        Task<Contract> AddContract(Contract contract, int accommodationId);
+        Task UpdateContract(Contract contract);
+        Task DeleteContract(int userId, int contractId);
+        Task<List<Accommodation>> GetRelatedAccommodations(int userId, int contractId);
+        Task<List<ContractAccommodationRelation>> GetContractRelations(int userId, List<int> contractIds);
     }
 }

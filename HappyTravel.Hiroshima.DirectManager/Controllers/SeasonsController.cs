@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.DirectManager.Controllers
+namespace HappyTravel.Hiroshima.DirectManager.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
@@ -9,8 +9,6 @@ namespace HappyTravel.DirectManager.Controllers
     public class SeasonsController : Controller
     {
         public SeasonsController()
-        {
-            
-        }
+        { }
     }
 }
