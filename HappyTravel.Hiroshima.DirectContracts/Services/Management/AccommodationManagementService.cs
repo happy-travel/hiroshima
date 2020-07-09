@@ -19,7 +19,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
         
         public async Task<Accommodation> AddAccommodation(Accommodation accommodation)
         { 
-            var entry = await _dbContext.Accommodations.AddAsync(accommodation);
+            var entry = _dbContext.Accommodations.Add(accommodation);
             await _dbContext.SaveChangesAsync();
             entry.State = EntityState.Detached;
             return entry.Entity;
