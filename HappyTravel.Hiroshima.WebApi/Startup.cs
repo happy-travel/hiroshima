@@ -49,39 +49,10 @@ namespace HappyTravel.Hiroshima.WebApi
             services.AddDirectContractsServices(dbConnectionString);
             services.AddDirectManagerServices();
             
-            services.AddSingleton(
-                NtsGeometryServices.Instance.CreateGeometryFactory(
-                    GeoConstants.SpatialReferenceId));
+            services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(GeoConstants.SpatialReferenceId));
             services.AddTransient<IAvailabilityService, AvailabilityService>();
-            
-            services.AddDistributedFlow();
-            services.AddCacheFlowJsonSerialization();
-
-            services.AddCors();
+          
             services.AddLocalization();
-            
-            services.AddCacheFlow()
-                .AddMemoryFlow()
-                .AddMemoryCache();
-
-            services.AddResponseCompression();
-            services.AddHealthChecks();
-            
-            services.AddApiVersioning(options =>
-            {
-                options.AssumeDefaultVersionWhenUnspecified = false;
-                options.DefaultApiVersion = new ApiVersion(1, 0);
-                options.ReportApiVersions = true;
-            });
-        
-            services.AddMvcCore()
-                .AddControllersAsServices()
-                .AddFormatterMappings()
-                .AddApiExplorer()
-                .AddNewtonsoftJson(options => { options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Unspecified; })
-                .AddFluentValidation()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
-
             services.AddOptions()
                 .Configure<RequestLocalizationOptions>(options =>
                 {
@@ -95,20 +66,35 @@ namespace HappyTravel.Hiroshima.WebApi
                     options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider {Options = options});
                 });
 
-            services.AddDirectContractsServices(dbConnectionString);
-            services.AddSingleton(
-                NtsGeometryServices.Instance.CreateGeometryFactory(
-                    GeoConstants.SpatialReferenceId));
-            services.AddTransient<IAvailabilityService, AvailabilityService>();
-            services.AddMemoryCache();
-            services.AddStackExchangeRedisCache(options => { options.Configuration = redisEndpoint; });
-            services.AddDoubleFlow();
-            services.AddCacheFlowJsonSerialization();
-            services.AddControllers()
-                .AddControllersAsServices();
             services.AddHealthChecks()
                 .AddCheck<ControllerResolveHealthCheck>(nameof(ControllerResolveHealthCheck));
-            services.AddResponseCompression();
+            
+            services.AddApiVersioning(options =>
+            {
+                options.AssumeDefaultVersionWhenUnspecified = false;
+                options.DefaultApiVersion = new ApiVersion(1, 0);
+                options.ReportApiVersions = true;
+            });
+            
+            services.AddResponseCompression()
+                .AddHttpContextAccessor()
+                .AddCors()
+                .AddLocalization()
+                .AddMemoryCache()
+                .AddStackExchangeRedisCache(options =>
+                {
+                    options.Configuration = redisEndpoint;
+                })
+                .AddDoubleFlow()
+                .AddCacheFlowJsonSerialization();
+                
+            services.AddMvcCore()
+                .AddControllersAsServices()
+                .AddFormatterMappings()
+                .AddApiExplorer()
+                .AddNewtonsoftJson(options => { options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Unspecified; })
+                .AddFluentValidation()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
         }
 
 
