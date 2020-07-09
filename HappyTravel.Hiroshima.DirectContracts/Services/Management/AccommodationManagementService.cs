@@ -13,10 +13,6 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
         }
         
         
-        public async Task<Accommodation> GetAccommodation(int accommodationId) 
-            => await _dbContext.Accommodations.SingleOrDefaultAsync(a => a.Id == accommodationId);
-
-        
         public async Task<Accommodation> GetAccommodation(int userId, int accommodationId) 
             => await _dbContext.Accommodations.SingleOrDefaultAsync(a => a.Id == accommodationId && a.UserId == userId);
 
