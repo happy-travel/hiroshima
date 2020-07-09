@@ -1,9 +1,11 @@
 using System.Globalization;
 using CacheFlow.Json.Extensions;
 using FloxDc.CacheFlow.Extensions;
+using FluentValidation.AspNetCore;
 using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Infrastructure;
 using HappyTravel.Hiroshima.DirectContracts.Extensions;
+using HappyTravel.Hiroshima.DirectManager.Extensions;
 using HappyTravel.Hiroshima.WebApi.Infrastructure;
 using HappyTravel.Hiroshima.WebApi.Services;
 using Microsoft.AspNetCore.Builder;
@@ -13,7 +15,6 @@ using Microsoft.AspNetCore.Localization.Routing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTopologySuite;
 using Newtonsoft.Json;
@@ -44,25 +45,14 @@ namespace HappyTravel.Hiroshima.WebApi
             vaultClient.Login(Configuration[Configuration["Vault:Token"]]).GetAwaiter().GetResult();
             var dbConnectionString = VaultHelper.GetDbConnectionString(vaultClient, "DirectContracts:Database:ConnectionOptions", "DirectContracts:Database:ConnectionString", Configuration);
             var redisEndpoint = Configuration[Configuration["Redis:Endpoint"]];
-            services.AddApiVersioning(options =>
-            {
-                options.AssumeDefaultVersionWhenUnspecified = false;
-                options.DefaultApiVersion = new ApiVersion(1, 0);
-                options.ReportApiVersions = true;
-            });
-        
-            services.AddMvcCore()
-                .AddControllersAsServices()
-                .AddFormatterMappings()
-                .AddApiExplorer()
-                .AddNewtonsoftJson(options => { options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Unspecified; })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
-
-            services.AddCors()
-                .AddLocalization()
-                .AddMemoryFlow()
-                .AddMemoryCache();
+           
+            services.AddDirectContractsServices(dbConnectionString);
+            services.AddDirectManagerServices();
             
+            services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(GeoConstants.SpatialReferenceId));
+            services.AddTransient<IAvailabilityService, AvailabilityService>();
+          
+            services.AddLocalization();
             services.AddOptions()
                 .Configure<RequestLocalizationOptions>(options =>
                 {
@@ -76,20 +66,35 @@ namespace HappyTravel.Hiroshima.WebApi
                     options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider {Options = options});
                 });
 
-            services.AddDirectContractsServices(dbConnectionString);
-            services.AddSingleton(
-                NtsGeometryServices.Instance.CreateGeometryFactory(
-                    GeoConstants.SpatialReferenceId));
-            services.AddTransient<IAvailabilityService, AvailabilityService>();
-            services.AddMemoryCache();
-            services.AddStackExchangeRedisCache(options => { options.Configuration = redisEndpoint; });
-            services.AddDoubleFlow();
-            services.AddCacheFlowJsonSerialization();
-            services.AddControllers()
-                .AddControllersAsServices();
             services.AddHealthChecks()
                 .AddCheck<ControllerResolveHealthCheck>(nameof(ControllerResolveHealthCheck));
-            services.AddResponseCompression();
+            
+            services.AddApiVersioning(options =>
+            {
+                options.AssumeDefaultVersionWhenUnspecified = false;
+                options.DefaultApiVersion = new ApiVersion(1, 0);
+                options.ReportApiVersions = true;
+            });
+            
+            services.AddResponseCompression()
+                .AddHttpContextAccessor()
+                .AddCors()
+                .AddLocalization()
+                .AddMemoryCache()
+                .AddStackExchangeRedisCache(options =>
+                {
+                    options.Configuration = redisEndpoint;
+                })
+                .AddDoubleFlow()
+                .AddCacheFlowJsonSerialization();
+                
+            services.AddMvcCore()
+                .AddControllersAsServices()
+                .AddFormatterMappings()
+                .AddApiExplorer()
+                .AddNewtonsoftJson(options => { options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Unspecified; })
+                .AddFluentValidation()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
         }
 
 

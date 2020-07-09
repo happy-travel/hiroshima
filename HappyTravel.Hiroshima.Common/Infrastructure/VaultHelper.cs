@@ -31,7 +31,6 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure
         public static string GetDbConnectionString(VaultClient.VaultClient vaultClient, string pathToConnectionOptions, string pathToConnectionString, IConfiguration configuration)
         {
             var connectionOptions = vaultClient.Get(configuration[pathToConnectionOptions]).Result;
-            
             return string.Format($"{configuration[pathToConnectionString]}",
                 connectionOptions["host"],
                 connectionOptions["port"],

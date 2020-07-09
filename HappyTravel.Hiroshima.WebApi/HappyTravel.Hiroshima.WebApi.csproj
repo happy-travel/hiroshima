@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation.AspNetCore" Version="9.0.0" />
     <PackageReference Include="HappyTravel.ErrorHandling" Version="1.0.0" />
     <PackageReference Include="HappyTravel.VaultClient" Version="1.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.5" />
@@ -33,6 +34,7 @@
   <ItemGroup>
     <ProjectReference Include="..\HappyTravel.Hiroshima.Common\HappyTravel.Hiroshima.Common.csproj" />
     <ProjectReference Include="..\HappyTravel.Hiroshima.DirectContracts\HappyTravel.Hiroshima.DirectContracts.csproj" />
+    <ProjectReference Include="..\HappyTravel.Hiroshima.DirectManager\HappyTravel.Hiroshima.DirectManager.csproj" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>

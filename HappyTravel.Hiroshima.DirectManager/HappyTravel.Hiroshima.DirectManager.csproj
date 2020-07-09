@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\HappyTravel.Hiroshima.Common\HappyTravel.Hiroshima.Common.csproj" />
+      <ProjectReference Include="..\HappyTravel.Hiroshima.DirectContracts\HappyTravel.Hiroshima.DirectContracts.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FluentValidation" Version="9.0.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="4.1.1" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.5" />
+      <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.5" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Models\Common" />
+      <Folder Include="Properties" />
+    </ItemGroup>
+
+
+</Project>

@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.Hiroshima.Common.Models;
+using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
-using HappyTravel.Hiroshima.Data.Models.Rooms.Occupancy;
 using HappyTravel.Hiroshima.DirectContracts.Models;
 using AccommodationDetails = HappyTravel.Hiroshima.Data.Models.AccommodationDetails;
 

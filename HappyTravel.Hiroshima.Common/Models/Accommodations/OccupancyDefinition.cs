@@ -1,4 +1,4 @@
-﻿namespace HappyTravel.Hiroshima.Common.Models
+﻿namespace HappyTravel.Hiroshima.Common.Models.Accommodations
 {
     public class OccupancyDefinition
     {
