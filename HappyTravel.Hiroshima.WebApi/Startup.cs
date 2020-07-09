@@ -5,7 +5,6 @@ using FluentValidation.AspNetCore;
 using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Infrastructure;
 using HappyTravel.Hiroshima.DirectContracts.Extensions;
-using HappyTravel.Hiroshima.DirectContracts.Services.Management;
 using HappyTravel.Hiroshima.DirectManager.Extensions;
 using HappyTravel.Hiroshima.WebApi.Services;
 using Microsoft.AspNetCore.Builder;
@@ -53,12 +52,14 @@ namespace HappyTravel.Hiroshima.WebApi
                 NtsGeometryServices.Instance.CreateGeometryFactory(
                     GeoConstants.SpatialReferenceId));
             services.AddTransient<IAvailabilityService, AvailabilityService>();
-            services.AddCacheFlow();
+            
             services.AddDistributedFlow();
             services.AddCacheFlowJsonSerialization();
+
+            services.AddCors();
+            services.AddLocalization();
             
-            services.AddCors()
-                .AddLocalization()
+            services.AddCacheFlow()
                 .AddMemoryFlow()
                 .AddMemoryCache();
 
