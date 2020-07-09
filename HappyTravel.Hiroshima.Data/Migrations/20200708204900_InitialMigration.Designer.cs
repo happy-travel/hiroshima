@@ -54,7 +54,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.Property<string>("CheckOutTime")
                         .HasColumnType("text");
 
-                    b.Property<Contacts>("Contacts")
+                    b.Property<ContactInfo>("Contacts")
                         .IsRequired()
                         .HasColumnType("jsonb");
 

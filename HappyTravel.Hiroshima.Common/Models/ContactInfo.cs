@@ -1,6 +1,6 @@
 ﻿namespace HappyTravel.Hiroshima.Common.Models
 {
-    public class Contacts
+    public class ContactInfo
     {
         public string Email { get; set; } 
         public string Phone { get; set; }

@@ -155,7 +155,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                             Address =
                                 DirectContractsDbContext.GetLangFromJsonb(accWithLoc.Accommodation.Address,
                                     languageCode),
-                            Contacts = accWithLoc.Accommodation.Contacts,
+                            ContactInfo = accWithLoc.Accommodation.ContactInfo,
                             Coordinates = accWithLoc.Accommodation.Coordinates,
                             Name =
                                 DirectContractsDbContext.GetLangFromJsonb(accWithLoc.Accommodation.Name,

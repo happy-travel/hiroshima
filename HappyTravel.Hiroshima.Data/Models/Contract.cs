@@ -9,6 +9,6 @@ namespace HappyTravel.Hiroshima.Data.Models
         public DateTime ValidTo { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public int UserId { get; set; }
+        public int ContractManagerId { get; set; }
     }
 }

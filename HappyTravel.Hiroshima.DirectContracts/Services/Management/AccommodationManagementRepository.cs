@@ -5,16 +5,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
 {
-    public class AccommodationManagementService: IAccommodationManagementService
+    public class AccommodationManagementRepository: IAccommodationManagementRepository
     {
-        public AccommodationManagementService(DirectContractsDbContext dbContext)
+        public AccommodationManagementRepository(DirectContractsDbContext dbContext)
         {
             _dbContext = dbContext;
         }
         
         
-        public async Task<Accommodation> GetAccommodation(int userId, int accommodationId) 
-            => await _dbContext.Accommodations.SingleOrDefaultAsync(a => a.Id == accommodationId && a.UserId == userId);
+        public async Task<Accommodation> GetAccommodation(int contractManagerId, int accommodationId) 
+            => await _dbContext.Accommodations.SingleOrDefaultAsync(a => a.Id == accommodationId && a.ContractManagerId == contractManagerId);
 
         
         public async Task<Accommodation> AddAccommodation(Accommodation accommodation)

@@ -22,7 +22,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
     {
         internal static void AddData(DirectContractsDbContext dbContext)
         {
-            AddUser(dbContext);
+            AddContractManager(dbContext);
             AddLocations(dbContext);
             AddOneAndOnlyContract(dbContext);
             AddJumeriahContract(dbContext);
@@ -39,7 +39,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     Id = int.MaxValue,
                     Name = "Test Contract",
                     Description = "Test Contract",
-                    UserId = int.MaxValue,
+                    ContractManagerId = int.MaxValue,
                     ValidFrom = new DateTime(2020, 01, 01),
                     ValidTo = new DateTime(2021, 01, 01)
                 });
@@ -53,19 +53,18 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             }
         }
         
-        private static void AddUser(DirectContractsDbContext dbContext)
+        private static void AddContractManager(DirectContractsDbContext dbContext)
         {
-            var user = dbContext.Users.SingleOrDefault(u=> u.Id == int.MaxValue);
-            if (user is null)
+            var contractManager = dbContext.ContractManagers.SingleOrDefault(cm => cm.Id == int.MaxValue);
+            if (contractManager is null)
             {
-                dbContext.Users.Add(new User
+                dbContext.ContractManagers.Add(new ContractManager
                 {
                     Id = int.MaxValue,
                     Created = DateTime.UtcNow,
-                    Email = "test@mail.com",
-                    Position = "test user",
-                    FirstName = "John",
-                    LastName = "Doe",
+                    Email = "manager@mail.com",
+                    Name = "Manager Name",
+                    Title = "Agency Title"
                 });
                 dbContext.SaveChanges();
             }
@@ -143,10 +142,10 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 var accommodation = new Accommodation
                 {
                     Id = hotelId,
-                    UserId = int.MaxValue,
+                    ContractManagerId = int.MaxValue,
                     Rating = AccommodationRating.FiveStars,
                     PropertyType = PropertyTypes.Hotels,
-                    Contacts = new Contacts {Email = "info@oneandonlythepalm.com", Phone = "+ 971 4 440 1010"},
+                    ContactInfo = new ContactInfo {Email = "info@oneandonlythepalm.com", Phone = "+ 971 4 440 1010"},
                     CheckInTime = "13:00",
                     CheckOutTime = "11:00",
                     Coordinates = new Point(55.153219, 25.097596),
@@ -2496,10 +2495,10 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 var accommodation = new Accommodation
                 {
                     Id = hotelId,
-                    UserId = int.MaxValue,
+                    ContractManagerId = int.MaxValue,
                     Rating = AccommodationRating.FiveStars,
                     PropertyType = PropertyTypes.Hotels,
-                    Contacts = new Contacts {Email = "info@jumeirah.com", Phone = "+971 4 3665000"},
+                    ContactInfo = new ContactInfo {Email = "info@jumeirah.com", Phone = "+971 4 3665000"},
                     CheckInTime = "14:00",
                     CheckOutTime = "12:00",
                     Coordinates = new Point(55.153219, 25.097596),

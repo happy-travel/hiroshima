@@ -18,6 +18,7 @@
 
     <ItemGroup>
       <Folder Include="Models\Common" />
+      <Folder Include="Properties" />
     </ItemGroup>
 
 

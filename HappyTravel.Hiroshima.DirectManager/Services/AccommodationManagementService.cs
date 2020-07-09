@@ -5,35 +5,36 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class AccommodationManagementService: IAccommodationManagementService
     {
-        public AccommodationManagementService(DirectContracts.Services.Management.IAccommodationManagementService accommodationManagement)
+        public AccommodationManagementService(DirectContracts.Services.Management.IAccommodationManagementRepository accommodationManagementRepository)
         {
-            _accommodationManagement = accommodationManagement;
+            _accommodationManagementRepository = accommodationManagementRepository;
         }
         
         
-        public Task<Result<Models.Responses.Accommodation>> GetAccommodation(int accommodationId)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        
-        public Task<Result<Models.Responses.Accommodation>> AddAccommodation(Models.Requests.Accommodation accommodation)
+        public Task<Result<Models.Responses.Accommodation>> Get(int accommodationId)
         {
             throw new System.NotImplementedException();
         }
 
         
-        public Task<Result> DeleteAccommodation(string accommodationId)
+        public Task<Result<Models.Responses.Accommodation>> Add(Models.Requests.Accommodation accommodation)
         {
             throw new System.NotImplementedException();
         }
 
         
-        public Task<Result> UpdateAccommodation(string accommodationId, Models.Requests.Accommodation accommodation)
+        public Task<Result> Remove(string accommodationId)
         {
             throw new System.NotImplementedException();
         }
 
-        private readonly DirectContracts.Services.Management.IAccommodationManagementService _accommodationManagement;
+        
+        public Task<Result> Update(string accommodationId, Models.Requests.Accommodation accommodation)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        
+        private readonly DirectContracts.Services.Management.IAccommodationManagementRepository _accommodationManagementRepository;
     }
 }

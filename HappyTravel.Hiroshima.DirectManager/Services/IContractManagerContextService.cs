@@ -4,8 +4,8 @@ using HappyTravel.Hiroshima.Data.Models;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {
-    public interface IUserContextService
+    public interface IContractManagerContextService
     {
-        Task<Result<User>> GetUser();
+        Task<Result<ContractManager>> GetContractManager();
     }
 }

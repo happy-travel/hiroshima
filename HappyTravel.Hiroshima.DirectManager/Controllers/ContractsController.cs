@@ -13,7 +13,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Controllers
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/management/contracts")]
     [Produces("application/json")]
-    public class ContractsController : Controller
+    public class ContractsController : ControllerBase
     {
         public ContractsController(IContractManagementService contractManagementService)
         {
@@ -24,14 +24,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Controllers
         /// <summary>
         /// Returns a direct contract data by ID
         /// </summary>
-        /// <param name="contractId"></param>
+        /// <param name="contractId">ID of the contract</param>
         /// <returns></returns>
         [HttpGet("{contractId}")]
         [ProducesResponseType(typeof(Contract), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetContract([FromQuery] int contractId)
         {
-            var (_, isFailure, response, error) = await _contractManagementService.GetContract(contractId);
+            var (_, isFailure, response, error) = await _contractManagementService.Get(contractId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -48,7 +48,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetContracts()
         {
-            var (_, isFailure, response, error) = await _contractManagementService.GetContracts();
+            var (_, isFailure, response, error) = await _contractManagementService.Get();
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -59,14 +59,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Controllers
         /// <summary>
         /// Adds a new contract
         /// </summary>
-        /// <param name="contract"></param>
+        /// <param name="contract">New contract data</param>
         /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(typeof(Contract), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> AddContract([FromBody] Models.Requests.Contract contract)
         {
-            var (_, isFailure, response, error) = await _contractManagementService.AddContract(contract);
+            var (_, isFailure, response, error) = await _contractManagementService.Add(contract);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -77,15 +77,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Controllers
         /// <summary>
         /// Updates a contract by ID
         /// </summary>
-        /// <param name="contractId"></param>
-        /// <param name="contract"></param>
+        /// <param name="contractId">ID of the contract</param>
+        /// <param name="contract">New contract data</param>
         /// <returns></returns>
         [HttpPut("{contractId}")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> UpdateContract([FromRoute] int contractId, [FromBody] Models.Requests.Contract contract)
         {
-            var (_, isFailure, error) = await _contractManagementService.UpdateContract(contractId, contract);
+            var (_, isFailure, error) = await _contractManagementService.Update(contractId, contract);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -96,14 +96,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Controllers
         /// <summary>
         /// Deletes a contract by ID
         /// </summary>
-        /// <param name="contractId"></param>
+        /// <param name="contractId">New contract data</param>
         /// <returns></returns>
         [HttpDelete("{contractId}")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> DeleteContract([FromRoute] int contractId)
         {
-            var (_, isFailure, error) = await _contractManagementService.DeleteContract(contractId);
+            var (_, isFailure, error) = await _contractManagementService.Remove(contractId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

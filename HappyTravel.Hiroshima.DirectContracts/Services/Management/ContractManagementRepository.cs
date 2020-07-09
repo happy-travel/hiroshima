@@ -8,19 +8,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
 {
-    public class ContractManagementService : IContractManagementService
+    public class ContractManagementRepository : IContractManagementRepository
     {
-        public ContractManagementService(DirectContractsDbContext dbContext)
+        public ContractManagementRepository(DirectContractsDbContext dbContext)
         {
             _dbContext = dbContext;
         }
 
-        public async Task<Contract> GetContract(int userId, int contractId) =>
-            await _dbContext.Contracts.SingleOrDefaultAsync(c => c.UserId == userId && c.Id == contractId);
+        public async Task<Contract> GetContract(int contractManagerId, int contractId) =>
+            await _dbContext.Contracts.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.Id == contractId);
 
         
-        public async Task<List<Contract>> GetContracts(int userId) =>
-            await _dbContext.Contracts.Where(c => c.UserId == userId).ToListAsync();
+        public async Task<List<Contract>> GetContracts(int contractManagerId) =>
+            await _dbContext.Contracts.Where(c => c.ContractManagerId == contractManagerId).ToListAsync();
 
         
         public async Task<Contract> AddContract(Contract contract, int accommodationId)
@@ -49,24 +49,24 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
         }
 
         
-        public async Task DeleteContract(int userId, int contractId)
+        public async Task DeleteContract(int contractManagerId, int contractId)
         {
             await DeleteContractAccommodationRelations(contractId);
 
-            var contract = _dbContext.Contracts.SingleOrDefault(c => c.Id == contractId && c.UserId == userId);
-            if (!(contract is null))
-            {
-                var contractEntry = _dbContext.Contracts.Remove(contract);
-                await _dbContext.SaveChangesAsync();
-                contractEntry.State = EntityState.Detached;
-            }
+            var contract = await _dbContext.Contracts.SingleOrDefaultAsync(c => c.Id == contractId && c.ContractManagerId == contractManagerId);
+            if (contract is null)
+                return;
+            
+            var contractEntry = _dbContext.Contracts.Remove(contract);
+            await _dbContext.SaveChangesAsync();
+            contractEntry.State = EntityState.Detached;
         }
 
         
-        public async Task<List<Accommodation>> GetRelatedAccommodations(int userId, int contractId) =>
+        public async Task<List<Accommodation>> GetRelatedAccommodations(int contractManagerId, int contractId) =>
             (await JoinContractAccommodationRelationAndAccommodation()
                 .Where(contractAccommodationRelationAndAccommodation =>
-                    contractAccommodationRelationAndAccommodation.Accommodation!.UserId == userId &&
+                    contractAccommodationRelationAndAccommodation.Accommodation!.ContractManagerId == contractManagerId &&
                     contractAccommodationRelationAndAccommodation.ContractAccommodationRelation!.ContractId ==
                     contractId)
                 .Select(contractAccommodationRelationAndAccommodation => contractAccommodationRelationAndAccommodation
@@ -74,10 +74,10 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
                 .ToListAsync())!;
 
         
-        public async Task<List<ContractAccommodationRelation>> GetContractRelations(int userId, List<int> contractIds)
+        public async Task<List<ContractAccommodationRelation>> GetContractRelations(int contractManagerId, List<int> contractIds)
             => (await JoinContractAccommodationRelationAndAccommodation()
                     .Where(contractAccommodationRelationAndAccommodation =>
-                        contractAccommodationRelationAndAccommodation.Accommodation!.UserId == userId &&
+                        contractAccommodationRelationAndAccommodation.Accommodation!.ContractManagerId == contractManagerId &&
                         contractIds.Contains(contractAccommodationRelationAndAccommodation.ContractAccommodationRelation!.ContractId))
                     .Select(contractAccommodationRelationAndAccommodation =>
                         contractAccommodationRelationAndAccommodation.ContractAccommodationRelation).ToListAsync())!;
@@ -95,6 +95,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
             }
         }
 
+        
         private IQueryable<ContractAccommodationRelationAndAccommodation> JoinContractAccommodationRelationAndAccommodation() 
             => _dbContext.ContractAccommodationRelations.Join(_dbContext.Accommodations,
                 contractAccommodationRelation => contractAccommodationRelation.AccommodationId,
@@ -108,7 +109,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
         private readonly DirectContractsDbContext _dbContext;
 
         
-        class ContractAccommodationRelationAndAccommodation
+        private class ContractAccommodationRelationAndAccommodation
         {
             public ContractAccommodationRelation? ContractAccommodationRelation { get; set; }
             public Accommodation? Accommodation { get; set; }

@@ -145,7 +145,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     CheckInTime = table.Column<string>(nullable: true),
                     CheckOutTime = table.Column<string>(nullable: true),
                     Pictures = table.Column<JsonDocument>(type: "jsonb", nullable: true),
-                    Contacts = table.Column<Contacts>(type: "jsonb", nullable: false),
+                    Contacts = table.Column<ContactInfo>(type: "jsonb", nullable: false),
                     PropertyType = table.Column<int>(nullable: false),
                     AccommodationAmenities = table.Column<JsonDocument>(type: "jsonb", nullable: true),
                     AdditionalInfo = table.Column<JsonDocument>(type: "jsonb", nullable: true),

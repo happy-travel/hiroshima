@@ -10,26 +10,26 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class ContractManagementService: IContractManagementService
     {
-        public ContractManagementService(IUserContextService userContextService, DirectContracts.Services.Management.IContractManagementService contractManagement, DirectContracts.Services.Management.IAccommodationManagementService accommodationManagement)
+        public ContractManagementService(IContractManagerContextService contractManagerContextService, DirectContracts.Services.Management.IContractManagementRepository contractManagementRepository, DirectContracts.Services.Management.IAccommodationManagementRepository accommodationManagementRepository)
         {
-            _userContext = userContextService;
-            _contractManagement = contractManagement;
-            _accommodationManagement = accommodationManagement;
+            _contractManagerContext = contractManagerContextService;
+            _contractManagementRepository = contractManagementRepository;
+            _accommodationManagementRepository = accommodationManagementRepository;
         }
         
         
-        public async Task<Result<Models.Responses.Contract>> GetContract(int contractId)
+        public async Task<Result<Models.Responses.Contract>> Get(int contractId)
         {
-            return await _userContext.GetUser()
-                .Bind(async user =>
+            return await _contractManagerContext.GetContractManager()
+                .Bind(async contractManager =>
                 {
-                    var contract = await _contractManagement.GetContract(user.Id, contractId);
+                    var contract = await _contractManagementRepository.GetContract(contractManager.Id, contractId);
                     
                     if (contract is null) 
                         return Result.Failure<Models.Responses.Contract>($"Failed to get the contract with {nameof(contractId)} '{contractId}'");
 
                     var relatedAccommodationId =
-                        (await _contractManagement.GetRelatedAccommodations(user.Id, contractId)).Single().Id;
+                        (await _contractManagementRepository.GetRelatedAccommodations(contractManager.Id, contractId)).Single().Id;
 
                     return Result.Ok(new Models.Responses.Contract
                     {
@@ -44,64 +44,64 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
         
-        public async Task<Result<List<Models.Responses.Contract>>> GetContracts()
+        public async Task<Result<List<Models.Responses.Contract>>> Get()
         {
-            return await _userContext.GetUser()
-                .Bind(async user =>
+            return await _contractManagerContext.GetContractManager()
+                .Bind(async contractManager =>
                 {
-                    var contracts = (await _contractManagement.GetContracts(user.Id)).ToList();
+                    var contracts = (await _contractManagementRepository.GetContracts(contractManager.Id)).ToList();
                     if (!contracts.Any())
                         return Result.Ok(new List<Models.Responses.Contract>());
 
                     var contractIds = contracts.Select(c => c.Id).ToList();
-                    var contractsAccommodationRelations = (await _contractManagement.GetContractRelations(user.Id, contractIds))
+                    var contractsAccommodationRelations = (await _contractManagementRepository.GetContractRelations(contractManager.Id, contractIds))
                         .ToDictionary(k=>k.ContractId);
 
                     var response = contracts.Select(c =>
-                        CreateContractResponse(c, contractsAccommodationRelations[c.Id].AccommodationId)).ToList();
+                        CreateResponse(c, contractsAccommodationRelations[c.Id].AccommodationId)).ToList();
                     return Result.Ok(response);
                 });
         }
 
         
-        public async Task<Result<Models.Responses.Contract>> AddContract(Models.Requests.Contract contract)
+        public async Task<Result<Models.Responses.Contract>> Add(Models.Requests.Contract contract)
         {
-            return await _userContext.GetUser()
-                .Tap(user => ValidateContract(contract))
-                .Ensure(user => IsUserAccommodation(user.Id, contract.AccommodationId),
-                    $"Accommodation with {nameof(contract.AccommodationId)} '{contract.AccommodationId}' does not belong to the user")
-                .Bind(async user =>
+            return await _contractManagerContext.GetContractManager()
+                .Tap(user => Validate(contract))
+                .Ensure(user => DoesAccommodationBelongToContractManager(user.Id, contract.AccommodationId),
+                    $"Accommodation with {nameof(contract.AccommodationId)} '{contract.AccommodationId}' does not belong to the contract manager")
+                .Bind(async contractManager =>
                 {
-                    var newContract = await _contractManagement.AddContract(
+                    var newContract = await _contractManagementRepository.AddContract(
                         new Contract
                         {
                             Name = contract.Name,
                             Description = contract.Description,
                             ValidFrom = contract.ValidFrom,
                             ValidTo = contract.ValidTo,
-                            UserId = user.Id
+                            ContractManagerId = contractManager.Id
                         }, contract.AccommodationId);
                     return !newContract.Id.Equals(default)
-                        ? Result.Ok(CreateContractResponse(newContract, contract.AccommodationId))
+                        ? Result.Ok(CreateResponse(newContract, contract.AccommodationId))
                         : Result.Failure<Models.Responses.Contract>("Failed to add contract");
                 });
         }
 
         
-        public async Task<Result> UpdateContract(int contractId, Models.Requests.Contract contract)
+        public async Task<Result> Update(int contractId, Models.Requests.Contract contract)
         {
-            return await _userContext.GetUser()
-                .Tap(user => ValidateContract(contract))
-                .Ensure(user => IsUserContract(user.Id, contractId),
-                    $"Contract with {nameof(contractId)} '{contractId}' does not belong to the user"
-                ).Bind(async user =>
+            return await _contractManagerContext.GetContractManager()
+                .Tap(user => Validate(contract))
+                .Ensure(user => DoesContractBelongToContractManager(user.Id, contractId),
+                    $"Contract with {nameof(contractId)} '{contractId}' does not belong to the contract manager"
+                ).Bind(async contractManager =>
                 {
-                    await _contractManagement.UpdateContract(new Contract
+                    await _contractManagementRepository.UpdateContract(new Contract
                     {
                         Id = contractId,
                         Name = contract.Name,
                         Description = contract.Description,
-                        UserId = user.Id,
+                        ContractManagerId = contractManager.Id,
                         ValidFrom = contract.ValidFrom,
                         ValidTo = contract.ValidTo
                     });
@@ -110,14 +110,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
         
-        public async Task<Result> DeleteContract(int contractId)
+        public async Task<Result> Remove(int contractId)
         {
-            return await _userContext.GetUser()
-                .Tap(user => _contractManagement.DeleteContract(user.Id, contractId));
+            return await _contractManagerContext.GetContractManager()
+                .Tap(user => _contractManagementRepository.DeleteContract(user.Id, contractId));
         }
 
 
-        private Result ValidateContract(Models.Requests.Contract contract)
+        private Result Validate(Models.Requests.Contract contract)
         {
             var result = GenericValidator<Models.Requests.Contract>.Validate(v =>
             {
@@ -130,21 +130,17 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
         
-        private async Task<bool> IsUserAccommodation(int userId, int accommodationId)
-        {
-            var accommodation = await _accommodationManagement.GetAccommodation(userId, accommodationId);
-            return !(accommodation is null);
-        }
+        private async Task<bool> DoesAccommodationBelongToContractManager(int contractManagerId, int accommodationId)
+            => !(await _accommodationManagementRepository.GetAccommodation(contractManagerId, accommodationId) is null);
         
         
-        private async Task<bool> IsUserContract(int userId, int contractId)
-        {
-            var contract = await _contractManagement.GetContract(userId, contractId);
-            return !(contract is null);
-        }
+        
+        private async Task<bool> DoesContractBelongToContractManager(int contractManagerId, int contractId)
+            => !(await _contractManagementRepository.GetContract(contractManagerId, contractId) is null);
+        
 
 
-        private Models.Responses.Contract CreateContractResponse(Contract contract, int accommodationId)
+        private Models.Responses.Contract CreateResponse(Contract contract, int accommodationId)
             => new Models.Responses.Contract
             {
                 Id = contract.Id,
@@ -156,8 +152,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             };
         
         
-        private readonly IUserContextService _userContext;
-        private readonly DirectContracts.Services.Management.IContractManagementService _contractManagement;
-        private readonly DirectContracts.Services.Management.IAccommodationManagementService _accommodationManagement;
+        private readonly IContractManagerContextService _contractManagerContext;
+        private readonly DirectContracts.Services.Management.IContractManagementRepository _contractManagementRepository;
+        private readonly DirectContracts.Services.Management.IAccommodationManagementRepository _accommodationManagementRepository;
     }
 }

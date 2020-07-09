@@ -5,7 +5,7 @@ using HappyTravel.Hiroshima.Data.Models.Accommodations;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
 {
-    public interface IContractManagementService
+    public interface IContractManagementRepository
     {
         Task<Contract> GetContract(int userId, int contractId);
         Task<List<Contract>> GetContracts(int userId);

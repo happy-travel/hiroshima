@@ -18,13 +18,13 @@ namespace HappyTravel.Hiroshima.Data.Models.Accommodations
         public string CheckInTime { get; set; }
         public string CheckOutTime { get; set; }
         public JsonDocument Pictures { get; set; }
-        public Contacts Contacts { get; set; }
+        public ContactInfo ContactInfo { get; set; }
         public PropertyTypes PropertyType { get; set; }
         public JsonDocument AccommodationAmenities { get; set; }
         public JsonDocument AdditionalInfo { get; set; }
         public OccupancyDefinition OccupancyDefinition { get; set; }
         public int LocationId { get; set; }
-        public int UserId { get; set; }
+        public int ContractManagerId { get; set; }
     }
 }
 
