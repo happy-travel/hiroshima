@@ -17,12 +17,12 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
             => await _dbContext.Accommodations.SingleOrDefaultAsync(a => a.Id == accommodationId && a.UserId == userId);
 
         
-        public async Task<int> AddAccommodation(Accommodation accommodation)
+        public async Task<Accommodation> AddAccommodation(Accommodation accommodation)
         { 
             var entry = await _dbContext.Accommodations.AddAsync(accommodation);
             await _dbContext.SaveChangesAsync();
             entry.State = EntityState.Detached;
-            return entry.Entity.Id;
+            return entry.Entity;
         }
 
         
