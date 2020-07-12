@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HappyTravel.Hiroshima.Direc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HappyTravel.Hiroshima.Common", "HappyTravel.Hiroshima.Common\HappyTravel.Hiroshima.Common.csproj", "{964E83D4-D281-4C20-A4B6-9BAB2A0272A7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HappyTravel.DirectManager", "HappyTravel.Hiroshima.DirectManager\HappyTravel.Hiroshima.DirectManager.csproj", "{2B386294-B2A8-4C04-B73C-404975B6D187}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HappyTravel.Hiroshima.DirectManager", "HappyTravel.Hiroshima.DirectManager\HappyTravel.Hiroshima.DirectManager.csproj", "{0485D3BB-823E-4DB2-B0AA-0C002303FE5F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,10 +41,10 @@ Global
 		{964E83D4-D281-4C20-A4B6-9BAB2A0272A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{964E83D4-D281-4C20-A4B6-9BAB2A0272A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{964E83D4-D281-4C20-A4B6-9BAB2A0272A7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2B386294-B2A8-4C04-B73C-404975B6D187}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2B386294-B2A8-4C04-B73C-404975B6D187}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2B386294-B2A8-4C04-B73C-404975B6D187}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2B386294-B2A8-4C04-B73C-404975B6D187}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0485D3BB-823E-4DB2-B0AA-0C002303FE5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0485D3BB-823E-4DB2-B0AA-0C002303FE5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0485D3BB-823E-4DB2-B0AA-0C002303FE5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0485D3BB-823E-4DB2-B0AA-0C002303FE5F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

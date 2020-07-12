@@ -3,13 +3,14 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.AspNetCore.Mvc;
+using NetTopologySuite.Geometries;
 
 namespace HappyTravel.Hiroshima.WebApi.Services
 {
     public class AvailabilityService : IAvailabilityService
     {
        public AvailabilityService(
-            HappyTravel.Hiroshima.DirectContracts.Services.Availability.IAvailabilityService availabilityService)
+            HappyTravel.Hiroshima.DirectContracts.Services.Availability.IAvailabilityService availabilityService, GeometryFactory geometryFactory)
         {
             _availabilityService = availabilityService;
         }

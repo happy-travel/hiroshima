@@ -7,7 +7,7 @@ using HappyTravel.Hiroshima.DirectManager.Models.Responses;
 using HappyTravel.Hiroshima.DirectManager.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.Hiroshima.DirectManager.Controllers
+namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 {
     [ApiController]
     [ApiVersion("1.0")]
@@ -64,7 +64,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(Contract), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> AddContract([FromBody] Models.Requests.Contract contract)
+        public async Task<IActionResult> AddContract([FromBody] Hiroshima.DirectManager.Models.Requests.Contract contract)
         {
             var (_, isFailure, response, error) = await _contractManagementService.Add(contract);
             if (isFailure)
@@ -83,7 +83,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Controllers
         [HttpPut("{contractId}")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> UpdateContract([FromRoute] int contractId, [FromBody] Models.Requests.Contract contract)
+        public async Task<IActionResult> UpdateContract([FromRoute] int contractId, [FromBody] Hiroshima.DirectManager.Models.Requests.Contract contract)
         {
             var (_, isFailure, error) = await _contractManagementService.Update(contractId, contract);
             if (isFailure)

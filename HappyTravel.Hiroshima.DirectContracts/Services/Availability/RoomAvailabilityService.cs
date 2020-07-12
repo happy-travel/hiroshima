@@ -147,26 +147,30 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             foreach (var childrenAge in occupationRequest.ChildrenAges)
             {
                 if (occupancyDefinition.Infant != null &&
-                    occupancyDefinition.Infant.LowerBound <= childrenAge &&
-                    childrenAge <= occupancyDefinition.Infant.UpperBound)
+                    occupancyDefinition.Infant.Value.LowerBound <= childrenAge &&
+                    childrenAge <= occupancyDefinition.Infant.Value.UpperBound)
                 {
                     infantsNumber++;
                     continue;
                 }
-                if (occupancyDefinition.Child.LowerBound <= childrenAge &&
-                    childrenAge <= occupancyDefinition.Child.UpperBound)
+                
+                if (occupancyDefinition.Child != null && 
+                    occupancyDefinition.Child.Value.LowerBound <= childrenAge &&
+                    childrenAge <= occupancyDefinition.Child.Value.UpperBound)
                 {
                     childrenNumber++;
                     continue;
                 }
                 if (occupancyDefinition.Teenager != null &&
-                    occupancyDefinition.Teenager.LowerBound <= childrenAge &&
-                    childrenAge <= occupancyDefinition.Teenager.UpperBound)
+                    occupancyDefinition.Teenager.Value.LowerBound <= childrenAge &&
+                    childrenAge <= occupancyDefinition.Teenager.Value.UpperBound)
                 {
                     teenagersNumber++;
                     continue;
                 }
-                if (occupancyDefinition.Adult.LowerBound <= childrenAge)
+                
+                if (occupancyDefinition.Adult != null &&
+                    occupancyDefinition.Adult.Value.LowerBound <= childrenAge)
                     adultsNumber++;
             }
             

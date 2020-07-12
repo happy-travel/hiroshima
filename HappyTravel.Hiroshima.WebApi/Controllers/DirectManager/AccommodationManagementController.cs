@@ -2,19 +2,18 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Infrastructure;
-using HappyTravel.Hiroshima.DirectManager.Models.Requests;
 using HappyTravel.Hiroshima.DirectManager.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.Hiroshima.DirectManager.Controllers
+namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 {
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/management/contracts/accommodations")]
     [Produces("application/json")]
-    public class AccommodationsController: ControllerBase
+    public class AccommodationManagementController: ControllerBase
     {
-        public AccommodationsController(IAccommodationManagementService accommodationManagementService)
+        public AccommodationManagementController(IAccommodationManagementService accommodationManagementService)
         {
             _accommodationManagementService = accommodationManagementService;
         }
@@ -26,11 +25,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Controllers
         /// <param name="accommodationId">ID of the accommodation</param>
         /// <returns></returns>
         [HttpGet("{accommodationId}")]
-        [ProducesResponseType(typeof(Models.Responses.Accommodation), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Hiroshima.DirectManager.Models.Responses.Accommodation), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetAccommodation([FromRoute] int accommodationId)
         {
-            var (_, isFailure, response, error) = await _accommodationManagementService.Get(accommodationId);
+            var (_, isFailure, response, error) = await _accommodationManagementService.GetAccommodation(accommodationId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -44,11 +43,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Controllers
         /// <param name="accommodation">New accommodation data</param>
         /// <returns></returns>
         [HttpPost]
-        [ProducesResponseType(typeof(Models.Responses.Accommodation), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Hiroshima.DirectManager.Models.Responses.Accommodation), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> AddAccommodation([FromBody] Accommodation accommodation)
+        public async Task<IActionResult> AddAccommodation([FromBody] Hiroshima.DirectManager.Models.Requests.Accommodation accommodation)
         {
-            var (_, isFailure, response, error) = await _accommodationManagementService.Add(accommodation);
+            var (_, isFailure, response, error) = await _accommodationManagementService.AddAccommodation(accommodation);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -65,7 +64,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Controllers
         [HttpPut("{accommodationId}")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> UpdateAccommodation([FromRoute] string accommodationId, [FromBody] Accommodation accommodation)
+        public async Task<IActionResult> UpdateAccommodation([FromRoute] int accommodationId, [FromBody] Hiroshima.DirectManager.Models.Requests.Accommodation accommodation)
         {
             var (_, isFailure, error) = await _accommodationManagementService.Update(accommodationId, accommodation);
             if (isFailure)
@@ -83,9 +82,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Controllers
         [HttpDelete("{accommodationId}")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> DeleteAccommodation([FromRoute] string accommodationId)
+        public async Task<IActionResult> DeleteAccommodation([FromRoute] int accommodationId)
         {
-            var (_, isFailure, error) = await _accommodationManagementService.Remove(accommodationId);
+            var (_, isFailure, error) = await _accommodationManagementService.RemoveAccommodation(accommodationId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

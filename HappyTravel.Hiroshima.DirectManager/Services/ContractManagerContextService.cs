@@ -20,7 +20,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             //TODO add auth 
             var user = await _dbContext.ContractManagers.SingleOrDefaultAsync(cm => cm.Id  == int.MaxValue);
             
-            return user.Equals(default) 
+            return user is null
                 ? Result.Failure<ContractManager>("Failed to retrieve a contract manager") 
                 : Result.Ok(user);
         }

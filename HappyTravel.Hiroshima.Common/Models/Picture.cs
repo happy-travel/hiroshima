@@ -1,4 +1,4 @@
-﻿namespace HappyTravel.Hiroshima.Data.Models.Accommodations
+﻿namespace HappyTravel.Hiroshima.Common.Models
 {
     public class Picture
     {

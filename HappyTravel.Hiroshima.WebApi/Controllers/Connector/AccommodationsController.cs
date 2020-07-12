@@ -6,7 +6,7 @@ using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.Hiroshima.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.Hiroshima.WebApi.Controllers
+namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
 {
     [ApiController]
     [ApiVersion("1.0")]
