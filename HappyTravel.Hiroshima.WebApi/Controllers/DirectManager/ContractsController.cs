@@ -89,7 +89,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return Ok();
+            return NoContent();
         }
 
         
@@ -107,7 +107,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return Ok();
+            return NoContent();
         }
         
         

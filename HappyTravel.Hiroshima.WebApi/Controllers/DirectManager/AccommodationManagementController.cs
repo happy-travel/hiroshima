@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Infrastructure;
@@ -66,11 +67,11 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> UpdateAccommodation([FromRoute] int accommodationId, [FromBody] Hiroshima.DirectManager.Models.Requests.Accommodation accommodation)
         {
-            var (_, isFailure, error) = await _accommodationManagementService.Update(accommodationId, accommodation);
+            var (_, isFailure, error) = await _accommodationManagementService.UpdateAccommodation(accommodationId, accommodation);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return Ok();
+            return NoContent();
         }
         
         
@@ -88,10 +89,44 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return Ok();
+            return NoContent();
+        }
+
+        
+        /// <summary>
+        /// Adds rooms to the accommodation
+        /// </summary>
+        /// <param name="accommodationId"></param>
+        /// <param name="rooms"></param>
+        /// <returns></returns>
+        [HttpPost("{accommodationId}/rooms")]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        public async Task<IActionResult> AddRooms([FromRoute] int accommodationId, [FromBody] List<Hiroshima.DirectManager.Models.Requests.Room> rooms)
+        { 
+            var (_, isFailure, response, error) = await _accommodationManagementService.AddRooms(accommodationId, rooms);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
         }
         
+        /// <summary>
+        /// Removes a accommodation room of by ID
+        /// </summary>
+        /// <param name="accommodationId"></param>
+        /// <param name="roomId"></param>
+        /// <returns></returns>
+        [HttpDelete("{accommodationId}/rooms/{roomId}")]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        public async Task<IActionResult> DeleteRoom([FromRoute] int accommodationId, [FromRoute] int roomId)
+        { 
+            var (_, isFailure, error) = await _accommodationManagementService.RemoveRooms(accommodationId, new List<int>{roomId});
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
 
+            return NoContent();
+        }
+        
         private readonly IAccommodationManagementService _accommodationManagementService;
     }
 }

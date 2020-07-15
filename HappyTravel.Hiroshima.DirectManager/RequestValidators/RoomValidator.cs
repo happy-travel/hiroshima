@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using FluentValidation;
+﻿using FluentValidation;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators.Extensions;
 
 namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
@@ -8,16 +7,15 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
     {
         public RoomValidator()
         {
-            RuleFor(r => r.Name).AnyLanguage();
-            RuleForEach( r => r.OccupancyConfigurations)
-                .SetValidator(new OccupancyConfigurationValidator());
-            
-            RuleForEach(a => a.Pictures.Ar)
-                .SetValidator(new PictureValidator()).When(a=>a.Pictures.Ar != null);
-            RuleForEach(a => a.Pictures.En)
-                .SetValidator(new PictureValidator()).When(a=>a.Pictures.En != null);
-            RuleForEach(a => a.Pictures.Ru)
-                .SetValidator(new PictureValidator()).When(a=>a.Pictures.Ru != null);
+            RuleFor(r => r.Name).AnyLanguage($"Invalid {nameof(Models.Requests.Room)}, field {nameof(Models.Requests.Room.Name)}");
+            RuleFor(r => r.OccupancyConfigurations).NotNull();
+            RuleForEach(r=> r.OccupancyConfigurations).SetValidator(new OccupancyConfigurationValidator());
+            RuleForEach(r => r.Pictures.Ar)
+                .SetValidator(new PictureValidator()).When(r=>r.Pictures.Ar != null);
+            RuleForEach(r => r.Pictures.En)
+                .SetValidator(new PictureValidator()).When(r=>r.Pictures.En != null);
+            RuleForEach(r => r.Pictures.Ru)
+                .SetValidator(new PictureValidator()).When(r=>r.Pictures.Ru != null);
         }
     }
 }

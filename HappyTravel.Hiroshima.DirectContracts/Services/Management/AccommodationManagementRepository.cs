@@ -5,6 +5,7 @@ using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Models.Accommodations;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
 {
@@ -54,6 +55,17 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
         public async Task<List<Room>> GetRooms(int accommodationId) 
             => await _dbContext.Rooms.Where(r => r.AccommodationId == accommodationId).ToListAsync();
 
+        
+        public async Task<List<Room>> GetRooms(int contractManagerId, int accommodationId) =>
+            await _dbContext.Rooms
+                .Join(_dbContext.Accommodations, room => room.AccommodationId, accommodation => accommodation.Id,
+                    (room, accommodation) => new {room, accommodation})
+                .Where(roomAndAccommodations =>
+                    roomAndAccommodations.accommodation.ContractManagerId == contractManagerId &&
+                    roomAndAccommodations.accommodation.Id == accommodationId)
+                .Select(roomAndAccommodation => roomAndAccommodation.room)
+                .ToListAsync();
+        
 
         public async Task<List<Room>> AddRooms(List<Room> rooms)
         {

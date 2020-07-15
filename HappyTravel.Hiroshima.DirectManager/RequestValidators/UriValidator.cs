@@ -11,12 +11,10 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
         
         protected override bool IsValid(PropertyValidatorContext context)
         {
-            return context.PropertyValue switch
-            {
-                null => true,
-                string uri => Uri.IsWellFormedUriString(uri, UriKind.RelativeOrAbsolute),
-                _ => false
-            };
+            if (context.PropertyValue == null)
+                return true;
+
+            return context.PropertyValue is string uri && Uri.IsWellFormedUriString(uri, UriKind.RelativeOrAbsolute);
         }
     }
 }
