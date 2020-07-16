@@ -30,7 +30,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetAccommodation([FromRoute] int accommodationId)
         {
-            var (_, isFailure, response, error) = await _accommodationManagementService.GetAccommodation(accommodationId);
+            var (_, isFailure, response, error) = await _accommodationManagementService.Get(accommodationId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -48,7 +48,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> AddAccommodation([FromBody] Hiroshima.DirectManager.Models.Requests.Accommodation accommodation)
         {
-            var (_, isFailure, response, error) = await _accommodationManagementService.AddAccommodation(accommodation);
+            var (_, isFailure, response, error) = await _accommodationManagementService.Add(accommodation);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -67,7 +67,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> UpdateAccommodation([FromRoute] int accommodationId, [FromBody] Hiroshima.DirectManager.Models.Requests.Accommodation accommodation)
         {
-            var (_, isFailure, error) = await _accommodationManagementService.UpdateAccommodation(accommodationId, accommodation);
+            var (_, isFailure, error) = await _accommodationManagementService.Update(accommodationId, accommodation);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -85,13 +85,30 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> DeleteAccommodation([FromRoute] int accommodationId)
         {
-            var (_, isFailure, error) = await _accommodationManagementService.RemoveAccommodation(accommodationId);
+            var (_, isFailure, error) = await _accommodationManagementService.Remove(accommodationId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return NoContent();
         }
 
+        
+        /// <summary>
+        /// Retrieves accommodation rooms
+        /// </summary>
+        /// <param name="accommodationId"></param>
+        /// <returns></returns>
+        [HttpGet("{accommodationId}/rooms")]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        public async Task<IActionResult> GetRooms([FromRoute] int accommodationId)
+        { 
+            var (_, isFailure, response, error) = await _accommodationManagementService.GetRooms(accommodationId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
+        }
+        
         
         /// <summary>
         /// Adds rooms to the accommodation

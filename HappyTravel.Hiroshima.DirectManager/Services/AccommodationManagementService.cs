@@ -28,7 +28,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<Models.Responses.Accommodation>> GetAccommodation(int accommodationId)
+        public Task<Result<Models.Responses.Accommodation>> Get(int accommodationId)
         {
             return _contractManagerContext.GetContractManager()
                 .Bind(async contractManager
@@ -51,7 +51,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<Models.Responses.Accommodation>> AddAccommodation(Models.Requests.Accommodation accommodation)
+        public Task<Result<Models.Responses.Accommodation>> Add(Models.Requests.Accommodation accommodation)
         {
             return ValidateAccommodation(accommodation)
                 .Bind(() => _contractManagerContext.GetContractManager())
@@ -65,7 +65,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
         
         
-        public Task<Result> UpdateAccommodation(int accommodationId, Models.Requests.Accommodation accommodation)
+        public Task<Result> Update(int accommodationId, Models.Requests.Accommodation accommodation)
         {
             return _contractManagerContext.GetContractManager()
                 .Bind(async contractManager =>
@@ -78,7 +78,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
         
-        public Task<Result> RemoveAccommodation(int accommodationId)
+        public Task<Result> Remove(int accommodationId)
         {
             return  _contractManagerContext.GetContractManager()
                 .Bind(async contractManager 
@@ -90,6 +90,17 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 });
         }
 
+
+        public Task<Result<List<Models.Responses.Room>>> GetRooms(int accommodationId)
+        {
+            return _contractManagerContext.GetContractManager()
+                .Bind(async contractManager =>
+                {
+                    var rooms = await _accommodationManagementRepository.GetRooms(contractManager.Id, accommodationId);
+                    return Result.Success(CreateResponse(rooms));
+                });
+        }
+        
         
         public Task<Result<List<Models.Responses.Room>>> AddRooms(int accommodationId, List<Models.Requests.Room> rooms)
         {
