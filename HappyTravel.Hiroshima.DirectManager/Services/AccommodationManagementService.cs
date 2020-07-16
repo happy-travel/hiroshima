@@ -41,12 +41,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                             $"Failed to get an accommodation by {nameof(accommodationId)} '{accommodationId}'");
 
                     var rooms = await _accommodationManagementRepository.GetRooms(accommodation.Id);
-
-                    var roomIds = rooms is null
-                        ? new List<int>()
-                        : rooms.Select(room => room.Id).ToList();
-
-                    return Result.Ok(CreateResponse(accommodation, roomIds));
+                    
+                    return Result.Ok(CreateResponse(accommodation, rooms.Select(room => room.Id).ToList()));
                 });
         }
 
