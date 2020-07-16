@@ -94,14 +94,14 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
         
         /// <summary>
-        /// Deletes a contract by ID
+        /// Removes a contract by ID
         /// </summary>
         /// <param name="contractId">New contract data</param>
         /// <returns></returns>
         [HttpDelete("{contractId}")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> DeleteContract([FromRoute] int contractId)
+        public async Task<IActionResult> RemovesContract([FromRoute] int contractId)
         {
             var (_, isFailure, error) = await _contractManagementService.Remove(contractId);
             if (isFailure)

@@ -15,12 +15,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
         public MultiLanguage<string> Address { get; set; }
         public MultiLanguage<string> Description { get; set; }
         public GeoPoint Coordinates { get; set; }
-        public AccommodationRating? Rating { get; set; }
+        public AccommodationRating Rating { get; set; }
         public string CheckInTime { get; set; }
         public string CheckOutTime { get; set; }
         public MultiLanguage<List<Picture>> Pictures { get; set; }
         public ContactInfo ContactInfo { get; set; }
-        public PropertyTypes? Type { get; set; }
+        public PropertyTypes Type { get; set; }
         public MultiLanguage<List<string>> Amenities { get; set; }
         public MultiLanguage<string> AdditionalInfo { get; set; }
         public OccupancyDefinition OccupancyDefinition { get; set; }

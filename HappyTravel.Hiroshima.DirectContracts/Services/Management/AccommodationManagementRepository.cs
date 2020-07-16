@@ -5,7 +5,6 @@ using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Models.Accommodations;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
 {
@@ -99,14 +98,18 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
         }
         
         
-        private void DefineIdAndDetach(List<Room> rooms)
+        private List<int> DefineIdAndDetach(List<Room> rooms)
         {
+            var roomIds = new List<int>(rooms.Count);
             foreach (var room in rooms)
             {
                 var entry = _dbContext.Entry(room);
                 entry.State = EntityState.Detached;
                 room.Id = entry.Entity.Id;
+                roomIds.Add(room.Id);
             }
+
+            return roomIds;
         }
         
         

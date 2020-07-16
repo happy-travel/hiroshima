@@ -146,7 +146,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 
             foreach (var childrenAge in occupationRequest.ChildrenAges)
             {
-                if (occupancyDefinition.Infant != null &&
+                if (occupancyDefinition.Infant.HasValue &&
                     occupancyDefinition.Infant.Value.LowerBound <= childrenAge &&
                     childrenAge <= occupancyDefinition.Infant.Value.UpperBound)
                 {
@@ -154,14 +154,14 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                     continue;
                 }
                 
-                if (occupancyDefinition.Child != null && 
+                if (occupancyDefinition.Child.HasValue && 
                     occupancyDefinition.Child.Value.LowerBound <= childrenAge &&
                     childrenAge <= occupancyDefinition.Child.Value.UpperBound)
                 {
                     childrenNumber++;
                     continue;
                 }
-                if (occupancyDefinition.Teenager != null &&
+                if (occupancyDefinition.Teenager.HasValue &&
                     occupancyDefinition.Teenager.Value.LowerBound <= childrenAge &&
                     childrenAge <= occupancyDefinition.Teenager.Value.UpperBound)
                 {
@@ -169,8 +169,8 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                     continue;
                 }
                 
-                if (occupancyDefinition.Adult != null &&
-                    occupancyDefinition.Adult.Value.LowerBound <= childrenAge)
+                if (!occupancyDefinition.Adult.Equals(default) &&
+                    occupancyDefinition.Adult.LowerBound <= childrenAge)
                     adultsNumber++;
             }
             

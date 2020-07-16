@@ -76,14 +76,14 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         
         
         /// <summary>
-        /// Deletes an accommodation by ID
+        /// Removes an accommodation by ID
         /// </summary>
         /// <param name="accommodationId">ID of the accommodation</param>
         /// <returns></returns>
         [HttpDelete("{accommodationId}")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> DeleteAccommodation([FromRoute] int accommodationId)
+        public async Task<IActionResult> RemoveAccommodation([FromRoute] int accommodationId)
         {
             var (_, isFailure, error) = await _accommodationManagementService.Remove(accommodationId);
             if (isFailure)

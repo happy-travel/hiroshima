@@ -7,11 +7,18 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
     {
         public OccupancyConfigurationValidator()
         {
-            RuleFor(oc => oc.Infants).LessThanOrEqualTo(6);
-            RuleFor(oc => oc.Children).LessThanOrEqualTo(6);
-            RuleFor(oc => oc.Teenagers).LessThanOrEqualTo(6);
-            RuleFor(oc => oc.Adults).LessThanOrEqualTo(6);
-            RuleFor(oc => oc.Infants + oc.Children + oc.Teenagers + oc.Adults).LessThanOrEqualTo(6);
+            RuleFor(oc => oc.Infants).LessThanOrEqualTo(MaxInfantsNumber);
+            RuleFor(oc => oc.Children).LessThanOrEqualTo(MaxChildrenNumber);
+            RuleFor(oc => oc.Teenagers).LessThanOrEqualTo(MaxTeenagersNumber);
+            RuleFor(oc => oc.Adults).LessThanOrEqualTo(MaxAdultsNumber);
+            RuleFor(oc => oc.Infants + oc.Children + oc.Teenagers + oc.Adults).LessThanOrEqualTo(MaxOccupancyNumber);
         }
+
+
+        private const int MaxInfantsNumber = 6;
+        private const int MaxChildrenNumber = 6;
+        private const int MaxTeenagersNumber = 6;
+        private const int MaxAdultsNumber = 6;
+        private const int MaxOccupancyNumber = 6;
     }
 }
