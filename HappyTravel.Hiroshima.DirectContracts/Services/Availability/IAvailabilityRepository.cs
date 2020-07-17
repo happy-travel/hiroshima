@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using HappyTravel.Hiroshima.Data.Models;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
 using HappyTravel.Hiroshima.Data.Models.Rooms.CancellationPolicies;
+using HappyTravel.Hiroshima.DirectContracts.Models;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 {
@@ -17,7 +18,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         Task<List<Room>> GetAvailableRooms(IEnumerable<int> accommodationIds, DateTime checkInDate,
             DateTime checkOutDate, string languageCode);
 
-        Task<List<RoomRate>> GetRates(IEnumerable<int> roomIds, DateTime checkInDate, DateTime checkOutDate,
+        Task<List<RateDetails>> GetRates(IEnumerable<int> roomIds, DateTime checkInDate, DateTime checkOutDate,
             string languageCode);
 
         Task<List<RoomPromotionalOffer>> GetPromotionalOffers(IEnumerable<int> roomIds, DateTime checkInDate, 

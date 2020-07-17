@@ -8,7 +8,7 @@ using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
 using HappyTravel.Hiroshima.DirectContracts.Models;
-using AccommodationDetails = HappyTravel.Hiroshima.Data.Models.AccommodationDetails;
+using AccommodationDetails = HappyTravel.Hiroshima.DirectContracts.Models.AccommodationDetails;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 {

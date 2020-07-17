@@ -31,13 +31,13 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             
             var groupedPromotionalOffers = roomsPromotionalOffers.GroupBy(po => po.RoomId)
                 .ToDictionary(g=>g.Key, g=>g.ToList());
-            
-            var cancellationPolicies =
-                (await _availabilityRepository.GetCancellationPolicies(roomIds, checkInDate)).ToDictionary(rcp =>
-                    rcp.RoomId);
+
+            var cancellationPolicies = (await _availabilityRepository.GetCancellationPolicies(roomIds, checkInDate)).ToDictionary(rcp =>
+                rcp.RoomId);
+
 
             var availableRates = new List<RateOffer>();
-            foreach (var roomRateGroup in rates.GroupBy(rr => rr.RoomId))
+            foreach (var roomRateGroup in rates.GroupBy(rateDetails => rateDetails.RoomRate.RoomId))
             {
                 var roomRates = roomRateGroup.ToList();
                 if (!roomRates.Any()) continue;

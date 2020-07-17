@@ -7,8 +7,7 @@ namespace HappyTravel.Hiroshima.Data.Models.Rooms.CancellationPolicies
     {
         public int Id { get; set; }
         public int RoomId { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public int SeasonId { get; set; }
         public List<CancellationPolicyData> Details { get; set; }
     }
 }

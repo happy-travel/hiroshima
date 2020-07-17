@@ -10,6 +10,7 @@ using HappyTravel.Hiroshima.Data.Models.Accommodations;
 using HappyTravel.Hiroshima.Data.Models.Location;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
 using HappyTravel.Hiroshima.Data.Models.Rooms.CancellationPolicies;
+using HappyTravel.Hiroshima.DirectContracts.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
@@ -84,25 +85,32 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                 .ToListAsync();
         }
 
-        
-        public async Task<List<RoomRate>> GetRates(IEnumerable<int> roomIds, DateTime checkInDate,
+        public async Task<List<RateDetails>> GetRates(IEnumerable<int> roomIds, DateTime checkInDate,
             DateTime checkOutDate, string languageCode)
         {
             checkInDate = checkInDate.Date;
             return await _dbContext.RoomRates
-                .Where(roomRate => roomIds.Contains(roomRate.RoomId) &&
-                                   !(roomRate.EndDate < checkInDate || checkOutDate < roomRate.StartDate))
-                .Select(roomRate => new RoomRate
+                .Join(_dbContext.Seasons, roomRate => roomRate.SeasonId, season => season.Id,
+                    (roomRate, season) => new {roomRate, season})
+                .Where(roomRateAndSeason => roomIds.Contains(roomRateAndSeason.roomRate.RoomId) &&
+                                            !(roomRateAndSeason.season.EndDate < checkInDate ||
+                                              checkOutDate < roomRateAndSeason.season.StartDate))
+                .Select(roomRateAndSeason => new RateDetails()
                 {
-                    Id = roomRate.Id,
-                    Details = DirectContractsDbContext.GetLangFromJsonb(roomRate.Details, languageCode),
-                    Price = roomRate.Price,
-                    BoardBasis = roomRate.BoardBasis,
-                    CurrencyCode = roomRate.CurrencyCode,
-                    StartDate = roomRate.StartDate,
-                    EndDate = roomRate.EndDate,
-                    MealPlan = roomRate.MealPlan,
-                    RoomId = roomRate.RoomId
+                    RoomRate = new RoomRate
+                    {
+                        Id = roomRateAndSeason.roomRate.Id,
+                        Details =
+                            DirectContractsDbContext.GetLangFromJsonb(roomRateAndSeason.roomRate.Details,
+                                languageCode),
+                        Price = roomRateAndSeason.roomRate.Price,
+                        BoardBasis = roomRateAndSeason.roomRate.BoardBasis,
+                        CurrencyCode = roomRateAndSeason.roomRate.CurrencyCode,
+                        SeasonId = roomRateAndSeason.roomRate.SeasonId,
+                        MealPlan = roomRateAndSeason.roomRate.MealPlan,
+                        RoomId = roomRateAndSeason.roomRate.RoomId
+                    },
+                    Season = roomRateAndSeason.season
                 })
                 .ToListAsync();
         }
@@ -135,8 +143,15 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         public async Task<List<RoomCancellationPolicy>> GetCancellationPolicies(IEnumerable<int> roomIds,
             DateTime checkInDate)
         {
-            return await _dbContext.CancellationPolicies.Where(cp =>
-                    roomIds.Contains(cp.RoomId) && cp.StartDate.Date <= checkInDate && checkInDate <= cp.EndDate.Date)
+            return await _dbContext.CancellationPolicies
+                .Join(_dbContext.Seasons, roomCancellationPolicy
+                        => roomCancellationPolicy.SeasonId, season => season.Id, (roomCancellationPolicy, season)
+                        => new {roomCancellationPolicy, season}
+                ).Where(roomCancellationPolicyAndSeason =>
+                    roomIds.Contains(roomCancellationPolicyAndSeason.roomCancellationPolicy.RoomId) &&
+                    roomCancellationPolicyAndSeason.season.StartDate.Date <= checkInDate &&
+                    checkInDate <= roomCancellationPolicyAndSeason.season.EndDate.Date)
+                .Select(roomCancellationPolicyAndSeason => roomCancellationPolicyAndSeason.roomCancellationPolicy)
                 .ToListAsync();
         }
 
