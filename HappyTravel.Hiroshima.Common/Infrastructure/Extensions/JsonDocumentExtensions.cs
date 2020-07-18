@@ -16,7 +16,17 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure.Extensions
             return firstJsonElement.GetString();
         }
 
-        
+
+        public static TResult GetValue<TResult>(this JsonDocument jsonDocument)
+        {
+            var json = jsonDocument.RootElement.ToString();
+            if (string.IsNullOrEmpty(json))
+                return default;
+            
+            return JsonSerializer.Deserialize<TResult>(json, SerializeOptions);
+        }
+
+
         public static TResult GetFirstValue<TResult>(this JsonDocument jsonDocument)
         {
             if (jsonDocument is null)

@@ -2,13 +2,13 @@
 using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.EdoContracts.GeoData;
 using HappyTravel.EdoContracts.GeoData.Enums;
 using HappyTravel.Hiroshima.Common.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
 using HappyTravel.Hiroshima.DirectContracts.Models;
 using AccommodationDetails = HappyTravel.Hiroshima.Data.Models.AccommodationDetails;
 using AvailabilityDetails = HappyTravel.Hiroshima.DirectContracts.Models.AvailabilityDetails;
+using Location = HappyTravel.EdoContracts.GeoData.Location;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 {

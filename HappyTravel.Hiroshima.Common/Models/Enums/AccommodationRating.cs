@@ -2,7 +2,6 @@
 {
     public enum AccommodationRating
     {
-        Unknown = -1,
         NotRated = 0,
         OneStar = 1,
         TwoStars = 2,

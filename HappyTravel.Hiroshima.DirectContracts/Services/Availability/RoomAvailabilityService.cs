@@ -153,7 +153,9 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                     infantsNumber++;
                     continue;
                 }
-                if (occupancyDefinition.Child.LowerBound <= childrenAge &&
+                
+                if (occupancyDefinition.Child != null && 
+                    occupancyDefinition.Child.LowerBound <= childrenAge &&
                     childrenAge <= occupancyDefinition.Child.UpperBound)
                 {
                     childrenNumber++;
@@ -166,6 +168,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                     teenagersNumber++;
                     continue;
                 }
+                
                 if (occupancyDefinition.Adult.LowerBound <= childrenAge)
                     adultsNumber++;
             }

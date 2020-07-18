@@ -7,7 +7,7 @@ using HappyTravel.EdoContracts.GeoData.Enums;
 using HappyTravel.Hiroshima.DirectContracts.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.Hiroshima.WebApi.Controllers
+namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
 {
     [ApiController]
     [ApiVersion("1.0")]
