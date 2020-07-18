@@ -9,10 +9,10 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
         public OccupancyDefinitionValidator()
         {
             var errorMessage = "Wrong age range of {0} field of {1}";
-            RuleFor( od => od.Child).Must(ar=> ar != null && ar.Value.LowerBound > 0 && IsValidAgeRange(ar.Value)).WithMessage(string.Format(errorMessage, nameof(OccupancyDefinition.Child), nameof(OccupancyDefinition)));
-            RuleFor( od => od.Adult).Must(ar => !ar.Equals(default) && ar.LowerBound > 12 && IsValidAgeRange(ar)).WithMessage(string.Format(errorMessage, nameof(OccupancyDefinition.Adult), nameof(OccupancyDefinition)));
-            RuleFor( od => od.Infant).Must(ar=> ar == null || IsValidAgeRange(ar.Value)).WithMessage(string.Format(errorMessage, nameof(OccupancyDefinition.Infant), nameof(OccupancyDefinition)));
-            RuleFor( od => od.Teenager).Must(ar => ar == null || ar.Value.LowerBound > 10 && ar.Value.LowerBound > 20 && IsValidAgeRange(ar.Value)).WithMessage(string.Format(errorMessage, nameof(OccupancyDefinition.Teenager), nameof(OccupancyDefinition)));
+            RuleFor( od => od.Infant).Must(ar=> ar == null || IsValidAgeRange(ar)).WithMessage(string.Format(errorMessage, nameof(OccupancyDefinition.Infant), nameof(OccupancyDefinition)));
+            RuleFor( od => od.Child).Must(ar=> ar != null && ar.LowerBound > 0 && IsValidAgeRange(ar)).WithMessage(string.Format(errorMessage, nameof(OccupancyDefinition.Child), nameof(OccupancyDefinition)));
+            RuleFor( od => od.Adult).Must(ar => ar.LowerBound > 12 && IsValidAgeRange(ar)).WithMessage(string.Format(errorMessage, nameof(OccupancyDefinition.Adult), nameof(OccupancyDefinition)));
+            RuleFor( od => od.Teenager).Must(ar => ar == null || ar.LowerBound > 10 && ar.LowerBound > 20 && IsValidAgeRange(ar)).WithMessage(string.Format(errorMessage, nameof(OccupancyDefinition.Teenager), nameof(OccupancyDefinition)));
         }
 
         

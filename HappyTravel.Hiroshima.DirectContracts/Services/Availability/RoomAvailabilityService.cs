@@ -146,31 +146,30 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 
             foreach (var childrenAge in occupationRequest.ChildrenAges)
             {
-                if (occupancyDefinition.Infant.HasValue &&
-                    occupancyDefinition.Infant.Value.LowerBound <= childrenAge &&
-                    childrenAge <= occupancyDefinition.Infant.Value.UpperBound)
+                if (occupancyDefinition.Infant != null &&
+                    occupancyDefinition.Infant.LowerBound <= childrenAge &&
+                    childrenAge <= occupancyDefinition.Infant.UpperBound)
                 {
                     infantsNumber++;
                     continue;
                 }
                 
-                if (occupancyDefinition.Child.HasValue && 
-                    occupancyDefinition.Child.Value.LowerBound <= childrenAge &&
-                    childrenAge <= occupancyDefinition.Child.Value.UpperBound)
+                if (occupancyDefinition.Child != null && 
+                    occupancyDefinition.Child.LowerBound <= childrenAge &&
+                    childrenAge <= occupancyDefinition.Child.UpperBound)
                 {
                     childrenNumber++;
                     continue;
                 }
-                if (occupancyDefinition.Teenager.HasValue &&
-                    occupancyDefinition.Teenager.Value.LowerBound <= childrenAge &&
-                    childrenAge <= occupancyDefinition.Teenager.Value.UpperBound)
+                if (occupancyDefinition.Teenager != null &&
+                    occupancyDefinition.Teenager.LowerBound <= childrenAge &&
+                    childrenAge <= occupancyDefinition.Teenager.UpperBound)
                 {
                     teenagersNumber++;
                     continue;
                 }
                 
-                if (!occupancyDefinition.Adult.Equals(default) &&
-                    occupancyDefinition.Adult.LowerBound <= childrenAge)
+                if (occupancyDefinition.Adult.LowerBound <= childrenAge)
                     adultsNumber++;
             }
             

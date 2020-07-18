@@ -70,7 +70,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
         {
             _dbContext.Rooms.AddRange(rooms);
             await _dbContext.SaveChangesAsync();
-            DefineIdAndDetach(rooms);
+            DetachIds(rooms);
             return rooms;
         }
 
@@ -79,7 +79,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
         { 
             _dbContext.Rooms.UpdateRange(rooms);
             await _dbContext.SaveChangesAsync();
-            DefineIdAndDetach(rooms);
+            DetachIds(rooms);
         }
 
         
@@ -98,18 +98,14 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
         }
         
         
-        private List<int> DefineIdAndDetach(List<Room> rooms)
+        private void DetachIds(List<Room> rooms)
         {
-            var roomIds = new List<int>(rooms.Count);
             foreach (var room in rooms)
             {
                 var entry = _dbContext.Entry(room);
                 entry.State = EntityState.Detached;
                 room.Id = entry.Entity.Id;
-                roomIds.Add(room.Id);
             }
-
-            return roomIds;
         }
         
         

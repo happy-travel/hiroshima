@@ -3,10 +3,10 @@
     /// <summary>
     /// Represents an age range of a person. Bounds are included
     /// </summary>
-    public struct AgeRange
+    public class AgeRange
     {
-        public int? LowerBound { get; set; }
-        public int? UpperBound { get; set; }
+        public int LowerBound { get; set; }
+        public int UpperBound { get; set; }
         
         
         public override bool Equals(object? obj) => obj is AgeRange other && Equals(other);
