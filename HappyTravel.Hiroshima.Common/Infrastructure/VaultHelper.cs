@@ -31,7 +31,7 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure
         public static string GetDbConnectionString(VaultClient.VaultClient vaultClient, string pathToConnectionOptions, string pathToConnectionString, IConfiguration configuration)
         {
             var connectionOptions = vaultClient.Get(configuration[pathToConnectionOptions]).Result;
-           
+            return "Server=localhost;Port=5433;Database=directcontracts;Userid=postgres;Password=postgress;";
             return string.Format($"{configuration[pathToConnectionString]}",
                 connectionOptions["host"],
                 connectionOptions["port"],

@@ -14,9 +14,9 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         public PaymentDetails Create(DateTime checkInDate, DateTime checkOutDate,
             List<RateDetails> rateDetails, List<RoomPromotionalOffer> roomPromotionalOffers)
         {
-            var currency = GetCurrency(rateDetails.First().RoomRate.CurrencyCode);
+            var currency = GetCurrency(rateDetails.First().CurrencyCode);
             var seasonPrices = GetSeasonPrices(checkInDate, checkOutDate,
-                rateDetails.Select(rr => (rr.Season.StartDate, rr.Season.EndDate, rr.RoomRate.Price)).ToList(), currency, roomPromotionalOffers);
+                rateDetails.Select(rd => (rd.SeasonStartDate, rd.SeasonEndDate, rd.Price)).ToList(), currency, roomPromotionalOffers);
             var dailyPrices = GetDailyPrices(seasonPrices);
             var totalPrice = seasonPrices.Sum(sp => sp.TotalPrice);
             var details = CreatePaymentDetails(rateDetails);
@@ -33,7 +33,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 
 
         private List<string> CreatePaymentDetails(List<RateDetails> rates)
-            => rates.Select(rateDetails => rateDetails.RoomRate.Details.GetFirstValue()).ToList();
+            => rates.Select(rateDetails => rateDetails.Details.GetFirstValue()).ToList();
             
     
         private static Currencies GetCurrency(string currencyCode)
