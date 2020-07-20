@@ -12,14 +12,14 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
     public class PaymentDetailsService: IPaymentDetailsService
     {
         public PaymentDetails Create(DateTime checkInDate, DateTime checkOutDate,
-            List<RateDetails> roomRates, List<RoomPromotionalOffer> roomPromotionalOffers)
+            List<RateDetails> rateDetails, List<RoomPromotionalOffer> roomPromotionalOffers)
         {
-            var currency = GetCurrency(roomRates.First().RoomRate.CurrencyCode);
+            var currency = GetCurrency(rateDetails.First().RoomRate.CurrencyCode);
             var seasonPrices = GetSeasonPrices(checkInDate, checkOutDate,
-                roomRates.Select(rr => (rr.Season.StartDate, rr.Season.EndDate, rr.RoomRate.Price)).ToList(), currency, roomPromotionalOffers);
+                rateDetails.Select(rr => (rr.Season.StartDate, rr.Season.EndDate, rr.RoomRate.Price)).ToList(), currency, roomPromotionalOffers);
             var dailyPrices = GetDailyPrices(seasonPrices);
             var totalPrice = seasonPrices.Sum(sp => sp.TotalPrice);
-            var details = CreatePaymentDetails(roomRates);
+            var details = CreatePaymentDetails(rateDetails);
             
             return new PaymentDetails
             {
@@ -43,7 +43,6 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         private static decimal ApplyDiscount(decimal originalPrice, double discountPercent, Currencies currency) 
             => originalPrice - MoneyRounder.Truncate( originalPrice / 100 * Convert.ToDecimal(discountPercent), currency);
         
-
         
         private List<decimal> GetDailyPrices(List<SeasonPriceDetails> seasonPrices)
         {

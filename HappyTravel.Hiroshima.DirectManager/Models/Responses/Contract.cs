@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
-    public class Contract
+    public struct Contract
     {
         public int Id { get; set; }
         public int AccommodationId { get; set; }

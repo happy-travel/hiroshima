@@ -2,7 +2,7 @@
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
-    public class Season
+    public struct Season
     {
         public int Id { get; set; }
         public string Name { get; set; }

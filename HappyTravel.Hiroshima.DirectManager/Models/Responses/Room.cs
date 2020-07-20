@@ -5,7 +5,7 @@ using Picture = HappyTravel.Hiroshima.Common.Models.Picture;
 
  namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
-    public class Room
+    public struct Room
     {
         public int Id { get; set; }
         public MultiLanguage<string> Name { get; set; }

@@ -9,7 +9,7 @@ using NetTopologySuite.Geometries;
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
-    public class Accommodation
+    public struct Accommodation
     {
         public int Id { get; set; }
         public MultiLanguage<string> Name { get; set; }
