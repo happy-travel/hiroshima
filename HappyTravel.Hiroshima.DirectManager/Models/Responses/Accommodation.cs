@@ -3,28 +3,45 @@ using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Enums;
-using HappyTravel.Hiroshima.Data.Models.Accommodations;
-using HappyTravel.Hiroshima.DirectManager.Models.Requests;
-using NetTopologySuite.Geometries;
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
-    public struct Accommodation
+    public readonly struct Accommodation
     {
-        public int Id { get; set; }
-        public MultiLanguage<string> Name { get; set; }
-        public MultiLanguage<string> Address { get; set; }
-        public MultiLanguage<string> TextualDescription { get; set; }
-        public GeoPoint Coordinates { get; set; }
-        public AccommodationRating Rating { get; set; }
-        public string CheckInTime { get; set; }
-        public string CheckOutTime { get; set; }
-        public MultiLanguage<List<Picture>> Pictures { get; set; }
-        public ContactInfo ContactInfo { get; set; }
-        public PropertyTypes PropertyType { get; set; }
-        public MultiLanguage<List<string>> Amenities { get; set; }
-        public MultiLanguage<string> AdditionalInfo { get; set; }
-        public OccupancyDefinition OccupancyDefinition { get; set; }
-        public List<int> RoomIds { get; set; }
+        public Accommodation(int id, MultiLanguage<string> name, MultiLanguage<string> address, MultiLanguage<string> textualDescription, GeoPoint coordinates, AccommodationRating rating, string checkInTime, string checkOutTime, MultiLanguage<List<Picture>> pictures, ContactInfo contactInfo, PropertyTypes propertyType, MultiLanguage<List<string>> amenities, MultiLanguage<string> additionalInfo, OccupancyDefinition occupancyDefinition, List<int> roomIds)
+        {
+            Id = id;
+            Name = name;
+            Address = address;
+            TextualDescription = textualDescription;
+            Coordinates = coordinates;
+            Rating = rating;
+            CheckInTime = checkInTime;
+            CheckOutTime = checkOutTime;
+            Pictures = pictures;
+            ContactInfo = contactInfo;
+            PropertyType = propertyType;
+            Amenities = amenities;
+            AdditionalInfo = additionalInfo;
+            OccupancyDefinition = occupancyDefinition;
+            RoomIds = roomIds;
+        }
+
+
+        public int Id { get; }
+        public MultiLanguage<string> Name { get; }
+        public MultiLanguage<string> Address { get; }
+        public MultiLanguage<string> TextualDescription { get; }
+        public GeoPoint Coordinates { get; }
+        public AccommodationRating Rating { get; }
+        public string CheckInTime { get; }
+        public string CheckOutTime { get; }
+        public MultiLanguage<List<Picture>> Pictures { get; }
+        public ContactInfo ContactInfo { get; }
+        public PropertyTypes PropertyType { get; }
+        public MultiLanguage<List<string>> Amenities { get; }
+        public MultiLanguage<string> AdditionalInfo { get; }
+        public OccupancyDefinition OccupancyDefinition { get; }
+        public List<int> RoomIds { get; }
     }
 }

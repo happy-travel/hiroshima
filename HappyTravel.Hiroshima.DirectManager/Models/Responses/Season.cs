@@ -2,12 +2,22 @@
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
-    public struct Season
+    public readonly struct Season
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
-        public int ContractId { get; set; }
+        public Season(int id, string name, DateTime startDate, DateTime endDate, int contractId)
+        {
+            Id = id;
+            Name = name;
+            StartDate = startDate;
+            EndDate = endDate;
+            ContractId = contractId;
+        }
+
+
+        public int Id { get; }
+        public string Name { get; }
+        public DateTime StartDate { get; }
+        public DateTime EndDate { get; }
+        public int ContractId { get; }
     }
 }

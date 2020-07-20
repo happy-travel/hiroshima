@@ -32,14 +32,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                         (await _contractManagementRepository.GetRelatedAccommodations(contractManager.Id, contractId)).Single().Id;
 
                     return Result.Ok(new Models.Responses.Contract
-                    {
-                        Id = contract.Id,
-                        Name = contract.Name,
-                        Description = contract.Description,
-                        ValidFrom = contract.ValidFrom,
-                        ValidTo = contract.ValidTo,
-                        AccommodationId = relatedAccommodationId
-                    });
+                    (
+                        id : contract.Id,
+                        name : contract.Name,
+                        description : contract.Description,
+                        validFrom : contract.ValidFrom,
+                        validTo : contract.ValidTo,
+                        accommodationId : relatedAccommodationId
+                    ));
                 });
         }
 
@@ -142,14 +142,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private Models.Responses.Contract CreateResponse(Contract contract, int accommodationId)
             => new Models.Responses.Contract
-            {
-                Id = contract.Id,
-                AccommodationId = accommodationId,
-                Name = contract.Name,
-                Description = contract.Description,
-                ValidFrom = contract.ValidFrom,
-                ValidTo = contract.ValidTo
-            };
+            (
+                id : contract.Id,
+                accommodationId : accommodationId,
+                name : contract.Name,
+                description : contract.Description,
+                validFrom : contract.ValidFrom,
+                validTo : contract.ValidTo
+            );
         
         
         private readonly IContractManagerContextService _contractManagerContext;
