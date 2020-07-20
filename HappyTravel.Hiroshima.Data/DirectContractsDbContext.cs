@@ -47,6 +47,7 @@ namespace HappyTravel.Hiroshima.Data
             AddCountries(modelBuilder);
             AddCancellationPolicies(modelBuilder);
             AddContractAccommodationRelation(modelBuilder);
+            AddSeasons(modelBuilder);
         }
 
 
@@ -89,7 +90,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(l => l.Locality ).HasColumnType("jsonb").IsRequired();
                 e.Property(l => l.Zone).HasColumnType("jsonb");
                 e.Property(l => l.CountryCode).IsRequired();
-                e.HasKey(l => l.CountryCode);
+                e.HasIndex(l => l.CountryCode);
             });
         }
 
@@ -142,7 +143,8 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(r => r.Description).HasColumnType("jsonb");
                 e.Property(r => r.Name).HasColumnType("jsonb").IsRequired();
                 e.Property(r => r.OccupancyConfigurations).HasColumnType("jsonb").IsRequired();
-                e.HasOne<Accommodation>().WithMany().HasForeignKey(r => r.AccommodationId).IsRequired();
+                e.Property(r => r.AccommodationId).IsRequired();
+                e.HasIndex(r => r.AccommodationId);
             });
         }
 
@@ -157,9 +159,10 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(rr => rr.CurrencyCode).IsRequired();
                 e.Property(rr => rr.MealPlan);
                 e.Property(rr => rr.BoardBasis);
-                e.Property(rr=> rr.StartDate).IsRequired();
-                e.Property(rr=> rr.EndDate).IsRequired();
-                e.HasOne<Room>().WithMany().HasForeignKey(rr => rr.RoomId);
+                e.Property(rr=> rr.SeasonId).IsRequired();
+                e.Property(rr => rr.RoomId).IsRequired();
+                e.HasIndex(rr => rr.SeasonId);
+                e.HasIndex(rr => rr.RoomId);
             });
         }
 
@@ -173,7 +176,8 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(rr => rr.Restrictions).IsRequired().HasDefaultValue(SaleRestrictions.StopSale);
                 e.Property(rr => rr.StartDate).IsRequired();
                 e.Property(rr => rr.EndDate).IsRequired();
-                e.HasOne<Room>().WithMany().HasForeignKey(rr => rr.RoomId);
+                e.Property(rr => rr.RoomId).IsRequired();
+                e.HasIndex(rr => rr.RoomId);
             });
         }
 
@@ -190,7 +194,8 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(po => po.ValidFromDate).IsRequired();
                 e.Property(po => po.ValidToDate).IsRequired();
                 e.Property(po => po.BookingCode).IsRequired();
-                e.HasOne<Room>().WithMany().HasForeignKey(po => po.RoomId);
+                e.Property(rr => rr.RoomId).IsRequired();
+                e.HasIndex(rr => rr.RoomId);
             });
         }
 
@@ -206,7 +211,8 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(rar => rar.MinimumStayNights);
                 e.Property(rar => rar.ReleasePeriod).HasColumnType("jsonb");
                 e.Property(rar => rar.Allotment);
-                e.HasOne<Room>().WithMany().HasForeignKey(rar => rar.RoomId);
+                e.Property(rar => rar.RoomId).IsRequired();
+                e.HasIndex(rar => rar.RoomId);
             });
         }
         
@@ -235,11 +241,13 @@ namespace HappyTravel.Hiroshima.Data
             modelBuilder.Entity<RoomCancellationPolicy>(e =>
             {
                 e.ToTable("CancellationPolicies");
-                e.HasKey(cp => cp.Id);
-                e.Property(cp => cp.StartDate).IsRequired();
-                e.Property(cp => cp.EndDate).IsRequired();
-                e.Property(bo => bo.Details).HasColumnType("jsonb").IsRequired();
-                e.Property(bo => bo.RoomId).IsRequired();
+                e.HasKey(rcp => rcp.Id);
+                e.Property(rcp => rcp.Details).HasColumnType("jsonb").IsRequired();
+                e.Property(rcp => rcp.RoomId).IsRequired();
+                e.Property(rcp => rcp.SeasonId);
+                e.HasIndex(rcp => rcp.RoomId);
+                e.HasIndex(rcp => rcp.SeasonId);
+                
             });
         }
 
@@ -252,8 +260,23 @@ namespace HappyTravel.Hiroshima.Data
                 e.HasKey(car => car.Id);
                 e.Property(car => car.AccommodationId).IsRequired();
                 e.Property(car => car.ContractId).IsRequired();
-                e.HasOne<Contract>().WithMany().HasForeignKey(rar => rar.ContractId);
-                e.HasOne<Accommodation>().WithMany().HasForeignKey(rar => rar.AccommodationId);
+                e.HasIndex(car => car.AccommodationId);
+                e.HasIndex(car => car.ContractId);
+            });
+        }
+        
+        
+        private void AddSeasons(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Season>(e =>
+            {
+                e.ToTable("Seasons");
+                e.HasKey(s  => s.Id);
+                e.Property(s => s.Name).IsRequired();
+                e.Property(s => s.StartDate).IsRequired();
+                e.Property(s => s.EndDate).IsRequired();
+                e.Property(s => s.ContractId).IsRequired();
+                e.HasIndex(s => s.ContractId);
             });
         }
         
@@ -271,5 +294,6 @@ namespace HappyTravel.Hiroshima.Data
         public virtual DbSet<ContractManager> ContractManagers { get; set; }
         public virtual DbSet<Contract> Contracts { get; set; }
         public virtual DbSet<ContractAccommodationRelation> ContractAccommodationRelations { get; set; }
+        public virtual DbSet<Season> Seasons { get; set; }
     }
 }

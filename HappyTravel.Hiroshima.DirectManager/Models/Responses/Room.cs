@@ -5,13 +5,24 @@ using Picture = HappyTravel.Hiroshima.Common.Models.Picture;
 
  namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
-    public class Room
+    public readonly struct Room
     {
-        public int Id { get; set; }
-        public MultiLanguage<string> Name { get; set; }
-        public MultiLanguage<string> Description{ get; set; }
-        public MultiLanguage<List<string>> Amenities{ get; set; }
-        public MultiLanguage<List<Picture>> Pictures { get; set; }
-        public List<OccupancyConfiguration> OccupancyConfigurations { get; set; }
+        public Room(int id, MultiLanguage<string> name, MultiLanguage<string> description, MultiLanguage<List<string>> amenities, MultiLanguage<List<Picture>> pictures, List<OccupancyConfiguration> occupancyConfigurations)
+        {
+            Id = id;
+            Name = name;
+            Description = description;
+            Amenities = amenities;
+            Pictures = pictures;
+            OccupancyConfigurations = occupancyConfigurations;
+        }
+
+
+        public int Id { get; }
+        public MultiLanguage<string> Name { get; }
+        public MultiLanguage<string> Description{ get; }
+        public MultiLanguage<List<string>> Amenities{ get; }
+        public MultiLanguage<List<Picture>> Pictures { get; }
+        public List<OccupancyConfiguration> OccupancyConfigurations { get; }
     }
 }

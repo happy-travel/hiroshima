@@ -1,22 +1,23 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
 using HappyTravel.Hiroshima.DirectContracts.Models;
-using AccommodationDetails = HappyTravel.Hiroshima.Data.Models.AccommodationDetails;
+using Microsoft.EntityFrameworkCore;
+using AccommodationDetails = HappyTravel.Hiroshima.DirectContracts.Models.AccommodationDetails;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 {
     public class RoomAvailabilityService: IRoomAvailabilityService
     {
-        public RoomAvailabilityService(IAvailabilityRepository availabilityRepository)
+        public RoomAvailabilityService(DirectContractsDbContext dbContext)
         {
-            _availabilityRepository = availabilityRepository;
+            _dbContext = dbContext;
         }
         
 
@@ -25,7 +26,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         {
             var accommodationsDictionary = accommodations.ToDictionary(k => k.Accommodation.Id, v => v);
 
-            var rooms = await _availabilityRepository.GetAvailableRooms(
+            var rooms = await GetAvailableRooms(
                 accommodationsDictionary.Values.Select(a => a.Accommodation.Id),
                 availabilityRequest.CheckInDate,
                 availabilityRequest.CheckOutDate,
@@ -179,7 +180,45 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                    adultsNumber <= occupancyConfiguration.Adults;
         }
 
+        
+        private async Task<List<Room>> GetAvailableRooms(IEnumerable<int> accommodationIds, DateTime checkInDate,
+            DateTime checkOutDate, string languageCode)
+        {
+            checkInDate = checkInDate.Date;
+            checkOutDate = checkOutDate.Date;
+            var stayNights = (checkOutDate - checkInDate).Days;
+            var dateNow = DateTime.UtcNow.Date;
+            var daysBeforeCheckIn = (checkInDate - dateNow).Days;
 
-        private readonly IAvailabilityRepository _availabilityRepository;
+            var availableRoomIds = (from availabilityRestriction in _dbContext.RoomAvailabilityRestrictions
+                where (checkInDate <= availabilityRestriction.EndDate &&
+                       checkOutDate >= availabilityRestriction.StartDate) &&
+                      availabilityRestriction.Restrictions == SaleRestrictions.StopSale
+                select availabilityRestriction.Id).Distinct();
+
+            return await (from room in _dbContext.Rooms
+                    join allocationRequirement in _dbContext.RoomAllocationRequirements on room.Id equals
+                        allocationRequirement.RoomId
+                    where accommodationIds.Contains(room.AccommodationId) && !availableRoomIds.Contains(room.Id) &&
+                          stayNights >= allocationRequirement.MinimumStayNights &&
+                          (allocationRequirement.Allotment > 0 || allocationRequirement.Allotment == null) &&
+                          (allocationRequirement.ReleasePeriod.Date != null &&
+                           dateNow < allocationRequirement.ReleasePeriod.Date ||
+                           allocationRequirement.ReleasePeriod.Days != null &&
+                           daysBeforeCheckIn > allocationRequirement.ReleasePeriod.Days)
+                    select new Room
+                    {
+                        Id = room.Id,
+                        Name = DirectContractsDbContext.GetLangFromJsonb(room.Name, languageCode),
+                        Amenities = DirectContractsDbContext.GetLangFromJsonb(room.Amenities, languageCode),
+                        Description = DirectContractsDbContext.GetLangFromJsonb(room.Description, languageCode),
+                        OccupancyConfigurations = room.OccupancyConfigurations,
+                        AccommodationId = room.AccommodationId
+                    }).Distinct()
+                .ToListAsync();
+        }
+        
+
+        private readonly DirectContractsDbContext _dbContext;
     }
 }

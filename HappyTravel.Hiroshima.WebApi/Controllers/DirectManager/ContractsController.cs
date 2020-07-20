@@ -19,8 +19,8 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         {
             _contractManagementService = contractManagementService;
         }
-        
-        
+
+
         /// <summary>
         /// Returns a direct contract data by ID
         /// </summary>
@@ -37,8 +37,8 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
             return Ok(response);
         }
-        
-        
+
+
         /// <summary>
         /// Gets all user's contracts
         /// </summary>
@@ -54,8 +54,8 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
             return Ok(response);
         }
-        
-        
+
+
         /// <summary>
         /// Adds a new contract
         /// </summary>
@@ -72,8 +72,8 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
             return Ok(response);
         }
-        
-        
+
+
         /// <summary>
         /// Updates a contract by ID
         /// </summary>
@@ -92,7 +92,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
             return NoContent();
         }
 
-        
+
         /// <summary>
         /// Removes a contract by ID
         /// </summary>
@@ -109,8 +109,8 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
             return NoContent();
         }
-        
-        
+
+
         private readonly IContractManagementService _contractManagementService;
     }
 }

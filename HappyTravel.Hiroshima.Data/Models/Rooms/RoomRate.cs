@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace HappyTravel.Hiroshima.Data.Models.Rooms
 {
@@ -8,8 +7,7 @@ namespace HappyTravel.Hiroshima.Data.Models.Rooms
         public int Id { get; set; }
         public int RoomId { get; set; }
         public decimal Price { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public int SeasonId { get; set; }
         public string CurrencyCode { get; set; }
         public string BoardBasis { get; set; }
         public string MealPlan { get; set; }
