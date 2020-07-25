@@ -161,14 +161,22 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private Models.Responses.Accommodation CreateResponse(Accommodation accommodation, List<int> roomIds = null)
         {
-            return new Models.Responses.Accommodation(id: accommodation.Id, coordinates: new GeoPoint(accommodation.Coordinates),
-                rating: accommodation.Rating ?? AccommodationRating.NotRated, checkInTime: accommodation.CheckInTime, checkOutTime: accommodation.CheckOutTime,
-                contactInfo: accommodation.ContactInfo, occupancyDefinition: accommodation.OccupancyDefinition,
-                propertyType: accommodation.PropertyType ?? PropertyTypes.Any, name: accommodation.Name.GetValue<MultiLanguage<string>>(),
-                address: accommodation.Address.GetValue<MultiLanguage<string>>(), pictures: accommodation.Pictures.GetValue<MultiLanguage<List<Picture>>>(),
+            return new Models.Responses.Accommodation(
+                accommodation.Id,
+                coordinates: new GeoPoint(accommodation.Coordinates),
+                rating: accommodation.Rating ?? AccommodationRating.NotRated, 
+                checkInTime: accommodation.CheckInTime, 
+                checkOutTime: accommodation.CheckOutTime,
+                contactInfo: accommodation.ContactInfo, 
+                occupancyDefinition: accommodation.OccupancyDefinition,
+                propertyType: accommodation.PropertyType ?? PropertyTypes.Any, 
+                name: accommodation.Name.GetValue<MultiLanguage<string>>(),
+                address: accommodation.Address.GetValue<MultiLanguage<string>>(), 
+                pictures: accommodation.Pictures.GetValue<MultiLanguage<List<Picture>>>(),
                 amenities: accommodation.AccommodationAmenities.GetValue<MultiLanguage<List<string>>>(),
                 additionalInfo: accommodation.AdditionalInfo.GetValue<MultiLanguage<string>>(),
-                textualDescription: accommodation.TextualDescription.GetValue<MultiLanguage<string>>(), roomIds: roomIds ?? new List<int>());
+                textualDescription: accommodation.TextualDescription.GetValue<MultiLanguage<string>>(),
+                roomIds: roomIds ?? new List<int>());
         }
 
 

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Hiroshima.Data;
+using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.Data.Models.Accommodations;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
 using Microsoft.EntityFrameworkCore;
@@ -70,7 +71,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
         {
             _dbContext.Rooms.AddRange(rooms);
             await _dbContext.SaveChangesAsync();
-            DetachIds(rooms);
+            _dbContext.DetachEntries(rooms);
             return rooms;
         }
 
@@ -79,7 +80,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
         { 
             _dbContext.Rooms.UpdateRange(rooms);
             await _dbContext.SaveChangesAsync();
-            DetachIds(rooms);
+            _dbContext.DetachEntries(rooms);
         }
 
         
@@ -97,16 +98,6 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
             await _dbContext.SaveChangesAsync();
         }
         
-        
-        private void DetachIds(List<Room> rooms)
-        {
-            foreach (var room in rooms)
-            {
-                var entry = _dbContext.Entry(room);
-                entry.State = EntityState.Detached;
-                room.Id = entry.Entity.Id;
-            }
-        }
         
         
         private readonly DirectContractsDbContext _dbContext;
