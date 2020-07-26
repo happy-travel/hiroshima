@@ -26,7 +26,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return _contractManagerContext.GetContractManager()
                 .Ensure(contractManager => DoesContractBelongToContractManager(contractId, contractManager.Id),
-                    $"Failed to get a contract by {nameof(contractId)} '{contractId}'")
+                    $"Failed to get the contract by {nameof(contractId)} '{contractId}'")
                 .Bind(async contractManager 
                     =>
                 {
@@ -40,22 +40,22 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<List<Models.Responses.Season>>> Replace(int contractId, List<Models.Requests.Season> seasons)
         {
-            return Validate(seasons)
-                .Bind(() => _contractManagerContext.GetContractManager())
-                .Ensure(contractManagerContext => DoesContractBelongToContractManager(contractId, contractManagerContext.Id),
-                    $"Failed to get a contract by {nameof(contractId)} '{contractId}'")
+            return _contractManagerContext.GetContractManager()
+                .Tap(contractManager => Validate(contractId, contractManager.Id, seasons))
                 .Tap(async contractManager =>
                 {
                     var allContractSeasons = await _dbContext.Seasons.Where(s => s.ContractId == contractId)
                         .ToListAsync();
                     _dbContext.Seasons.RemoveRange(allContractSeasons);
                 })
-                .Bind(contractManager =>
+                .Bind(async contractManager =>
                 {
                     var newSeasons = CreateSeasons(contractId, seasons);
-                    _dbContext.Seasons.AddRange();
-                    _dbContext.SaveChangesAsync();
+                    _dbContext.Seasons.AddRange(newSeasons);
+                    await _dbContext.SaveChangesAsync();
+                    
                     _dbContext.DetachEntries(newSeasons);
+                    
                     return Result.Success(CreateResponse(newSeasons));
                 });
         }
@@ -65,7 +65,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return _contractManagerContext.GetContractManager()
                 .Ensure(contractManager => DoesContractBelongToContractManager(contractId, contractManager.Id),
-                    $"Failed to get a contract by {nameof(contractId)} '{contractId}'")
+                    $"Failed to get the contract by {nameof(contractId)} '{contractId}'")
                 .Bind(async contractManager =>
                 {
                     var seasons = await _dbContext.Seasons
@@ -78,9 +78,26 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Result Validate(List<Models.Requests.Season> seasons)
+        public async Task<Result> Validate(int contractId, int contractManagerId, List<Models.Requests.Season> seasons)
         {
-            return Result.Combine(ValidationHelper.Validate(seasons, new SeasonValidator()), ValidateSeasonIntervals());
+            return Result.Combine(ValidationHelper.Validate(seasons, new SeasonValidator()), ValidateSeasonIntervals(), await CheckIfSeasonsDefinedForAllContractedPeriod());
+
+            
+            async Task<Result> CheckIfSeasonsDefinedForAllContractedPeriod()
+            {
+                var contract = await _contractManagementRepository.GetContract(contractId, contractManagerId);
+                if (contract == null)
+                    return Result.Failure( $"Failed to get the contract by {nameof(contractId)} '{contractId}'");
+                
+                var contractStartDate = contract.ValidFrom;
+                var contractEndDate = contract.ValidTo;
+                var firstSeason = seasons.First();
+                var lastSeason = seasons.Last();
+
+                return contractStartDate.Date == firstSeason.StartDate.Date && contractEndDate.Date == lastSeason.EndDate
+                    ? Result.Success()
+                    : Result.Failure($"Seasons must be defined for the all contracted period: {contract.ValidFrom} - {contract.ValidTo}");
+            }
             
             
             Result ValidateSeasonIntervals()
@@ -91,7 +108,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     var season = seasons[i];
                     var daysBetweenSeasons = (season.StartDate.Date - previousSeason.EndDate.Date).Days;
                     if (Math.Abs(daysBetweenSeasons) != 1)
-                        return Result.Failure($"An unacceptable interval between seasons: '{previousSeason.Name}' and '{season.Name}'");
+                        return Result.Failure($"Unacceptable interval between seasons: '{previousSeason.Name}' and '{season.Name}'");
                     
                     previousSeason = season;
                 }
@@ -118,7 +135,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         private async Task<bool> DoesContractBelongToContractManager(int contractId, int contractManagerId)
-            => await _contractManagementRepository.GetContract(contractManagerId, contractId) != null;
+            => await _contractManagementRepository.GetContract(contractId, contractManagerId) != null;
 
         
         private readonly IContractManagementRepository _contractManagementRepository;

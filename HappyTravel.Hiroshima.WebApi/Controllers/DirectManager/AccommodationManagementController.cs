@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Infrastructure;
-using HappyTravel.Hiroshima.DirectManager.Models.Common;
 using HappyTravel.Hiroshima.DirectManager.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -160,9 +158,9 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpDelete("{accommodationId}/rooms")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> RemoveRooms([FromRoute] int accommodationId, [FromBody] Identifacators ids)
+        public async Task<IActionResult> RemoveRooms([FromRoute] int accommodationId, [FromBody] List<int> ids)
         { 
-            var (_, isFailure, error) = await _accommodationManagementService.RemoveRooms(accommodationId, ids.Ids);
+            var (_, isFailure, error) = await _accommodationManagementService.RemoveRooms(accommodationId, ids);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

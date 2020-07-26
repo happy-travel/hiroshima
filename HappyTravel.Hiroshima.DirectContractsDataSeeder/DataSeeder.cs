@@ -113,7 +113,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 Description = "ONE&ONLY ROYAL MIRAGE contract",
                 ContractManagerId = int.MaxValue,
                 ValidFrom = new DateTime(2020, 01, 01),
-                ValidTo = new DateTime(2021, 01, 01)
+                ValidTo = new DateTime(2020, 12, 31)
             });
             dbContext.SaveChanges();
 
@@ -2406,7 +2406,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 Description = "Burj Al Arab Jumeirah contract",
                 ContractManagerId = int.MaxValue,
                 ValidFrom = new DateTime(2020, 01, 01),
-                ValidTo = new DateTime(2021, 01, 01)
+                ValidTo = new DateTime(2020, 12, 31)
             });
             dbContext.SaveChanges();
 

@@ -25,12 +25,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             return await _contractManagerContext.GetContractManager()
                 .Bind(async contractManager =>
                 {
-                    var contract = await _contractManagementRepository.GetContract(contractManager.Id, contractId);
+                    var contract = await _contractManagementRepository.GetContract(contractId, contractManager.Id);
 
                     if (contract is null)
                         return Result.Failure<Models.Responses.Contract>($"Failed to get the contract with {nameof(contractId)} '{contractId}'");
 
-                    var relatedAccommodationId = (await _contractManagementRepository.GetRelatedAccommodations(contractManager.Id, contractId)).Single().Id;
+                    var relatedAccommodationId = (await _contractManagementRepository.GetRelatedAccommodations(contractId, contractManager.Id)).Single().Id;
 
                     return Result.Ok(new Models.Responses.Contract(id: contract.Id, name: contract.Name, description: contract.Description,
                         validFrom: contract.ValidFrom, validTo: contract.ValidTo, accommodationId: relatedAccommodationId));
@@ -75,7 +75,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     }, contract.AccommodationId);
                     return !newContract.Id.Equals(default)
                         ? Result.Ok(CreateResponse(newContract, contract.AccommodationId))
-                        : Result.Failure<Models.Responses.Contract>("Failed to add contract");
+                        : Result.Failure<Models.Responses.Contract>("Failed to add the contract");
                 });
         }
 
@@ -104,7 +104,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result> Remove(int contractId)
         {
-            return await _contractManagerContext.GetContractManager().Tap(user => _contractManagementRepository.DeleteContract(user.Id, contractId));
+            return await _contractManagerContext.GetContractManager().Tap(contractManager => _contractManagementRepository.DeleteContract(contractId, contractManager.Id));
         }
 
 
@@ -126,7 +126,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         private async Task<bool> DoesContractBelongToContractManager(int contractManagerId, int contractId)
-            => !(await _contractManagementRepository.GetContract(contractManagerId, contractId) is null);
+            => !(await _contractManagementRepository.GetContract(contractId, contractManagerId) is null);
 
 
         private Models.Responses.Contract CreateResponse(Contract contract, int accommodationId)

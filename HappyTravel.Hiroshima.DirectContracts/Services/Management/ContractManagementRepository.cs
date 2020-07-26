@@ -16,7 +16,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
         }
 
         
-        public async Task<Contract> GetContract(int contractManagerId, int contractId) =>
+        public async Task<Contract> GetContract(int contractId, int contractManagerId) =>
             await _dbContext.Contracts.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.Id == contractId);
 
         
@@ -50,7 +50,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
         }
 
         
-        public async Task DeleteContract(int contractManagerId, int contractId)
+        public async Task DeleteContract(int contractId, int contractManagerId)
         {
             await DeleteContractAccommodationRelations(contractId);
 
@@ -64,7 +64,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
         }
 
         
-        public async Task<List<Accommodation>> GetRelatedAccommodations(int contractManagerId, int contractId) =>
+        public async Task<List<Accommodation>> GetRelatedAccommodations(int contractId, int contractManagerId) =>
             (await JoinContractAccommodationRelationAndAccommodation()
                 .Where(contractAccommodationRelationAndAccommodation =>
                     contractAccommodationRelationAndAccommodation.Accommodation!.ContractManagerId == contractManagerId &&

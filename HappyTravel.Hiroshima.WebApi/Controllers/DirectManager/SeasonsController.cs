@@ -3,7 +3,6 @@ using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Infrastructure;
-using HappyTravel.Hiroshima.DirectManager.Models.Requests;
 using HappyTravel.Hiroshima.DirectManager.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -48,7 +47,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpPost("{contractId}/seasons/replace")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.Season>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> ReplaceSeasons([FromRoute] int contractId, [FromBody] List<Season> seasons)
+        public async Task<IActionResult> ReplaceSeasons([FromRoute] int contractId, [FromBody] List<Hiroshima.DirectManager.Models.Requests.Season> seasons)
         {
             var (_, isFailure, response, error) = await _seasonManagementService.Replace(contractId, seasons);
             if (isFailure)
@@ -62,14 +61,14 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// Removes seasons
         /// </summary>
         /// <param name="contractId"></param>
-        /// <param name="seasonIds"></param>
+        /// <param name="ids">Season ids</param>
         /// <returns></returns>
         [HttpDelete("{contractId}/seasons")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> RemoveSeasons([FromRoute] int contractId, [FromBody] List<int> seasonIds)
+        public async Task<IActionResult> RemoveSeasons([FromRoute] int contractId, [FromBody] List<int> ids)
         { 
-            var (_, isFailure, error) = await _seasonManagementService.Remove(contractId, seasonIds);
+            var (_, isFailure, error) = await _seasonManagementService.Remove(contractId, ids);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
