@@ -1,6 +1,6 @@
 ﻿using HappyTravel.EdoContracts.Accommodations.Enums;
 
-namespace HappyTravel.Hiroshima.Data.Models.Accommodations
+namespace HappyTravel.Hiroshima.Common.Models.Accommodations
 {
     public class TextualDescription
     {

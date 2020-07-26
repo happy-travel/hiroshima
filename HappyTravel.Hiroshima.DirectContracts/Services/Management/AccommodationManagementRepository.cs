@@ -21,36 +21,6 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
             => await _dbContext.Accommodations.SingleOrDefaultAsync(a => a.Id == accommodationId && a.ContractManagerId == contractManagerId);
 
         
-        public async Task<Accommodation> AddAccommodation(Accommodation accommodation)
-        { 
-            var entry = _dbContext.Accommodations.Add(accommodation);
-            await _dbContext.SaveChangesAsync();
-            entry.State = EntityState.Detached;
-            return entry.Entity;
-        }
-
-        
-        public async Task DeleteAccommodationAndRooms(int contractManagerId, int accommodationId)
-        {
-            var accommodation = await GetAccommodation(contractManagerId, accommodationId);
-            if (accommodation is null)
-                return;
-            
-            var rooms = await GetRooms(accommodation.Id);
-            if (rooms.Any())
-                await DeleteRooms(rooms.Select(r => r.Id).ToList());
-
-            await DeleteAccommodation(accommodationId);
-        }
-
-        
-        public async Task UpdateAccommodation(Accommodation accommodation)
-        {
-            var entry = _dbContext.Accommodations.Update(accommodation);
-            await _dbContext.SaveChangesAsync();
-            entry.State = EntityState.Detached;
-        }
-        
 
         public async Task<List<Room>> GetRooms(int accommodationId) 
             => await _dbContext.Rooms.Where(r => r.AccommodationId == accommodationId).ToListAsync();
@@ -66,15 +36,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
                 .Select(roomAndAccommodation => roomAndAccommodation.room)
                 .ToListAsync();
         
-
-        public async Task<List<Room>> AddRooms(List<Room> rooms)
-        {
-            _dbContext.Rooms.AddRange(rooms);
-            await _dbContext.SaveChangesAsync();
-            _dbContext.DetachEntries(rooms);
-            return rooms;
-        }
-
+        
         
         public async Task UpdateRooms(List<Room> rooms)
         { 
@@ -90,14 +52,6 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
             _dbContext.Rooms.RemoveRange(roomsToDelete);
             await _dbContext.SaveChangesAsync();
         }
-        
-        private async Task DeleteAccommodation(int accommodationId)
-        {
-            var accommodationToDelete = new Accommodation {Id = accommodationId};
-            _dbContext.Accommodations.RemoveRange(accommodationToDelete);
-            await _dbContext.SaveChangesAsync();
-        }
-        
         
         
         private readonly DirectContractsDbContext _dbContext;

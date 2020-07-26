@@ -52,11 +52,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 })
                 .Bind(contractManager =>
                 {
-                    var dbSeasons = CreateSeasons(contractId, seasons);
+                    var newSeasons = CreateSeasons(contractId, seasons);
                     _dbContext.Seasons.AddRange();
                     _dbContext.SaveChangesAsync();
-                    _dbContext.DetachEntries(dbSeasons);
-                    return Result.Success(CreateResponse(dbSeasons));
+                    _dbContext.DetachEntries(newSeasons);
+                    return Result.Success(CreateResponse(newSeasons));
                 });
         }
 
