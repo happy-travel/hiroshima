@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Authors>Oleg Konovalov</Authors>
     <LangVersion>8</LangVersion>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -13,6 +12,11 @@
     </Content>
   </ItemGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>..\HappyTravel.Hiroshima.WebApi\HappyTravel.Hiroshima.WebApi.xml</DocumentationFile>
+    <NoWarn>1701;1702;1591</NoWarn>
+  </PropertyGroup>
+  
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="3.1.1" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="9.0.1" />
@@ -32,12 +36,20 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.6" />
     <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="3.1.6" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.6" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.5.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.5.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\HappyTravel.Hiroshima.Common\HappyTravel.Hiroshima.Common.csproj" />
     <ProjectReference Include="..\HappyTravel.Hiroshima.DirectContracts\HappyTravel.Hiroshima.DirectContracts.csproj" />
     <ProjectReference Include="..\HappyTravel.Hiroshima.DirectManager\HappyTravel.Hiroshima.DirectManager.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="HappyTravel.Hiroshima.WebApi.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>

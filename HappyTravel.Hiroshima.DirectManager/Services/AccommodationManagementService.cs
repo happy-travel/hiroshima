@@ -6,11 +6,11 @@ using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models;
+using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Enums;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Accommodation = HappyTravel.Hiroshima.Data.Models.Accommodations.Accommodation;
 using NetTopologySuite.Geometries;
-using PropertyTypes = HappyTravel.Hiroshima.Common.Models.Accommodations.PropertyTypes;
 using Room = HappyTravel.Hiroshima.Data.Models.Rooms.Room;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services

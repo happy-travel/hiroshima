@@ -1,4 +1,7 @@
+using System;
 using System.Globalization;
+using System.IO;
+using System.Reflection;
 using CacheFlow.Json.Extensions;
 using FloxDc.CacheFlow.Extensions;
 using FluentValidation.AspNetCore;
@@ -17,6 +20,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
 using NetTopologySuite;
 using Newtonsoft.Json;
 
@@ -98,6 +102,16 @@ namespace HappyTravel.Hiroshima.WebApi
                 .AddNewtonsoftJson(options => { options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Unspecified; })
                 .AddFluentValidation()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1.0", new OpenApiInfo {Title = "HappyTravel.com Direct Contracts API", Version = "v1.0"});
+
+                var xmlCommentsFileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlCommentsFilePath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFileName);
+                options.CustomSchemaIds(t => t.FullName);
+                options.IncludeXmlComments(xmlCommentsFilePath);
+            });
         }
 
 
@@ -117,6 +131,12 @@ namespace HappyTravel.Hiroshima.WebApi
                 endpoints.MapHealthChecks("/health");
                 endpoints.MapControllers();
             });
+            app.UseSwagger()
+                .UseSwaggerUI(options =>
+                {
+                    options.SwaggerEndpoint("/swagger/v1.0/swagger.json", "HappyTravel.com Emerging Travel Group Connector API");
+                    options.RoutePrefix = string.Empty;
+                });
         }
     }
 }
