@@ -4,6 +4,7 @@ using FloxDc.CacheFlow.Extensions;
 using FluentValidation.AspNetCore;
 using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Infrastructure;
+using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.DirectContracts.Extensions;
 using HappyTravel.Hiroshima.DirectManager.Extensions;
 using HappyTravel.Hiroshima.WebApi.Infrastructure;
@@ -67,8 +68,10 @@ namespace HappyTravel.Hiroshima.WebApi
                 });
 
             services.AddHealthChecks()
-                .AddCheck<ControllerResolveHealthCheck>(nameof(ControllerResolveHealthCheck));
-            
+                .AddCheck<ControllerResolveHealthCheck>(nameof(ControllerResolveHealthCheck))
+                .AddDbContextCheck<DirectContractsDbContext>()
+                .AddRedis(redisEndpoint);
+                
             services.AddApiVersioning(options =>
             {
                 options.AssumeDefaultVersionWhenUnspecified = false;
