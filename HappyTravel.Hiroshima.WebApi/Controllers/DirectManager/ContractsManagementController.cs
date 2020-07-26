@@ -13,9 +13,9 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/management/contracts")]
     [Produces("application/json")]
-    public class ContractsController : ControllerBase
+    public class ContractsManagementController : ControllerBase
     {
-        public ContractsController(IContractManagementService contractManagementService)
+        public ContractsManagementController(IContractManagementService contractManagementService)
         {
             _contractManagementService = contractManagementService;
         }
@@ -29,7 +29,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpGet("{contractId}")]
         [ProducesResponseType(typeof(Contract), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetContract([FromQuery] int contractId)
+        public async Task<IActionResult> GetContract([FromRoute] int contractId)
         {
             var (_, isFailure, response, error) = await _contractManagementService.Get(contractId);
             if (isFailure)
