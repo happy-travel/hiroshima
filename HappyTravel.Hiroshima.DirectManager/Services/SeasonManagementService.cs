@@ -27,7 +27,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return _contractManagerContext.GetContractManager()
                 .Ensure(contractManager => DoesContractBelongToContractManager(contractId, contractManager.Id),
-                    $"Failed to get the contract by {nameof(contractId)} '{contractId}'")
+                    $"Failed to get the contract manager's contract by {nameof(contractId)} '{contractId}'")
                 .Bind(async contractManager =>
                 {
                     var seasons = await _dbContext.Seasons.Where(s => s.ContractId == contractId).ToListAsync();
@@ -64,7 +64,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return _contractManagerContext.GetContractManager()
                 .Ensure(contractManager => DoesContractBelongToContractManager(contractId, contractManager.Id),
-                    $"Failed to get the contract by {nameof(contractId)} '{contractId}'")
+                    $"Failed to get the contract manager's contract by {nameof(contractId)} '{contractId}'")
                 .Bind(async contractManager =>
                 {
                     var seasons = await _dbContext.Seasons.Where(s => s.ContractId == contractId && seasonIds.Contains(s.ContractId)).ToListAsync();
@@ -85,7 +85,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             {
                 var contract = await _contractManagementRepository.GetContract(contractId, contractManagerId);
                 if (contract == null)
-                    return Result.Failure($"Failed to get the contract by {nameof(contractId)} '{contractId}'");
+                    return Result.Failure($"Failed to get the contract manager's contract by {nameof(contractId)} '{contractId}'");
 
                 var contractStartDate = contract.ValidFrom;
                 var contractEndDate = contract.ValidTo;

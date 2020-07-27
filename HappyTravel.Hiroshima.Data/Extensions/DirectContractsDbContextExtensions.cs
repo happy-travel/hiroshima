@@ -5,7 +5,7 @@ namespace HappyTravel.Hiroshima.Data.Extensions
 {
     public static class DirectContractsDbContextExtensions
     {
-        public static void DetachEntries<T>(this DirectContractsDbContext dbContext,  List<T> items)
+        public static void DetachEntries<T>(this DirectContractsDbContext dbContext, IEnumerable<T> items)
         {
             foreach (var item in items)
             {

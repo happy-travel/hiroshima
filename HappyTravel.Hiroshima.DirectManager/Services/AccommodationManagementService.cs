@@ -10,6 +10,7 @@ using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Enums;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
+using HappyTravel.Hiroshima.Data.Models;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.EntityFrameworkCore;
 using Accommodation = HappyTravel.Hiroshima.Data.Models.Accommodations.Accommodation;
@@ -43,7 +44,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                     var rooms = await _accommodationManagementRepository.GetRooms(accommodation.Id);
 
-                    return Result.Ok(CreateResponse(accommodation, rooms.Select(room => room.Id).ToList()));
+                    return CreateResponse(accommodation, rooms.Select(room => room.Id).ToList());
                 });
         }
 
@@ -57,7 +58,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     var entry = _dbContext.Accommodations.Add(CreateAccommodation(contractManager.Id, accommodation));
                     await _dbContext.SaveChangesAsync();
                     entry.State = EntityState.Detached;
-                    return Result.Success(CreateResponse(entry.Entity));
+                    return CreateResponse(entry.Entity);
                 });
         }
 
@@ -72,7 +73,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     var entry = _dbContext.Accommodations.Update(CreateAccommodation(contractManager.Id, accommodation));
                     await _dbContext.SaveChangesAsync();
                     entry.State = EntityState.Detached;
-                    return Result.Success(CreateResponse(entry.Entity));
+                    return CreateResponse(entry.Entity);
                 });
         }
 
@@ -80,25 +81,27 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result> Remove(int accommodationId)
         {
             return _contractManagerContext.GetContractManager()
-                .Bind(async contractManager =>
-                {
-                    var accommodation = await _accommodationManagementRepository.GetAccommodation(contractManager.Id, accommodationId);
-                    
-                    if (accommodation is null)
-                        return Result.Success();
+                .Bind(RemoveAccommodationWithRooms);
             
-                    var rooms = await _accommodationManagementRepository.GetRooms(accommodation.Id);
-                    if (rooms.Any())
-                        await _accommodationManagementRepository.DeleteRooms(rooms.Select(r => r.Id).ToList());
-
-                    _dbContext.Accommodations.Remove(new Accommodation
-                    {
-                        Id = accommodationId
-                    });
-                    await _dbContext.SaveChangesAsync();
+            async Task<Result> RemoveAccommodationWithRooms(ContractManager contractManager)
+            {
+                var accommodation = await _accommodationManagementRepository.GetAccommodation(contractManager.Id, accommodationId);
                     
+                if (accommodation is null)
                     return Result.Success();
+            
+                var rooms = await _accommodationManagementRepository.GetRooms(accommodation.Id);
+                if (rooms.Any())
+                    await _accommodationManagementRepository.DeleteRooms(rooms.Select(r => r.Id).ToList());
+
+                _dbContext.Accommodations.Remove(new Accommodation
+                {
+                    Id = accommodationId
                 });
+                await _dbContext.SaveChangesAsync();
+                    
+                return Result.Success();
+            }
         }
 
 
@@ -108,7 +111,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Bind(async contractManager =>
                 {
                     var rooms = await _accommodationManagementRepository.GetRooms(contractManager.Id, accommodationId);
-                    return Result.Success(CreateResponse(rooms));
+                    
+                    return CreateResponse(rooms);
                 });
         }
 
@@ -126,7 +130,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     await _dbContext.SaveChangesAsync();
                     _dbContext.DetachEntries(newRooms);
 
-                    return Result.Success(CreateResponse(newRooms));
+                    return CreateResponse(newRooms);
                 });
         }
 
@@ -185,7 +189,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Models.Responses.Accommodation CreateResponse(Accommodation accommodation, List<int> roomIds = null)
+        private Result<Models.Responses.Accommodation> CreateResponse(Accommodation accommodation, List<int> roomIds = null)
         {
             return new Models.Responses.Accommodation(
                 accommodation.Id,
@@ -244,7 +248,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private List<Models.Responses.Room> CreateResponse(List<Room> rooms)
+        private static Result<List<Models.Responses.Room>> CreateResponse(List<Room> rooms)
         {
             return rooms.Select(room => new Models.Responses.Room(id: room.Id, name: room.Name.GetValue<MultiLanguage<string>>(),
                     description: room.Description.GetValue<MultiLanguage<string>>(), amenities: room.Amenities.GetValue<MultiLanguage<List<string>>>(),
