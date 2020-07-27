@@ -9,6 +9,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Extensions
         {
             services.AddTransient<IAccommodationManagementService, AccommodationManagementService>();
             services.AddTransient<IContractManagementService, ContractManagementService>();
+            services.AddTransient<ISeasonManagementService, SeasonManagementService>();
             services.AddScoped<IContractManagerContextService, ContractManagerContextService>();
             
             return services;

@@ -12,7 +12,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
     {
         public MultiLanguage<string> Name { get; set; }
         public MultiLanguage<string> Address { get; set; }
-        public MultiLanguage<string> Description { get; set; }
+        public MultiLanguage<TextualDescription> Description { get; set; }
         public GeoPoint Coordinates { get; set; }
         public AccommodationRating Rating { get; set; }
         public string CheckInTime { get; set; }

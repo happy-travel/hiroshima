@@ -112,7 +112,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 Description = "ONE&ONLY ROYAL MIRAGE contract",
                 ContractManagerId = int.MaxValue,
                 ValidFrom = new DateTime(2020, 01, 01),
-                ValidTo = new DateTime(2021, 01, 01)
+                ValidTo = new DateTime(2020, 12, 31)
             });
             dbContext.SaveChanges();
 
@@ -250,16 +250,10 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 });
 
             accommodation.AdditionalInfo = JsonDocumentUtilities.CreateJDocument(
-                new MultiLanguage<Dictionary<string, string>>
+                new MultiLanguage<string>
                 {
-                    En = new Dictionary<string, string>
-                    {
-                        {"Info1", "Test Additional Info 1 (En)"}, {"Info2", "Test Additional Info 2 (En)"}
-                    },
-                    Ar = new Dictionary<string, string>()
-                    {
-                        {"Info1", "Test Additional Info 1 (Ar)"}, {"Info2", "Test Additional Info 2 (Ar)"}
-                    }
+                    En = "Additional Info 1 en",
+                    Ar = "Additional Info 2 ar"
                 });
 
             accommodation.Address = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
@@ -2411,7 +2405,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 Description = "Burj Al Arab Jumeirah contract",
                 ContractManagerId = int.MaxValue,
                 ValidFrom = new DateTime(2020, 01, 01),
-                ValidTo = new DateTime(2021, 01, 01)
+                ValidTo = new DateTime(2020, 12, 31)
             });
             dbContext.SaveChanges();
 
@@ -2517,6 +2511,13 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 Ru = "King Salman Bin Abdulaziz Al Saud St - Dubai - ОАЭ"
             });
 
+            accommodation.AdditionalInfo = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
+            {
+                En = "Additional Info 1 en",
+                Ar = "Additional Info 2 ar",
+                Ru = "Additional Info 2 ru"
+            });
+            
             accommodation.AccommodationAmenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>>
             {
                 En = new List<string>

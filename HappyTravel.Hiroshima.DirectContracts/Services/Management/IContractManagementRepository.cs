@@ -7,12 +7,12 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
 {
     public interface IContractManagementRepository
     {
-        Task<Contract> GetContract(int userId, int contractId);
-        Task<List<Contract>> GetContracts(int userId);
+        Task<Contract> GetContract(int contractId, int contractManagerId);
+        Task<List<Contract>> GetContracts(int contractManagerId);
         Task<Contract> AddContract(Contract contract, int accommodationId);
         Task UpdateContract(Contract contract);
-        Task DeleteContract(int userId, int contractId);
-        Task<List<Accommodation>> GetRelatedAccommodations(int userId, int contractId);
-        Task<List<ContractAccommodationRelation>> GetContractRelations(int userId, List<int> contractIds);
+        Task DeleteContract(int contractId, int contractManagerId);
+        Task<List<Accommodation>> GetRelatedAccommodations(int contractId, int contractManagerId);
+        Task<List<ContractAccommodationRelation>> GetContractRelations(int contractManagerId, List<int> contractIds);
     }
 }

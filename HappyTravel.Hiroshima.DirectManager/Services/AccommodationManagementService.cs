@@ -8,7 +8,11 @@ using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Enums;
+using HappyTravel.Hiroshima.Data;
+using HappyTravel.Hiroshima.Data.Extensions;
+using HappyTravel.Hiroshima.Data.Models;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
+using Microsoft.EntityFrameworkCore;
 using Accommodation = HappyTravel.Hiroshima.Data.Models.Accommodations.Accommodation;
 using NetTopologySuite.Geometries;
 using Room = HappyTravel.Hiroshima.Data.Models.Rooms.Room;
@@ -18,11 +22,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     public class AccommodationManagementService : IAccommodationManagementService
     {
         public AccommodationManagementService(DirectContracts.Services.Management.IAccommodationManagementRepository accommodationManagementRepository,
-            IContractManagerContextService contractManagerContext, GeometryFactory geometryFactory)
+            IContractManagerContextService contractManagerContext, DirectContractsDbContext dbContext, GeometryFactory geometryFactory)
         {
             _accommodationManagementRepository = accommodationManagementRepository;
             _contractManagerContext = contractManagerContext;
             _geometryFactory = geometryFactory;
+            _dbContext = dbContext;
         }
 
 
@@ -38,7 +43,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                     var rooms = await _accommodationManagementRepository.GetRooms(accommodation.Id);
 
-                    return Result.Ok(CreateResponse(accommodation, rooms.Select(room => room.Id).ToList()));
+                    return CreateResponse(accommodation, rooms.Select(room => room.Id).ToList());
                 });
         }
 
@@ -49,20 +54,25 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .Bind(async contractManager =>
                 {
-                    var newAccommodation = await _accommodationManagementRepository.AddAccommodation(CreateAccommodation(contractManager.Id, accommodation));
-
-                    return Result.Success(CreateResponse(newAccommodation));
+                    var entry = _dbContext.Accommodations.Add(CreateAccommodation(contractManager.Id, accommodation));
+                    await _dbContext.SaveChangesAsync();
+                    entry.State = EntityState.Detached;
+                    return CreateResponse(entry.Entity);
                 });
         }
 
 
-        public Task<Result> Update(int accommodationId, Models.Requests.Accommodation accommodation)
+        public Task<Result<Models.Responses.Accommodation>> Update(int accommodationId, Models.Requests.Accommodation accommodation)
         {
             return _contractManagerContext.GetContractManager()
+                .Ensure(contractManager => DoesAccommodationBelongToContractManager(accommodationId, contractManager.Id), 
+                    $"Failed to get an accommodation by {nameof(accommodationId)} '{accommodationId}'")
                 .Bind(async contractManager =>
                 {
-                    await _accommodationManagementRepository.UpdateAccommodation(CreateAccommodation(contractManager.Id, accommodation));
-                    return Result.Success();
+                    var entry = _dbContext.Accommodations.Update(CreateAccommodation(contractManager.Id, accommodation));
+                    await _dbContext.SaveChangesAsync();
+                    entry.State = EntityState.Detached;
+                    return CreateResponse(entry.Entity);
                 });
         }
 
@@ -70,11 +80,27 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result> Remove(int accommodationId)
         {
             return _contractManagerContext.GetContractManager()
-                .Bind(async contractManager =>
-                {
-                    await _accommodationManagementRepository.DeleteAccommodationAndRooms(contractManager.Id, accommodationId);
+                .Bind(RemoveAccommodationWithRooms);
+            
+            async Task<Result> RemoveAccommodationWithRooms(ContractManager contractManager)
+            {
+                var accommodation = await _accommodationManagementRepository.GetAccommodation(contractManager.Id, accommodationId);
+                    
+                if (accommodation is null)
                     return Result.Success();
+            
+                var rooms = await _accommodationManagementRepository.GetRooms(accommodation.Id);
+                if (rooms.Any())
+                    await _accommodationManagementRepository.DeleteRooms(rooms.Select(r => r.Id).ToList());
+
+                _dbContext.Accommodations.Remove(new Accommodation
+                {
+                    Id = accommodationId
                 });
+                await _dbContext.SaveChangesAsync();
+                    
+                return Result.Success();
+            }
         }
 
 
@@ -84,7 +110,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Bind(async contractManager =>
                 {
                     var rooms = await _accommodationManagementRepository.GetRooms(contractManager.Id, accommodationId);
-                    return Result.Success(CreateResponse(rooms));
+                    
+                    return CreateResponse(rooms);
                 });
         }
 
@@ -93,14 +120,16 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return ValidateRooms(rooms)
                 .Bind(() => _contractManagerContext.GetContractManager())
-                .Ensure(async contractManager => await _accommodationManagementRepository.GetAccommodation(contractManager.Id, accommodationId) != null,
+                .Ensure(contractManager => DoesAccommodationBelongToContractManager(accommodationId, contractManager.Id),
                     $"Failed to get the accommodation by ID '{accommodationId}'")
                 .Bind(async contractManager =>
                 {
-                    var newRooms = CreateRooms(accommodationId, rooms);
-                    await _accommodationManagementRepository.AddRooms(newRooms);
+                    var newRooms = CreateRooms(accommodationId, rooms); 
+                    _dbContext.Rooms.AddRange(newRooms);
+                    await _dbContext.SaveChangesAsync();
+                    _dbContext.DetachEntries(newRooms);
 
-                    return Result.Success(CreateResponse(newRooms));
+                    return CreateResponse(newRooms);
                 });
         }
 
@@ -159,16 +188,24 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Models.Responses.Accommodation CreateResponse(Accommodation accommodation, List<int> roomIds = null)
+        private Result<Models.Responses.Accommodation> CreateResponse(Accommodation accommodation, List<int> roomIds = null)
         {
-            return new Models.Responses.Accommodation(id: accommodation.Id, coordinates: new GeoPoint(accommodation.Coordinates),
-                rating: accommodation.Rating ?? AccommodationRating.NotRated, checkInTime: accommodation.CheckInTime, checkOutTime: accommodation.CheckOutTime,
-                contactInfo: accommodation.ContactInfo, occupancyDefinition: accommodation.OccupancyDefinition,
-                propertyType: accommodation.PropertyType ?? PropertyTypes.Any, name: accommodation.Name.GetValue<MultiLanguage<string>>(),
-                address: accommodation.Address.GetValue<MultiLanguage<string>>(), pictures: accommodation.Pictures.GetValue<MultiLanguage<List<Picture>>>(),
+            return new Models.Responses.Accommodation(
+                accommodation.Id,
+                coordinates: new GeoPoint(accommodation.Coordinates),
+                rating: accommodation.Rating ?? AccommodationRating.NotRated, 
+                checkInTime: accommodation.CheckInTime, 
+                checkOutTime: accommodation.CheckOutTime,
+                contactInfo: accommodation.ContactInfo, 
+                occupancyDefinition: accommodation.OccupancyDefinition,
+                propertyType: accommodation.PropertyType ?? PropertyTypes.Any, 
+                name: accommodation.Name.GetValue<MultiLanguage<string>>(),
+                address: accommodation.Address.GetValue<MultiLanguage<string>>(), 
+                pictures: accommodation.Pictures.GetValue<MultiLanguage<List<Picture>>>(),
                 amenities: accommodation.AccommodationAmenities.GetValue<MultiLanguage<List<string>>>(),
                 additionalInfo: accommodation.AdditionalInfo.GetValue<MultiLanguage<string>>(),
-                textualDescription: accommodation.TextualDescription.GetValue<MultiLanguage<string>>(), roomIds: roomIds ?? new List<int>());
+                textualDescription: accommodation.TextualDescription.GetValue<MultiLanguage<TextualDescription>>(),
+                roomIds: roomIds ?? new List<int>());
         }
 
 
@@ -210,7 +247,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private List<Models.Responses.Room> CreateResponse(List<Room> rooms)
+        private static Result<List<Models.Responses.Room>> CreateResponse(List<Room> rooms)
         {
             return rooms.Select(room => new Models.Responses.Room(id: room.Id, name: room.Name.GetValue<MultiLanguage<string>>(),
                     description: room.Description.GetValue<MultiLanguage<string>>(), amenities: room.Amenities.GetValue<MultiLanguage<List<string>>>(),
@@ -219,8 +256,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
+        private async Task<bool> DoesAccommodationBelongToContractManager(int accommodationId, int contractManagerId ) 
+            => await _accommodationManagementRepository.GetAccommodation(contractManagerId, accommodationId) != null;
+
+
         private readonly IContractManagerContextService _contractManagerContext;
         private readonly GeometryFactory _geometryFactory;
+        private readonly DirectContractsDbContext _dbContext;
         private readonly DirectContracts.Services.Management.IAccommodationManagementRepository _accommodationManagementRepository;
     }
 }
