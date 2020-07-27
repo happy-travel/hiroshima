@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using JsonDocumentUtilities = HappyTravel.Hiroshima.Common.Infrastructure.Utilities.JsonDocumentUtilities;
-using PropertyTypes = HappyTravel.Hiroshima.Common.Models.Accommodations.PropertyTypes;
 
 namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
 {

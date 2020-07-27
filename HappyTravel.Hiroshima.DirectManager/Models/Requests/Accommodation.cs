@@ -3,7 +3,6 @@ using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Enums;
-using NetTopologySuite.Geometries;
 using ContactInfo = HappyTravel.Hiroshima.Common.Models.ContactInfo;
 using Picture = HappyTravel.Hiroshima.Common.Models.Picture;
 
