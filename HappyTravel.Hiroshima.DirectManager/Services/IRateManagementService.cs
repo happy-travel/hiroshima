@@ -8,5 +8,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     {
         Task<Result<List<Models.Responses.Rate>>> Get(int contractId, List<int> roomIds = null, List<int> seasonIds = null);
         Task<Result<List<Models.Responses.Rate>>> Add(int contractId, List<Models.Requests.Rate> rates);
+        Task<Result> Remove(int contractId, List<int> rateIds);
     }
 }

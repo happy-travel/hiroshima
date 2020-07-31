@@ -19,7 +19,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Infrastructure
         {
             var validationResult = base.Validate(entity);
             return validationResult.IsValid
-                ? Result.Ok()
+                ? Result.Success()
                 : Result.Combine(validationResult
                     .Errors
                     .Select(e => Result.Failure(e.ErrorMessage))

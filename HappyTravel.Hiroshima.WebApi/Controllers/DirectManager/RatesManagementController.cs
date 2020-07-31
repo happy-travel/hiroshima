@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Infrastructure;
+using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.DirectManager.Models.Requests;
 using HappyTravel.Hiroshima.DirectManager.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +23,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
 
         /// <summary>
-        /// Retrieves contract seasons 
+        /// Adds contract rates 
         /// </summary>
         /// <param name="contractId"></param>
         /// <param name="rates"></param>
@@ -45,19 +45,19 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// Retrieves contract rates
         /// </summary>
         /// <param name="contractId"></param>
-        /// <param name="roomIds">List of room ids. E.g. roomIds=1,2,3 </param>
-        /// <param name="seasonIds">List of season ids. E.g. seasonIds=1,2,3</param>
+        /// <param name="roomIds">List of room ids. E.g. roomIds = 1,2,3 </param>
+        /// <param name="seasonIds">List of season ids. E.g. seasonIds = 1,2,3</param>
         /// <returns></returns>
         [HttpGet("contracts/{contractId}/rates")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.Rate>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetRates([FromRoute] int contractId, [FromQuery] string? roomIds = null, [FromQuery] string? seasonIds = null)
         {
-            var (_, isRoomIdsFailure, roomIdsResult, checkRoomIdsError) = GetIDs(roomIds!);
+            var (_, isRoomIdsFailure, roomIdsResult, checkRoomIdsError) = QueryStringUtilities.GetIDs(roomIds!);
             if (isRoomIdsFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(checkRoomIdsError));
             
-            var (_, isSeasonIdsFailure, seasonIdsResult, checkSeasonIdsError) = GetIDs(seasonIds!);
+            var (_, isSeasonIdsFailure, seasonIdsResult, checkSeasonIdsError) = QueryStringUtilities.GetIDs(seasonIds!);
             if (isSeasonIdsFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(checkSeasonIdsError));
             
@@ -66,29 +66,27 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return Ok(response);
-
-
-            Result<List<int>> GetIDs(string idsQuery)
-            {
-                if (string.IsNullOrWhiteSpace(idsQuery))
-                    return Result.Success(new List<int>());
-
-                var idLiterals = idsQuery.Split(',')
-                    .Select(id => id.Trim());
-
-                var ids = new List<int>(idLiterals.Count());
-                foreach (var idLiteral in idLiterals)
-                {
-                    if (!int.TryParse(idLiteral, out var id))
-                        return Result.Failure<List<int>>($"Invalid ids '{idsQuery}'");
-
-                    ids.Add(id);
-                }
-                
-                return Result.Success(ids);
-            }
         }
 
+
+        /// <summary>
+        /// Removes contract rates
+        /// </summary>
+        /// <param name="contractId"></param>
+        /// <param name="ids">Rate ids</param>
+        /// <returns></returns>
+        [HttpDelete("contracts/{contractId}/rates")]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> RemoveRates([FromRoute] int contractId, [FromBody] List<int> ids)
+        { 
+            var (_, isFailure, error) = await _rateManagementService.Remove(contractId, ids);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+        
         
         private readonly IRateManagementService _rateManagementService;
     }

@@ -124,8 +124,16 @@
             Retrieves contract rates
             </summary>
             <param name="contractId"></param>
-            <param name="roomIds">List of room ids. E.g. roomIds=1,2,3 </param>
-            <param name="seasonIds">List of season ids. E.g. seasonIds=1,2,3</param>
+            <param name="roomIds">List of room ids. E.g. roomIds = 1,2,3 </param>
+            <param name="seasonIds">List of season ids. E.g. seasonIds = 1,2,3</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.RatesManagementController.RemoveRates(System.Int32,System.Collections.Generic.List{System.Int32})">
+            <summary>
+            Removes rates
+            </summary>
+            <param name="contractId"></param>
+            <param name="ids">Rate ids</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.SeasonsManagementController.GetSeasons(System.Int32)">
