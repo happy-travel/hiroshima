@@ -14,7 +14,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         public PaymentDetails Create(DateTime checkInDate, DateTime checkOutDate,
             List<RateDetails> rateDetails, List<RoomPromotionalOffer> roomPromotionalOffers)
         {
-            var currency = GetCurrency(rateDetails.First().CurrencyCode);
+            var currency = rateDetails.First().Currency;
             var seasonPrices = GetSeasonPrices(checkInDate, checkOutDate,
                 rateDetails.Select(rd => (rd.SeasonStartDate, rd.SeasonEndDate, rd.Price)).ToList(), currency, roomPromotionalOffers);
             var dailyPrices = GetDailyPrices(seasonPrices);
@@ -36,10 +36,6 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             => rates.Select(rateDetails => rateDetails.Details.GetFirstValue()).ToList();
             
     
-        private static Currencies GetCurrency(string currencyCode)
-            => Enum.Parse<Currencies>(currencyCode);
-        
-        
         private static decimal ApplyDiscount(decimal originalPrice, double discountPercent, Currencies currency) 
             => originalPrice - MoneyRounder.Truncate( originalPrice / 100 * Convert.ToDecimal(discountPercent), currency);
         

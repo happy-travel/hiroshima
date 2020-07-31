@@ -6,7 +6,7 @@ namespace HappyTravel.Hiroshima.Data.Models.Location
     {
         public int Id { get; set; }
         public JsonDocument Locality { get; set; }
-        public JsonDocument Zone { get; set; }
+        public JsonDocument? Zone { get; set; }
         public string CountryCode { get; set; }
     }
 }

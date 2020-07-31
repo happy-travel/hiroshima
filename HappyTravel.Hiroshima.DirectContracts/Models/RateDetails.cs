@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Text.Json;
+using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.Hiroshima.Data.Models;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
+using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Models
 {
@@ -11,8 +13,8 @@ namespace HappyTravel.Hiroshima.DirectContracts.Models
         public int RoomId { get; set; }
         public decimal Price { get; set; }
         public int SeasonId { get; set; }
-        public string CurrencyCode { get; set; }
-        public string BoardBasis { get; set; }
+        public Currencies Currency { get; set; }
+        public BoardBasisTypes BoardBasis { get; set; }
         public string MealPlan { get; set; }
         public JsonDocument Details { get; set; }
         public string SeasonName { get; set; }

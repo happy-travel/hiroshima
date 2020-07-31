@@ -78,7 +78,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                     Details = DirectContractsDbContext.GetLangFromJsonb(roomRateAndSeason.roomRate.Details, languageCode),
                     Price = roomRateAndSeason.roomRate.Price,
                     BoardBasis = roomRateAndSeason.roomRate.BoardBasis,
-                    CurrencyCode = roomRateAndSeason.roomRate.CurrencyCode,
+                    Currency = roomRateAndSeason.roomRate.Currency,
                     MealPlan = roomRateAndSeason.roomRate.MealPlan,
                     RoomId = roomRateAndSeason.roomRate.RoomId,
                     SeasonId = roomRateAndSeason.roomRate.SeasonId,

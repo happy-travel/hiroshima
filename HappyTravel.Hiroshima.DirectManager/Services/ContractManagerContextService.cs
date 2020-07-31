@@ -22,7 +22,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             
             return user is null
                 ? Result.Failure<ContractManager>("Failed to retrieve a contract manager") 
-                : Result.Ok(user);
+                : Result.Success(user);
         }
 
         

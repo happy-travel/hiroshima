@@ -14,7 +14,7 @@ namespace HappyTravel.Hiroshima.Data.Models.Rooms
         public JsonDocument Name { get; set; }
         public JsonDocument Description { get; set; }
         public JsonDocument Amenities { get; set; }
-        public JsonDocument Pictures { get; set; }
+        public JsonDocument? Pictures { get; set; }
         public List<OccupancyConfiguration> OccupancyConfigurations { get; set; }
 
         
