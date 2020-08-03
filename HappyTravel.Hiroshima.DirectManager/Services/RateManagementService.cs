@@ -39,8 +39,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .Ensure(contractManager => DoesContractBelongToContractManager(contractId, contractManager.Id),
                     $"Failed to get the contract by {nameof(contractId)} '{contractId}'")
-                .Tap(async contractManager => Result.Combine(await CheckIfSeasonsBelongToContract(contractId, rates.Select(rate => rate.SeasonId).ToList()),
-                    await CheckIfRoomIdsBelongToContractedAccommodation(contractId, contractManager.Id, rates.Select(rate => rate.RoomId).ToList())))
+                .Tap(contractManager => CheckIfSeasonsBelongToContract(contractId, rates.Select(rate => rate.SeasonId).ToList()))
+                .Tap(contractManager => CheckIfRoomIdsBelongToContractedAccommodation(contractId, contractManager.Id, rates.Select(rate => rate.RoomId).ToList()) )
                 .Bind(contractManager => AddRates(rates));
         }
 
@@ -51,7 +51,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Ensure(contractManager => DoesContractBelongToContractManager(contractId, contractManager.Id),
                     $"Failed to get the contract by {nameof(contractId)} '{contractId}'")
                 .Bind(contractManager => CheckAndGetRatesToRemove(contractId, contractManager.Id, rateIds))
-                .Bind(RemoveRates);
+                .Tap(RemoveRates)
+                .Finally(result => result.IsSuccess ? Result.Success() : Result.Failure(result.Error));
         }
 
 
@@ -73,13 +74,17 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     {roomAndRate.roomRate, roomAndRate.room, season})
                 .Where(rateAndRoomAndSeason => contractedAccommodationIds.Contains(rateAndRoomAndSeason.room.AccommodationId))
                 .Where(rateAndRoomAndSeason => rateAndRoomAndSeason.season.ContractId == contractId);
-            
+
             if (roomIds != null && roomIds.Any())
+            {
                 ratesAndRoomsAndSeasons = ratesAndRoomsAndSeasons.Where(rateAndRoomAndSeason => roomIds.Contains(rateAndRoomAndSeason.room.Id));
+            }
 
             if (seasonIds != null && seasonIds.Any())
+            {
                 ratesAndRoomsAndSeasons = ratesAndRoomsAndSeasons.Where(rateAndRoomAndSeason => seasonIds.Contains(rateAndRoomAndSeason.season.Id));
-
+            }
+                
             return await ratesAndRoomsAndSeasons.Select(i => i.roomRate).Distinct().ToListAsync();
         }
 
@@ -99,17 +104,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private async Task<Result> RemoveRates(List<RoomRate> rates)
+        private async Task RemoveRates(List<RoomRate> rates)
         {
             if (!rates.Any())
-                return Result.Success();
+                return;
             
             _dbContext.RoomRates.RemoveRange(rates);
             await _dbContext.SaveChangesAsync();
             
             _dbContext.DetachEntries(rates);
-            
-            return Result.Success();
         }
 
 

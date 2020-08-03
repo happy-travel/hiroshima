@@ -118,8 +118,12 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                         if (promotionalOffer.ValidFromDate <= day &&
                             day <= promotionalOffer.ValidToDate)
                         {
+                            var details = promotionalOffer.Details == null
+                                ? string.Empty
+                                : promotionalOffer.Details.GetFirstValue();
+                                
                             seasonPrice = ApplyDiscount(seasonPrice, promotionalOffer.DiscountPercent, currency);
-                            return (seasonPrice, promotionalOffer.Details.GetFirstValue());
+                            return (seasonPrice, details);
                         }
                     }
 

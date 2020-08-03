@@ -3,7 +3,6 @@ using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Infrastructure;
-using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.DirectManager.Models.Requests;
 using HappyTravel.Hiroshima.DirectManager.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -45,23 +44,15 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// Retrieves contract rates
         /// </summary>
         /// <param name="contractId"></param>
-        /// <param name="roomIds">List of room ids. E.g. roomIds = 1,2,3 </param>
-        /// <param name="seasonIds">List of season ids. E.g. seasonIds = 1,2,3</param>
+        /// <param name="roomIds">List of room ids</param>
+        /// <param name="seasonIds">List of season ids</param>
         /// <returns></returns>
         [HttpGet("contracts/{contractId}/rates")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.Rate>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetRates([FromRoute] int contractId, [FromQuery] string? roomIds = null, [FromQuery] string? seasonIds = null)
+        public async Task<IActionResult> GetRates([FromRoute] int contractId, [FromQuery(Name = "roomId")] List<int> roomIds = null, [FromQuery(Name = "seasonId")] List<int> seasonIds = null)
         {
-            var (_, isRoomIdsFailure, roomIdsResult, checkRoomIdsError) = QueryStringUtilities.GetIDs(roomIds!);
-            if (isRoomIdsFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(checkRoomIdsError));
-            
-            var (_, isSeasonIdsFailure, seasonIdsResult, checkSeasonIdsError) = QueryStringUtilities.GetIDs(seasonIds!);
-            if (isSeasonIdsFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(checkSeasonIdsError));
-            
-            var (_, isFailure, response, error) = await _rateManagementService.Get(contractId, roomIdsResult, seasonIdsResult);
+            var (_, isFailure, response, error) = await _rateManagementService.Get(contractId, roomIds, seasonIds);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

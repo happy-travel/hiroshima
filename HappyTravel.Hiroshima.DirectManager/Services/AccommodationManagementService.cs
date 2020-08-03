@@ -192,7 +192,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return new Models.Responses.Accommodation(
                 accommodation.Id,
-                coordinates: accommodation.Coordinates != null ? new GeoPoint(accommodation.Coordinates): default,
+                coordinates: new GeoPoint(accommodation.Coordinates),
                 rating: accommodation.Rating ?? AccommodationRating.NotRated, 
                 checkInTime: accommodation.CheckInTime, 
                 checkOutTime: accommodation.CheckOutTime,
