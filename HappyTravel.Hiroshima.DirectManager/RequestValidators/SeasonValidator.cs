@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
 {
-    public class SeasonValidator: AbstractValidator<Models.Requests.Season>
+    public class SeasonValidator: AbstractValidator<Models.Requests.SeasonRequest>
     {
         public SeasonValidator()
         {

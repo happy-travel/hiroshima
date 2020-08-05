@@ -2,6 +2,8 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using CacheFlow.Json.Extensions;
 using FloxDc.CacheFlow.Extensions;
 using FluentValidation.AspNetCore;
@@ -44,6 +46,7 @@ namespace HappyTravel.Hiroshima.WebApi
                 options.JsonSerializerOptions.WriteIndented = false;
                 options.JsonSerializerOptions.IgnoreNullValues = true;
                 options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, false));
             });
 
             using var vaultClient = VaultHelper.CreateVaultClient(Configuration);
@@ -102,7 +105,7 @@ namespace HappyTravel.Hiroshima.WebApi
                 .AddNewtonsoftJson(options => { options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Unspecified; })
                 .AddFluentValidation()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
-
+            
             services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1.0", new OpenApiInfo {Title = "HappyTravel.com Direct Contracts API", Version = "v1.0"});

@@ -15,7 +15,7 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
                case null:
                case MultiLanguage<string> str when str.GetValues().Any():
                case MultiLanguage<List<string>> strList when strList.GetValues().Any():
-               case MultiLanguage<List<Room>> roomList when roomList.GetValues().Any():
+               case MultiLanguage<List<RoomResponse>> roomList when roomList.GetValues().Any():
                case MultiLanguage<List<Picture>> pictureList when pictureList.GetValues().Any():
                    return true;
                

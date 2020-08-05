@@ -20,7 +20,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<Models.Responses.Contract>> Get(int contractId)
+        public Task<Result<Models.Responses.ContractResponse>> Get(int contractId)
         {
             return _contractManagerContext.GetContractManager()
                 .Bind(async contractManager =>
@@ -28,24 +28,24 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     var contract = await _contractManagementRepository.GetContract(contractId, contractManager.Id);
 
                     if (contract is null)
-                        return Result.Failure<Models.Responses.Contract>($"Failed to get the contract with {nameof(contractId)} '{contractId}'");
+                        return Result.Failure<Models.Responses.ContractResponse>($"Failed to get the contract with {nameof(contractId)} '{contractId}'");
 
                     var relatedAccommodationId = (await _contractManagementRepository.GetRelatedAccommodations(contractId, contractManager.Id)).Single().Id;
 
-                    return Result.Success(new Models.Responses.Contract(id: contract.Id, name: contract.Name, description: contract.Description,
+                    return Result.Success(new Models.Responses.ContractResponse(id: contract.Id, name: contract.Name, description: contract.Description,
                         validFrom: contract.ValidFrom, validTo: contract.ValidTo, accommodationId: relatedAccommodationId));
                 });
         }
 
 
-        public Task<Result<List<Models.Responses.Contract>>> Get()
+        public Task<Result<List<Models.Responses.ContractResponse>>> Get()
         {
             return _contractManagerContext.GetContractManager()
                 .Bind(async contractManager =>
                 {
                     var contracts = (await _contractManagementRepository.GetContracts(contractManager.Id)).ToList();
                     if (!contracts.Any())
-                        return Result.Success(new List<Models.Responses.Contract>());
+                        return Result.Success(new List<Models.Responses.ContractResponse>());
 
                     var contractIds = contracts.Select(c => c.Id).ToList();
                     var contractsAccommodationRelations =
@@ -57,33 +57,33 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<Models.Responses.Contract>> Add(Models.Requests.Contract contract)
+        public Task<Result<Models.Responses.ContractResponse>> Add(Models.Requests.ContractRequest contractRequest)
         {
             return _contractManagerContext.GetContractManager()
-                .Tap(contractManager => Validate(contract))
-                .Ensure(contractManager => DoesAccommodationBelongToContractManager(contractManager.Id, contract.AccommodationId),
-                    $"Accommodation with {nameof(contract.AccommodationId)} '{contract.AccommodationId}' does not belong to the contract manager")
+                .Tap(contractManager => Validate(contractRequest))
+                .Ensure(contractManager => DoesAccommodationBelongToContractManager(contractManager.Id, contractRequest.AccommodationId),
+                    $"Accommodation with {nameof(contractRequest.AccommodationId)} '{contractRequest.AccommodationId}' does not belong to the contract manager")
                 .Bind(async contractManager =>
                 {
                     var newContract = await _contractManagementRepository.AddContract(new Contract
                     {
-                        Name = contract.Name,
-                        Description = contract.Description,
-                        ValidFrom = contract.ValidFrom,
-                        ValidTo = contract.ValidTo,
+                        Name = contractRequest.Name,
+                        Description = contractRequest.Description,
+                        ValidFrom = contractRequest.ValidFrom,
+                        ValidTo = contractRequest.ValidTo,
                         ContractManagerId = contractManager.Id
-                    }, contract.AccommodationId);
+                    }, contractRequest.AccommodationId);
                     return !newContract.Id.Equals(default)
-                        ? Result.Success(CreateResponse(newContract, contract.AccommodationId))
-                        : Result.Failure<Models.Responses.Contract>("Failed to add the contract");
+                        ? Result.Success(CreateResponse(newContract, contractRequest.AccommodationId))
+                        : Result.Failure<Models.Responses.ContractResponse>("Failed to add the contract");
                 });
         }
 
 
-        public Task<Result> Update(int contractId, Models.Requests.Contract contract)
+        public Task<Result> Update(int contractId, Models.Requests.ContractRequest contractRequest)
         {
             return _contractManagerContext.GetContractManager()
-                .Tap(contractManager => Validate(contract))
+                .Tap(contractManager => Validate(contractRequest))
                 .Ensure(contractManager => DoesContractBelongToContractManager(contractManager.Id, contractId),
                     $"Contract with {nameof(contractId)} '{contractId}' does not belong to the contract manager")
                 .Bind(async contractManager =>
@@ -91,11 +91,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     await _contractManagementRepository.UpdateContract(new Contract
                     {
                         Id = contractId,
-                        Name = contract.Name,
-                        Description = contract.Description,
+                        Name = contractRequest.Name,
+                        Description = contractRequest.Description,
                         ContractManagerId = contractManager.Id,
-                        ValidFrom = contract.ValidFrom,
-                        ValidTo = contract.ValidTo
+                        ValidFrom = contractRequest.ValidFrom,
+                        ValidTo = contractRequest.ValidTo
                     });
                     return Result.Success();
                 });
@@ -108,15 +108,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Result Validate(Models.Requests.Contract contract)
+        private Result Validate(Models.Requests.ContractRequest contractRequest)
         {
-            var result = GenericValidator<Models.Requests.Contract>.Validate(v =>
+            var result = GenericValidator<Models.Requests.ContractRequest>.Validate(v =>
             {
                 v.RuleFor(c => c.Name).NotEmpty();
                 v.RuleFor(c => c.Description).NotEmpty();
                 v.RuleFor(c => c.AccommodationId).NotEmpty();
                 v.RuleFor(c => c.ValidFrom).LessThan(c => c.ValidTo);
-            }, contract);
+            }, contractRequest);
             return result;
         }
 
@@ -129,8 +129,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             => await _contractManagementRepository.GetContract(contractId, contractManagerId) != null;
 
 
-        private Models.Responses.Contract CreateResponse(Contract contract, int accommodationId)
-            => new Models.Responses.Contract(id: contract.Id, accommodationId: accommodationId, name: contract.Name, description: contract.Description,
+        private Models.Responses.ContractResponse CreateResponse(Contract contract, int accommodationId)
+            => new Models.Responses.ContractResponse(id: contract.Id, accommodationId: accommodationId, name: contract.Name, description: contract.Description,
                 validFrom: contract.ValidFrom, validTo: contract.ValidTo);
 
 

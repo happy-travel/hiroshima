@@ -4,12 +4,12 @@ using HappyTravel.Hiroshima.DirectManager.RequestValidators.Extensions;
 
 namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
 {
-    public class AccommodationValidator : AbstractValidator<Accommodation>
+    public class AccommodationValidator : AbstractValidator<AccommodationRequest>
     {
         public AccommodationValidator()
         {
-            RuleFor(a => a.Name).NotNull().AnyLanguage($"Invalid {nameof(Accommodation)}, field: {nameof(Accommodation.Name)}");
-            RuleFor( a => a.Address).NotNull().AnyLanguage($"Invalid {nameof(Accommodation)}, field: {nameof(Accommodation.Address)}");
+            RuleFor(a => a.Name).NotNull().AnyLanguage($"Invalid {nameof(AccommodationRequest)}, field: {nameof(AccommodationRequest.Name)}");
+            RuleFor( a => a.Address).NotNull().AnyLanguage($"Invalid {nameof(AccommodationRequest)}, field: {nameof(AccommodationRequest.Address)}");
             RuleFor( a => a.Coordinates).NotNull();
             RuleFor( a => a.Rating).NotNull().IsInEnum();
             RuleFor(a => a.Type).NotNull().IsInEnum();
@@ -24,7 +24,7 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
                     .SetValidator(new UriValidator())
                     .When(ci => !string.IsNullOrWhiteSpace(ci.Website)));
             RuleFor(a => a.OccupancyDefinition).SetValidator(new OccupancyDefinitionValidator()).NotNull();
-            RuleFor(a => a.Amenities).AnyLanguage($"Invalid {nameof(Accommodation)}, field {nameof(Accommodation.Amenities)} ").When(a => a.Amenities != null);
+            RuleFor(a => a.Amenities).AnyLanguage($"Invalid {nameof(AccommodationRequest)}, field {nameof(AccommodationRequest.Amenities)} ").When(a => a.Amenities != null);
             
             RuleForEach(a => a.Pictures.Ar)
                 .SetValidator(new PictureValidator()).When(a=> a.Pictures.Ar != null);

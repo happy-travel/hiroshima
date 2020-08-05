@@ -2,9 +2,9 @@
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
-    public readonly struct Contract
+    public readonly struct ContractResponse
     {
-        public Contract(int id, int accommodationId, DateTime validFrom, DateTime validTo, string name, string description)
+        public ContractResponse(int id, int accommodationId, DateTime validFrom, DateTime validTo, string name, string description)
         {
             Id = id;
             AccommodationId = accommodationId;

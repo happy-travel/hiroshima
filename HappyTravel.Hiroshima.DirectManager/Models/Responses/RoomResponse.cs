@@ -5,9 +5,9 @@ using Picture = HappyTravel.Hiroshima.Common.Models.Picture;
 
  namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
-    public readonly struct Room
+    public readonly struct RoomResponse
     {
-        public Room(int id, MultiLanguage<string> name, MultiLanguage<string> description, MultiLanguage<List<string>> amenities, MultiLanguage<List<Picture>> pictures, List<OccupancyConfiguration> occupancyConfigurations)
+        public RoomResponse(int id, MultiLanguage<string> name, MultiLanguage<string> description, MultiLanguage<List<string>> amenities, MultiLanguage<List<Picture>> pictures, List<OccupancyConfiguration> occupancyConfigurations)
         {
             Id = id;
             Name = name;
