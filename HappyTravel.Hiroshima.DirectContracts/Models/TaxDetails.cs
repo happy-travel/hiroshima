@@ -2,10 +2,18 @@
 
 namespace HappyTravel.Hiroshima.DirectContracts.Models
 {
-    public struct TaxDetails
+    public readonly struct TaxDetails
     {
-        public string Name { get; set; }
-        public Currencies Currency { get; set; }
-        public decimal Price { get; set; }
+        public TaxDetails(string name, Currencies currency, decimal price)
+        {
+            Name = name;
+            Currency = currency;
+            Price = price;
+        }
+
+
+        public string Name { get; }
+        public Currencies Currency { get; }
+        public decimal Price { get; }
     }
 }

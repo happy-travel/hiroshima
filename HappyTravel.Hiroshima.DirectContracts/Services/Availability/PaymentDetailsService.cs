@@ -20,15 +20,14 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             var dailyPrices = GetDailyPrices(seasonPrices);
             var totalPrice = seasonPrices.Sum(sp => sp.TotalPrice);
             var details = CreatePaymentDetails(rateDetails);
-            
-            return new PaymentDetails
-            {
-                Currency = currency,
-                SeasonPrices = seasonPrices,
-                DailyPrices = dailyPrices,
-                TotalPrice = totalPrice,
-                Details = details
-            };
+
+            return new PaymentDetails(
+                currency: currency,
+                seasonPrices: seasonPrices,
+                dailyPrices: dailyPrices,
+                totalPrice: totalPrice,
+                details: details
+            );
         }
 
 
@@ -77,15 +76,15 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                 var (price, priceDetails) = CalculatePrice(startDate, endDate, currentSeason.ratePrice);
                 
                 if (nights != 0)
-                    seasonPrices.Add(new SeasonPriceDetails
-                    {
-                        StartDate = startDate,
-                        EndDate = endDate,
-                        NumberOfNights = nights,
-                        RatePrice = currentSeason.ratePrice,
-                        TotalPrice = price,
-                        Details = priceDetails
-                    });
+                    seasonPrices.Add(new SeasonPriceDetails(
+                    
+                        startDate : startDate,
+                        endDate : endDate,
+                        numberOfNights : nights,
+                        ratePrice : currentSeason.ratePrice,
+                        totalPrice : price,
+                        details : priceDetails
+                    ));
 
                 startDate = endDate;
             }

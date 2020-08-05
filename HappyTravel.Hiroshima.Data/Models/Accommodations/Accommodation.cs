@@ -1,12 +1,9 @@
 ﻿using System.Text.Json;
-using HappyTravel.EdoContracts.Accommodations.Enums;
-using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Enums;
 using NetTopologySuite.Geometries;
 using PropertyTypes = HappyTravel.Hiroshima.Common.Models.Accommodations.PropertyTypes;
-using System.Collections.Generic;
 
 namespace HappyTravel.Hiroshima.Data.Models.Accommodations
 {

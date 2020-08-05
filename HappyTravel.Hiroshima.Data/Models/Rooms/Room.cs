@@ -15,7 +15,7 @@ namespace HappyTravel.Hiroshima.Data.Models.Rooms
         public JsonDocument Description { get; set; }
         public JsonDocument Amenities { get; set; }
         public JsonDocument Pictures { get; set; }
-        public List<OccupancyConfiguration> OccupancyConfigurations { get; set; }
+        public List<OccupancyConfiguration> OccupancyConfigurations { get; set; } = new List<OccupancyConfiguration>();
 
         
         public override bool Equals(object obj)

@@ -32,7 +32,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 
             var cancellationPolicies = (await GetCancellationPolicies(roomIds, checkInDate)).ToDictionary(rcp => rcp.RoomId);
 
-            var availableRates = new List<RateOffer>();
+            var availableRateOffers = new List<RateOffer>();
             foreach (var roomRateGroup in rates.GroupBy(rateDetails => rateDetails.RoomId))
             {
                 var roomRates = roomRateGroup.ToList();
@@ -50,15 +50,19 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 
                 var cancellationPolicyDetails = _cancellationPolicyService.Get(roomCancellationPolicies, checkInDate, paymentDetails);
 
-                availableRates.Add(new RateOffer
-                {
-                    Room = room,
-                    PaymentDetails = paymentDetails,
-                    CancellationPolicies = cancellationPolicyDetails
-                });
+                var firstRate = roomRateGroup.First();
+
+                availableRateOffers.Add(new RateOffer(
+                    room,
+                    paymentDetails,
+                    cancellationPolicyDetails,
+                    firstRate.MealPlan,
+                    firstRate.BoardBasis,
+                    new List<TaxDetails>(),
+                    new List<string>()));
             }
 
-            return availableRates;
+            return availableRateOffers;
         }
 
 
