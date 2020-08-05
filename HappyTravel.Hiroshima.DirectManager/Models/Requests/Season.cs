@@ -1,5 +1,4 @@
 ﻿using System;
-using HappyTravel.Hiroshima.Common.Models;
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
 {

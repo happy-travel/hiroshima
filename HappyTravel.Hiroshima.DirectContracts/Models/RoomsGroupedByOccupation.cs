@@ -1,13 +1,19 @@
 ﻿using System.Collections.Generic;
 using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.Hiroshima.Data.Models;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Models
 {
-    public struct RoomsGroupedByOccupation
+    public readonly struct RoomsGroupedByOccupation
     {
-        public AccommodationDetails Accommodation { get; set; }
-        public Dictionary<RoomOccupationRequest, List<Room>> SuitableRooms { get; set; }
+        public RoomsGroupedByOccupation(AccommodationDetails accommodation, Dictionary<RoomOccupationRequest, List<Room>> suitableRooms)
+        {
+            Accommodation = accommodation;
+            SuitableRooms = suitableRooms ?? new Dictionary<RoomOccupationRequest, List<Room>>();
+        }
+
+
+        public AccommodationDetails Accommodation { get; }
+        public Dictionary<RoomOccupationRequest, List<Room>> SuitableRooms { get; }
     }
 }

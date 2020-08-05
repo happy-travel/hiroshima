@@ -2,11 +2,20 @@
 
 namespace HappyTravel.Hiroshima.DirectContracts.Models
 {
-    public struct CancellationPolicyDetails
+    public readonly struct CancellationPolicyDetails
     {
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
-        public decimal Price { get; set; }
-        public string Details { get; set; }
+        public CancellationPolicyDetails(DateTime startDate, DateTime endDate, decimal price, string details = null)
+        {
+            StartDate = startDate;
+            EndDate = endDate;
+            Price = price;
+            Details = details ?? string.Empty;
+        }
+
+
+        public DateTime StartDate { get; }
+        public DateTime EndDate { get; }
+        public decimal Price { get; }
+        public string Details { get; }
     }
 }

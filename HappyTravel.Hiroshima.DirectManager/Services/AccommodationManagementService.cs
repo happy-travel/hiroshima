@@ -149,7 +149,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Bind(async ids =>
                 {
                     await _accommodationManagementRepository.DeleteRooms(ids);
-                    return Result.Ok();
+                    return Result.Success();
                 });
         }
 
@@ -198,7 +198,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 checkOutTime: accommodation.CheckOutTime,
                 contactInfo: accommodation.ContactInfo, 
                 occupancyDefinition: accommodation.OccupancyDefinition,
-                propertyType: accommodation.PropertyType ?? PropertyTypes.Any, 
+                propertyType: accommodation.PropertyType, 
                 name: accommodation.Name.GetValue<MultiLanguage<string>>(),
                 address: accommodation.Address.GetValue<MultiLanguage<string>>(), 
                 pictures: accommodation.Pictures.GetValue<MultiLanguage<List<Picture>>>(),

@@ -9,7 +9,7 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure.Extensions
         public static string GetFirstValue(this JsonDocument jsonDocument)
         {
             if (jsonDocument is null)
-                return default;
+                return string.Empty;
             
             var firstJsonElement = GetFirst(jsonDocument);
         

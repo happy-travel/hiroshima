@@ -1,16 +1,29 @@
 ﻿using System.Collections.Generic;
+using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Models
 {
-    public struct RateOffer
+    public readonly struct RateOffer
     {
-        public Room Room { get; set; }
-        public PaymentDetails PaymentDetails { get; set; }
-        public List<CancellationPolicyDetails> CancellationPolicies { get; set; }
-        public List<TaxDetails> Taxes { get; set; }
-        public List<string> Amenities { get; set; } 
-        public string Meal { get; set; }
-        public string BoardBasis { get; set; }
+        public RateOffer(Room room, PaymentDetails paymentDetails, List<CancellationPolicyDetails> cancellationPolicies, string meal, BoardBasisTypes boardBasis, List<TaxDetails> taxes, List<string> amenities)
+        {
+            Room = room;
+            PaymentDetails = paymentDetails;
+            Meal = meal;
+            BoardBasis = boardBasis;
+            CancellationPolicies = cancellationPolicies ?? new List<CancellationPolicyDetails>();
+            Taxes = taxes ?? new List<TaxDetails>();
+            Amenities = amenities ?? new List<string>();
+        }
+
+
+        public Room Room { get; }
+        public PaymentDetails PaymentDetails { get; }
+        public List<CancellationPolicyDetails> CancellationPolicies { get; }
+        public List<TaxDetails> Taxes { get; }
+        public List<string> Amenities { get; } 
+        public string Meal { get; }
+        public BoardBasisTypes BoardBasis { get; }
     }
 }

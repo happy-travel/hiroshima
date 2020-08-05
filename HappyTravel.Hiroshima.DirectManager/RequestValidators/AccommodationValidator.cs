@@ -8,8 +8,8 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
     {
         public AccommodationValidator()
         {
-            RuleFor(a => a.Name).AnyLanguage($"Invalid {nameof(Accommodation)}, field: {nameof(Accommodation.Name)}");
-            RuleFor( a => a.Address).AnyLanguage($"Invalid {nameof(Accommodation)}, field: {nameof(Accommodation.Address)}");
+            RuleFor(a => a.Name).NotNull().AnyLanguage($"Invalid {nameof(Accommodation)}, field: {nameof(Accommodation.Name)}");
+            RuleFor( a => a.Address).NotNull().AnyLanguage($"Invalid {nameof(Accommodation)}, field: {nameof(Accommodation.Address)}");
             RuleFor( a => a.Coordinates).NotNull();
             RuleFor( a => a.Rating).NotNull().IsInEnum();
             RuleFor(a => a.Type).NotNull().IsInEnum();

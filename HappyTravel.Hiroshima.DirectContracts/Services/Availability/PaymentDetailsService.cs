@@ -14,21 +14,20 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         public PaymentDetails Create(DateTime checkInDate, DateTime checkOutDate,
             List<RateDetails> rateDetails, List<RoomPromotionalOffer> roomPromotionalOffers)
         {
-            var currency = GetCurrency(rateDetails.First().CurrencyCode);
+            var currency = rateDetails.First().Currency;
             var seasonPrices = GetSeasonPrices(checkInDate, checkOutDate,
                 rateDetails.Select(rd => (rd.SeasonStartDate, rd.SeasonEndDate, rd.Price)).ToList(), currency, roomPromotionalOffers);
             var dailyPrices = GetDailyPrices(seasonPrices);
             var totalPrice = seasonPrices.Sum(sp => sp.TotalPrice);
             var details = CreatePaymentDetails(rateDetails);
-            
-            return new PaymentDetails
-            {
-                Currency = currency,
-                SeasonPrices = seasonPrices,
-                DailyPrices = dailyPrices,
-                TotalPrice = totalPrice,
-                Details = details
-            };
+
+            return new PaymentDetails(
+                currency: currency,
+                seasonPrices: seasonPrices,
+                dailyPrices: dailyPrices,
+                totalPrice: totalPrice,
+                details: details
+            );
         }
 
 
@@ -36,10 +35,6 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             => rates.Select(rateDetails => rateDetails.Details.GetFirstValue()).ToList();
             
     
-        private static Currencies GetCurrency(string currencyCode)
-            => Enum.Parse<Currencies>(currencyCode);
-        
-        
         private static decimal ApplyDiscount(decimal originalPrice, double discountPercent, Currencies currency) 
             => originalPrice - MoneyRounder.Truncate( originalPrice / 100 * Convert.ToDecimal(discountPercent), currency);
         
@@ -81,15 +76,15 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                 var (price, priceDetails) = CalculatePrice(startDate, endDate, currentSeason.ratePrice);
                 
                 if (nights != 0)
-                    seasonPrices.Add(new SeasonPriceDetails
-                    {
-                        StartDate = startDate,
-                        EndDate = endDate,
-                        NumberOfNights = nights,
-                        RatePrice = currentSeason.ratePrice,
-                        TotalPrice = price,
-                        Details = priceDetails
-                    });
+                    seasonPrices.Add(new SeasonPriceDetails(
+                    
+                        startDate : startDate,
+                        endDate : endDate,
+                        numberOfNights : nights,
+                        ratePrice : currentSeason.ratePrice,
+                        totalPrice : price,
+                        details : priceDetails
+                    ));
 
                 startDate = endDate;
             }
@@ -122,8 +117,12 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                         if (promotionalOffer.ValidFromDate <= day &&
                             day <= promotionalOffer.ValidToDate)
                         {
+                            var details = promotionalOffer.Details == null
+                                ? string.Empty
+                                : promotionalOffer.Details.GetFirstValue();
+                                
                             seasonPrice = ApplyDiscount(seasonPrice, promotionalOffer.DiscountPercent, currency);
-                            return (seasonPrice, promotionalOffer.Details.GetFirstValue());
+                            return (seasonPrice, details);
                         }
                     }
 

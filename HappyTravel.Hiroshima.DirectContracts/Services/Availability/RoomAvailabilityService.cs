@@ -78,10 +78,10 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                     }
 
                     roomsGroupedByOccupationRequests.Add(new RoomsGroupedByOccupation
-                        {
-                            Accommodation = accommodationsDictionary[accommodationId],
-                            SuitableRooms = suitableRoomDictionary
-                        }
+                        (
+                            accommodation: accommodationsDictionary[accommodationId],
+                            suitableRooms: suitableRoomDictionary
+                        )
                     );
                 }
 

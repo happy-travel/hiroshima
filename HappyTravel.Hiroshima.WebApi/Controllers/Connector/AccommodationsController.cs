@@ -12,7 +12,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/accommodations")]
     [Produces("application/json")]
-    public class AccommodationsController : Controller
+    public class AccommodationsController : ControllerBase
     {
         public AccommodationsController(IAvailabilityService availabilityService)
         {

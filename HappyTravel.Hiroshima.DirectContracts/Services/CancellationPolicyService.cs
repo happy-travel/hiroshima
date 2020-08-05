@@ -16,13 +16,13 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
             foreach (var cancellationPolicyDataItem in cancellationPolicyData)
             {
                 var cancellationDetails = new CancellationPolicyDetails
-                {
-                    StartDate = checkInDate.Date.AddDays(-cancellationPolicyDataItem.DayPriorToArrival.ToDay),
-                    EndDate = checkInDate.Date.AddDays(-cancellationPolicyDataItem.DayPriorToArrival.FromDay),
-                    Price = cancellationPolicyDataItem.PenaltyType == CancellationPenaltyTypes.Percent
+                (
+                    startDate: checkInDate.Date.AddDays(-cancellationPolicyDataItem.DayPriorToArrival.ToDay),
+                    endDate: checkInDate.Date.AddDays(-cancellationPolicyDataItem.DayPriorToArrival.FromDay),
+                    price: cancellationPolicyDataItem.PenaltyType == CancellationPenaltyTypes.Percent
                         ? CalculatePercentPenaltyPrice(cancellationPolicyDataItem.PenaltyCharge, paymentDetails)
                         : CalculateNightsPenaltyPrice((int) cancellationPolicyDataItem.PenaltyCharge, paymentDetails)
-                };
+                );
                 cancellationPolicyDetails.Add(cancellationDetails);
             }
 

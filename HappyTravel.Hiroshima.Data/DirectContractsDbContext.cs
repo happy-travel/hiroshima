@@ -156,7 +156,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.ToTable("RoomRates");
                 e.HasKey(rr=> rr.Id);
                 e.Property(rr => rr.Price).IsRequired();
-                e.Property(rr => rr.CurrencyCode).IsRequired();
+                e.Property(rr => rr.Currency).IsRequired();
                 e.Property(rr => rr.MealPlan);
                 e.Property(rr => rr.BoardBasis);
                 e.Property(rr=> rr.SeasonId).IsRequired();
