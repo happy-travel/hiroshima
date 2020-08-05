@@ -39,8 +39,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .Ensure(contractManager => DoesContractBelongToContractManager(contractId, contractManager.Id),
                     $"Failed to get the contract by {nameof(contractId)} '{contractId}'")
-                .Tap(contractManager => CheckIfSeasonIdsAndRoomIds(contractManager.Id))
-                .Bind(contractManager => AddRates(rates));
+                .Bind(async contractManager =>
+                {
+                    var (isSuccess, _, error) = await CheckIfSeasonIdsAndRoomIds(contractManager.Id);
+                    return isSuccess ? Result.Success() : Result.Failure(error);
+                })
+                .Bind(() => AddRates(rates));
             
             
              async Task<Result> CheckIfSeasonIdsAndRoomIds(int contractManagerId)
