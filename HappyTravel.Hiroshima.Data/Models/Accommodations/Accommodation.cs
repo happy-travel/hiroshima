@@ -14,7 +14,7 @@ namespace HappyTravel.Hiroshima.Data.Models.Accommodations
         public JsonDocument Address { get; set; }
         public JsonDocument TextualDescription { get; set; }
         public Point Coordinates { get; set; }
-        public AccommodationRating? Rating { get; set; }
+        public AccommodationRating Rating { get; set; }
         public string CheckInTime { get; set; }
         public string CheckOutTime { get; set; }
         public JsonDocument Pictures { get; set; }
