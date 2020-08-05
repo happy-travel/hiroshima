@@ -6,9 +6,9 @@ using HappyTravel.Hiroshima.Common.Models.Enums;
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
-    public readonly struct AccommodationResponse
+    public readonly struct Accommodation
     {
-        public AccommodationResponse(int id, MultiLanguage<string> name, MultiLanguage<string> address, MultiLanguage<TextualDescription> textualDescription, GeoPoint coordinates, AccommodationRating rating, string checkInTime, string checkOutTime, MultiLanguage<List<Picture>> pictures, ContactInfo contactInfo, PropertyTypes propertyType, MultiLanguage<List<string>> amenities, MultiLanguage<string> additionalInfo, OccupancyDefinition occupancyDefinition, List<int> roomIds)
+        public Accommodation(int id, MultiLanguage<string> name, MultiLanguage<string> address, MultiLanguage<TextualDescription> textualDescription, GeoPoint coordinates, AccommodationRating rating, string checkInTime, string checkOutTime, MultiLanguage<List<Picture>> pictures, ContactInfo contactInfo, PropertyTypes propertyType, MultiLanguage<List<string>> amenities, MultiLanguage<string> additionalInfo, OccupancyDefinition occupancyDefinition, List<int> roomIds)
         {
             Id = id;
             Name = name;

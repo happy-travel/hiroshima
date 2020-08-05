@@ -28,9 +28,9 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="rates"></param>
         /// <returns></returns>
         [HttpPost("contracts/{contractId}/rates")]
-        [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.RateResponse>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.Rate>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> AddRates([FromRoute] int contractId, [FromBody] List<RateRequest> rates)
+        public async Task<IActionResult> AddRates([FromRoute] int contractId, [FromBody] List<Rate> rates)
         { 
             var (_, isFailure, response, error) = await _rateManagementService.Add(contractId, rates);
             if (isFailure)
@@ -48,7 +48,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="seasonIds">List of season ids</param>
         /// <returns></returns>
         [HttpGet("contracts/{contractId}/rates")]
-        [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.RateResponse>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.Rate>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetRates([FromRoute] int contractId, [FromQuery(Name = "roomId")] List<int> roomIds = null, [FromQuery(Name = "seasonId")] List<int> seasonIds = null)
         {

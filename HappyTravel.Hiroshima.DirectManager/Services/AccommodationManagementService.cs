@@ -31,14 +31,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<Models.Responses.AccommodationResponse>> Get(int accommodationId)
+        public Task<Result<Models.Responses.Accommodation>> Get(int accommodationId)
         {
             return _contractManagerContext.GetContractManager()
                 .Bind(async contractManager =>
                 {
                     var accommodation = await _accommodationManagementRepository.GetAccommodation(contractManager.Id, accommodationId);
                     if (accommodation is null)
-                        return Result.Failure<Models.Responses.AccommodationResponse>(
+                        return Result.Failure<Models.Responses.Accommodation>(
                             $"Failed to get an accommodation by {nameof(accommodationId)} '{accommodationId}'");
 
                     var rooms = await _accommodationManagementRepository.GetRooms(accommodation.Id);
@@ -48,13 +48,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<Models.Responses.AccommodationResponse>> Add(Models.Requests.AccommodationRequest accommodationRequest)
+        public Task<Result<Models.Responses.Accommodation>> Add(Models.Requests.Accommodation accommodation)
         {
-            return ValidateAccommodation(accommodationRequest)
+            return ValidateAccommodation(accommodation)
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .Bind(async contractManager =>
                 {
-                    var entry = _dbContext.Accommodations.Add(CreateAccommodation(contractManager.Id, accommodationRequest));
+                    var entry = _dbContext.Accommodations.Add(CreateAccommodation(contractManager.Id, accommodation));
                     await _dbContext.SaveChangesAsync();
                     entry.State = EntityState.Detached;
                     return CreateResponse(entry.Entity);
@@ -62,14 +62,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<Models.Responses.AccommodationResponse>> Update(int accommodationId, Models.Requests.AccommodationRequest accommodationRequest)
+        public Task<Result<Models.Responses.Accommodation>> Update(int accommodationId, Models.Requests.Accommodation accommodation)
         {
             return _contractManagerContext.GetContractManager()
                 .Ensure(contractManager => DoesAccommodationBelongToContractManager(accommodationId, contractManager.Id), 
                     $"Failed to get an accommodation by {nameof(accommodationId)} '{accommodationId}'")
                 .Bind(async contractManager =>
                 {
-                    var entry = _dbContext.Accommodations.Update(CreateAccommodation(contractManager.Id, accommodationRequest));
+                    var entry = _dbContext.Accommodations.Update(CreateAccommodation(contractManager.Id, accommodation));
                     await _dbContext.SaveChangesAsync();
                     entry.State = EntityState.Detached;
                     return CreateResponse(entry.Entity);
@@ -104,7 +104,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<List<Models.Responses.RoomResponse>>> GetRooms(int accommodationId)
+        public Task<Result<List<Models.Responses.Room>>> GetRooms(int accommodationId)
         {
             return _contractManagerContext.GetContractManager()
                 .Bind(async contractManager =>
@@ -116,7 +116,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<List<Models.Responses.RoomResponse>>> AddRooms(int accommodationId, List<Models.Requests.RoomRequest> rooms)
+        public Task<Result<List<Models.Responses.Room>>> AddRooms(int accommodationId, List<Models.Requests.Room> rooms)
         {
             return ValidateRooms(rooms)
                 .Bind(() => _contractManagerContext.GetContractManager())
@@ -154,10 +154,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Result ValidateAccommodation(Models.Requests.AccommodationRequest accommodationRequest)
+        private Result ValidateAccommodation(Models.Requests.Accommodation accommodation)
         {
             var validator = new AccommodationValidator();
-            var validationResult = validator.Validate(accommodationRequest);
+            var validationResult = validator.Validate(accommodation);
 
             return validationResult.IsValid
                 ? Result.Success()
@@ -165,32 +165,32 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Accommodation CreateAccommodation(int contractManagerId, Models.Requests.AccommodationRequest accommodationRequest)
+        private Accommodation CreateAccommodation(int contractManagerId, Models.Requests.Accommodation accommodation)
         {
             return new Accommodation
             {
-                Name = JsonDocumentUtilities.CreateJDocument(accommodationRequest.Name),
-                Address = JsonDocumentUtilities.CreateJDocument(accommodationRequest.Address),
-                Coordinates = _geometryFactory.CreatePoint(new Coordinate(accommodationRequest.Coordinates.Longitude, accommodationRequest.Coordinates.Latitude)),
-                Pictures = JsonDocumentUtilities.CreateJDocument(accommodationRequest.Pictures),
-                AccommodationAmenities = JsonDocumentUtilities.CreateJDocument(accommodationRequest.Amenities),
-                TextualDescription = JsonDocumentUtilities.CreateJDocument(accommodationRequest.Description),
-                Rating = accommodationRequest.Rating,
+                Name = JsonDocumentUtilities.CreateJDocument(accommodation.Name),
+                Address = JsonDocumentUtilities.CreateJDocument(accommodation.Address),
+                Coordinates = _geometryFactory.CreatePoint(new Coordinate(accommodation.Coordinates.Longitude, accommodation.Coordinates.Latitude)),
+                Pictures = JsonDocumentUtilities.CreateJDocument(accommodation.Pictures),
+                AccommodationAmenities = JsonDocumentUtilities.CreateJDocument(accommodation.Amenities),
+                TextualDescription = JsonDocumentUtilities.CreateJDocument(accommodation.Description),
+                Rating = accommodation.Rating,
                 ContractManagerId = contractManagerId,
-                ContactInfo = accommodationRequest.ContactInfo,
-                AdditionalInfo = JsonDocumentUtilities.CreateJDocument(accommodationRequest.AdditionalInfo),
-                OccupancyDefinition = accommodationRequest.OccupancyDefinition,
-                PropertyType = accommodationRequest.Type,
-                CheckInTime = accommodationRequest.CheckInTime,
-                CheckOutTime = accommodationRequest.CheckOutTime,
-                LocationId = accommodationRequest.LocationId,
+                ContactInfo = accommodation.ContactInfo,
+                AdditionalInfo = JsonDocumentUtilities.CreateJDocument(accommodation.AdditionalInfo),
+                OccupancyDefinition = accommodation.OccupancyDefinition,
+                PropertyType = accommodation.Type,
+                CheckInTime = accommodation.CheckInTime,
+                CheckOutTime = accommodation.CheckOutTime,
+                LocationId = accommodation.LocationId,
             };
         }
 
 
-        private Result<Models.Responses.AccommodationResponse> CreateResponse(Accommodation accommodation, List<int> roomIds = null)
+        private Result<Models.Responses.Accommodation> CreateResponse(Accommodation accommodation, List<int> roomIds = null)
         {
-            return new Models.Responses.AccommodationResponse(
+            return new Models.Responses.Accommodation(
                 accommodation.Id,
                 coordinates: new GeoPoint(accommodation.Coordinates),
                 rating: accommodation.Rating,
@@ -209,7 +209,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Result ValidateRooms(List<Models.Requests.RoomRequest> rooms)
+        private Result ValidateRooms(List<Models.Requests.Room> rooms)
         {
             var validator = new RoomValidator();
             List<string> errors = null;
@@ -232,7 +232,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private List<Room> CreateRooms(int accommodationId, List<Models.Requests.RoomRequest> rooms)
+        private List<Room> CreateRooms(int accommodationId, List<Models.Requests.Room> rooms)
         {
             return rooms.Select(room => new Room
                 {
@@ -247,9 +247,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private static Result<List<Models.Responses.RoomResponse>> CreateResponse(List<Room> rooms)
+        private static Result<List<Models.Responses.Room>> CreateResponse(List<Room> rooms)
         {
-            return rooms.Select(room => new Models.Responses.RoomResponse(id: room.Id, name: room.Name.GetValue<MultiLanguage<string>>(),
+            return rooms.Select(room => new Models.Responses.Room(id: room.Id, name: room.Name.GetValue<MultiLanguage<string>>(),
                     description: room.Description.GetValue<MultiLanguage<string>>(), amenities: room.Amenities.GetValue<MultiLanguage<List<string>>>(),
                     pictures: room.Pictures.GetValue<MultiLanguage<List<Picture>>>(), occupancyConfigurations: room.OccupancyConfigurations))
                 .ToList();

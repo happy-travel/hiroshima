@@ -3,7 +3,7 @@ using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
 {
-    public class RateValidator: AbstractValidator<Models.Requests.RateRequest>
+    public class RateValidator: AbstractValidator<Models.Requests.Rate>
     {
         public RateValidator()
         {

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
 {
-    public class SeasonRequest
+    public class Season
     {
         [Required]
         public string Name { get; set; }

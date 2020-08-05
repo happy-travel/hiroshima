@@ -3,9 +3,9 @@ using HappyTravel.Hiroshima.Common.Models;
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
-    public readonly struct RateResponse
+    public readonly struct Rate
     {
-        public RateResponse(int id, int roomId, int seasonId, decimal price, BoardBasisTypes boardBasisType, string mealPlan, MultiLanguage<string> details)
+        public Rate(int id, int roomId, int seasonId, decimal price, BoardBasisTypes boardBasisType, string mealPlan, MultiLanguage<string> details)
         {
             Id = id;
             RoomId = roomId;

@@ -6,18 +6,18 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public interface IAccommodationManagementService
     {
-        public Task<Result<Models.Responses.AccommodationResponse>> Get(int accommodationId);
+        public Task<Result<Models.Responses.Accommodation>> Get(int accommodationId);
        
-        public Task<Result<Models.Responses.AccommodationResponse>> Add(Models.Requests.AccommodationRequest accommodationRequest);
+        public Task<Result<Models.Responses.Accommodation>> Add(Models.Requests.Accommodation accommodation);
         
         public Task<Result> Remove(int accommodationId);
 
-        Task<Result<Models.Responses.AccommodationResponse>> Update(int accommodationId, Models.Requests.AccommodationRequest accommodationRequest);
+        Task<Result<Models.Responses.Accommodation>> Update(int accommodationId, Models.Requests.Accommodation accommodation);
         
-        Task<Result<List<Models.Responses.RoomResponse>>> GetRooms(int accommodationId);
+        Task<Result<List<Models.Responses.Room>>> GetRooms(int accommodationId);
         
         Task<Result> RemoveRooms(int accommodationId, List<int> roomIds);
         
-        Task<Result<List<Models.Responses.RoomResponse>>> AddRooms(int accommodationId, List<Models.Requests.RoomRequest> rooms);
+        Task<Result<List<Models.Responses.Room>>> AddRooms(int accommodationId, List<Models.Requests.Room> rooms);
     }
 }

@@ -23,19 +23,19 @@
             <param name="accommodationId">ID of the accommodation</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.AddAccommodation(HappyTravel.Hiroshima.DirectManager.Models.Requests.AccommodationRequest)">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.AddAccommodation(HappyTravel.Hiroshima.DirectManager.Models.Requests.Accommodation)">
             <summary>
             Creates a new accommodation
             </summary>
-            <param name="accommodationRequest">New accommodation data</param>
+            <param name="accommodation">New accommodation data</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.UpdateAccommodation(System.Int32,HappyTravel.Hiroshima.DirectManager.Models.Requests.AccommodationRequest)">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.UpdateAccommodation(System.Int32,HappyTravel.Hiroshima.DirectManager.Models.Requests.Accommodation)">
             <summary>
             Updates an accommodation by ID
             </summary>
             <param name="accommodationId">ID of the accommodation</param>
-            <param name="accommodationRequest">New accommodation data</param>
+            <param name="accommodation">New accommodation data</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.RemoveAccommodation(System.Int32)">
@@ -52,7 +52,7 @@
             <param name="accommodationId"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.AddRooms(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.RoomRequest})">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.AddRooms(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.Room})">
             <summary>
             Adds rooms to the accommodation
             </summary>
@@ -89,19 +89,19 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ContractsManagementController.AddContract(HappyTravel.Hiroshima.DirectManager.Models.Requests.ContractRequest)">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ContractsManagementController.AddContract(HappyTravel.Hiroshima.DirectManager.Models.Requests.Contract)">
             <summary>
             Adds a new contract
             </summary>
-            <param name="contractRequest">New contract data</param>
+            <param name="contract">New contract data</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ContractsManagementController.UpdateContract(System.Int32,HappyTravel.Hiroshima.DirectManager.Models.Requests.ContractRequest)">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ContractsManagementController.UpdateContract(System.Int32,HappyTravel.Hiroshima.DirectManager.Models.Requests.Contract)">
             <summary>
             Updates a contract by ID
             </summary>
             <param name="contractId">ID of the contract</param>
-            <param name="contractRequest">New contract data</param>
+            <param name="contract">New contract data</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ContractsManagementController.RemovesContract(System.Int32)">
@@ -111,7 +111,7 @@
             <param name="contractId">New contract data</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.RatesManagementController.AddRates(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.RateRequest})">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.RatesManagementController.AddRates(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.Rate})">
             <summary>
             Adds contract rates 
             </summary>
@@ -143,7 +143,7 @@
             <param name="contractId"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.SeasonsManagementController.ReplaceSeasons(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.SeasonRequest})">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.SeasonsManagementController.ReplaceSeasons(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.Season})">
             <summary>
             Replaces previous seasons by the new
             </summary>

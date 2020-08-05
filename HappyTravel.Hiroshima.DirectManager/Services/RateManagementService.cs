@@ -25,7 +25,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<List<Models.Responses.RateResponse>>> Get(int contractId, List<int> roomIds = null, List<int> seasonIds = null)
+        public Task<Result<List<Models.Responses.Rate>>> Get(int contractId, List<int> roomIds = null, List<int> seasonIds = null)
         {
             return _contractManagerContext.GetContractManager()
                 .Map(contractManager => GetRates(contractId, contractManager.Id, roomIds, seasonIds))
@@ -33,7 +33,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<List<Models.Responses.RateResponse>>> Add(int contractId, List<Models.Requests.RateRequest> rates)
+        public Task<Result<List<Models.Responses.Rate>>> Add(int contractId, List<Models.Requests.Rate> rates)
         {
             return ValidationHelper.Validate(rates, new RateValidator())
                 .Bind(() => _contractManagerContext.GetContractManager())
@@ -124,7 +124,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private async Task<Result<List<Models.Responses.RateResponse>>> AddRates(List<Models.Requests.RateRequest> rates)
+        private async Task<Result<List<Models.Responses.Rate>>> AddRates(List<Models.Requests.Rate> rates)
         {
             var newRates = CreateRates(rates);
             _dbContext.RoomRates.AddRange(newRates);
@@ -134,7 +134,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private List<RoomRate> CreateRates(List<Models.Requests.RateRequest> rates)
+        private List<RoomRate> CreateRates(List<Models.Requests.Rate> rates)
             => rates.Select(rate => new RoomRate
                 {
                     RoomId = rate.RoomId,
@@ -148,8 +148,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .ToList();
 
 
-        private List<Models.Responses.RateResponse> CreateResponse(List<RoomRate> rates)
-            => rates.Select(rate => new Models.Responses.RateResponse(
+        private List<Models.Responses.Rate> CreateResponse(List<RoomRate> rates)
+            => rates.Select(rate => new Models.Responses.Rate(
                     rate.Id,
                     rate.RoomId,
                     rate.SeasonId,

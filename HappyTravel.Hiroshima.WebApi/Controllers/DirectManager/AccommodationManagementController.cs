@@ -26,7 +26,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="accommodationId">ID of the accommodation</param>
         /// <returns></returns>
         [HttpGet("{accommodationId}")]
-        [ProducesResponseType(typeof(Hiroshima.DirectManager.Models.Responses.AccommodationResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Hiroshima.DirectManager.Models.Responses.Accommodation), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetAccommodation([FromRoute] int accommodationId)
         {
@@ -41,14 +41,14 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <summary>
         /// Creates a new accommodation
         /// </summary>
-        /// <param name="accommodationRequest">New accommodation data</param>
+        /// <param name="accommodation">New accommodation data</param>
         /// <returns></returns>
         [HttpPost]
-        [ProducesResponseType(typeof(Hiroshima.DirectManager.Models.Responses.AccommodationResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Hiroshima.DirectManager.Models.Responses.Accommodation), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> AddAccommodation([FromBody] Hiroshima.DirectManager.Models.Requests.AccommodationRequest accommodationRequest)
+        public async Task<IActionResult> AddAccommodation([FromBody] Hiroshima.DirectManager.Models.Requests.Accommodation accommodation)
         {
-            var (_, isFailure, response, error) = await _accommodationManagementService.Add(accommodationRequest);
+            var (_, isFailure, response, error) = await _accommodationManagementService.Add(accommodation);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -60,14 +60,14 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// Updates an accommodation by ID
         /// </summary>
         /// <param name="accommodationId">ID of the accommodation</param>
-        /// <param name="accommodationRequest">New accommodation data</param>
+        /// <param name="accommodation">New accommodation data</param>
         /// <returns></returns>
         [HttpPut("{accommodationId}")]
-        [ProducesResponseType(typeof(Hiroshima.DirectManager.Models.Responses.AccommodationResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Hiroshima.DirectManager.Models.Responses.Accommodation), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> UpdateAccommodation([FromRoute] int accommodationId, [FromBody] Hiroshima.DirectManager.Models.Requests.AccommodationRequest accommodationRequest)
+        public async Task<IActionResult> UpdateAccommodation([FromRoute] int accommodationId, [FromBody] Hiroshima.DirectManager.Models.Requests.Accommodation accommodation)
         {
-            var (_, isFailure, response, error) = await _accommodationManagementService.Update(accommodationId, accommodationRequest);
+            var (_, isFailure, response, error) = await _accommodationManagementService.Update(accommodationId, accommodation);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -118,9 +118,9 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="rooms"></param>
         /// <returns></returns>
         [HttpPost("{accommodationId}/rooms")]
-        [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.RoomResponse>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.Room>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> AddRooms([FromRoute] int accommodationId, [FromBody] List<Hiroshima.DirectManager.Models.Requests.RoomRequest> rooms)
+        public async Task<IActionResult> AddRooms([FromRoute] int accommodationId, [FromBody] List<Hiroshima.DirectManager.Models.Requests.Room> rooms)
         { 
             var (_, isFailure, response, error) = await _accommodationManagementService.AddRooms(accommodationId, rooms);
             if (isFailure)

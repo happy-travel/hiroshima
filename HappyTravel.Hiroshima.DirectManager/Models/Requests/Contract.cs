@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
 {
-    public class ContractRequest
+    public class Contract
     {
         [Required]
         public int AccommodationId { get; set; }

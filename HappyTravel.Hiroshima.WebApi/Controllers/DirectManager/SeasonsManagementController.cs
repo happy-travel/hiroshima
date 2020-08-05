@@ -26,7 +26,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="contractId"></param>
         /// <returns></returns>
         [HttpGet("{contractId}/seasons")]
-        [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.SeasonResponse>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.Season>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetSeasons([FromRoute] int contractId)
         { 
@@ -45,9 +45,9 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="seasons"></param>
         /// <returns></returns>
         [HttpPost("{contractId}/seasons/replace")]
-        [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.SeasonResponse>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.Season>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> ReplaceSeasons([FromRoute] int contractId, [FromBody] List<Hiroshima.DirectManager.Models.Requests.SeasonRequest> seasons)
+        public async Task<IActionResult> ReplaceSeasons([FromRoute] int contractId, [FromBody] List<Hiroshima.DirectManager.Models.Requests.Season> seasons)
         {
             var (_, isFailure, response, error) = await _seasonManagementService.Replace(contractId, seasons);
             if (isFailure)

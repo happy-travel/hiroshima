@@ -5,7 +5,7 @@ using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
 {
-    public class RateRequest
+    public class Rate
     {
         [Required]
         public int RoomId { get; set; }

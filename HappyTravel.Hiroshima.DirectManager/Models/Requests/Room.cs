@@ -6,7 +6,7 @@ using Picture = HappyTravel.Hiroshima.Common.Models.Picture;
 
  namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
 {
-    public class RoomRequest
+    public class Room
     {
         [Required]
         public MultiLanguage<string> Name { get; set; }

@@ -23,7 +23,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<List<Models.Responses.SeasonResponse>>> Get(int contractId)
+        public Task<Result<List<Models.Responses.Season>>> Get(int contractId)
         {
             return _contractManagerContext.GetContractManager()
                 .Ensure(contractManager => DoesContractBelongToContractManager(contractId, contractManager.Id),
@@ -37,7 +37,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<List<Models.Responses.SeasonResponse>>> Replace(int contractId, List<Models.Requests.SeasonRequest> seasons)
+        public Task<Result<List<Models.Responses.Season>>> Replace(int contractId, List<Models.Requests.Season> seasons)
         {
             return _contractManagerContext.GetContractManager()
                 .Tap(contractManager => Validate(contractId, contractManager.Id, seasons))
@@ -76,7 +76,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public async Task<Result> Validate(int contractId, int contractManagerId, List<Models.Requests.SeasonRequest> seasons)
+        public async Task<Result> Validate(int contractId, int contractManagerId, List<Models.Requests.Season> seasons)
         {
             return Result.Combine(ValidationHelper.Validate(seasons, new SeasonValidator()), ValidateSeasonIntervals(), await CheckIfSeasonsDefinedForAllContractedPeriod());
 
@@ -116,7 +116,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private List<Season> CreateSeasons(int contractId, List<Models.Requests.SeasonRequest> seasons)
+        private List<Season> CreateSeasons(int contractId, List<Models.Requests.Season> seasons)
             => seasons.Select(s => new Season
                 {
                     Name = s.Name,
@@ -127,8 +127,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .ToList();
 
 
-        private List<Models.Responses.SeasonResponse> CreateResponse(List<Season> seasons)
-            => seasons.Select(s => new Models.Responses.SeasonResponse(s.Id, s.Name, s.StartDate, s.EndDate, s.ContractId)).ToList();
+        private List<Models.Responses.Season> CreateResponse(List<Season> seasons)
+            => seasons.Select(s => new Models.Responses.Season(s.Id, s.Name, s.StartDate, s.EndDate, s.ContractId)).ToList();
 
 
         private async Task<bool> DoesContractBelongToContractManager(int contractId, int contractManagerId)

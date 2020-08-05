@@ -9,7 +9,7 @@ using Picture = HappyTravel.Hiroshima.Common.Models.Picture;
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
 {
-    public class AccommodationRequest
+    public class Accommodation
     {
         [Required]
         public MultiLanguage<string> Name { get; set; }

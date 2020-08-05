@@ -2,9 +2,9 @@
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
-    public readonly struct SeasonResponse
+    public readonly struct Season
     {
-        public SeasonResponse(int id, string name, DateTime startDate, DateTime endDate, int contractId)
+        public Season(int id, string name, DateTime startDate, DateTime endDate, int contractId)
         {
             Id = id;
             Name = name;
