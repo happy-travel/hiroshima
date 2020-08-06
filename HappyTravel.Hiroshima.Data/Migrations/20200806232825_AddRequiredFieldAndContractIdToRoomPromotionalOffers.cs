@@ -40,6 +40,13 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                 oldType: "jsonb",
                 oldNullable: true);
 
+            migrationBuilder.AlterColumn<string>(
+                name: "BookingCode",
+                table: "RoomPromotionalOffers",
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "text");
+
             migrationBuilder.AddColumn<int>(
                 name: "ContractId",
                 table: "RoomPromotionalOffers",
@@ -110,6 +117,14 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                 nullable: true,
                 oldClrType: typeof(JsonDocument),
                 oldType: "jsonb");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "BookingCode",
+                table: "RoomPromotionalOffers",
+                type: "text",
+                nullable: false,
+                oldClrType: typeof(string),
+                oldNullable: true);
 
             migrationBuilder.AlterColumn<JsonDocument>(
                 name: "Zone",

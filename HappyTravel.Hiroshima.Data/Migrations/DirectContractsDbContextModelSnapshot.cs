@@ -413,7 +413,6 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("BookingCode")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("ContractId")

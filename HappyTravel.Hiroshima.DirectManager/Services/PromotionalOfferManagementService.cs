@@ -113,7 +113,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         
         private async Task<List<RoomPromotionalOffer>> GetPromotionalOffers(int contractId, List<int> roomIds, DateTime? validFrom = null, DateTime? validTo = null)
         {
-            var promotionalOffers = _dbContext.RoomPromotionalOffers.Where(offer => offer.ContractId == contractId && roomIds.Contains(offer.RoomId));
+            var promotionalOffers = _dbContext.RoomPromotionalOffers.Where(offer => offer.ContractId == contractId);
+
+            if (roomIds.Any())
+                promotionalOffers = promotionalOffers.Where(offer => roomIds.Contains(offer.RoomId));
             
             if (validFrom != null)
                 promotionalOffers = promotionalOffers.Where(offer => validFrom.Value <= offer.ValidFromDate);

@@ -111,6 +111,32 @@
             <param name="contractId">New contract data</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.PromotionalOffersManagementController.GetPromotionalOffers(System.Int32,System.Collections.Generic.List{System.Int32},System.Nullable{System.DateTime},System.Nullable{System.DateTime})">
+            <summary>
+            Retrieves contracted promotional offers
+            </summary>
+            <param name="contractId"></param>
+            <param name="roomIds">List of room ids</param>
+            <param name="validFrom">Allows to set a lower bound date to get contracted promotional offers</param>
+            <param name="validTo">Allows to set an upper bound date to get contracted promotional offers</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.PromotionalOffersManagementController.AddPromotionalOffers(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.PromotionalOffer})">
+            <summary>
+            Adds new promotional offers
+            </summary>
+            <param name="contractId"></param>
+            <param name="promotionalOffers"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.PromotionalOffersManagementController.RemovePromotionalOffers(System.Int32,System.Collections.Generic.List{System.Int32})">
+            <summary>
+            Removes contracted promotional offers by ID
+            </summary>
+            <param name="contractId"></param>
+            <param name="promotionalOfferIds">IDs to remove</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.RatesManagementController.AddRates(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.Rate})">
             <summary>
             Adds contract rates 

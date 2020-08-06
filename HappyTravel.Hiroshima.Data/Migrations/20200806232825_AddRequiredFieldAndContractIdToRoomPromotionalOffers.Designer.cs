@@ -18,7 +18,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Hiroshima.Data.Migrations
 {
     [DbContext(typeof(DirectContractsDbContext))]
-    [Migration("20200806230434_AddRequiredFieldAndContractIdToRoomPromotionalOffers")]
+    [Migration("20200806232825_AddRequiredFieldAndContractIdToRoomPromotionalOffers")]
     partial class AddRequiredFieldAndContractIdToRoomPromotionalOffers
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -415,7 +415,6 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("BookingCode")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("ContractId")
