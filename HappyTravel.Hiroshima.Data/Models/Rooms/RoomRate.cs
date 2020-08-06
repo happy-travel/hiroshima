@@ -12,7 +12,7 @@ namespace HappyTravel.Hiroshima.Data.Models.Rooms
         public int SeasonId { get; set; }
         public Currencies Currency { get; set; }
         public BoardBasisTypes BoardBasis { get; set; }
-        public string? MealPlan { get; set; }
-        public JsonDocument? Details { get; set; }
+        public string MealPlan { get; set; }
+        public JsonDocument Details { get; set; }
     }
 }
