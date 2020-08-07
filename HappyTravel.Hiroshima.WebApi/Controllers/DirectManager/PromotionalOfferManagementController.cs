@@ -13,9 +13,9 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/management/")]
     [Produces("application/json")]
-    public class PromotionalOffersManagementController : ControllerBase
+    public class PromotionalOfferManagementController : ControllerBase
     {
-        public PromotionalOffersManagementController(IPromotionalOfferManagementService promotionalOfferManagementService)
+        public PromotionalOfferManagementController(IPromotionalOfferManagementService promotionalOfferManagementService)
         {
             _promotionalOfferManagementService = promotionalOfferManagementService;
         }

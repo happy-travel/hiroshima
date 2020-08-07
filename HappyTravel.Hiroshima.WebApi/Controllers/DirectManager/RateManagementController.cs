@@ -13,9 +13,9 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/management")]
     [Produces("application/json")]
-    public class RatesManagementController : ControllerBase
+    public class RateManagementController : ControllerBase
     {
-        public RatesManagementController(IRateManagementService rateManagementService)
+        public RateManagementController(IRateManagementService rateManagementService)
         {
             _rateManagementService = rateManagementService;
         }
