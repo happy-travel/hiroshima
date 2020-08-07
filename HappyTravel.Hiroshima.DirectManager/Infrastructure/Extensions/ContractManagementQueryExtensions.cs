@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions
 {
-    public static class DbContextExtensions
+    public static class ContractManagementQueryExtensions
     {
         public static async Task<Result> CheckIfRoomsBelongToContract(this DirectContractsDbContext dbContext, int contractId, int contractManagerId, List<int> roomIds)
         {

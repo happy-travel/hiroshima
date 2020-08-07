@@ -38,7 +38,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return ValidationHelper.Validate(rates, new RateValidator())
                 .Bind(() => _contractManagerContext.GetContractManager())
-                .Ensure(contractManager => DoesContractBelongToContractManager(contractId, contractManager.Id),
+                .Ensure(contractManager => _dbContext.DoesContractBelongToContractManager(contractId, contractManager.Id),
                     $"Failed to get the contract by {nameof(contractId)} '{contractId}'")
                 .Bind(async contractManager =>
                 {
@@ -57,9 +57,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result> Remove(int contractId, List<int> rateIds)
         {
             return _contractManagerContext.GetContractManager()
-                .Ensure(contractManager => DoesContractBelongToContractManager(contractId, contractManager.Id),
+                .Ensure(contractManager => _dbContext.DoesContractBelongToContractManager(contractId, contractManager.Id),
                     $"Failed to get the contract by {nameof(contractId)} '{contractId}'")
-                .Bind(contractManager => CheckAndGetRatesToRemove(contractId, contractManager.Id, rateIds))
+                .Bind(contractManager => GetRatesToRemove(contractId, contractManager.Id, rateIds))
                 .Tap(RemoveRates)
                 .Finally(result => result.IsSuccess ? Result.Success() : Result.Failure(result.Error));
         }
@@ -98,7 +98,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private async Task<Result<List<RoomRate>>> CheckAndGetRatesToRemove(int contractId, int contractManagerId, List<int> rateIds)
+        private async Task<Result<List<RoomRate>>> GetRatesToRemove(int contractId, int contractManagerId, List<int> rateIds)
         {
             var roomRates = await _dbContext.RoomRates.Where(rate => rateIds.Contains(rate.Id)).ToListAsync();
             if (roomRates == null || !roomRates.Any())
@@ -159,16 +159,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     rate.MealPlan,
                     rate.Details?.GetValue<MultiLanguage<string>>()))
                 .ToList();
-
-
-        private async Task<bool> DoesContractBelongToContractManager(int contractId, int contractManagerId)
-            => await _contractManagementRepository.GetContract(contractId, contractManagerId) != null;
-
-
-        
-
-
-        
 
 
         private readonly DirectContractsDbContext _dbContext;

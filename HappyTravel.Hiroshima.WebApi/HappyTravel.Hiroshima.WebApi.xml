@@ -113,7 +113,7 @@
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.PromotionalOffersManagementController.GetPromotionalOffers(System.Int32,System.Collections.Generic.List{System.Int32},System.Nullable{System.DateTime},System.Nullable{System.DateTime})">
             <summary>
-            Retrieves contracted promotional offers
+            Retrieves contracted promotional offer
             </summary>
             <param name="contractId"></param>
             <param name="roomIds">List of room ids</param>
@@ -123,7 +123,7 @@
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.PromotionalOffersManagementController.AddPromotionalOffers(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.PromotionalOffer})">
             <summary>
-            Adds new promotional offers
+            Adds new contracted promotional offer
             </summary>
             <param name="contractId"></param>
             <param name="promotionalOffers"></param>
@@ -131,7 +131,7 @@
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.PromotionalOffersManagementController.RemovePromotionalOffers(System.Int32,System.Collections.Generic.List{System.Int32})">
             <summary>
-            Removes contracted promotional offers by ID
+            Removes contracted promotional offer by ID
             </summary>
             <param name="contractId"></param>
             <param name="promotionalOfferIds">IDs to remove</param>

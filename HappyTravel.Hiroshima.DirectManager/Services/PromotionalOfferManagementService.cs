@@ -47,7 +47,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             => _contractManagerContext.GetContractManager()
                 .Ensure(contractManager => _dbContext.DoesContractBelongToContractManager(contractId, contractManager.Id),
                     $"Failed to get the contract by {nameof(contractId)} '{contractId}'")
-                .Bind(contractManager => CheckAndGetPromotionalOffersToRemove(contractId, contractManager.Id, promotionalOfferIds))
+                .Bind(contractManager => GetPromotionalOffersToRemove(contractId, contractManager.Id, promotionalOfferIds))
                 .Tap(RemovePromotionalOffers)
                 .Finally(result => result.IsSuccess ? Result.Success() : Result.Failure(result.Error));
 
@@ -64,7 +64,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
         
         
-        private async Task<Result<List<RoomPromotionalOffer>>> CheckAndGetPromotionalOffersToRemove(int contractId, int contractManagerId,
+        private async Task<Result<List<RoomPromotionalOffer>>> GetPromotionalOffersToRemove(int contractId, int contractManagerId,
             List<int> promotionalOfferIds)
         {
             var promotionalOffers = await _dbContext.RoomPromotionalOffers.Where(offer => promotionalOfferIds.Contains(offer.Id) && offer.ContractId == contractId).ToListAsync();
