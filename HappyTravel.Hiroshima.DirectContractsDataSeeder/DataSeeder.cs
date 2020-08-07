@@ -51,21 +51,6 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
 
         private static void AddLocations(DirectContractsDbContext dbContext)
         {
-            #region AddCountries
-
-            var country = new Country {Code = "AE"};
-
-            country.Name = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
-            {
-                En = "The United Arab Emirates",
-                Ru = "Объединенные Арабские Эмираты",
-                Ar = "الإمارات العربية المتحدة"
-            });
-
-            dbContext.Countries.Add(country);
-
-            #endregion
-
             #region AddLocations
 
             var location = new HappyTravel.Hiroshima.Data.Models.Location.Location
