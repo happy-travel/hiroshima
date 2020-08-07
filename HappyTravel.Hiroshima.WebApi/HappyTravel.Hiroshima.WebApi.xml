@@ -23,6 +23,12 @@
             <param name="accommodationId">ID of the accommodation</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.GetAllAccommodation">
+            <summary>
+            Retrieves all Contract Manager's accommodations
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.AddAccommodation(HappyTravel.Hiroshima.DirectManager.Models.Requests.Accommodation)">
             <summary>
             Creates a new accommodation

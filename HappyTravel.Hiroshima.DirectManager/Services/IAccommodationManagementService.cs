@@ -7,6 +7,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     public interface IAccommodationManagementService
     {
         public Task<Result<Models.Responses.Accommodation>> Get(int accommodationId);
+        public Task<Result<List<Models.Responses.Accommodation>>> Get();
        
         public Task<Result<Models.Responses.Accommodation>> Add(Models.Requests.Accommodation accommodation);
         
