@@ -102,7 +102,6 @@ namespace HappyTravel.Hiroshima.WebApi
                 .AddControllersAsServices()
                 .AddFormatterMappings()
                 .AddApiExplorer()
-                .AddNewtonsoftJson(options => { options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Unspecified; })
                 .AddFluentValidation()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             
