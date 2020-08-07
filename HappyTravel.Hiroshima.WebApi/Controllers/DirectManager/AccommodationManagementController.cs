@@ -37,6 +37,22 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
             return Ok(response);
         }
         
+        /// <summary>
+        /// Retrieves all Contract Manager's accommodations
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.Accommodation>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetAllAccommodations()
+        {
+            var (_, isFailure, response, error) = await _accommodationManagementService.Get();
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
+        }
+        
         
         /// <summary>
         /// Creates a new accommodation
