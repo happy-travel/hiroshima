@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Enums;
@@ -15,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using JsonDocumentUtilities = HappyTravel.Hiroshima.Common.Infrastructure.Utilities.JsonDocumentUtilities;
+using PropertyTypes = HappyTravel.Hiroshima.Common.Models.Accommodations.PropertyTypes;
 
 namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
 {
@@ -350,6 +352,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             {
                 En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
             });
+            room.Pictures = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<Picture>>());
             dbContext.Rooms.Add(room);
 
             room = new Room
@@ -372,6 +375,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             {
                 En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
             });
+            room.Pictures = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<Picture>>());
             dbContext.Rooms.Add(room);
 
             room = new Room
@@ -394,6 +398,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             {
                 En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
             });
+            room.Pictures = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<Picture>>());
             dbContext.Rooms.Add(room);
 
             room = new Room
@@ -416,6 +421,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             {
                 En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
             });
+            room.Pictures = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<Picture>>());
             dbContext.Rooms.Add(room);
 
             room = new Room
@@ -439,6 +445,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             {
                 En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
             });
+            room.Pictures = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<Picture>>());
             dbContext.Rooms.Add(room);
 
             room = new Room
@@ -462,6 +469,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             {
                 En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
             });
+            room.Pictures = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<Picture>>());
             dbContext.Rooms.Add(room);
 
             room = new Room
@@ -485,6 +493,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             {
                 En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
             });
+            room.Pictures = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<Picture>>());
             dbContext.Rooms.Add(room);
 
             room = new Room
@@ -507,6 +516,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             {
                 En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
             });
+            room.Pictures = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<Picture>>());
             dbContext.Rooms.Add(room);
 
             room = new Room
@@ -531,6 +541,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             {
                 En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
             });
+            room.Pictures = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<Picture>>());
             dbContext.Rooms.Add(room);
 
             room = new Room
@@ -553,6 +564,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             {
                 En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
             });
+            room.Pictures = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<Picture>>());
             dbContext.Rooms.Add(room);
 
             room = new Room
@@ -576,6 +588,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             {
                 En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
             });
+            room.Pictures = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<Picture>>());
             dbContext.Rooms.Add(room);
 
             room = new Room
@@ -598,6 +611,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             {
                 En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
             });
+            room.Pictures = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<Picture>>());
             dbContext.Rooms.Add(room);
 
             room = new Room
@@ -620,6 +634,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             {
                 En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
             });
+            room.Pictures = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<Picture>>());
             dbContext.Rooms.Add(room);
 
             room = new Room
@@ -642,6 +657,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             {
                 En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
             });
+            room.Pictures = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<Picture>>());
             dbContext.Rooms.Add(room);
 
             room = new Room
@@ -664,6 +680,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             {
                 En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
             });
+            room.Pictures = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<Picture>>());
             dbContext.Rooms.Add(room);
 
             room = new Room
@@ -687,6 +704,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             {
                 En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
             });
+            room.Pictures = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<Picture>>());
             dbContext.Rooms.Add(room);
 
             #endregion
@@ -1037,7 +1055,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2019, 12, 13),
                 ValidFromDate = new DateTime(2020, 01, 08),
                 ValidToDate = new DateTime(2020, 02, 07),
-                BookingCode = "25% PROMO"
+                BookingCode = "25% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1053,6 +1072,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 ValidFromDate = new DateTime(2020, 02, 08),
                 ValidToDate = new DateTime(2020, 03, 20),
                 BookingCode = "20% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1067,7 +1087,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2019, 12, 13),
                 ValidFromDate = new DateTime(2020, 02, 08),
                 ValidToDate = new DateTime(2020, 03, 20),
-                BookingCode = "25% PROMO"
+                BookingCode = "25% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1083,6 +1104,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 ValidFromDate = new DateTime(2020, 03, 28),
                 ValidToDate = new DateTime(2020, 04, 03),
                 BookingCode = "20% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1097,7 +1119,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 02, 28),
                 ValidFromDate = new DateTime(2020, 04, 04),
                 ValidToDate = new DateTime(2020, 04, 12),
-                BookingCode = "15% PROMO"
+                BookingCode = "15% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1112,7 +1135,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 02, 28),
                 ValidFromDate = new DateTime(2020, 04, 13),
                 ValidToDate = new DateTime(2020, 04, 18),
-                BookingCode = "25% PROMO"
+                BookingCode = "25% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1128,6 +1152,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 ValidFromDate = new DateTime(2020, 04, 19),
                 ValidToDate = new DateTime(2020, 05, 03),
                 BookingCode = "20% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1143,6 +1168,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 ValidFromDate = new DateTime(2020, 05, 04),
                 ValidToDate = new DateTime(2020, 05, 31),
                 BookingCode = "30% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1156,7 +1182,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 05, 08),
                 ValidFromDate = new DateTime(2020, 06, 01),
                 ValidToDate = new DateTime(2020, 09, 04),
-                BookingCode = "30% PROMO"
+                BookingCode = "30% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1171,7 +1198,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 08, 14),
                 ValidFromDate = new DateTime(2020, 09, 05),
                 ValidToDate = new DateTime(2020, 09, 20),
-                BookingCode = "30% PROMO"
+                BookingCode = "30% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1186,7 +1214,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 08, 14),
                 ValidFromDate = new DateTime(2020, 10, 17),
                 ValidToDate = new DateTime(2020, 11, 06),
-                BookingCode = "10% PROMO"
+                BookingCode = "10% PROMO",
+                ContractId = contractId
             };
 
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
@@ -1202,7 +1231,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 08, 14),
                 ValidFromDate = new DateTime(2020, 11, 07),
                 ValidToDate = new DateTime(2020, 12, 04),
-                BookingCode = "20% PROMO"
+                BookingCode = "20% PROMO",
+                ContractId = contractId
             };
 
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
@@ -1218,7 +1248,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 10, 02),
                 ValidFromDate = new DateTime(2020, 12, 05),
                 ValidToDate = new DateTime(2020, 12, 18),
-                BookingCode = "30% PROMO"
+                BookingCode = "30% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1235,6 +1266,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 ValidFromDate = new DateTime(2020, 12, 19),
                 ValidToDate = new DateTime(2020, 12, 25),
                 BookingCode = "20% PROMO",
+                ContractId = contractId
             };
 
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
@@ -1251,6 +1283,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 ValidFromDate = new DateTime(2020, 12, 26),
                 ValidToDate = new DateTime(2021, 01, 03),
                 BookingCode = "10% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1265,7 +1298,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 11, 01),
                 ValidFromDate = new DateTime(2021, 01, 24),
                 ValidToDate = new DateTime(2021, 03, 26),
-                BookingCode = "20% PROMO"
+                BookingCode = "20% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1280,7 +1314,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 11, 01),
                 ValidFromDate = new DateTime(2021, 03, 27),
                 ValidToDate = new DateTime(2021, 04, 10),
-                BookingCode = "10% PROMO"
+                BookingCode = "10% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1295,7 +1330,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2021, 02, 26),
                 ValidFromDate = new DateTime(2021, 04, 11),
                 ValidToDate = new DateTime(2021, 05, 07),
-                BookingCode = "10% PROMO"
+                BookingCode = "10% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1314,7 +1350,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2019, 12, 13),
                 ValidFromDate = new DateTime(2020, 01, 08),
                 ValidToDate = new DateTime(2020, 02, 21),
-                BookingCode = "30% PROMO"
+                BookingCode = "30% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1329,7 +1366,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2019, 12, 13),
                 ValidFromDate = new DateTime(2020, 02, 22),
                 ValidToDate = new DateTime(2020, 03, 20),
-                BookingCode = "25% PROMO"
+                BookingCode = "25% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1345,7 +1383,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2019, 12, 13),
                 ValidFromDate = new DateTime(2020, 03, 21),
                 ValidToDate = new DateTime(2020, 03, 27),
-                BookingCode = "35% PROMO"
+                BookingCode = "35% PROMO",
+                ContractId = contractId
             };
 
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
@@ -1361,7 +1400,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 02, 28),
                 ValidFromDate = new DateTime(2020, 03, 28),
                 ValidToDate = new DateTime(2020, 04, 03),
-                BookingCode = "35% PROMO"
+                BookingCode = "35% PROMO",
+                ContractId = contractId
             };
 
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
@@ -1377,7 +1417,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 02, 28),
                 ValidFromDate = new DateTime(2020, 04, 04),
                 ValidToDate = new DateTime(2020, 04, 12),
-                BookingCode = "25% PROMO"
+                BookingCode = "25% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1393,7 +1434,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 02, 28),
                 ValidFromDate = new DateTime(2020, 04, 13),
                 ValidToDate = new DateTime(2020, 04, 18),
-                BookingCode = "35% PROMO"
+                BookingCode = "35% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1409,7 +1451,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 02, 28),
                 ValidFromDate = new DateTime(2020, 04, 19),
                 ValidToDate = new DateTime(2020, 05, 03),
-                BookingCode = "30% PROMO"
+                BookingCode = "30% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1424,7 +1467,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 04, 03),
                 ValidFromDate = new DateTime(2020, 05, 04),
                 ValidToDate = new DateTime(2020, 05, 31),
-                BookingCode = "35% PROMO"
+                BookingCode = "35% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1439,7 +1483,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 05, 08),
                 ValidFromDate = new DateTime(2020, 06, 01),
                 ValidToDate = new DateTime(2020, 09, 04),
-                BookingCode = "30% PROMO"
+                BookingCode = "30% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1454,7 +1499,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 08, 14),
                 ValidFromDate = new DateTime(2020, 09, 05),
                 ValidToDate = new DateTime(2020, 09, 25),
-                BookingCode = "30% PROMO"
+                BookingCode = "30% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1470,6 +1516,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 ValidFromDate = new DateTime(2020, 09, 26),
                 ValidToDate = new DateTime(2020, 10, 16),
                 BookingCode = "30% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1484,7 +1531,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 08, 14),
                 ValidFromDate = new DateTime(2020, 10, 17),
                 ValidToDate = new DateTime(2020, 12, 04),
-                BookingCode = "20% PROMO"
+                BookingCode = "20% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1499,7 +1547,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 10, 02),
                 ValidFromDate = new DateTime(2020, 12, 05),
                 ValidToDate = new DateTime(2020, 12, 18),
-                BookingCode = "30% PROMO"
+                BookingCode = "30% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1514,7 +1563,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 11, 01),
                 ValidFromDate = new DateTime(2020, 12, 19),
                 ValidToDate = new DateTime(2020, 12, 25),
-                BookingCode = "20% PROMO"
+                BookingCode = "20% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1529,7 +1579,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 11, 01),
                 ValidFromDate = new DateTime(2020, 12, 26),
                 ValidToDate = new DateTime(2021, 01, 03),
-                BookingCode = "10% PROMO"
+                BookingCode = "10% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1544,7 +1595,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 11, 01),
                 ValidFromDate = new DateTime(2021, 01, 04),
                 ValidToDate = new DateTime(2021, 04, 10),
-                BookingCode = "20% PROMO"
+                BookingCode = "20% PROMO",
+                ContractId = contractId
             };
 
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
@@ -1560,7 +1612,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2021, 02, 26),
                 ValidFromDate = new DateTime(2021, 04, 11),
                 ValidToDate = new DateTime(2021, 05, 07),
-                BookingCode = "20% PROMO"
+                BookingCode = "20% PROMO",
+                ContractId = contractId
             };
 
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
@@ -1580,7 +1633,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2019, 12, 13),
                 ValidFromDate = new DateTime(2020, 01, 08),
                 ValidToDate = new DateTime(2020, 02, 21),
-                BookingCode = "25% PROMO"
+                BookingCode = "25% PROMO",
+                ContractId = contractId
             };
 
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
@@ -1596,7 +1650,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2019, 12, 13),
                 ValidFromDate = new DateTime(2020, 02, 22),
                 ValidToDate = new DateTime(2020, 03, 20),
-                BookingCode = "20% PROMO"
+                BookingCode = "20% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1611,7 +1666,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2019, 12, 13),
                 ValidFromDate = new DateTime(2020, 03, 21),
                 ValidToDate = new DateTime(2020, 03, 27),
-                BookingCode = "30% PROMO"
+                BookingCode = "30% PROMO",
+                ContractId = contractId
             };
 
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
@@ -1627,7 +1683,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 02, 28),
                 ValidFromDate = new DateTime(2020, 03, 28),
                 ValidToDate = new DateTime(2020, 04, 03),
-                BookingCode = "20% PROMO"
+                BookingCode = "20% PROMO",
+                ContractId = contractId
             };
 
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
@@ -1643,7 +1700,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 02, 28),
                 ValidFromDate = new DateTime(2020, 04, 04),
                 ValidToDate = new DateTime(2020, 04, 12),
-                BookingCode = "20% PROMO"
+                BookingCode = "20% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1658,7 +1716,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 02, 28),
                 ValidFromDate = new DateTime(2020, 04, 13),
                 ValidToDate = new DateTime(2020, 04, 18),
-                BookingCode = "30% PROMO"
+                BookingCode = "30% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1673,7 +1732,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 02, 28),
                 ValidFromDate = new DateTime(2020, 04, 19),
                 ValidToDate = new DateTime(2020, 05, 03),
-                BookingCode = "25% PROMO"
+                BookingCode = "25% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1688,7 +1748,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 04, 03),
                 ValidFromDate = new DateTime(2020, 05, 04),
                 ValidToDate = new DateTime(2020, 05, 31),
-                BookingCode = "30% PROMO"
+                BookingCode = "30% PROMO",
+                ContractId = contractId
             };
 
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
@@ -1704,7 +1765,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 04, 03),
                 ValidFromDate = new DateTime(2020, 06, 01),
                 ValidToDate = new DateTime(2020, 09, 04),
-                BookingCode = "30% PROMO"
+                BookingCode = "30% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1719,7 +1781,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 08, 14),
                 ValidFromDate = new DateTime(2020, 09, 05),
                 ValidToDate = new DateTime(2020, 09, 25),
-                BookingCode = "40% PROMO"
+                BookingCode = "40% PROMO",
+                ContractId = contractId
             };
 
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
@@ -1735,7 +1798,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 08, 14),
                 ValidFromDate = new DateTime(2020, 09, 26),
                 ValidToDate = new DateTime(2020, 10, 16),
-                BookingCode = "25% PROMO"
+                BookingCode = "25% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1750,7 +1814,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 08, 14),
                 ValidFromDate = new DateTime(2020, 10, 17),
                 ValidToDate = new DateTime(2020, 12, 04),
-                BookingCode = "20% PROMO"
+                BookingCode = "20% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1781,7 +1846,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 11, 01),
                 ValidFromDate = new DateTime(2020, 12, 19),
                 ValidToDate = new DateTime(2020, 12, 25),
-                BookingCode = "20% PROMO"
+                BookingCode = "20% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1797,6 +1863,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 ValidFromDate = new DateTime(2020, 12, 26),
                 ValidToDate = new DateTime(2021, 01, 03),
                 BookingCode = "10% PROMO",
+                ContractId = contractId
             };
 
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
@@ -1812,7 +1879,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2020, 11, 01),
                 ValidFromDate = new DateTime(2021, 01, 04),
                 ValidToDate = new DateTime(2021, 04, 10),
-                BookingCode = "20% PROMO"
+                BookingCode = "20% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -1827,7 +1895,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 BookByDate = new DateTime(2021, 02, 26),
                 ValidFromDate = new DateTime(2021, 04, 11),
                 ValidToDate = new DateTime(2021, 05, 07),
-                BookingCode = "20% PROMO"
+                BookingCode = "20% PROMO",
+                ContractId = contractId
             };
             promotionalOffer.Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
             {
@@ -2599,6 +2668,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             {
                 En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
             });
+            room.Pictures = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<Picture>>());
             dbContext.Rooms.Add(room);
 
             room = new Room
@@ -2627,6 +2697,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             {
                 En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
             });
+            room.Pictures = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<Picture>>());
             dbContext.Rooms.Add(room);
 
             room = new Room
@@ -2665,6 +2736,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             {
                 En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
             });
+            room.Pictures = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<Picture>>());
             dbContext.Rooms.Add(room);
 
             room = new Room
@@ -2712,6 +2784,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             {
                 En = new List<string>(), Ar = new List<string>(), Ru = new List<string>(),
             });
+            room.Pictures = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<Picture>>());
             dbContext.Rooms.Add(room);
             dbContext.SaveChanges();
             #endregion
@@ -2867,7 +2940,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     BookByDate = new DateTime(2018, 11, 29),
                     ValidFromDate = new DateTime(2019, 01, 08),
                     ValidToDate = new DateTime(2019, 01, 31),
-                    BookingCode = "WWHL600"
+                    BookingCode = "WWHL600",
+                    ContractId = contractId,
+                    Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>())
                 }
             };
             AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
@@ -2879,7 +2954,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     BookByDate = new DateTime(2018, 11, 29),
                     ValidFromDate = new DateTime(2019, 02, 01),
                     ValidToDate = new DateTime(2019, 02, 04),
-                    BookingCode = "WWHL601"
+                    BookingCode = "WWHL601",
+                    ContractId = contractId,
+                    Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>())
                 }
             };
             AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
@@ -2892,7 +2969,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     BookByDate = new DateTime(2018, 11, 29),
                     ValidFromDate = new DateTime(2019, 02, 05),
                     ValidToDate = new DateTime(2019, 02, 11),
-                    BookingCode = "WWHL602"
+                    BookingCode = "WWHL602",
+                    ContractId = contractId,
+                    Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>())
                 }
             };
             AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
@@ -2905,7 +2984,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     BookByDate = new DateTime(2018, 11, 29),
                     ValidFromDate = new DateTime(2019, 02, 12),
                     ValidToDate = new DateTime(2019, 03, 27),
-                    BookingCode = "WWHL603"
+                    BookingCode = "WWHL603",
+                    Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>())
                 }
             };
             AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
@@ -2918,7 +2998,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     BookByDate = new DateTime(2019, 01, 31),
                     ValidFromDate = new DateTime(2019, 03, 28),
                     ValidToDate = new DateTime(2019, 04, 21),
-                    BookingCode = "WWHL604"
+                    BookingCode = "WWHL604",
+                    ContractId = contractId,
+                    Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>())
                 }
             };
             AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
@@ -2931,7 +3013,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     BookByDate = new DateTime(2019, 01, 31),
                     ValidFromDate = new DateTime(2019, 03, 22),
                     ValidToDate = new DateTime(2019, 05, 05),
-                    BookingCode = "WWHL605"
+                    BookingCode = "WWHL605",
+                    ContractId = contractId,
+                    Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>())
                 }
             };
             AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
@@ -2944,7 +3028,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     BookByDate = new DateTime(2019, 02, 28),
                     ValidFromDate = new DateTime(2019, 05, 06),
                     ValidToDate = new DateTime(2019, 08, 31),
-                    BookingCode = "WWHL606"
+                    BookingCode = "WWHL606",
+                    ContractId = contractId,
+                    Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>())
                 }
             };
             AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
@@ -2957,7 +3043,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     BookByDate = new DateTime(2019, 02, 28),
                     ValidFromDate = new DateTime(2019, 09, 01),
                     ValidToDate = new DateTime(2019, 10, 12),
-                    BookingCode = "WWHL607"
+                    BookingCode = "WWHL607",
+                    ContractId = contractId,
+                    Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>())
                 }
             };
             AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
@@ -2970,7 +3058,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     BookByDate = new DateTime(2019, 05, 30),
                     ValidFromDate = new DateTime(2019, 10, 13),
                     ValidToDate = new DateTime(2019, 10, 19),
-                    BookingCode = "WWHL608"
+                    BookingCode = "WWHL608",
+                    ContractId = contractId,
+                    Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>())
                 }
             };
             AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
@@ -2983,7 +3073,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     BookByDate = new DateTime(2019, 07, 31),
                     ValidFromDate = new DateTime(2019, 10, 20),
                     ValidToDate = new DateTime(2019, 11, 09),
-                    BookingCode = "WWHL609"
+                    BookingCode = "WWHL609",
+                    ContractId = contractId,
+                    Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>())
                 }
             };
             AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
@@ -2996,7 +3088,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     BookByDate = new DateTime(2019, 07, 31),
                     ValidFromDate = new DateTime(2019, 11, 10),
                     ValidToDate = new DateTime(2019, 12, 01),
-                    BookingCode = "WWHL610"
+                    BookingCode = "WWHL610",
+                    ContractId = contractId,
+                    Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>())
                 }
             };
             AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
@@ -3009,7 +3103,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     BookByDate = new DateTime(2019, 09, 30),
                     ValidFromDate = new DateTime(2019, 12, 02),
                     ValidToDate = new DateTime(2019, 12, 21),
-                    BookingCode = "WWHL611"
+                    BookingCode = "WWHL611",
+                    ContractId = contractId,
+                    Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>())
                 }
             };
             AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
@@ -3022,7 +3118,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     BookByDate = new DateTime(2019, 09, 30),
                     ValidFromDate = new DateTime(2019, 12, 22),
                     ValidToDate = new DateTime(2019, 12, 26),
-                    BookingCode = "WWHL612"
+                    BookingCode = "WWHL612",
+                    ContractId = contractId,
+                    Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>())
                 }
             };
             AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
@@ -3035,7 +3133,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     BookByDate = new DateTime(2019, 09, 30),
                     ValidFromDate = new DateTime(2019, 12, 27),
                     ValidToDate = new DateTime(2020, 01, 04),
-                    BookingCode = "WWHL613"
+                    BookingCode = "WWHL613",
+                    ContractId = contractId,
+                    Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>())
                 }
             };
             AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
@@ -3048,7 +3148,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     BookByDate = new DateTime(2019, 09, 30),
                     ValidFromDate = new DateTime(2020, 01, 05),
                     ValidToDate = new DateTime(2020, 01, 13),
-                    BookingCode = "WWHL614"
+                    BookingCode = "WWHL614",
+                    ContractId = contractId,
+                    Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>())
                 }
             };
             AddPromotionalOffers(dbContext, new[] {71, 72, 73, 74}, promotionalOffers);
@@ -3256,7 +3358,10 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                         SeasonId = seasonId,
                         RoomId = roomIdsAndPrice.Item1,
                         Price = roomIdsAndPrice.Item2,
-                        Currency = Currencies.AED
+                        Currency = Currencies.AED,
+                        Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>()),
+                        BoardBasis = BoardBasisTypes.NotSpecified,
+                        MealPlan = "no meal"
                     };
                     dbContext.Entry(rate).State = EntityState.Detached;
                     dbContext.RoomRates.Add(rate);

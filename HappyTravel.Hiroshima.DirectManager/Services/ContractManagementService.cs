@@ -3,8 +3,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
+using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Models;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure;
+using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {
@@ -12,11 +14,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     {
         public ContractManagementService(IContractManagerContextService contractManagerContextService,
             DirectContracts.Services.Management.IContractManagementRepository contractManagementRepository,
-            DirectContracts.Services.Management.IAccommodationManagementRepository accommodationManagementRepository)
+            DirectContracts.Services.Management.IAccommodationManagementRepository accommodationManagementRepository,
+            DirectContractsDbContext dbContext)
         {
             _contractManagerContext = contractManagerContextService;
             _contractManagementRepository = contractManagementRepository;
             _accommodationManagementRepository = accommodationManagementRepository;
+            _dbContext = dbContext;
         }
 
 
@@ -84,7 +88,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return _contractManagerContext.GetContractManager()
                 .Tap(contractManager => Validate(contract))
-                .Ensure(contractManager => DoesContractBelongToContractManager(contractManager.Id, contractId),
+                .Ensure(contractManager => _dbContext.DoesContractBelongToContractManager(contractManager.Id, contractId),
                     $"Contract with {nameof(contractId)} '{contractId}' does not belong to the contract manager")
                 .Bind(async contractManager =>
                 {
@@ -125,10 +129,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             => await _accommodationManagementRepository.GetAccommodation(contractManagerId, accommodationId) != null;
 
 
-        private async Task<bool> DoesContractBelongToContractManager(int contractManagerId, int contractId)
-            => await _contractManagementRepository.GetContract(contractId, contractManagerId) != null;
-
-
         private Models.Responses.Contract CreateResponse(Contract contract, int accommodationId)
             => new Models.Responses.Contract(id: contract.Id, accommodationId: accommodationId, name: contract.Name, description: contract.Description,
                 validFrom: contract.ValidFrom, validTo: contract.ValidTo);
@@ -137,5 +137,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         private readonly IContractManagerContextService _contractManagerContext;
         private readonly DirectContracts.Services.Management.IContractManagementRepository _contractManagementRepository;
         private readonly DirectContracts.Services.Management.IAccommodationManagementRepository _accommodationManagementRepository;
+        private readonly DirectContractsDbContext _dbContext;
     }
 }

@@ -9,6 +9,7 @@ using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
 using HappyTravel.Hiroshima.DirectContracts.Services.Management;
+using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,28 +38,28 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return ValidationHelper.Validate(rates, new RateValidator())
                 .Bind(() => _contractManagerContext.GetContractManager())
-                .Ensure(contractManager => DoesContractBelongToContractManager(contractId, contractManager.Id),
+                .Ensure(contractManager => _dbContext.DoesContractBelongToContractManager(contractId, contractManager.Id),
                     $"Failed to get the contract by {nameof(contractId)} '{contractId}'")
                 .Bind(async contractManager =>
                 {
-                    var (isSuccess, _, error) = await CheckIfSeasonIdsAndRoomIds(contractManager.Id);
+                    var (isSuccess, _, error) = await CheckIfSeasonIdsAndRoomIdsBelongToContract(contractManager.Id);
                     return isSuccess ? Result.Success() : Result.Failure(error);
                 })
                 .Bind(() => AddRates(rates));
             
             
-             async Task<Result> CheckIfSeasonIdsAndRoomIds(int contractManagerId)
-                => Result.Combine(await CheckIfSeasonsBelongToContract(contractId, rates.Select(rate => rate.SeasonId).ToList()),
-                     await CheckIfRoomIdsBelongToContractedAccommodation(contractId, contractManagerId, rates.Select(rate => rate.RoomId).ToList()));
+             async Task<Result> CheckIfSeasonIdsAndRoomIdsBelongToContract(int contractManagerId)
+                => Result.Combine(await _dbContext.CheckIfSeasonsBelongToContract(contractId, rates.Select(rate => rate.SeasonId).ToList()),
+                     await _dbContext.CheckIfRoomsBelongToContract(contractId, contractManagerId, rates.Select(rate => rate.RoomId).ToList()));
         }
 
 
         public Task<Result> Remove(int contractId, List<int> rateIds)
         {
             return _contractManagerContext.GetContractManager()
-                .Ensure(contractManager => DoesContractBelongToContractManager(contractId, contractManager.Id),
+                .Ensure(contractManager => _dbContext.DoesContractBelongToContractManager(contractId, contractManager.Id),
                     $"Failed to get the contract by {nameof(contractId)} '{contractId}'")
-                .Bind(contractManager => CheckAndGetRatesToRemove(contractId, contractManager.Id, rateIds))
+                .Bind(contractManager => GetRatesToRemove(contractId, contractManager.Id, rateIds))
                 .Tap(RemoveRates)
                 .Finally(result => result.IsSuccess ? Result.Success() : Result.Failure(result.Error));
         }
@@ -97,14 +98,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private async Task<Result<List<RoomRate>>> CheckAndGetRatesToRemove(int contractId, int contractManagerId, List<int> rateIds)
+        private async Task<Result<List<RoomRate>>> GetRatesToRemove(int contractId, int contractManagerId, List<int> rateIds)
         {
             var roomRates = await _dbContext.RoomRates.Where(rate => rateIds.Contains(rate.Id)).ToListAsync();
             if (roomRates == null || !roomRates.Any())
                 return Result.Success(roomRates);
 
-            var checkingResult = Result.Combine(await CheckIfSeasonsBelongToContract(contractId, roomRates.Select(roomRate => roomRate.SeasonId).ToList()),
-                await CheckIfRoomIdsBelongToContractedAccommodation(contractId, contractManagerId, roomRates.Select(roomRate => roomRate.RoomId).ToList()));
+            var checkingResult = Result.Combine(await _dbContext.CheckIfSeasonsBelongToContract(contractId, roomRates.Select(roomRate => roomRate.SeasonId).ToList()),
+                await _dbContext.CheckIfRoomsBelongToContract(contractId, contractManagerId, roomRates.Select(roomRate => roomRate.RoomId).ToList()));
 
             return checkingResult.IsFailure
                 ? Result.Failure<List<RoomRate>>(checkingResult.Error)
@@ -126,7 +127,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private async Task<Result<List<Models.Responses.Rate>>> AddRates(List<Models.Requests.Rate> rates)
         {
-            var newRates = CreateRates(rates);
+            var newRates = CreateRoomRates(rates);
             _dbContext.RoomRates.AddRange(newRates);
             await _dbContext.SaveChangesAsync();
             _dbContext.DetachEntries(newRates);
@@ -134,7 +135,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private List<RoomRate> CreateRates(List<Models.Requests.Rate> rates)
+        private List<RoomRate> CreateRoomRates(List<Models.Requests.Rate> rates)
             => rates.Select(rate => new RoomRate
                 {
                     RoomId = rate.RoomId,
@@ -158,52 +159,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     rate.MealPlan,
                     rate.Details?.GetValue<MultiLanguage<string>>()))
                 .ToList();
-
-
-        private async Task<bool> DoesContractBelongToContractManager(int contractId, int contractManagerId)
-            => await _contractManagementRepository.GetContract(contractId, contractManagerId) != null;
-
-
-        private async Task<Result> CheckIfSeasonsBelongToContract(int contractId, List<int> seasonIds)
-        {
-            var availableSeasonIds =
-                await _dbContext.Seasons.Where(s => seasonIds.Contains(s.Id) && s.ContractId == contractId).Select(s => s.Id).ToListAsync();
-
-            var inappropriateSeasonIds = seasonIds.Except(availableSeasonIds).ToList();
-
-            return inappropriateSeasonIds.Any() ? Result.Failure($"Inappropriate season ids: {string.Join(", ", inappropriateSeasonIds)}") : Result.Success();
-        }
-
-
-        private async Task<Result> CheckIfRoomIdsBelongToContractedAccommodation(int contractId, int contractManagerId, List<int> roomIds)
-        {
-            var availableRoomIds = await _dbContext.Rooms
-                .Join(_dbContext.Accommodations, room => room.AccommodationId, accommodation => accommodation.Id, (room, accommodation) => new
-                {
-                    room,
-                    accommodation
-                })
-                .Join(_dbContext.ContractAccommodationRelations, roomAndAccommodation=> roomAndAccommodation.accommodation.Id, relation => relation.AccommodationId, (roomAndAccommodation, relation) => new {roomAndAccommodation.accommodation, roomAndAccommodation.room, relation})
-                .Join(_dbContext.Contracts, accommodationAndRoomAndRelation => accommodationAndRoomAndRelation.relation.ContractId , contract => contract.Id,
-                    (accommodationAndRoomAndRelation, contract) => new
-                    {
-                        accommodationAndRoomAndRelation.accommodation,
-                        accommodationAndRoomAndRelation.room,
-                        accommodationAndRoomAndRelation.relation,
-                        contract
-                    })
-                .Where(accommodationAndRoomAndRelationAndContract => accommodationAndRoomAndRelationAndContract.contract.Id == contractId &&
-                    roomIds.Contains(accommodationAndRoomAndRelationAndContract.room.Id) &&
-                    accommodationAndRoomAndRelationAndContract.contract.ContractManagerId == contractManagerId)
-                .Select(accommodationAndRoomAndRelationAndContract => accommodationAndRoomAndRelationAndContract.room.Id)
-                .ToListAsync();
-                
-            var inappropriateRoomIds = roomIds.Except(availableRoomIds).ToList();
-
-            return inappropriateRoomIds.Any() 
-                ? Result.Failure($"Inappropriate room ids: {string.Join(", ", inappropriateRoomIds)}") 
-                : Result.Success();
-        }
 
 
         private readonly DirectContractsDbContext _dbContext;

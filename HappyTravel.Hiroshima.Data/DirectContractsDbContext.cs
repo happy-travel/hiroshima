@@ -88,7 +88,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.ToTable("Locations");
                 e.HasKey(l => l.Id);
                 e.Property(l => l.Locality ).HasColumnType("jsonb").IsRequired();
-                e.Property(l => l.Zone).HasColumnType("jsonb");
+                e.Property(l => l.Zone).HasColumnType("jsonb").HasDefaultValueSql("'{}'::json");
                 e.Property(l => l.CountryCode).IsRequired();
                 e.HasIndex(l => l.CountryCode);
             });
@@ -116,14 +116,14 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(a=> a.ContactInfo).HasColumnType("jsonb").IsRequired();
                 e.Property(a => a.Coordinates).HasColumnType("geometry (point)").IsRequired();
                 e.Property(a=> a.Name).HasColumnType("jsonb").IsRequired();
-                e.Property(a => a.Pictures).HasColumnType("jsonb");
+                e.Property(a => a.Pictures).HasColumnType("jsonb").IsRequired();
                 e.Property(a => a.Rating).IsRequired();
-                e.Property(a=> a.AccommodationAmenities).HasColumnType("jsonb");
-                e.Property(a=> a.AdditionalInfo).HasColumnType("jsonb");
-                e.Property(a => a.PropertyType);
-                e.Property(a => a.TextualDescription).HasColumnType("jsonb");
-                e.Property(a => a.CheckInTime);
-                e.Property(a => a.CheckOutTime);
+                e.Property(a=> a.AccommodationAmenities).HasColumnType("jsonb").IsRequired();
+                e.Property(a=> a.AdditionalInfo).HasColumnType("jsonb").HasDefaultValueSql("'{}'::json");
+                e.Property(a => a.PropertyType).IsRequired();
+                e.Property(a => a.TextualDescription).HasColumnType("jsonb").IsRequired();
+                e.Property(a => a.CheckInTime).IsRequired();
+                e.Property(a => a.CheckOutTime).IsRequired();
                 e.Property(a => a.OccupancyDefinition).HasColumnType("jsonb");
                 e.Property(a => a.ContractManagerId).IsRequired();
                 e.HasIndex(a=> a.Coordinates).HasMethod("GIST");
@@ -139,8 +139,8 @@ namespace HappyTravel.Hiroshima.Data
             {
                 e.ToTable("Rooms");
                 e.HasKey(r=> r.Id);
-                e.Property(r=> r.Amenities).HasColumnType("jsonb");
-                e.Property(r => r.Description).HasColumnType("jsonb");
+                e.Property(r=> r.Amenities).HasColumnType("jsonb").IsRequired();
+                e.Property(r => r.Description).HasColumnType("jsonb").IsRequired();;
                 e.Property(r => r.Name).HasColumnType("jsonb").IsRequired();
                 e.Property(r => r.OccupancyConfigurations).HasColumnType("jsonb").IsRequired();
                 e.Property(r => r.AccommodationId).IsRequired();
@@ -157,8 +157,8 @@ namespace HappyTravel.Hiroshima.Data
                 e.HasKey(rr=> rr.Id);
                 e.Property(rr => rr.Price).IsRequired();
                 e.Property(rr => rr.Currency).IsRequired();
-                e.Property(rr => rr.MealPlan);
-                e.Property(rr => rr.BoardBasis);
+                e.Property(rr => rr.MealPlan).IsRequired();;
+                e.Property(rr => rr.BoardBasis).IsRequired();;
                 e.Property(rr=> rr.SeasonId).IsRequired();
                 e.Property(rr => rr.RoomId).IsRequired();
                 e.HasIndex(rr => rr.SeasonId);
@@ -190,10 +190,10 @@ namespace HappyTravel.Hiroshima.Data
                 e.HasKey(po => po.Id);
                 e.Property(po => po.DiscountPercent).IsRequired();
                 e.Property(po => po.Details).HasColumnType("jsonb");
-                e.Property(po => po.BookByDate);
+                e.Property(po => po.BookByDate).IsRequired();
                 e.Property(po => po.ValidFromDate).IsRequired();
                 e.Property(po => po.ValidToDate).IsRequired();
-                e.Property(po => po.BookingCode).IsRequired();
+                e.Property(po => po.BookingCode);
                 e.Property(rr => rr.RoomId).IsRequired();
                 e.HasIndex(rr => rr.RoomId);
             });
@@ -244,10 +244,9 @@ namespace HappyTravel.Hiroshima.Data
                 e.HasKey(rcp => rcp.Id);
                 e.Property(rcp => rcp.Details).HasColumnType("jsonb").IsRequired();
                 e.Property(rcp => rcp.RoomId).IsRequired();
-                e.Property(rcp => rcp.SeasonId);
+                e.Property(rcp => rcp.SeasonId).IsRequired();;
                 e.HasIndex(rcp => rcp.RoomId);
                 e.HasIndex(rcp => rcp.SeasonId);
-                
             });
         }
 

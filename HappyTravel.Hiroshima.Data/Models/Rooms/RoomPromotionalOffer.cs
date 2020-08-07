@@ -11,7 +11,8 @@ namespace HappyTravel.Hiroshima.Data.Models.Rooms
         public DateTime ValidFromDate { get; set; }
         public DateTime ValidToDate { get; set; }
         public double DiscountPercent { get; set; }
-        public string BookingCode { get; set; }
-        public JsonDocument? Details { get; set; }
+        public string? BookingCode { get; set; }
+        public int ContractId { get; set; }
+        public JsonDocument Details { get; set; }
     }
 }

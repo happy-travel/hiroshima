@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Collections.Generic;
+using System.Text.Json;
 
 namespace HappyTravel.Hiroshima.Common.Infrastructure.Utilities
 {
@@ -7,7 +8,19 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure.Utilities
         public static JsonDocument CreateJDocument<T>(T value, JsonSerializerOptions serializerOptions = default)
         {
             serializerOptions ??= SerializeOptions;
-            return JsonDocument.Parse(JsonSerializer.Serialize(value, serializerOptions));
+
+            string serialized;
+            if (EqualityComparer<T>.Default.Equals(value, default(T)))
+            {
+                var type = typeof(T);
+                serialized = type.IsGenericType && type.GetGenericTypeDefinition() == typeof (IEnumerable<>)? "[]": "{}";
+            }
+            else
+            {
+                serialized = JsonSerializer.Serialize(value, serializerOptions);
+            }
+                
+            return JsonDocument.Parse(serialized);
         }
 
 
