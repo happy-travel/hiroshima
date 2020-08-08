@@ -147,7 +147,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<List<Models.Responses.Room>>> AddRooms(int accommodationId, List<Models.Requests.Room> rooms)
         {
-            return ValidateRooms(rooms)
+            return ValidationHelper.Validate(rooms, new RoomValidator())
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .Ensure(contractManager => DoesAccommodationBelongToContractManager(accommodationId, contractManager.Id),
                     $"Failed to get the accommodation by ID '{accommodationId}'")
@@ -237,30 +237,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 roomIds: roomIds ?? new List<int>());
         }
 
-
-        private Result ValidateRooms(List<Models.Requests.Room> rooms)
-        {
-            var validator = new RoomValidator();
-            List<string> errors = null;
-            var validationFailure = false;
-            foreach (var room in rooms)
-            {
-                var validationResult = validator.Validate(room);
-                if (validationResult.IsValid)
-                    continue;
-
-                validationFailure = true;
-                var errorMessages = validationResult.Errors.Select(e => $"{e.PropertyName}: " + e.ErrorMessage).Where(e => !string.IsNullOrEmpty(e));
-                if (errors != null)
-                    errors.AddRange(errorMessages);
-                else
-                    errors = new List<string>(errorMessages);
-            }
-
-            return !validationFailure ? Result.Success() : Result.Failure(string.Join("; ", errors));
-        }
-
-
+        
         private List<Room> CreateRooms(int accommodationId, List<Models.Requests.Room> rooms)
         {
             return rooms.Select(room => new Room

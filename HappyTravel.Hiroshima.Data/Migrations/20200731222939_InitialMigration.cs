@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Text.Json;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
+using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.Data.Models.Booking;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
-using HappyTravel.Hiroshima.Data.Models.Rooms.CancellationPolicies;
 using Microsoft.EntityFrameworkCore.Migrations;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -76,7 +76,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     RoomId = table.Column<int>(nullable: false),
                     SeasonId = table.Column<int>(nullable: false),
-                    Details = table.Column<List<CancellationPolicyData>>(type: "jsonb", nullable: false)
+                    Details = table.Column<List<CancellationPolicyItem>>(type: "jsonb", nullable: false)
                 },
                 constraints: table =>
                 {

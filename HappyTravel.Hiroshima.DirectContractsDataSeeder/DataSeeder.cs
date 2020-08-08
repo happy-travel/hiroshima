@@ -4,13 +4,13 @@ using System.Linq;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
+using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.Common.Models.Enums;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Models;
 using HappyTravel.Hiroshima.Data.Models.Accommodations;
 using HappyTravel.Hiroshima.Data.Models.Location;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
-using HappyTravel.Hiroshima.Data.Models.Rooms.CancellationPolicies;
 using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
@@ -718,9 +718,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
 
             var cancellationPolicy = new RoomCancellationPolicy
             {
-                Details = new List<CancellationPolicyData>
+                Policies = new List<CancellationPolicyItem>
                 {
-                    new CancellationPolicyData
+                    new CancellationPolicyItem
                     {
                         DayPriorToArrival = new DayInterval {FromDay = 0, ToDay = 45},
                         PenaltyType = CancellationPenaltyTypes.Percent,
@@ -735,9 +735,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             
             cancellationPolicy = new RoomCancellationPolicy
             {
-                Details = new List<CancellationPolicyData>
+                Policies = new List<CancellationPolicyItem>
                 {
-                    new CancellationPolicyData
+                    new CancellationPolicyItem
                     {
                         DayPriorToArrival = new DayInterval {FromDay = 0, ToDay = 35},
                         PenaltyType = CancellationPenaltyTypes.Percent,
@@ -751,21 +751,21 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             seasonIds = new[] {14, 16, 18, 25, 11, 13, 15, 19, 12, 23, 28};
             cancellationPolicy = new RoomCancellationPolicy
             {
-                Details = new List<CancellationPolicyData>
+                Policies = new List<CancellationPolicyItem>
                 {
-                    new CancellationPolicyData
+                    new CancellationPolicyItem
                     {
                         DayPriorToArrival = new DayInterval {FromDay = 14, ToDay = 28},
                         PenaltyType = CancellationPenaltyTypes.Nights,
                         PenaltyCharge = 4
                     },
-                    new CancellationPolicyData
+                    new CancellationPolicyItem
                     {
                         DayPriorToArrival = new DayInterval {FromDay = 07, ToDay = 13},
                         PenaltyType = CancellationPenaltyTypes.Nights,
                         PenaltyCharge = 7
                     },
-                    new CancellationPolicyData
+                    new CancellationPolicyItem
                     {
                         DayPriorToArrival = new DayInterval {FromDay = 0, ToDay = 6},
                         PenaltyType = CancellationPenaltyTypes.Percent,
@@ -780,15 +780,15 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             seasonIds = new[] {20, 21, 22};
             cancellationPolicy = new RoomCancellationPolicy
             {
-                Details = new List<CancellationPolicyData>
+                Policies = new List<CancellationPolicyItem>
                 {
-                    new CancellationPolicyData
+                    new CancellationPolicyItem
                     {
                         DayPriorToArrival = new DayInterval {FromDay = 07, ToDay = 13},
                         PenaltyType = CancellationPenaltyTypes.Nights,
                         PenaltyCharge = 03
                     },
-                    new CancellationPolicyData
+                    new CancellationPolicyItem
                     {
                         DayPriorToArrival = new DayInterval {FromDay = 0, ToDay = 06},
                         PenaltyType = CancellationPenaltyTypes.Nights,
@@ -2796,9 +2796,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             var seasonIds = new[] {GetSeasonId(57)};
             var cancellationPolicy = new RoomCancellationPolicy
             {
-                Details = new List<CancellationPolicyData>
+                Policies = new List<CancellationPolicyItem>
                 {
-                    new CancellationPolicyData
+                    new CancellationPolicyItem
                     {
                         DayPriorToArrival = new DayInterval {FromDay = 0, ToDay = 7},
                         PenaltyType = CancellationPenaltyTypes.Percent,
@@ -2813,9 +2813,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             seasonIds = new[] { GetSeasonId(51), GetSeasonId(58), GetSeasonId(62)};
             cancellationPolicy = new RoomCancellationPolicy
             {
-                Details = new List<CancellationPolicyData>
+                Policies = new List<CancellationPolicyItem>
                 {
-                    new CancellationPolicyData
+                    new CancellationPolicyItem
                     {
                         DayPriorToArrival = new DayInterval {FromDay = 0, ToDay = 14},
                         PenaltyType = CancellationPenaltyTypes.Percent,
@@ -2830,9 +2830,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             seasonIds = new[] {GetSeasonId(52), GetSeasonId(54), GetSeasonId(56), GetSeasonId(59), GetSeasonId(61), GetSeasonId(63), GetSeasonId(65)};
             cancellationPolicy = new RoomCancellationPolicy
             {
-                Details = new List<CancellationPolicyData>
+                Policies = new List<CancellationPolicyItem>
                 {
-                    new CancellationPolicyData
+                    new CancellationPolicyItem
                     {
                         DayPriorToArrival = new DayInterval {FromDay = 0, ToDay = 21},
                         PenaltyType = CancellationPenaltyTypes.Percent,
@@ -2847,9 +2847,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             seasonIds = new[] {GetSeasonId(53), GetSeasonId(55), GetSeasonId(60)};
             cancellationPolicy = new RoomCancellationPolicy
             {
-                Details = new List<CancellationPolicyData>
+                Policies = new List<CancellationPolicyItem>
                 {
-                    new CancellationPolicyData
+                    new CancellationPolicyItem
                     {
                         DayPriorToArrival = new DayInterval {FromDay = 0, ToDay = 35},
                         PenaltyType = CancellationPenaltyTypes.Percent,
@@ -2863,9 +2863,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             seasonIds = new[] {GetSeasonId(64)};
             cancellationPolicy = new RoomCancellationPolicy
             {
-                Details = new List<CancellationPolicyData>
+                Policies = new List<CancellationPolicyItem>
                 {
-                    new CancellationPolicyData
+                    new CancellationPolicyItem
                     {
                         DayPriorToArrival = new DayInterval {FromDay = 0, ToDay = 35},
                         PenaltyType = CancellationPenaltyTypes.Percent,
@@ -3420,7 +3420,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     roomCancellationPolicy.RoomId = roomId;
                     roomCancellationPolicy.SeasonId = seasonId;
                     var serialized = JsonConvert.SerializeObject(roomCancellationPolicy);
-                    dbContext.CancellationPolicies.Add(
+                    dbContext.RoomCancellationPolicies.Add(
                         JsonConvert.DeserializeObject<RoomCancellationPolicy>(serialized));
                 }
             }

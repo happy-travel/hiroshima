@@ -18,8 +18,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Hiroshima.Data.Migrations
 {
     [DbContext(typeof(DirectContractsDbContext))]
-    [Migration("20200806232825_AddRequiredFieldAndContractIdToRoomPromotionalOffers")]
-    partial class AddRequiredFieldAndContractIdToRoomPromotionalOffers
+    [Migration("20200808123626_RenameColumnInCancellationPolicies")]
+    partial class RenameColumnInCancellationPolicies
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -287,7 +287,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<List<CancellationPolicyItem>>("Details")
+                    b.Property<List<CancellationPolicyItem>>("Policies")
                         .IsRequired()
                         .HasColumnType("jsonb");
 

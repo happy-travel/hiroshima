@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Text.Json;
+using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.Data.Models;
 using HappyTravel.Hiroshima.Data.Models.Accommodations;
 using HappyTravel.Hiroshima.Data.Models.Booking;
 using HappyTravel.Hiroshima.Data.Models.Location;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
-using HappyTravel.Hiroshima.Data.Models.Rooms.CancellationPolicies;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 using Room = HappyTravel.Hiroshima.Data.Models.Rooms.Room;
@@ -242,7 +242,7 @@ namespace HappyTravel.Hiroshima.Data
             {
                 e.ToTable("CancellationPolicies");
                 e.HasKey(rcp => rcp.Id);
-                e.Property(rcp => rcp.Details).HasColumnType("jsonb").IsRequired();
+                e.Property(rcp => rcp.Policies).HasColumnType("jsonb").IsRequired();
                 e.Property(rcp => rcp.RoomId).IsRequired();
                 e.Property(rcp => rcp.SeasonId).IsRequired();;
                 e.HasIndex(rcp => rcp.RoomId);
@@ -289,7 +289,7 @@ namespace HappyTravel.Hiroshima.Data
         public virtual DbSet<RoomAllocationRequirement> RoomAllocationRequirements { get; set; }
         public virtual DbSet<RoomPromotionalOffer> RoomPromotionalOffers { get; set; }
         public virtual DbSet<Booking> Booking { get; set; }
-        public virtual DbSet<RoomCancellationPolicy> CancellationPolicies { get; set; }
+        public virtual DbSet<RoomCancellationPolicy> RoomCancellationPolicies { get; set; }
         public virtual DbSet<ContractManager> ContractManagers { get; set; }
         public virtual DbSet<Contract> Contracts { get; set; }
         public virtual DbSet<ContractAccommodationRelation> ContractAccommodationRelations { get; set; }
