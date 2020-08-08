@@ -30,7 +30,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetOrAddLocation([FromBody] Hiroshima.DirectManager.Models.Requests.Location location)
         { 
-            var (_, isFailure, response, error) = await _locationManagementService.GetOrAdd(location.Country, location.Locality);
+            var (_, isFailure, response, error) = await _locationManagementService.GetOrAdd(location);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -45,8 +45,8 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpGet]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.Location>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetLocations([FromQuery] int? skip = 0, [FromQuery] int? take = 500) 
-            => Ok(await _locationManagementService.Get(take!.Value, skip!.Value));
+        public async Task<IActionResult> GetLocations([FromQuery] int? skip = 0, [FromQuery] int? top = 500) 
+            => Ok(await _locationManagementService.Get(top!.Value, skip!.Value));
 
         
         /// <summary>

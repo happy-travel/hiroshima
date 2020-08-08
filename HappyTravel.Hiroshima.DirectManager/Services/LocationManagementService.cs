@@ -21,52 +21,59 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<Models.Responses.Location>> GetOrAdd(string countryName, string localityName)
-            => GetCountry(countryName)
-                .Map(country => GetOrAddLocation(country, localityName))
+        public Task<Result<Models.Responses.Location>> GetOrAdd(Models.Requests.Location location)
+            => GetCountry(location.Country)
+                .Map(country => GetOrAddLocation(country, location.Locality, location.Zone))
                 .Map(locationAndCountry => CreateResponse(locationAndCountry.location, locationAndCountry.country));
 
 
-        public async Task<List<Models.Responses.Location>> Get(int take = 100, int skip = 0)
+        public async Task<List<Models.Responses.Location>> Get(int top = 100, int skip = 0)
         {
               var locations = await _dbContext.Locations.Join( _dbContext.Countries, location => location.CountryCode, country => country.Code, (location, country) => new {location, country})
                   .OrderBy(locationAndCounty=> locationAndCounty.location.Id)
-                  .Skip(skip).Take(take)
+                  .Skip(skip).Take(top)
                   .ToListAsync();
 
               return locations.Select(location => CreateResponse(location.location, location.country)).ToList();
         }
 
 
-        public Task<List<string>> GetCountryNames(int take = 100, int skip = 0)
+        public Task<List<string>> GetCountryNames(int top = 100, int skip = 0)
             => _dbContext.Countries.OrderBy(country => country.Code)
                 .Skip(skip)
-                .Take(take)
+                .Take(top)
                 .Select(country => DirectContractsDbContext.GetLangFromJsonb(country.Name, Languages.GetLanguageCode(Languages.DefaultLanguage))
                     .GetFirstValue())
                 .ToListAsync();
 
 
-        private async Task<(Location location, Country country)> GetOrAddLocation(Country country, string localityName)
+        private async Task<(Location location, Country country)> GetOrAddLocation(Country country, string localityName, string zoneName)
         {
-            var location = await _dbContext.Locations
-                .SingleOrDefaultAsync(location => location.CountryCode == country.Code &&
-                    location.Locality.RootElement.GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage)).GetString() == localityName);
-            if (location != null)
-                return (location, country);
+            var location = _dbContext.Locations
+                .Where(location => location.CountryCode == country.Code &&
+                    location.Locality.RootElement.GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage)).GetString().ToUpper() == localityName.ToUpper());
+            
+            if (!string.IsNullOrEmpty(zoneName))
+                location = location.Where(location => location.Zone.RootElement.GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage)).GetString().ToUpper() == zoneName.ToUpper());
 
-            location = new Location
+            var locationResult = await location.SingleOrDefaultAsync();
+                    
+            if (locationResult != null)
+                return (locationResult, country);
+
+            locationResult = new Location
             {
                 CountryCode = country.Code,
-                Locality = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = localityName})
+                Locality = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = localityName}),
+                Zone = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = zoneName})
             };
             
-            _dbContext.Locations.Add(location);
+            _dbContext.Locations.Add(locationResult);
             await _dbContext.SaveChangesAsync();
 
-            _dbContext.DetachEntry(location);
+            _dbContext.DetachEntry(locationResult);
             
-            return (location, country);
+            return (locationResult, country);
         }
 
 
@@ -81,7 +88,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Models.Responses.Location CreateResponse(Location location, Country country) => new Models.Responses.Location(location.Id, location.CountryCode, country.Name.GetValue<MultiLanguage<string>>().En, location.Locality.GetValue<MultiLanguage<string>>().En);
+        private Models.Responses.Location CreateResponse(Location location, Country country) => new Models.Responses.Location(location.Id, location.CountryCode, country.Name.GetValue<MultiLanguage<string>>().En, location.Locality.GetValue<MultiLanguage<string>>().En, location.Zone.GetValue<MultiLanguage<string>>().En);
 
         
         private readonly DirectContractsDbContext _dbContext;

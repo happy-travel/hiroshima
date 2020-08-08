@@ -25,7 +25,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
         internal static void AddData(DirectContractsDbContext dbContext)
         {
             AddContractManager(dbContext);
-            AddLocations(dbContext);
+            AddLocation(dbContext);
             AddOneAndOnlyContract(dbContext);
             AddJumeriahContract(dbContext);
         }
@@ -49,13 +49,13 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             }
         }
 
-        private static void AddLocations(DirectContractsDbContext dbContext)
+        private static void AddLocation(DirectContractsDbContext dbContext)
         {
             #region AddLocations
 
             var location = new HappyTravel.Hiroshima.Data.Models.Location.Location
             {
-                Id = 1,
+                Id = int.MaxValue,
                 CountryCode = "AE",
                 Locality = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>
                 {

@@ -2,12 +2,13 @@
 {
     public readonly struct Location
     {
-        public Location(int id, string countryCode, string country, string locality)
+        public Location(int id, string countryCode, string country, string locality, string zone = null)
         {
             Id = id;
             CountryCode = countryCode;
             Country = country;
             Locality = locality;
+            Zone = zone;
         }
         
         
@@ -15,5 +16,6 @@
         public string CountryCode { get; }
         public string Country { get; }
         public string Locality { get; }
+        public string Zone { get; }
     }
 }

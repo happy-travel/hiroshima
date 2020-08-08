@@ -8,6 +8,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
         public string Country { get; set; } 
         
         [Required]
-        public string Locality { get; set; } 
+        public string Locality { get; set; }
+        
+        public string Zone { get; set; } 
     }
 }
