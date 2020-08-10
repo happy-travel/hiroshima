@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Constants;
@@ -21,9 +23,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<Models.Responses.Location>> GetOrAdd(Models.Requests.Location location)
+        public Task<Result<Models.Responses.Location>> Add(Models.Requests.Location location)
             => GetCountry(location.Country)
-                .Map(country => GetOrAddLocation(country, location.Locality, location.Zone))
+                .Map(country => AddLocation(country, location.Locality, location.Zone))
                 .Map(locationAndCountry => CreateResponse(locationAndCountry.location, locationAndCountry.country));
 
 
@@ -47,14 +49,25 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .ToListAsync();
 
 
-        private async Task<(Location location, Country country)> GetOrAddLocation(Country country, string localityName, string zoneName)
+        private async Task<(Location location, Country country)> AddLocation(Country country, string localityName, string zoneName)
         {
-            var location = _dbContext.Locations
-                .Where(location => location.CountryCode == country.Code &&
-                    location.Locality.RootElement.GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage)).GetString().ToUpper() == localityName.ToUpper());
+            Expression<Func<Location, bool>> countryAndLocalityExistExpression = location 
+                => location.CountryCode == country.Code &&
+                location.Locality.RootElement
+                    .GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage))
+                    .GetString().ToUpper() == localityName.ToUpper();
             
+            var location = _dbContext.Locations
+                .Where(countryAndLocalityExistExpression);
+
             if (!string.IsNullOrEmpty(zoneName))
-                location = location.Where(location => location.Zone.RootElement.GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage)).GetString().ToUpper() == zoneName.ToUpper());
+            {
+                Expression<Func<Location, bool>> zoneExistsExpression = location 
+                    => location.Zone.RootElement
+                        .GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage))
+                        .GetString().ToUpper() == zoneName.ToUpper();
+                    location = location.Where(zoneExistsExpression);
+            }
 
             var locationResult = await location.SingleOrDefaultAsync();
                     

@@ -111,7 +111,7 @@
             <param name="contractId">New contract data</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.LocationManagementController.GetOrAddLocation(HappyTravel.Hiroshima.DirectManager.Models.Requests.Location)">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.LocationManagementController.AddLocation(HappyTravel.Hiroshima.DirectManager.Models.Requests.Location)">
             <summary>
             Retrieves a location by country name and locality name (city name). If the locality doesn't exist adds a new one 
             </summary>
