@@ -24,7 +24,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using NetTopologySuite;
-using Newtonsoft.Json;
 
 namespace HappyTravel.Hiroshima.WebApi
 {

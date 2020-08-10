@@ -9,9 +9,15 @@ namespace HappyTravel.Hiroshima.Data.Extensions
         {
             foreach (var item in items)
             {
-                var entry = dbContext.Entry(item);
-                entry.State = EntityState.Detached;
+                DetachEntry(dbContext, item);
             }
+        }
+
+
+        public static void DetachEntry<T>(this DirectContractsDbContext dbContext, T item)
+        {
+            var entry = dbContext.Entry(item);
+            entry.State = EntityState.Detached;
         }
     }
 }
