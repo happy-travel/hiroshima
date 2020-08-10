@@ -13,9 +13,9 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/management/contracts")]
     [Produces("application/json")]
-    public class ContractsManagementController : ControllerBase
+    public class ContractManagementController : ControllerBase
     {
-        public ContractsManagementController(IContractManagementService contractManagementService)
+        public ContractManagementController(IContractManagementService contractManagementService)
         {
             _contractManagementService = contractManagementService;
         }

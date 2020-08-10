@@ -12,9 +12,9 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/management/contracts")]
     [Produces("application/json")]
-    public class SeasonsManagementController : ControllerBase
+    public class SeasonManagementController : ControllerBase
     {
-        public SeasonsManagementController(ISeasonManagementService seasonManagementService)
+        public SeasonManagementController(ISeasonManagementService seasonManagementService)
         {
             _seasonManagementService = seasonManagementService;
         }
