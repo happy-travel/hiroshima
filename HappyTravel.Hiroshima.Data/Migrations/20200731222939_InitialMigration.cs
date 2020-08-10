@@ -76,7 +76,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     RoomId = table.Column<int>(nullable: false),
                     SeasonId = table.Column<int>(nullable: false),
-                    Details = table.Column<List<CancellationPolicyItem>>(type: "jsonb", nullable: false)
+                    Details = table.Column<List<Policy>>(type: "jsonb", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -287,7 +287,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<List<CancellationPolicyItem>>("Policies")
+                    b.Property<List<Policy>>("Policies")
                         .IsRequired()
                         .HasColumnType("jsonb");
 
