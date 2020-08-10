@@ -50,7 +50,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
         
         /// <summary>
-        /// Retrieves all country names
+        /// Retrieves all country names with paging
         /// </summary>
         /// <param name="take"></param>
         /// <param name="skip"></param>
