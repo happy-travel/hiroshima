@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Text.Json;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
+using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Models.Booking;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
-using HappyTravel.Hiroshima.Data.Models.Rooms.CancellationPolicies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -287,7 +287,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<List<CancellationPolicyData>>("Details")
+                    b.Property<List<Policy>>("Details")
                         .IsRequired()
                         .HasColumnType("jsonb");
 
