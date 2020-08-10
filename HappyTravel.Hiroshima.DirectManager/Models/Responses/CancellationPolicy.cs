@@ -5,7 +5,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
     public readonly struct CancellationPolicy
     {
-        public CancellationPolicy(int id, int roomId, int seasonId, List<CancellationPolicyItem> policies)
+        public CancellationPolicy(int id, int roomId, int seasonId, List<Policy> policies)
         {
             Id = id;
             RoomId = roomId;
@@ -16,6 +16,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
         public int Id { get; }
         public int RoomId { get; }
         public int SeasonId { get; }
-        public List<CancellationPolicyItem> Policies { get; }
+        public List<Policy> Policies { get; }
     }
 }

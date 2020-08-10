@@ -5,25 +5,31 @@ using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolic
 
 namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
 {
-    public class CancellationPolicyValidator:AbstractValidator<Models.Requests.CancellationPolicy>
+    public class CancellationPoliciesValidator:AbstractValidator<Models.Requests.CancellationPolicy>
     {
-        public CancellationPolicyValidator()
+        public CancellationPoliciesValidator()
         {
             RuleFor(policy => policy.Policies)
                 .NotEmpty()
-                .Must(InRightOrder).WithMessage("Incorrect policies order");
-            RuleForEach(policy => policy.Policies).SetValidator(new CancellationPolicyItemValidator());
+                .Must(ArePolicesOrderedFromLatestToEarliest).WithMessage("Incorrect policies order");
+            RuleForEach(policy => policy.Policies).SetValidator(new CancellationPolicyValidator());
         }
 
-
-        private bool InRightOrder(List<Policy> policies)
+    
+        /* E.g.:
+         *  Policies:
+         * "FromDay": 14 - "ToDay": 28, 
+         * "FromDay": 7  - "ToDay": 13,
+         * "ToDay": 6 - "FromDay": 0
+         *  0 - Deadline
+         */
+        private bool ArePolicesOrderedFromLatestToEarliest(List<Policy> policies)
         {
             var previousPolicy = policies.First();
-            for (var i = 1; i < policies.Count; i++)
+            foreach (var policy in policies.Skip(1))
             {
-                var policy = policies[i];
-                if (!(policy.DayPriorToArrival.FromDay < previousPolicy.DayPriorToArrival.FromDay &&
-                    policy.DayPriorToArrival.ToDay < previousPolicy.DayPriorToArrival.ToDay))
+                if (!(policy.DaysPriorToArrival.FromDay < previousPolicy.DaysPriorToArrival.FromDay &&
+                    policy.DaysPriorToArrival.ToDay < previousPolicy.DaysPriorToArrival.ToDay))
                     return false;
 
                 previousPolicy = policy;

@@ -30,7 +30,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<List<Models.Responses.CancellationPolicy>>> Add(int contractId, List<Models.Requests.CancellationPolicy> cancellationPolicies)
         {
-            return ValidationHelper.Validate(cancellationPolicies, new CancellationPolicyValidator())
+            return ValidationHelper.Validate(cancellationPolicies, new CancellationPoliciesValidator())
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .Ensure(contractManager => _dbContext.DoesContractBelongToContractManager(contractId, contractManager.Id),
                     $"Failed to get the contract by {nameof(contractId)} '{contractId}'")
@@ -110,15 +110,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Where(cancellationPolicyAndRoomAndSeason => cancellationPolicyAndRoomAndSeason.season.ContractId == contractId);
             
             if (roomIds != null && roomIds.Any())
-            {
                 cancellationPoliciesAndRoomsAndSeasons = cancellationPoliciesAndRoomsAndSeasons.Where(rateAndRoomAndSeason => roomIds.Contains(rateAndRoomAndSeason.room.Id));
-            }
-
+            
             if (seasonIds != null && seasonIds.Any())
-            {
                 cancellationPoliciesAndRoomsAndSeasons = cancellationPoliciesAndRoomsAndSeasons.Where(rateAndRoomAndSeason => seasonIds.Contains(rateAndRoomAndSeason.season.Id));
-            }
-                
+            
             return await cancellationPoliciesAndRoomsAndSeasons.Select(cancellationPolicyAndRoomAndSeason => cancellationPolicyAndRoomAndSeason.cancellationPolicy).Distinct().ToListAsync();
         }
         

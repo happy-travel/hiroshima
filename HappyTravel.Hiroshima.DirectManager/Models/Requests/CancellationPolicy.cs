@@ -13,6 +13,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
         public int SeasonId { get; set; }
         
         [Required]
-        public List<CancellationPolicyItem> Policies { get; set; }
+        public List<Policy> Policies { get; set; }
     }
 }
