@@ -88,7 +88,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return _contractManagerContext.GetContractManager()
                 .Tap(contractManager => Validate(contract))
-                .Ensure(contractManager => _dbContext.DoesContractBelongToContractManager(contractManager.Id, contractId),
+                .Ensure(contractManager => _dbContext.DoesContractBelongToContractManager(contractId, contractManager.Id),
                     $"Contract with {nameof(contractId)} '{contractId}' does not belong to the contract manager")
                 .Bind(async contractManager =>
                 {
