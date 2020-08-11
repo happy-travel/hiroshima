@@ -125,7 +125,8 @@ namespace HappyTravel.Hiroshima.WebApi
             app.UseRouting();
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
-                .AllowAnyHeader());
+                .AllowAnyHeader()
+                .AllowAnyMethod());
             app.UseResponseCompression();
             app.UseEndpoints(endpoints =>
             {
