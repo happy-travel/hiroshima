@@ -23,7 +23,7 @@
             <param name="accommodationId">ID of the accommodation</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.GetAllAccommodation">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.GetAllAccommodations">
             <summary>
             Retrieves all Contract Manager's accommodations
             </summary>
@@ -126,13 +126,13 @@
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.LocationManagementController.GetLocations(System.Nullable{System.Int32},System.Nullable{System.Int32})">
             <summary>
-            Retrieves all locations
+            Retrieves all locations with paging
             </summary>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.LocationManagementController.GetCountryNames(System.Nullable{System.Int32},System.Nullable{System.Int32})">
             <summary>
-            Retrieves all country names
+            Retrieves all country names with paging
             </summary>
             <param name="take"></param>
             <param name="skip"></param>
