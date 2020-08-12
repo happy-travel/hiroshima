@@ -13,7 +13,6 @@ using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.DirectContracts.Extensions;
 using HappyTravel.Hiroshima.DirectManager.Extensions;
 using HappyTravel.Hiroshima.WebApi.Infrastructure;
-using HappyTravel.Hiroshima.WebApi.Infrastructure.JsonConverters;
 using HappyTravel.Hiroshima.WebApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -47,7 +46,6 @@ namespace HappyTravel.Hiroshima.WebApi
                 options.JsonSerializerOptions.IgnoreNullValues = true;
                 options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, false));
-                options.JsonSerializerOptions.Converters.Add(new IntToStringConverter());
             });
 
             using var vaultClient = VaultHelper.CreateVaultClient(Configuration);
