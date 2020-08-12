@@ -25,7 +25,6 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
                     .When(ci => !string.IsNullOrWhiteSpace(ci.Website)));
             RuleFor(a => a.OccupancyDefinition).SetValidator(new OccupancyDefinitionValidator()).NotNull();
             RuleFor(a => a.Amenities).AnyLanguage($"Invalid {nameof(Accommodation)}, field {nameof(Accommodation.Amenities)} ").When(a => a.Amenities != null);
-            
             RuleForEach(a => a.Pictures.Ar)
                 .SetValidator(new PictureValidator()).When(a=> a.Pictures.Ar != null);
             RuleForEach(a => a.Pictures.En)

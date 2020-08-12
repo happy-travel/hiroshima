@@ -21,7 +21,6 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
             => await _dbContext.Accommodations.SingleOrDefaultAsync(a => a.Id == accommodationId && a.ContractManagerId == contractManagerId);
 
         
-
         public async Task<List<Room>> GetRooms(int accommodationId) 
             => await _dbContext.Rooms.Where(r => r.AccommodationId == accommodationId).ToListAsync();
 

@@ -98,9 +98,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     $"Failed to get an accommodation by {nameof(accommodationId)} '{accommodationId}'")
                 .Map(async contractManager =>
                 {
-                    var entry = _dbContext.Accommodations.Update(CreateAccommodation(contractManager.Id, accommodation));
+                    var dbAccommodation = CreateAccommodation(contractManager.Id, accommodation);
+                    dbAccommodation.Id = accommodationId;
+                    var entry = _dbContext.Accommodations.Update(dbAccommodation);
                     await _dbContext.SaveChangesAsync();
-                    entry.State = EntityState.Detached;
+                 
                     return CreateResponse(entry.Entity);
                 });
         }
@@ -206,7 +208,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 TextualDescription = JsonDocumentUtilities.CreateJDocument(accommodation.Description),
                 Rating = accommodation.Rating,
                 ContractManagerId = contractManagerId,
-                ContactInfo = accommodation.ContactInfo,
+                ContactInfo =  new ContactInfo
+                {
+                    Email = accommodation.ContactInfo.Email,
+                    Phone = accommodation.ContactInfo.Phone,
+                    Website = accommodation.ContactInfo.Website
+                },
                 AdditionalInfo = JsonDocumentUtilities.CreateJDocument(accommodation.AdditionalInfo),
                 OccupancyDefinition = accommodation.OccupancyDefinition,
                 PropertyType = accommodation.Type,
@@ -233,7 +240,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 pictures: accommodation.Pictures.GetValue<MultiLanguage<List<Picture>>>(),
                 amenities: accommodation.AccommodationAmenities.GetValue<MultiLanguage<List<string>>>(),
                 additionalInfo: accommodation.AdditionalInfo.GetValue<MultiLanguage<string>>(),
-                textualDescription: accommodation.TextualDescription.GetValue<MultiLanguage<TextualDescription>>(),
+                description: accommodation.TextualDescription.GetValue<MultiLanguage<TextualDescription>>(),
                 roomIds: roomIds ?? new List<int>());
         }
 

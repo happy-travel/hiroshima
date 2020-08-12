@@ -4,7 +4,6 @@ using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Enums;
-using ContactInfo = HappyTravel.Hiroshima.Common.Models.ContactInfo;
 using Picture = HappyTravel.Hiroshima.Common.Models.Picture;
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
@@ -34,7 +33,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
         [Required]
         public MultiLanguage<List<Picture>> Pictures { get; set; }
         
-        [Required]
         public ContactInfo ContactInfo { get; set; }
         
         [Required]
