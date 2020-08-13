@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using HappyTravel.Hiroshima.Data.Models.Rooms.CancellationPolicies;
+using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.DirectContracts.Models;
 using HappyTravel.Money.Helpers;
 
@@ -10,16 +10,16 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
     {
         public List<CancellationPolicyDetails> Get(RoomCancellationPolicy roomCancellationPolicy, DateTime checkInDate, PaymentDetails paymentDetails)
         {
-            var cancellationPolicyData = roomCancellationPolicy.Details;
+            var cancellationPolicyData = roomCancellationPolicy.Policies;
             var cancellationPolicyDetails = new List<CancellationPolicyDetails>(cancellationPolicyData.Count);
             
             foreach (var cancellationPolicyDataItem in cancellationPolicyData)
             {
                 var cancellationDetails = new CancellationPolicyDetails
                 (
-                    startDate: checkInDate.Date.AddDays(-cancellationPolicyDataItem.DayPriorToArrival.ToDay),
-                    endDate: checkInDate.Date.AddDays(-cancellationPolicyDataItem.DayPriorToArrival.FromDay),
-                    price: cancellationPolicyDataItem.PenaltyType == CancellationPenaltyTypes.Percent
+                    startDate: checkInDate.Date.AddDays(-cancellationPolicyDataItem.DaysPriorToArrival.ToDay),
+                    endDate: checkInDate.Date.AddDays(-cancellationPolicyDataItem.DaysPriorToArrival.FromDay),
+                    price: cancellationPolicyDataItem.PenaltyType == PolicyPenaltyTypes.Percent
                         ? CalculatePercentPenaltyPrice(cancellationPolicyDataItem.PenaltyCharge, paymentDetails)
                         : CalculateNightsPenaltyPrice((int) cancellationPolicyDataItem.PenaltyCharge, paymentDetails)
                 );

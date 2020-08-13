@@ -7,8 +7,8 @@ using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
+using HappyTravel.Hiroshima.Data.Models.Accommodations;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
-using HappyTravel.Hiroshima.DirectContracts.Services.Management;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.EntityFrameworkCore;
@@ -17,11 +17,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class RateManagementService : IRateManagementService
     {
-        public RateManagementService(IContractManagerContextService contractManagerContext, DirectContractsDbContext dbContext,
-            IContractManagementRepository contractManagementRepository)
+        public RateManagementService(IContractManagerContextService contractManagerContext, DirectContractsDbContext dbContext)
         {
             _dbContext = dbContext;
-            _contractManagementRepository = contractManagementRepository;
             _contractManagerContext = contractManagerContext;
         }
 
@@ -67,15 +65,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private async Task<List<RoomRate>> GetRates(int contractId, int contractManagerId, List<int> roomIds = null, List<int> seasonIds = null)
         {
-            var contractedAccommodationIds = _dbContext.Accommodations
-                .Join(_dbContext.ContractAccommodationRelations, accommodation => accommodation.Id, relation => relation.AccommodationId,
-                    (accommodation, relation) => new {accommodation, relation})
-                .Join(_dbContext.Contracts, accommodationAndRelation => accommodationAndRelation.relation.ContractId, contract => contract.Id,
-                    (accommodationAndRelation, contract) => new {accommodationAndRelation, contract})
-                .Where(accommodationAndRelationAndContract => accommodationAndRelationAndContract.contract.ContractManagerId == contractManagerId &&
-                    accommodationAndRelationAndContract.contract.Id == contractId)
-                .Select(accommodationAndRelationAndContract => accommodationAndRelationAndContract.accommodationAndRelation.accommodation.Id);
-
+            var contractedAccommodationIds = _dbContext.GetContractedAccommodations(contractId, contractManagerId)
+                .Select(accommodation => accommodation.Id);
+            
+            
             var ratesAndRoomsAndSeasons = _dbContext.RoomRates
                 .Join(_dbContext.Rooms, roomRate => roomRate.RoomId, room => room.Id, (roomRate, room) => new
                     {roomRate, room})
@@ -162,7 +155,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         private readonly DirectContractsDbContext _dbContext;
-        private readonly IContractManagementRepository _contractManagementRepository;
         private readonly IContractManagerContextService _contractManagerContext;
     }
 }

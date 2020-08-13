@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Data;
+using HappyTravel.Hiroshima.Data.Models.Accommodations;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions
@@ -52,6 +53,17 @@ namespace HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions
 
             return inappropriateSeasonIds.Any() ? Result.Failure($"Inappropriate season ids: {string.Join(", ", inappropriateSeasonIds)}") : Result.Success();
         }
+
+
+        public static IQueryable<Accommodation> GetContractedAccommodations(this DirectContractsDbContext dbContext, int contractId, int contractManagerId) 
+            => dbContext.Accommodations
+            .Join(dbContext.ContractAccommodationRelations, accommodation => accommodation.Id, relation => relation.AccommodationId,
+                (accommodation, relation) => new {accommodation, relation})
+            .Join(dbContext.Contracts, accommodationAndRelation => accommodationAndRelation.relation.ContractId, contract => contract.Id,
+                (accommodationAndRelation, contract) => new {accommodationAndRelation, contract})
+            .Where(accommodationAndRelationAndContract => accommodationAndRelationAndContract.contract.ContractManagerId == contractManagerId &&
+                accommodationAndRelationAndContract.contract.Id == contractId)
+            .Select(accommodationAndRelationAndContract => accommodationAndRelationAndContract.accommodationAndRelation.accommodation);
 
 
         public static async Task<bool> DoesContractBelongToContractManager(this DirectContractsDbContext dbContext, int contractId, int contractManagerId)

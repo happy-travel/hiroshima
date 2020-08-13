@@ -82,6 +82,31 @@
             <param name="ids">Room ids</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.CancellationPolicyController.AddCancellationPolicies(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.CancellationPolicy})">
+            <summary>
+            Adds contract cancellation policies 
+            </summary>
+            <param name="contractId"></param>
+            <param name="cancellationPolicies"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.CancellationPolicyController.GetCancellationPolicies(System.Int32,System.Collections.Generic.List{System.Int32},System.Collections.Generic.List{System.Int32})">
+            <summary>
+            Retrieves contract cancellation policies
+            </summary>
+            <param name="contractId"></param>
+            <param name="roomIds">List of room ids</param>
+            <param name="seasonIds">List of season ids</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.CancellationPolicyController.RemoveCancellationPolicies(System.Int32,System.Collections.Generic.List{System.Int32})">
+            <summary>
+            Removes contract cancellation policies
+            </summary>
+            <param name="contractId"></param>
+            <param name="ids">Rate ids</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ContractManagementController.GetContract(System.Int32)">
             <summary>
             Returns a direct contract data by ID

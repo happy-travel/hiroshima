@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
-using HappyTravel.Hiroshima.Data.Models.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.DirectContracts.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -120,7 +120,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 
         private async Task<List<RoomCancellationPolicy>> GetCancellationPolicies(IEnumerable<int> roomIds, DateTime checkInDate)
         {
-            return await _dbContext.CancellationPolicies
+            return await _dbContext.RoomCancellationPolicies
                 .Join(_dbContext.Seasons, roomCancellationPolicy => roomCancellationPolicy.SeasonId, season => season.Id,
                     (roomCancellationPolicy, season) => new
                     {
