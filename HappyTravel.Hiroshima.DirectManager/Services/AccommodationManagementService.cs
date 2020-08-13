@@ -241,6 +241,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 amenities: accommodation.AccommodationAmenities.GetValue<MultiLanguage<List<string>>>(),
                 additionalInfo: accommodation.AdditionalInfo.GetValue<MultiLanguage<string>>(),
                 description: accommodation.TextualDescription.GetValue<MultiLanguage<TextualDescription>>(),
+                locationId:accommodation.LocationId,
                 roomIds: roomIds ?? new List<int>());
         }
 
