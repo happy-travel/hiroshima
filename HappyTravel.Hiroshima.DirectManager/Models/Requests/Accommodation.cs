@@ -4,8 +4,6 @@ using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Enums;
-using Picture = HappyTravel.Hiroshima.Common.Models.Picture;
-
 namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
 {
     public class Accommodation
