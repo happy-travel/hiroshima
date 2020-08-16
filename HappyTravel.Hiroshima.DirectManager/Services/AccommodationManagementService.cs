@@ -42,7 +42,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                     var rooms = await _accommodationManagementRepository.GetRooms(accommodation.Id);
 
-                    return CreateResponse(accommodation, rooms.Select(room => room.Id).ToList());
+                    return Create(accommodation, rooms.Select(room => room.Id).ToList());
                 });
         }
 
@@ -53,7 +53,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Map(contractManager => GetContractManagerAccommodationsWithRoomIds(contractManager.Id))
                 .Map(accommodationWithRoomIds =>
                     accommodationWithRoomIds.Select(accommodation
-                        => CreateResponse(accommodation.accommodation, accommodation.roomIds)
+                        => Create(accommodation.accommodation, accommodation.roomIds)
                     ).ToList()
                 );
         }
@@ -86,7 +86,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     var entry = _dbContext.Accommodations.Add(CreateAccommodation(contractManager.Id, accommodation));
                     await _dbContext.SaveChangesAsync();
                     entry.State = EntityState.Detached;
-                    return CreateResponse(entry.Entity);
+                    return Create(entry.Entity);
                 });
         }
 
@@ -103,7 +103,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     var entry = _dbContext.Accommodations.Update(dbAccommodation);
                     await _dbContext.SaveChangesAsync();
                  
-                    return CreateResponse(entry.Entity);
+                    return Create(entry.Entity);
                 });
         }
 
@@ -135,17 +135,40 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<List<Models.Responses.Room>>> GetRooms(int accommodationId)
-        {
-            return _contractManagerContext.GetContractManager()
-                .Bind(async contractManager =>
-                {
-                    var rooms = await _accommodationManagementRepository.GetRooms(contractManager.Id, accommodationId);
+        public Task<Result<List<Models.Responses.Room>>> GetRooms(int accommodationId) 
+            => _contractManagerContext.GetContractManager()
+            .Map(async contractManager =>
+            {
+                var rooms = await _accommodationManagementRepository.GetRooms(contractManager.Id, accommodationId);
                     
-                    return CreateResponse(rooms);
-                });
-        }
+                return Create(rooms);
+            });
 
+
+        public Task<Result<Models.Responses.Room>> GetRoom(int accommodationId, int roomId)
+        {
+            return  _contractManagerContext.GetContractManager()
+                .Bind(contractManager => GetRoom(contractManager.Id))
+                .Map(Create);
+
+
+            async Task<Result<Room>> GetRoom(int contractManagerId)
+            {
+                var room = await _dbContext.Rooms.Join(_dbContext.Accommodations, room => room.AccommodationId, accommodation => accommodation.Id,
+                        (room, accommodation) => new {room, accommodation})
+                    .Where(roomAndAccommodation => 
+                        roomAndAccommodation.room.Id == roomId &&
+                        roomAndAccommodation.accommodation.ContractManagerId == contractManagerId &&
+                        roomAndAccommodation.accommodation.Id == accommodationId)
+                    .Select(roomAndAccommodation => roomAndAccommodation.room)
+                    .SingleOrDefaultAsync();
+                
+                return room == null 
+                    ? Result.Failure<Room>($"Failed to get the room with {nameof(roomId)} '{roomId}'") 
+                    : Result.Success(room);
+            }
+        }
+        
 
         public Task<Result<List<Models.Responses.Room>>> AddRooms(int accommodationId, List<Models.Requests.Room> rooms)
         {
@@ -153,14 +176,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .Ensure(contractManager => DoesAccommodationBelongToContractManager(accommodationId, contractManager.Id),
                     $"Failed to get the accommodation by ID '{accommodationId}'")
-                .Bind(async contractManager =>
+                .Map(async contractManager =>
                 {
                     var newRooms = CreateRooms(accommodationId, rooms); 
                     _dbContext.Rooms.AddRange(newRooms);
                     await _dbContext.SaveChangesAsync();
                     _dbContext.DetachEntries(newRooms);
 
-                    return CreateResponse(newRooms);
+                    return Create(newRooms);
                 });
         }
 
@@ -224,7 +247,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Models.Responses.Accommodation CreateResponse(Accommodation accommodation, List<int> roomIds = null)
+        private Models.Responses.Accommodation Create(Accommodation accommodation, List<int> roomIds = null)
         {
             return new Models.Responses.Accommodation(
                 accommodation.Id,
@@ -261,12 +284,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private static Result<List<Models.Responses.Room>> CreateResponse(List<Room> rooms)
+        private static Models.Responses.Room Create(Room room)
+            => new Models.Responses.Room(room.Id, room.Name.GetValue<MultiLanguage<string>>(),
+                room.Description.GetValue<MultiLanguage<string>>(), room.Amenities.GetValue<MultiLanguage<List<string>>>(),
+                room.Pictures.GetValue<MultiLanguage<List<Picture>>>(), room.OccupancyConfigurations);
+        
+
+        private static List<Models.Responses.Room> Create(List<Room> rooms)
         {
-            return rooms.Select(room => new Models.Responses.Room(id: room.Id, name: room.Name.GetValue<MultiLanguage<string>>(),
-                    description: room.Description.GetValue<MultiLanguage<string>>(), amenities: room.Amenities.GetValue<MultiLanguage<List<string>>>(),
-                    pictures: room.Pictures.GetValue<MultiLanguage<List<Picture>>>(), occupancyConfigurations: room.OccupancyConfigurations))
-                .ToList();
+            return rooms.Select(Create).ToList();
         }
 
 
