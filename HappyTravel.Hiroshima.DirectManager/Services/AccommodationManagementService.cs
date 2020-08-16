@@ -42,7 +42,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                     var rooms = await _accommodationManagementRepository.GetRooms(accommodation.Id);
 
-                    return Create(accommodation, rooms.Select(room => room.Id).ToList());
+                    return Build(accommodation, rooms.Select(room => room.Id).ToList());
                 });
         }
 
@@ -53,7 +53,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Map(contractManager => GetContractManagerAccommodationsWithRoomIds(contractManager.Id))
                 .Map(accommodationWithRoomIds =>
                     accommodationWithRoomIds.Select(accommodation
-                        => Create(accommodation.accommodation, accommodation.roomIds)
+                        => Build(accommodation.accommodation, accommodation.roomIds)
                     ).ToList()
                 );
         }
@@ -86,7 +86,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     var entry = _dbContext.Accommodations.Add(CreateAccommodation(contractManager.Id, accommodation));
                     await _dbContext.SaveChangesAsync();
                     entry.State = EntityState.Detached;
-                    return Create(entry.Entity);
+                    return Build(entry.Entity);
                 });
         }
 
@@ -103,7 +103,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     var entry = _dbContext.Accommodations.Update(dbAccommodation);
                     await _dbContext.SaveChangesAsync();
                  
-                    return Create(entry.Entity);
+                    return Build(entry.Entity);
                 });
         }
 
@@ -141,7 +141,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             {
                 var rooms = await _accommodationManagementRepository.GetRooms(contractManager.Id, accommodationId);
                     
-                return Create(rooms);
+                return Build(rooms);
             });
 
 
@@ -149,7 +149,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return  _contractManagerContext.GetContractManager()
                 .Bind(contractManager => GetRoom(contractManager.Id))
-                .Map(Create);
+                .Map(Build);
 
 
             async Task<Result<Room>> GetRoom(int contractManagerId)
@@ -183,7 +183,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     await _dbContext.SaveChangesAsync();
                     _dbContext.DetachEntries(newRooms);
 
-                    return Create(newRooms);
+                    return Build(newRooms);
                 });
         }
 
@@ -247,7 +247,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Models.Responses.Accommodation Create(Accommodation accommodation, List<int> roomIds = null)
+        private Models.Responses.Accommodation Build(Accommodation accommodation, List<int> roomIds = null)
         {
             return new Models.Responses.Accommodation(
                 accommodation.Id,
@@ -284,15 +284,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private static Models.Responses.Room Create(Room room)
+        private static Models.Responses.Room Build(Room room)
             => new Models.Responses.Room(room.Id, room.Name.GetValue<MultiLanguage<string>>(),
                 room.Description.GetValue<MultiLanguage<string>>(), room.Amenities.GetValue<MultiLanguage<List<string>>>(),
                 room.Pictures.GetValue<MultiLanguage<List<Picture>>>(), room.OccupancyConfigurations);
         
 
-        private static List<Models.Responses.Room> Create(List<Room> rooms)
+        private static List<Models.Responses.Room> Build(List<Room> rooms)
         {
-            return rooms.Select(Create).ToList();
+            return rooms.Select(Build).ToList();
         }
 
 
