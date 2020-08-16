@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Infrastructure;
+using HappyTravel.Hiroshima.DirectManager.Models.Common;
 using HappyTravel.Hiroshima.DirectManager.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -65,14 +66,14 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// Removes contracted promotional offer by ID
         /// </summary>
         /// <param name="contractId"></param>
-        /// <param name="promotionalOfferIds">IDs to remove</param>
+        /// <param name="ids">Promotional offer ids to remove</param>
         /// <returns></returns>
         [HttpDelete("contracts/{contractId}/promotional-offers")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> RemovePromotionalOffers([FromRoute] int contractId, [FromBody] List<int> promotionalOfferIds)
+        public async Task<IActionResult> RemovePromotionalOffers([FromRoute] int contractId, [FromBody] Identifiers ids)
         {
-            var (_, isFailure, error) = await _promotionalOfferManagementService.Remove(contractId, promotionalOfferIds);
+            var (_, isFailure, error) = await _promotionalOfferManagementService.Remove(contractId, ids.Ids);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

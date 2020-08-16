@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Infrastructure;
+using HappyTravel.Hiroshima.DirectManager.Models.Common;
 using HappyTravel.Hiroshima.DirectManager.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -66,9 +67,9 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpDelete("{contractId}/seasons")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> RemoveSeasons([FromRoute] int contractId, [FromBody] List<int> ids)
+        public async Task<IActionResult> RemoveSeasons([FromRoute] int contractId, [FromBody] Identifiers ids)
         { 
-            var (_, isFailure, error) = await _seasonManagementService.Remove(contractId, ids);
+            var (_, isFailure, error) = await _seasonManagementService.Remove(contractId, ids.Ids);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

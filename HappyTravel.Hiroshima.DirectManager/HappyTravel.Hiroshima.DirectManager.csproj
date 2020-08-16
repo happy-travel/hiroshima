@@ -14,8 +14,4 @@
       <PackageReference Include="FluentValidation.AspNetCore" Version="9.0.1" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Models\Common" />
-    </ItemGroup>
-
 </Project>

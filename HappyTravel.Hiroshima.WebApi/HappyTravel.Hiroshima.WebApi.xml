@@ -74,7 +74,7 @@
             <param name="roomId"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.RemoveRooms(System.Int32,System.Collections.Generic.List{System.Int32})">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.RemoveRooms(System.Int32,HappyTravel.Hiroshima.DirectManager.Models.Common.Identifiers)">
             <summary>
             Removes an accommodation rooms by ID
             </summary>
@@ -99,12 +99,12 @@
             <param name="seasonIds">List of season ids</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.CancellationPolicyController.RemoveCancellationPolicies(System.Int32,System.Collections.Generic.List{System.Int32})">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.CancellationPolicyController.RemoveCancellationPolicies(System.Int32,HappyTravel.Hiroshima.DirectManager.Models.Common.Identifiers)">
             <summary>
             Removes contract cancellation policies
             </summary>
             <param name="contractId"></param>
-            <param name="ids">Rate ids</param>
+            <param name="ids">Cancellation policy ids</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ContractManagementController.GetContract(System.Int32)">
@@ -181,12 +181,12 @@
             <param name="promotionalOffers"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.PromotionalOfferManagementController.RemovePromotionalOffers(System.Int32,System.Collections.Generic.List{System.Int32})">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.PromotionalOfferManagementController.RemovePromotionalOffers(System.Int32,HappyTravel.Hiroshima.DirectManager.Models.Common.Identifiers)">
             <summary>
             Removes contracted promotional offer by ID
             </summary>
             <param name="contractId"></param>
-            <param name="promotionalOfferIds">IDs to remove</param>
+            <param name="ids">Promotional offer ids to remove</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.RateManagementController.AddRates(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.Rate})">
@@ -206,7 +206,7 @@
             <param name="seasonIds">List of season ids</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.RateManagementController.RemoveRates(System.Int32,System.Collections.Generic.List{System.Int32})">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.RateManagementController.RemoveRates(System.Int32,HappyTravel.Hiroshima.DirectManager.Models.Common.Identifiers)">
             <summary>
             Removes contract rates
             </summary>
@@ -229,7 +229,7 @@
             <param name="seasons"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.SeasonManagementController.RemoveSeasons(System.Int32,System.Collections.Generic.List{System.Int32})">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.SeasonManagementController.RemoveSeasons(System.Int32,HappyTravel.Hiroshima.DirectManager.Models.Common.Identifiers)">
             <summary>
             Removes seasons
             </summary>

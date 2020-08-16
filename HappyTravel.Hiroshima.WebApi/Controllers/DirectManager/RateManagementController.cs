@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Infrastructure;
+using HappyTravel.Hiroshima.DirectManager.Models.Common;
 using HappyTravel.Hiroshima.DirectManager.Models.Requests;
 using HappyTravel.Hiroshima.DirectManager.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -69,9 +70,9 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpDelete("contracts/{contractId}/rates")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> RemoveRates([FromRoute] int contractId, [FromBody] List<int> ids)
+        public async Task<IActionResult> RemoveRates([FromRoute] int contractId, [FromBody] Identifiers ids)
         { 
-            var (_, isFailure, error) = await _rateManagementService.Remove(contractId, ids);
+            var (_, isFailure, error) = await _rateManagementService.Remove(contractId, ids.Ids);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
