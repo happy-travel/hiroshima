@@ -37,7 +37,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Bind(async contractManager =>
                 {
                     var accommodation = await _accommodationManagementRepository.GetAccommodation(contractManager.Id, accommodationId);
-                    if (accommodation is null)
+                    if (accommodation == null)
                         return Result.Failure<Models.Responses.Accommodation>(
                             $"Failed to get an accommodation by {nameof(accommodationId)} '{accommodationId}'");
 
@@ -119,7 +119,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             {
                 var accommodation = await _accommodationManagementRepository.GetAccommodation(contractManager.Id, accommodationId);
                     
-                if (accommodation is null)
+                if (accommodation == null)
                     return Result.Success();
             
                 var rooms = await _accommodationManagementRepository.GetRooms(accommodation.Id);
@@ -137,17 +137,40 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<List<Models.Responses.Room>>> GetRooms(int accommodationId)
-        {
-            return _contractManagerContext.GetContractManager()
-                .Bind(async contractManager =>
-                {
-                    var rooms = await _accommodationManagementRepository.GetRooms(contractManager.Id, accommodationId);
+        public Task<Result<List<Models.Responses.Room>>> GetRooms(int accommodationId) 
+            => _contractManagerContext.GetContractManager()
+            .Map(async contractManager =>
+            {
+                var rooms = await _accommodationManagementRepository.GetRooms(contractManager.Id, accommodationId);
                     
-                    return Build(rooms);
-                });
-        }
+                return Build(rooms);
+            });
 
+
+        public Task<Result<Models.Responses.Room>> GetRoom(int accommodationId, int roomId)
+        {
+            return  _contractManagerContext.GetContractManager()
+                .Bind(contractManager => GetRoom(contractManager.Id))
+                .Map(Build);
+
+
+            async Task<Result<Room>> GetRoom(int contractManagerId)
+            {
+                var room = await _dbContext.Rooms.Join(_dbContext.Accommodations, room => room.AccommodationId, accommodation => accommodation.Id,
+                        (room, accommodation) => new {room, accommodation})
+                    .Where(roomAndAccommodation => 
+                        roomAndAccommodation.room.Id == roomId &&
+                        roomAndAccommodation.accommodation.ContractManagerId == contractManagerId &&
+                        roomAndAccommodation.accommodation.Id == accommodationId)
+                    .Select(roomAndAccommodation => roomAndAccommodation.room)
+                    .SingleOrDefaultAsync();
+                
+                return room == null 
+                    ? Result.Failure<Room>($"Failed to get the room with {nameof(roomId)} '{roomId}'") 
+                    : Result.Success(room);
+            }
+        }
+        
 
         public Task<Result<Models.Responses.Room>> UpdateRoom(int accommodationId, int roomId, Models.Requests.Room room)
         {
@@ -182,7 +205,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .Ensure(contractManager => DoesAccommodationBelongToContractManager(accommodationId, contractManager.Id),
                     $"Failed to get the accommodation by ID '{accommodationId}'")
-                .Bind(async contractManager =>
+                .Map(async contractManager =>
                 {
                     var newRooms = CreateRooms(accommodationId, rooms); 
                     _dbContext.Rooms.AddRange(newRooms);
@@ -289,16 +312,19 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             Pictures = JsonDocumentUtilities.CreateJDocument(room.Pictures),  
             OccupancyConfigurations = room.OccupancyConfigurations
         };
-
-
-        private static Result<List<Models.Responses.Room>> Build(List<Room> rooms) => rooms.Select(Build)
-            .ToList();
-
+        
 
         private static Models.Responses.Room Build(Room room)
-            => new Models.Responses.Room(room.Id, room.Name.GetValue<MultiLanguage<string>>(), room.Description.GetValue<MultiLanguage<string>>(),
-                room.Amenities.GetValue<MultiLanguage<List<string>>>(), room.Pictures.GetValue<MultiLanguage<List<Picture>>>(), room.OccupancyConfigurations);
+            => new Models.Responses.Room(room.Id, room.Name.GetValue<MultiLanguage<string>>(),
+                room.Description.GetValue<MultiLanguage<string>>(), room.Amenities.GetValue<MultiLanguage<List<string>>>(),
+                room.Pictures.GetValue<MultiLanguage<List<Picture>>>(), room.OccupancyConfigurations);
         
+
+        private static List<Models.Responses.Room> Build(List<Room> rooms)
+        {
+            return rooms.Select(Build).ToList();
+        }
+
         
         private async Task<bool> DoesRoomBelongToAccommodation(int accommodationId, int roomId) 
             => await _dbContext.Rooms.Where(room => room.AccommodationId == accommodationId && room.Id == roomId).SingleOrDefaultAsync() != null;

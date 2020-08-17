@@ -58,6 +58,14 @@
             <param name="accommodationId"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.GetRoom(System.Int32,System.Int32)">
+            <summary>
+            Retrieves an accommodation room by Id
+            </summary>
+            <param name="accommodationId"></param>
+            <param name="roomId"></param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.AddRooms(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.Room})">
             <summary>
             Adds rooms to the accommodation

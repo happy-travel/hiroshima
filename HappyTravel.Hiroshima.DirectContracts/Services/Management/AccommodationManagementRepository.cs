@@ -36,15 +36,6 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
                 .ToListAsync();
         
         
-        
-        public async Task UpdateRooms(List<Room> rooms)
-        { 
-            _dbContext.Rooms.UpdateRange(rooms);
-            await _dbContext.SaveChangesAsync();
-            _dbContext.DetachEntries(rooms);
-        }
-
-        
         public async Task DeleteRooms(List<int> roomIds)
         {
             var roomsToDelete = roomIds.Select(id => new Room {Id = id});

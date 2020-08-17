@@ -115,11 +115,30 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="accommodationId"></param>
         /// <returns></returns>
         [HttpGet("{accommodationId}/rooms")]
-        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.Room>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetRooms([FromRoute] int accommodationId)
         { 
             var (_, isFailure, response, error) = await _accommodationManagementService.GetRooms(accommodationId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
+        }
+
+
+        /// <summary>
+        /// Retrieves an accommodation room by Id
+        /// </summary>
+        /// <param name="accommodationId"></param>
+        /// <param name="roomId"></param>
+        /// <returns></returns>
+        [HttpGet("{accommodationId}/rooms/{roomId}")]
+        [ProducesResponseType(typeof(Hiroshima.DirectManager.Models.Responses.Room), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetRoom([FromRoute] int accommodationId, [FromRoute] int roomId)
+        { 
+            var (_, isFailure, response, error) = await _accommodationManagementService.GetRoom(accommodationId, roomId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
