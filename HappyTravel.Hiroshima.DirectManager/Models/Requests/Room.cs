@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
-using Picture = HappyTravel.Hiroshima.Common.Models.Picture;
 
  namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
 {
