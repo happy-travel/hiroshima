@@ -60,9 +60,10 @@
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.GetRoom(System.Int32,System.Int32)">
             <summary>
-            Retrieves accommodation rooms
+            Retrieves an accommodation room by Id
             </summary>
             <param name="accommodationId"></param>
+            <param name="roomId"></param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.AddRooms(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.Room})">
@@ -71,6 +72,15 @@
             </summary>
             <param name="accommodationId"></param>
             <param name="rooms"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.UpdateRoom(System.Int32,System.Int32,HappyTravel.Hiroshima.DirectManager.Models.Requests.Room)">
+            <summary>
+            Updates the room of the accommodation
+            </summary>
+            <param name="accommodationId"></param>
+            <param name="roomId"></param>
+            <param name="room"></param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.RemoveRoom(System.Int32,System.Int32)">

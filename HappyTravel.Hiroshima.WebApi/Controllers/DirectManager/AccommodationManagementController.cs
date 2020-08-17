@@ -163,6 +163,26 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
             return Ok(response);
         }
+
+
+        /// <summary>
+        /// Updates the room of the accommodation
+        /// </summary>
+        /// <param name="accommodationId"></param>
+        /// <param name="roomId"></param>
+        /// <param name="room"></param>
+        /// <returns></returns>
+        [HttpPut("{accommodationId}/rooms/{roomId}")]
+        [ProducesResponseType(typeof(Hiroshima.DirectManager.Models.Responses.Room), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> UpdateRoom([FromRoute] int accommodationId, [FromRoute] int roomId, [FromBody] Hiroshima.DirectManager.Models.Requests.Room room)
+        { 
+            var (_, isFailure, response, error) = await _accommodationManagementService.UpdateRoom(accommodationId, roomId, room);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
+        }
         
         
         /// <summary>

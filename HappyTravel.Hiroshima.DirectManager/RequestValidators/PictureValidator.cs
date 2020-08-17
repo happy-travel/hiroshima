@@ -3,7 +3,7 @@ using HappyTravel.Hiroshima.Common.Models;
 
 namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
 {
-    public class PictureValidator : AbstractValidator<Picture>
+    public class PictureValidator : AbstractValidator<Models.Requests.Picture>
     {
         public PictureValidator()
         {

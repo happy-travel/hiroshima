@@ -18,6 +18,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         Task<Result<Models.Responses.Room>> GetRoom(int accommodationId, int roomId);
         
+        Task<Result<Models.Responses.Room>> UpdateRoom(int accommodationId, int roomId, Models.Requests.Room room);
+        
         Task<Result<List<Models.Responses.Room>>> GetRooms(int accommodationId);
         
         Task<Result> RemoveRooms(int accommodationId, List<int> roomIds);
