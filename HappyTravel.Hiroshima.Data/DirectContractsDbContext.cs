@@ -306,6 +306,5 @@ namespace HappyTravel.Hiroshima.Data
         public virtual DbSet<ContractAccommodationRelation> ContractAccommodationRelations { get; set; }
         public virtual DbSet<Season> Seasons { get; set; }
         public virtual DbSet<SeasonRange> SeasonRanges { get; set; }
-        
     }
 }

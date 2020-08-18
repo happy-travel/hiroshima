@@ -11,6 +11,5 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         Task<Result> Remove(int contractId, int seasonId);
         Task<Result<List<Models.Responses.SeasonRange>>> SetSeasonRanges(int contractId, List<Models.Requests.SeasonRange> seasonRanges);
         Task<Result<List<Models.Responses.SeasonRange>>> GetSeasonRanges(int contractId);
-       
     }
 }
