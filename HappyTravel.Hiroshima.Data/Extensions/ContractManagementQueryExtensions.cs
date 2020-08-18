@@ -2,11 +2,11 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Hiroshima.Data;
+using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Data.Models.Accommodations;
 using Microsoft.EntityFrameworkCore;
 
-namespace HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions
+namespace HappyTravel.Hiroshima.Data.Extensions
 {
     public static class ContractManagementQueryExtensions
     {
@@ -68,5 +68,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions
 
         public static async Task<bool> DoesContractBelongToContractManager(this DirectContractsDbContext dbContext, int contractId, int contractManagerId)
             => await dbContext.Contracts.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.Id == contractId) != null;
+        
+        
+        public static IQueryable<SeasonAndSeasonRange> GetSeasonsAndSeasonRanges(this DirectContractsDbContext dbContext)
+            => dbContext.Seasons.Join(dbContext.SeasonRanges, season => season.Id, seasonRange => seasonRange.SeasonId,
+                (season, seasonRange) => new SeasonAndSeasonRange
+                {
+                    Season = season,
+                    SeasonRange = seasonRange
+                });
     }
 }

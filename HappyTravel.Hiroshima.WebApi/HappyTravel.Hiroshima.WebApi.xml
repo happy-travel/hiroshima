@@ -231,27 +231,42 @@
             <param name="ids">Rate ids</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.SeasonManagementController.AddSeasons(System.Int32,System.Collections.Generic.List{System.String})">
+            <summary>
+            Adds seasons to the contract
+            </summary>
+            <param name="contractId"></param>
+            <param name="names">Season names</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.SeasonManagementController.GetSeasons(System.Int32)">
             <summary>
-            Retrieves contract seasons 
+            Retrieves seasons 
             </summary>
             <param name="contractId"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.SeasonManagementController.ReplaceSeasons(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.Season})">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.SeasonManagementController.RemoveSeason(System.Int32,System.Int32)">
             <summary>
-            Replaces previous seasons by the new
+            Removes an empty season, i.e. the season without associated date ranges.
             </summary>
             <param name="contractId"></param>
-            <param name="seasons"></param>
+            <param name="seasonId">Season id</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.SeasonManagementController.RemoveSeasons(System.Int32,System.Collections.Generic.List{System.Int32})">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.SeasonManagementController.SetSeasonRanges(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.SeasonRange})">
             <summary>
-            Removes seasons
+            Sets season's date ranges
             </summary>
             <param name="contractId"></param>
-            <param name="ids">Season ids</param>
+            <param name="seasonRanges">Season ranges</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.SeasonManagementController.GetSeasonRanges(System.Int32)">
+            <summary>
+            Retrieves contract's season ranges
+            </summary>
+            <param name="contractId"></param>
             <returns></returns>
         </member>
     </members>

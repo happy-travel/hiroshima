@@ -7,6 +7,7 @@ using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.Common.Models.Enums;
 using HappyTravel.Hiroshima.Data;
+using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.Data.Models;
 using HappyTravel.Hiroshima.Data.Models.Accommodations;
 using HappyTravel.Hiroshima.Data.Models.Location;
@@ -106,90 +107,77 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             });
             dbContext.SaveChanges();
 
-            dbContext.ContractAccommodationRelations.Add(new ContractAccommodationRelation()
+            dbContext.ContractAccommodationRelations.Add(new ContractAccommodationRelation
             {
                 AccommodationId = hotelId, 
                 ContractId = contractId
             });
             dbContext.SaveChanges();
-
-            var seasons = new List<(int, DateTime, DateTime)>
+            
+            var dateRanges  = new List<(DateTime, DateTime)>
             {
-                (GetSeasonId(11), new DateTime(2020, 01, 08), new DateTime(2020, 01, 14)),
-                (GetSeasonId(13), new DateTime(2020, 01, 25), new DateTime(2020, 02, 07)),
-                (GetSeasonId(15), new DateTime(2020, 02, 22), new DateTime(2020, 03, 20)),
-                (GetSeasonId(19), new DateTime(2020, 04, 19), new DateTime(2020, 05, 03)),
-                (GetSeasonId(24), new DateTime(2020, 10, 10), new DateTime(2020, 10, 16)),
-                (GetSeasonId(27), new DateTime(2020, 11, 07), new DateTime(2020, 12, 04)),
-                (GetSeasonId(29), new DateTime(2020, 12, 19), new DateTime(2020, 12, 25))
+                (new DateTime(2020, 01, 08), new DateTime(2020, 01, 14)),
+                (new DateTime(2020, 01, 25), new DateTime(2020, 02, 07)),
+                (new DateTime(2020, 02, 22), new DateTime(2020, 03, 20)),
+                (new DateTime(2020, 04, 19), new DateTime(2020, 05, 03)),
+                (new DateTime(2020, 10, 10), new DateTime(2020, 10, 16)),
+                (new DateTime(2020, 11, 07), new DateTime(2020, 12, 04)),
+                (new DateTime(2020, 12, 19), new DateTime(2020, 12, 25)),
+                (new DateTime(2021, 01, 21), new DateTime(2021, 02, 05)),
+                (new DateTime(2021, 02, 20), new DateTime(2021, 03, 19)),
+                (new DateTime(2021, 04, 11), new DateTime(2021, 05, 7))
             };
-            AddSeasons(dbContext, contractId, "HIGH I", seasons);
+            var high1 = AddSeasonRanges(dbContext, dateRanges,"HIGH I", contractId);
 
-            seasons = new List<(int, DateTime, DateTime)>
+            dateRanges = new List<(DateTime, DateTime)>
             {
-                (GetSeasonId(12), new DateTime(2020, 01, 15), new DateTime(2020, 01, 24)),
-                (GetSeasonId(23), new DateTime(2020, 09, 26), new DateTime(2020, 10, 09)),
-                (GetSeasonId(28), new DateTime(2020, 12, 05), new DateTime(2020, 12, 18))
+                (new DateTime(2020, 01, 15), new DateTime(2020, 01, 24)),
+                (new DateTime(2020, 09, 26), new DateTime(2020, 10, 09)),
+                (new DateTime(2020, 12, 05), new DateTime(2020, 12, 18))
             };
-            AddSeasons(dbContext, contractId, "HIGH II", seasons);
+            var high2 = AddSeasonRanges(dbContext, dateRanges, "HIGH II", contractId);
 
-            seasons = new List<(int, DateTime, DateTime)>
+            dateRanges = new List<(DateTime, DateTime)>
             {
-                (GetSeasonId(14), new DateTime(2020, 02, 08), new DateTime(2020, 02, 21)),
-                (GetSeasonId(16), new DateTime(2020, 03, 21), new DateTime(2020, 03, 27)),
-                (GetSeasonId(18), new DateTime(2020, 04, 13), new DateTime(2020, 04, 18)),
-                (GetSeasonId(25), new DateTime(2020, 10, 17), new DateTime(2020, 10, 23))
+                (new DateTime(2020, 02, 08), new DateTime(2020, 02, 21)),
+                (new DateTime(2020, 03, 21), new DateTime(2020, 03, 27)),
+                (new DateTime(2020, 04, 13), new DateTime(2020, 04, 18)),
+                (new DateTime(2020, 10, 17), new DateTime(2020, 10, 23)),
+                (new DateTime(2021, 01, 04), new DateTime(2021, 01, 10)),
+                (new DateTime(2021, 02, 06), new DateTime(2021, 02, 19)),
+                (new DateTime(2021, 03, 20), new DateTime(2021, 03, 26))
             };
-            AddSeasons(dbContext, contractId, "PEAK I", seasons);
+            var peak1 = AddSeasonRanges(dbContext, dateRanges, "PEAK I",  contractId);
 
-            seasons = new List<(int, DateTime, DateTime)>
+            dateRanges = new List<(DateTime, DateTime)>
             {
-                (GetSeasonId(17), new DateTime(2020, 03, 28), new DateTime(2020, 04, 12)),
-                (GetSeasonId(26), new DateTime(2020, 10, 24), new DateTime(2020, 11, 06))
+                (new DateTime(2020, 03, 28), new DateTime(2020, 04, 12)),
+                (new DateTime(2020, 10, 24), new DateTime(2020, 11, 06)),
+                (new DateTime(2021, 03, 27), new DateTime(2021, 04, 10))
             };
-            AddSeasons(dbContext, contractId, "PEAK II", seasons);
-
-            seasons = new List<(int, DateTime, DateTime)>
+            var peak2 = AddSeasonRanges(dbContext, dateRanges, "PEAK II",  contractId);
+            
+            dateRanges = new List<(DateTime, DateTime)>
             {
-                (GetSeasonId(20), new DateTime(2020, 05, 04), new DateTime(2020, 05, 31)),
-                (GetSeasonId(22), new DateTime(2020, 09, 05), new DateTime(2020, 09, 25))
+                (new DateTime(2020, 05, 04), new DateTime(2020, 05, 31)),
+                (new DateTime(2020, 09, 05), new DateTime(2020, 09, 25))
             };
-            AddSeasons(dbContext, contractId, "SHOULDER", seasons);
+            
+            var shoulder = AddSeasonRanges(dbContext, dateRanges, "SHOULDER",  contractId);
 
-            seasons = new List<(int, DateTime, DateTime)>
+            dateRanges = new List<(DateTime, DateTime)>
             {
-                (GetSeasonId(21), new DateTime(2020, 06, 01), new DateTime(2020, 09, 04))
+                (new DateTime(2020, 06, 01), new DateTime(2020, 09, 04))
             };
-            AddSeasons(dbContext, contractId, "LOW", seasons);
-
-            seasons = new List<(int, DateTime, DateTime)>
+            var low = AddSeasonRanges(dbContext, dateRanges, "LOW",  contractId);
+            
+            dateRanges = new List<(DateTime, DateTime)>
             {
-                (GetSeasonId(30), new DateTime(2020, 12, 26), new DateTime(2020, 12, 03))
+                (new DateTime(2020, 12, 26), new DateTime(2020, 12, 03))
             };
-            AddSeasons(dbContext, contractId, "FESTIVE", seasons);
+            var festive = AddSeasonRanges(dbContext, dateRanges, "FESTIVE",  contractId);
 
-            seasons = new List<(int, DateTime, DateTime)>
-            {
-                (GetSeasonId(31), new DateTime(2021, 01, 04), new DateTime(2021, 01, 10)),
-                (GetSeasonId(33), new DateTime(2021, 02, 06), new DateTime(2021, 02, 19)),
-                (GetSeasonId(35), new DateTime(2021, 03, 20), new DateTime(2021, 03, 26))
-            };
-            AddSeasons(dbContext, contractId, "PEAK I", seasons);
-
-            seasons = new List<(int, DateTime, DateTime)>
-            {
-                (GetSeasonId(32), new DateTime(2021, 01, 21), new DateTime(2021, 02, 05)),
-                (GetSeasonId(34), new DateTime(2021, 02, 20), new DateTime(2021, 03, 19)),
-                (GetSeasonId(37), new DateTime(2021, 04, 11), new DateTime(2021, 05, 7))
-            };
-            AddSeasons(dbContext, contractId, "HIGH I", seasons);
-
-            seasons = new List<(int, DateTime, DateTime)>
-            {
-                (GetSeasonId(36), new DateTime(2021, 03, 27), new DateTime(2021, 04, 10))
-            };
-            AddSeasons(dbContext, contractId, "PEAK II", seasons);
-
+            
             if (IsAccommodationExist(dbContext, "ONE&ONLY ROYAL MIRAGE")) return;
 
             
@@ -699,8 +687,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             #region AddCancellationPolicies
 
             var roomIds = new[] {20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35};
-            var seasonIds = new[] {30};
-
+            
             var cancellationPolicy = new RoomCancellationPolicy
             {
                 Policies = new List<Policy>
@@ -713,10 +700,8 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     }
                 }
             };
-            AddCancellationPolicies(dbContext, seasonIds, roomIds, cancellationPolicy);
+            AddCancellationPolicies(dbContext, festive, roomIds, cancellationPolicy);
             dbContext.SaveChanges();
-            
-            seasonIds = new[] {17, 26};
             
             cancellationPolicy = new RoomCancellationPolicy
             {
@@ -730,10 +715,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     }
                 }
             };
-            AddCancellationPolicies(dbContext, seasonIds, roomIds, cancellationPolicy);
+            AddCancellationPolicies(dbContext, peak2, roomIds, cancellationPolicy);
             dbContext.SaveChanges();
             
-            seasonIds = new[] {14, 16, 18, 25, 11, 13, 15, 19, 12, 23, 28};
             cancellationPolicy = new RoomCancellationPolicy
             {
                 Policies = new List<Policy>
@@ -759,10 +743,12 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 }
             };
             
-            AddCancellationPolicies(dbContext, seasonIds, roomIds, cancellationPolicy);
+            AddCancellationPolicies(dbContext, peak1, roomIds, cancellationPolicy);
+            AddCancellationPolicies(dbContext, high1, roomIds, cancellationPolicy);
+            AddCancellationPolicies(dbContext, high2, roomIds, cancellationPolicy);
             dbContext.SaveChanges();
 
-            seasonIds = new[] {20, 21, 22};
+
             cancellationPolicy = new RoomCancellationPolicy
             {
                 Policies = new List<Policy>
@@ -781,214 +767,78 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     }
                 }
             };
-            AddCancellationPolicies(dbContext, seasonIds, roomIds, cancellationPolicy);
+            AddCancellationPolicies(dbContext, shoulder, roomIds, cancellationPolicy);
+            AddCancellationPolicies(dbContext, low, roomIds, cancellationPolicy);
             dbContext.SaveChanges();
 
             #endregion
 
             #region AddRates
 
-            FillRates(dbContext, new[] {GetSeasonId(11), GetSeasonId(13), GetSeasonId(15), GetSeasonId(19)},
-                new List<(int, decimal)>
-                {
-                    (20, 2465),
-                    (21, 3150),
-                    (22, 5700),
-                    (23, 6700),
-                    (24, 8130),
-                    (25, 9850),
-                    (26, 2230),
-                    (27, 2465),
-                    (28, 4390),
-                    (29, 6750),
-                    (30, 9180),
-                    (31, 9100),
-                    (32, 3755),
-                    (33, 6090),
-                    (34, 8460),
-                    (35, 30000)
-                });
-            FillRates(dbContext, new[] {GetSeasonId(12), GetSeasonId(23), GetSeasonId(28)},
-                new List<(int, decimal)>
-                {
-                    (20, 2100),
-                    (21, 2700),
-                    (22, 4800),
-                    (23, 5800),
-                    (24, 6870),
-                    (25, 8500),
-                    (26, 20700),
-                    (27, 2100),
-                    (28, 4000),
-                    (29, 5750),
-                    (30, 7820),
-                    (31, 7475),
-                    (32, 3150),
-                    (33, 5250),
-                    (34, 6900),
-                    (35, 29000)
-                });
-            FillRates(dbContext, new[] {GetSeasonId(14), GetSeasonId(16), GetSeasonId(18), GetSeasonId(25)},
-                new List<(int, decimal)>
-                {
-                    (20, 3170),
-                    (21, 3780),
-                    (22, 7000),
-                    (23, 8450),
-                    (24, 10200),
-                    (25, 12230),
-                    (26, 23100),
-                    (27, 3170),
-                    (28, 6000),
-                    (29, 8450),
-                    (30, 11600),
-                    (31, 10000),
-                    (32, 4300),
-                    (33, 7000),
-                    (34, 9800),
-                    (35, 30000)
-                });
-            FillRates(dbContext, new[] {GetSeasonId(17), GetSeasonId(26)},
-                new List<(int, decimal)>
-                {
-                    (20, 3780),
-                    (21, 4590),
-                    (22, 8800),
-                    (23, 10500),
-                    (24, 12600),
-                    (25, 15100),
-                    (26, 26450),
-                    (27, 3780),
-                    (28, 7560),
-                    (29, 10700),
-                    (30, 14500),
-                    (31, 12850),
-                    (32, 5245),
-                    (33, 8780),
-                    (34, 11780),
-                    (35, 36000)
-                });
-            FillRates(dbContext,
-                //new[] { 20, 22 },
-                new[] {GetSeasonId(20), GetSeasonId(22)}, new List<(int, decimal)>
-                {
-                    (20, 1830),
-                    (21, 2405),
-                    (22, 4200),
-                    (23, 5200),
-                    (24, 6000),
-                    (25, 7600),
-                    (26, 16600),
-                    (27, 1830),
-                    (28, 3650),
-                    (29, 5000),
-                    (30, 6800),
-                    (31, 6500),
-                    (32, 2835),
-                    (33, 4700),
-                    (34, 5400),
-                    (35, 24000)
-                });
-            FillRates(dbContext, new[] {GetSeasonId(21)}, new List<(int, decimal)>
+            var roomIdsAndPrices = new List<(int, decimal)>
             {
-                (20, 1560),
-                (21, 2070),
-                (22, 3500),
-                (23, 4200),
-                (24, 5000),
-                (25, 6270),
-                (26, 16600),
-                (27, 1560),
-                (28, 3000),
-                (29, 4175),
-                (30, 5680),
-                (31, 5550),
-                (32, 2300),
-                (33, 3540),
-                (34, 4900),
-                (35, 24000)
-            });
-            FillRates(dbContext,
-                //new[] { 24, 27, 29 },
-                new[] {GetSeasonId(24), GetSeasonId(27), GetSeasonId(29)}, new List<(int, decimal)>
-                {
-                    (20, 1560),
-                    (21, 2070),
-                    (22, 3500),
-                    (23, 4200),
-                    (24, 5000),
-                    (25, 6270),
-                    (26, 16600),
-                    (27, 1560),
-                    (28, 3000),
-                    (29, 4175),
-                    (30, 5680),
-                    (31, 5550),
-                    (32, 2300),
-                    (33, 3540),
-                    (34, 4900),
-                    (35, 24000)
-                });
-            FillRates(dbContext, new[] {GetSeasonId(30)}, new List<(int, decimal)>
+                (20, 2465),
+                (21, 3150),
+                (22, 5700),
+                (23, 6700),
+                (24, 8130),
+                (25, 9850),
+                (26, 2230),
+                (27, 2465),
+                (28, 4390),
+                (29, 6750),
+                (30, 9180),
+                (31, 9100),
+                (32, 3755),
+                (33, 6090),
+                (34, 8460),
+                (35, 30000)
+            };
+            FillRates(dbContext, high1, roomIdsAndPrices);
+
+            roomIdsAndPrices = new List<(int, decimal)>
             {
-                (20, 4600),
-                (21, 5620),
-                (22, 9350),
-                (23, 11000),
-                (24, 13850),
-                (25, 16620),
-                (26, 28700),
-                (27, 4830),
-                (28, 9200),
-                (29, 11750),
-                (30, 16600),
-                (31, 14100),
-                (32, 6350),
-                (33, 9300),
-                (34, 11750),
-                (35, 38000)
-            });
-            FillRates(dbContext, new[] {GetSeasonId(31), GetSeasonId(33), GetSeasonId(35)},
-                new List<(int, decimal)>
-                {
-                    (20, 3170),
-                    (21, 3780),
-                    (22, 7000),
-                    (23, 8450),
-                    (24, 10200),
-                    (25, 12230),
-                    (26, 23100),
-                    (27, 3170),
-                    (28, 6000),
-                    (29, 8450),
-                    (30, 11600),
-                    (31, 10000),
-                    (32, 4300),
-                    (33, 7000),
-                    (34, 9800),
-                    (35, 3000)
-                });
-            FillRates(dbContext, new[] {GetSeasonId(32), GetSeasonId(34)},
-                new List<(int, decimal)>
-                {
-                    (20, 2465),
-                    (21, 3150),
-                    (22, 5700),
-                    (23, 6700),
-                    (24, 8130),
-                    (25, 9850),
-                    (26, 22300),
-                    (27, 2465),
-                    (28, 4930),
-                    (29, 6750),
-                    (30, 9180),
-                    (31, 9100),
-                    (32, 3755),
-                    (33, 6090),
-                    (34, 8460),
-                    (35, 30000)
-                });
-            FillRates(dbContext, new[] {GetSeasonId(36)}, new List<(int, decimal)>
+                (20, 2100),
+                (21, 2700),
+                (22, 4800),
+                (23, 5800),
+                (24, 6870),
+                (25, 8500),
+                (26, 20700),
+                (27, 2100),
+                (28, 4000),
+                (29, 5750),
+                (30, 7820),
+                (31, 7475),
+                (32, 3150),
+                (33, 5250),
+                (34, 6900),
+                (35, 29000)
+            };
+            FillRates(dbContext, high2, roomIdsAndPrices);
+
+            roomIdsAndPrices = new List<(int, decimal)>
+            {
+                (20, 3170),
+                (21, 3780),
+                (22, 7000),
+                (23, 8450),
+                (24, 10200),
+                (25, 12230),
+                (26, 23100),
+                (27, 3170),
+                (28, 6000),
+                (29, 8450),
+                (30, 11600),
+                (31, 10000),
+                (32, 4300),
+                (33, 7000),
+                (34, 9800),
+                (35, 30000)
+            };
+            FillRates(dbContext, peak1, roomIdsAndPrices);
+
+            roomIdsAndPrices = new List<(int, decimal)>
             {
                 (20, 3780),
                 (21, 4590),
@@ -1006,26 +856,70 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 (33, 8780),
                 (34, 11780),
                 (35, 36000)
-            });
-            FillRates(dbContext, new[] {GetSeasonId(37)}, new List<(int, decimal)>
+            };
+            FillRates(dbContext, peak2, roomIdsAndPrices);
+
+            roomIdsAndPrices = new List<(int, decimal)>
             {
-                (20, 2465),
-                (21, 3150),
-                (22, 5700),
-                (23, 6700),
-                (24, 8130),
-                (25, 9850),
-                (26, 22300),
-                (27, 2465),
-                (28, 4930),
-                (29, 6750),
-                (30, 9180),
-                (31, 9100),
-                (32, 3755),
-                (33, 6090),
-                (34, 8460),
-                (35, 30000)
-            });
+                (20, 1830),
+                (21, 2405),
+                (22, 4200),
+                (23, 5200),
+                (24, 6000),
+                (25, 7600),
+                (26, 16600),
+                (27, 1830),
+                (28, 3650),
+                (29, 5000),
+                (30, 6800),
+                (31, 6500),
+                (32, 2835),
+                (33, 4700),
+                (34, 5400),
+                (35, 24000)
+            };
+            FillRates(dbContext, shoulder, roomIdsAndPrices);
+
+            roomIdsAndPrices = new List<(int, decimal)>
+            {
+                (20, 1560),
+                (21, 2070),
+                (22, 3500),
+                (23, 4200),
+                (24, 5000),
+                (25, 6270),
+                (26, 16600),
+                (27, 1560),
+                (28, 3000),
+                (29, 4175),
+                (30, 5680),
+                (31, 5550),
+                (32, 2300),
+                (33, 3540),
+                (34, 4900),
+                (35, 24000)
+            };
+            FillRates(dbContext, low, roomIdsAndPrices);
+           
+            roomIdsAndPrices = new List<(int, decimal)>{
+                                               (20, 4600),
+                                               (21, 5620),
+                                               (22, 9350),
+                                               (23, 11000),
+                                               (24, 13850),
+                                               (25, 16620),
+                                               (26, 28700),
+                                               (27, 4830),
+                                               (28, 9200),
+                                               (29, 11750),
+                                               (30, 16600),
+                                               (31, 14100),
+                                               (32, 6350),
+                                               (33, 9300),
+                                               (34, 11750),
+                                               (35, 38000)
+                                           };
+            FillRates(dbContext, festive, roomIdsAndPrices);
 
             #endregion
 
@@ -2472,45 +2366,46 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             });
             dbContext.SaveChanges();
 
-            var seasons = new List<(int, DateTime, DateTime)>
+            var seasonRanges = new List<(DateTime, DateTime)>
             {
-                (GetSeasonId(51), new DateTime(2020, 01, 14), new DateTime(2020, 01, 31)),
-                (GetSeasonId(58), new DateTime(2020, 09, 01), new DateTime(2020, 10, 12)),
-                (GetSeasonId(62), new DateTime(2020, 12, 02), new DateTime(2020, 12, 21))
+                (new DateTime(2020, 01, 14), new DateTime(2020, 01, 31)),
+                (new DateTime(2020, 09, 01), new DateTime(2020, 10, 12)),
+                (new DateTime(2020, 12, 02), new DateTime(2020, 12, 21))
             };
-            AddSeasons(dbContext, contractId, "SHOULDER", seasons);
+            var shoulder = AddSeasonRanges(dbContext, seasonRanges, "SHOULDER", contractId);
 
-            seasons = new List<(int, DateTime, DateTime)>
+            seasonRanges = new List<(DateTime, DateTime)>
             {
-                (GetSeasonId(52), new DateTime(2020, 02, 01), new DateTime(2020, 02, 04)),
-                (GetSeasonId(54), new DateTime(2020, 02, 12), new DateTime(2020, 03, 27)),
-                (GetSeasonId(56), new DateTime(2020, 04, 22), new DateTime(2020, 05, 05)),
-                (GetSeasonId(59), new DateTime(2020, 10, 13), new DateTime(2020, 10, 19)),
-                (GetSeasonId(61), new DateTime(2020, 11, 10), new DateTime(2020, 12, 01)),
-                (GetSeasonId(63), new DateTime(2020, 12, 22), new DateTime(2020, 12, 26)),
-                (GetSeasonId(65), new DateTime(2021, 01, 05), new DateTime(2021, 01, 13))
+                (new DateTime(2020, 02, 01), new DateTime(2020, 02, 04)),
+                (new DateTime(2020, 02, 12), new DateTime(2020, 03, 27)),
+                (new DateTime(2020, 04, 22), new DateTime(2020, 05, 05)),
+                (new DateTime(2020, 10, 13), new DateTime(2020, 10, 19)),
+                (new DateTime(2020, 11, 10), new DateTime(2020, 12, 01)),
+                (new DateTime(2020, 12, 22), new DateTime(2020, 12, 26)),
+                (new DateTime(2021, 01, 05), new DateTime(2021, 01, 13))
             };
-            AddSeasons(dbContext, contractId, "HIGH", seasons);
+            
+            var high = AddSeasonRanges(dbContext, seasonRanges, "HIGH", contractId);
 
-            seasons = new List<(int, DateTime, DateTime)>
+            seasonRanges = new List<(DateTime, DateTime)>
             {
-                (GetSeasonId(53), new DateTime(2020, 02, 05), new DateTime(2020, 02, 11)),
-                (GetSeasonId(55), new DateTime(2020, 03, 28), new DateTime(2020, 04, 21)),
-                (GetSeasonId(60), new DateTime(2020, 10, 20), new DateTime(2020, 11, 09)),
+                (new DateTime(2020, 02, 05), new DateTime(2020, 02, 11)),
+                (new DateTime(2020, 03, 28), new DateTime(2020, 04, 21)),
+                (new DateTime(2020, 10, 20), new DateTime(2020, 11, 09))
             };
-            AddSeasons(dbContext, contractId, "PEAK", seasons);
+            var peak = AddSeasonRanges(dbContext, seasonRanges, "PEAK", contractId);
 
-            seasons = new List<(int, DateTime, DateTime)>
+            seasonRanges = new List<(DateTime, DateTime)>
             {
-                (GetSeasonId(57), new DateTime(2020, 05, 06), new DateTime(2020, 08, 31)),
+                (new DateTime(2020, 05, 06), new DateTime(2020, 08, 31))
             };
-            AddSeasons(dbContext, contractId, "LOW", seasons);
+            var low = AddSeasonRanges(dbContext, seasonRanges, "LOW", contractId);
 
-            seasons = new List<(int, DateTime, DateTime)>
+            seasonRanges = new List<(DateTime, DateTime)>
             {
-                (GetSeasonId(64), new DateTime(2020, 12, 27), new DateTime(2021, 01, 04))
+                (new DateTime(2020, 12, 27), new DateTime(2021, 01, 04))
             };
-            AddSeasons(dbContext, contractId, "FESTIVE", seasons);
+            var festive = AddSeasonRanges(dbContext, seasonRanges, "FESTIVE", contractId);
 
             if (IsAccommodationExist(dbContext, "Burj Al Arab Jumeirah")) return;
 
@@ -2778,8 +2673,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
 
             var roomIds = new[] {71, 72, 73, 74};
 
-            var seasonIds = new[] {GetSeasonId(57)};
-            var cancellationPolicy = new RoomCancellationPolicy
+           var cancellationPolicy = new RoomCancellationPolicy
             {
                 Policies = new List<Policy>
                 {
@@ -2792,10 +2686,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 }
             };
             
-            AddCancellationPolicies(dbContext, seasonIds, roomIds, cancellationPolicy);
+            AddCancellationPolicies(dbContext, low, roomIds, cancellationPolicy);
             dbContext.SaveChanges();
             
-            seasonIds = new[] { GetSeasonId(51), GetSeasonId(58), GetSeasonId(62)};
             cancellationPolicy = new RoomCancellationPolicy
             {
                 Policies = new List<Policy>
@@ -2809,10 +2702,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 }
             };
             
-            AddCancellationPolicies(dbContext, seasonIds, roomIds, cancellationPolicy);
+            AddCancellationPolicies(dbContext, shoulder, roomIds, cancellationPolicy);
             dbContext.SaveChanges();
             
-            seasonIds = new[] {GetSeasonId(52), GetSeasonId(54), GetSeasonId(56), GetSeasonId(59), GetSeasonId(61), GetSeasonId(63), GetSeasonId(65)};
             cancellationPolicy = new RoomCancellationPolicy
             {
                 Policies = new List<Policy>
@@ -2826,10 +2718,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                 }
             };
 
-            AddCancellationPolicies(dbContext, seasonIds, roomIds, cancellationPolicy);
+            AddCancellationPolicies(dbContext, high, roomIds, cancellationPolicy);
             dbContext.SaveChanges();
             
-            seasonIds = new[] {GetSeasonId(53), GetSeasonId(55), GetSeasonId(60)};
             cancellationPolicy = new RoomCancellationPolicy
             {
                 Policies = new List<Policy>
@@ -2842,10 +2733,9 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     }
                 }
             };
-            AddCancellationPolicies(dbContext, seasonIds, roomIds, cancellationPolicy);
+            AddCancellationPolicies(dbContext, peak, roomIds, cancellationPolicy);
             dbContext.SaveChanges();
             
-            seasonIds = new[] {GetSeasonId(64)};
             cancellationPolicy = new RoomCancellationPolicy
             {
                 Policies = new List<Policy>
@@ -2858,7 +2748,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
                     }
                 }
             };
-            AddCancellationPolicies(dbContext, seasonIds, roomIds, cancellationPolicy);
+            AddCancellationPolicies(dbContext, festive, roomIds, cancellationPolicy);
             dbContext.SaveChanges();
             #endregion
 
@@ -2866,50 +2756,20 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
 
             #region AddRates
 
-            FillRates(dbContext, new[] {GetSeasonId(51)},
+            FillRates(dbContext, shoulder,
                 new List<(int, decimal)> {(71, 7321), (72, 7809), (73, 10981), (74, 18302)});
 
-            FillRates(dbContext, new[] {GetSeasonId(52)},
+            FillRates(dbContext, high,
                 new List<(int, decimal)> {(71, 9273), (72, 10005), (73, 13909), (74, 23182)});
 
-            FillRates(dbContext, new[] {GetSeasonId(53)},
+            FillRates(dbContext, peak,
                 new List<(int, decimal)> {(71, 11225), (72, 12201), (73, 22450), (74, 33675)});
-
-            FillRates(dbContext, new[] {GetSeasonId(54)},
-                new List<(int, decimal)> {(71, 9273), (72, 10005), (73, 13909), (74, 23182)});
-
-            FillRates(dbContext, new[] {GetSeasonId(55)},
-                new List<(int, decimal)> {(71, 11225), (72, 12201), (73, 22450), (74, 33675)});
-
-            FillRates(dbContext, new[] {GetSeasonId(56)},
-                new List<(int, decimal)> {(71, 9273), (72, 10005), (73, 13909), (74, 23182)});
-
-            FillRates(dbContext, new[] {GetSeasonId(57)},
+           
+            FillRates(dbContext, low,
                 new List<(int, decimal)> {(71, 6345), (72, 6833), (73, 9517), (74, 15862)});
 
-            FillRates(dbContext, new[] {GetSeasonId(58)},
-                new List<(int, decimal)> {(71, 7321), (72, 7809), (73, 10981), (74, 18302)});
-
-            FillRates(dbContext, new[] {GetSeasonId(59)},
-                new List<(int, decimal)> {(71, 9273), (72, 10005), (73, 13909), (74, 23182)});
-
-            FillRates(dbContext, new[] {GetSeasonId(60)},
-                new List<(int, decimal)> {(71, 11225), (72, 12201), (73, 22450), (74, 33675)});
-
-            FillRates(dbContext, new[] {GetSeasonId(61)},
-                new List<(int, decimal)> {(71, 9273), (72, 10005), (73, 13909), (74, 23182)});
-
-            FillRates(dbContext, new[] {GetSeasonId(62)},
-                new List<(int, decimal)> {(71, 7321), (72, 7809), (73, 10981), (74, 18302)});
-
-            FillRates(dbContext, new[] {GetSeasonId(63)},
-                new List<(int, decimal)> {(71, 9273), (72, 10005), (73, 13909), (74, 23182)});
-
-            FillRates(dbContext, new[] {GetSeasonId(64)},
+            FillRates(dbContext, festive,
                 new List<(int, decimal)> {(71, 13177), (72, 14153), (73, 26355), (74, 39532)});
-
-            FillRates(dbContext, new[] {GetSeasonId(65)},
-                new List<(int, decimal)> {(71, 9273), (72, 10005), (73, 13909), (74, 23182)});
 
             #endregion
 
@@ -3331,29 +3191,27 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             dbContext.SaveChanges();
         }
 
-        private static void FillRates(DirectContractsDbContext dbContext, int[] seasonIds,
-            List<(int, decimal)> roomIdsAndPrices)
+
+        private static void FillRates(DirectContractsDbContext dbContext, int seasonId, List<(int, decimal)> roomIdsAndPrices)
         {
-            foreach (var seasonId in seasonIds)
+            foreach (var roomIdsAndPrice in roomIdsAndPrices)
             {
-                foreach (var roomIdsAndPrice in roomIdsAndPrices)
+                var rate = new RoomRate
                 {
-                    var rate = new RoomRate
-                    {
-                        SeasonId = seasonId,
-                        RoomId = roomIdsAndPrice.Item1,
-                        Price = roomIdsAndPrice.Item2,
-                        Currency = Currencies.AED,
-                        Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>()),
-                        BoardBasis = BoardBasisTypes.NotSpecified,
-                        MealPlan = "no meal"
-                    };
-                    dbContext.Entry(rate).State = EntityState.Detached;
-                    dbContext.RoomRates.Add(rate);
-                }
+                    SeasonId = seasonId,
+                    RoomId = roomIdsAndPrice.Item1,
+                    Price = roomIdsAndPrice.Item2,
+                    Currency = Currencies.AED,
+                    Details = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string>()),
+                    BoardBasis = BoardBasisTypes.NotSpecified,
+                    MealPlan = "no meal"
+                };
+                dbContext.Entry(rate).State = EntityState.Detached;
+                dbContext.RoomRates.Add(rate);
             }
         }
 
+        
         private static void AddPromotionalOffers(DirectContractsDbContext dbContext, int[] roomIds,
             List<RoomPromotionalOffer> promotionalOffers)
         {
@@ -3378,6 +3236,7 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             }
         }
 
+        
         private static void AddRoomAllocationRequirements(DirectContractsDbContext dbContext, int[] ids,
             RoomAllocationRequirement[] roomAllocationRequirements)
         {
@@ -3395,38 +3254,45 @@ namespace HappyTravel.Hiroshima.DirectContractsDataSeeder
             }
         }
 
-        private static void AddCancellationPolicies(DirectContractsDbContext dbContext, IEnumerable<int> seasonIds,
+        
+        private static void AddCancellationPolicies(DirectContractsDbContext dbContext, int seasonId,
             IEnumerable<int> roomIds, RoomCancellationPolicy roomCancellationPolicy)
         {
-            foreach (var seasonId in seasonIds)
+            foreach (var roomId in roomIds)
             {
-                foreach (var roomId in roomIds)
-                {
                     roomCancellationPolicy.RoomId = roomId;
                     roomCancellationPolicy.SeasonId = seasonId;
                     var serialized = JsonConvert.SerializeObject(roomCancellationPolicy);
                     dbContext.RoomCancellationPolicies.Add(
                         JsonConvert.DeserializeObject<RoomCancellationPolicy>(serialized));
-                }
             }
         }
 
-        private static void AddSeasons(DirectContractsDbContext dbContext, int contractId, string seasonName,
-            List<(int id, DateTime start, DateTime end)> seasonDates)
+        
+        private static int AddSeasonRanges(DirectContractsDbContext dbContext,
+            List<(DateTime start, DateTime end)> dateRanges, string seasonName, int contractId)
         {
-            foreach (var (id, startDate, endDate) in seasonDates)
+            var season = new Season
             {
-                dbContext.Add(new Season
+                Name = seasonName,
+                ContractId = contractId
+            };
+            dbContext.Seasons.Add(season);
+            dbContext.SaveChanges();
+            dbContext.DetachEntry(season);
+            
+            foreach (var (startDate, endDate) in dateRanges)
+            {
+                dbContext.SeasonRanges.Add(new SeasonRange
                 {
-                    Id = id,
-                    ContractId = contractId,
                     StartDate = startDate,
                     EndDate = endDate,
-                    Name = seasonName
+                    SeasonId = season.Id
                 });
             }
 
             dbContext.SaveChanges();
+            return season.Id;
         }
 
 
