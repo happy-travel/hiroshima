@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.Json;
+using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.Data.Models;
 using HappyTravel.Hiroshima.Data.Models.Accommodations;
@@ -272,14 +273,24 @@ namespace HappyTravel.Hiroshima.Data
                 e.ToTable("Seasons");
                 e.HasKey(s  => s.Id);
                 e.Property(s => s.Name).IsRequired();
-                e.Property(s => s.StartDate).IsRequired();
-                e.Property(s => s.EndDate).IsRequired();
                 e.Property(s => s.ContractId).IsRequired();
                 e.HasIndex(s => s.ContractId);
             });
         }
-        
-        
+
+
+        private void AddSeasonRanges(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<SeasonRange>(e =>
+            {
+                e.ToTable("Seasons");
+                e.HasKey(s => s.Id);
+                e.Property(s => s.StartDate).IsRequired();
+                e.Property(s => s.EndDate).IsRequired();
+            });
+        }
+
+
         public virtual DbSet<Models.Location.Location> Locations { get; set; }
         public virtual DbSet<Accommodation> Accommodations { get; set; }
         public virtual DbSet<Country> Countries { get; set; }
@@ -294,5 +305,6 @@ namespace HappyTravel.Hiroshima.Data
         public virtual DbSet<Contract> Contracts { get; set; }
         public virtual DbSet<ContractAccommodationRelation> ContractAccommodationRelations { get; set; }
         public virtual DbSet<Season> Seasons { get; set; }
+        public virtual DbSet<SeasonRange> SeasonRanges { get; set; }
     }
 }

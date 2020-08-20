@@ -4,9 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.Data;
+using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
 using HappyTravel.Hiroshima.DirectContracts.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 {
@@ -69,30 +71,30 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         private async Task<List<RateDetails>> GetRateDetails(List<int> roomIds, DateTime checkInDate, DateTime checkOutDate, string languageCode)
         {
             checkInDate = checkInDate.Date;
-            return await _dbContext.RoomRates.Join(_dbContext.Seasons, roomRate => roomRate.SeasonId, season => season.Id, (roomRate, season) => new
+            var seasonsAndSeasonRanges = _dbContext.GetSeasonsAndSeasonRanges()
+                .Where(seasonAndSeasonRange
+                    => !(seasonAndSeasonRange.SeasonRange.EndDate < checkInDate || checkOutDate < seasonAndSeasonRange.SeasonRange.StartDate));
+
+            return await _dbContext.RoomRates.Join(seasonsAndSeasonRanges, rate => rate.SeasonId, seasonAndSeasonRange => seasonAndSeasonRange.Season.Id,
+                    (rate, seasonAndSeasonRange) => new {rate, seasonAndSeasonRange.Season, seasonAndSeasonRange.SeasonRange})
+                .Where(rateAndSeasonAndSeasonRange => roomIds.Contains(rateAndSeasonAndSeasonRange.rate.RoomId))
+                .Select(rateAndSeasonAndSeasonRange => new RateDetails
                 {
-                    roomRate,
-                    season
-                })
-                .Where(roomRateAndSeason => roomIds.Contains(roomRateAndSeason.roomRate.RoomId) &&
-                    !(roomRateAndSeason.season.EndDate < checkInDate || checkOutDate < roomRateAndSeason.season.StartDate))
-                .Select(roomRateAndSeason => new RateDetails
-                {
-                    RateId = roomRateAndSeason.roomRate.Id,
-                    Details = DirectContractsDbContext.GetLangFromJsonb(roomRateAndSeason.roomRate.Details, languageCode),
-                    Price = roomRateAndSeason.roomRate.Price,
-                    BoardBasis = roomRateAndSeason.roomRate.BoardBasis,
-                    Currency = roomRateAndSeason.roomRate.Currency,
-                    MealPlan = roomRateAndSeason.roomRate.MealPlan,
-                    RoomId = roomRateAndSeason.roomRate.RoomId,
-                    SeasonId = roomRateAndSeason.roomRate.SeasonId,
-                    SeasonName = roomRateAndSeason.season.Name,
-                    SeasonStartDate = roomRateAndSeason.season.StartDate,
-                    SeasonEndDate = roomRateAndSeason.season.EndDate,
-                    SeasonContractId = roomRateAndSeason.season.Id
+                    RateId = rateAndSeasonAndSeasonRange.rate.Id,
+                    Details = DirectContractsDbContext.GetLangFromJsonb(rateAndSeasonAndSeasonRange.rate.Details, languageCode),
+                    Price = rateAndSeasonAndSeasonRange.rate.Price,
+                    BoardBasis = rateAndSeasonAndSeasonRange.rate.BoardBasis,
+                    Currency = rateAndSeasonAndSeasonRange.rate.Currency,
+                    MealPlan = rateAndSeasonAndSeasonRange.rate.MealPlan,
+                    RoomId = rateAndSeasonAndSeasonRange.rate.RoomId,
+                    SeasonId = rateAndSeasonAndSeasonRange.Season.Id,
+                    SeasonName = rateAndSeasonAndSeasonRange.Season.Name,
+                    SeasonStartDate = rateAndSeasonAndSeasonRange.SeasonRange.StartDate,
+                    SeasonEndDate = rateAndSeasonAndSeasonRange.SeasonRange.EndDate,
+                    SeasonContractId = rateAndSeasonAndSeasonRange.Season.Id
                 })
                 .ToListAsync();
-        }
+           }
 
 
         private async Task<List<RoomPromotionalOffer>> GetPromotionalOffers(IEnumerable<int> roomIds, DateTime checkInDate, DateTime checkOutDate,
@@ -120,16 +122,15 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 
         private async Task<List<RoomCancellationPolicy>> GetCancellationPolicies(IEnumerable<int> roomIds, DateTime checkInDate)
         {
+            var seasonsAndSeasonRanges = _dbContext.GetSeasonsAndSeasonRanges()
+                .Where(seasonAndSeasonRange => seasonAndSeasonRange.SeasonRange.StartDate.Date <= checkInDate &&
+                    checkInDate <= seasonAndSeasonRange.SeasonRange.EndDate.Date);
+
             return await _dbContext.RoomCancellationPolicies
-                .Join(_dbContext.Seasons, roomCancellationPolicy => roomCancellationPolicy.SeasonId, season => season.Id,
-                    (roomCancellationPolicy, season) => new
-                    {
-                        roomCancellationPolicy,
-                        season
-                    })
-                .Where(roomCancellationPolicyAndSeason => roomIds.Contains(roomCancellationPolicyAndSeason.roomCancellationPolicy.RoomId) &&
-                    roomCancellationPolicyAndSeason.season.StartDate.Date <= checkInDate && checkInDate <= roomCancellationPolicyAndSeason.season.EndDate.Date)
-                .Select(roomCancellationPolicyAndSeason => roomCancellationPolicyAndSeason.roomCancellationPolicy)
+                .Join(seasonsAndSeasonRanges, roomCancellationPolicy => roomCancellationPolicy.SeasonId, seasonAndSeasonRange => seasonAndSeasonRange.Season.Id,
+                    (cancellationPolicy, seasonAndSeasonRange) => new {cancellationPolicy, seasonAndSeasonRange.Season, seasonAndSeasonRange.SeasonRange})
+                .Where(cancellationPolicyAndRoomAndSeasonRange => roomIds.Contains(cancellationPolicyAndRoomAndSeasonRange.cancellationPolicy.RoomId))
+                .Select(cancellationPolicyAndRoomAndSeasonRange => cancellationPolicyAndRoomAndSeasonRange.cancellationPolicy)
                 .ToListAsync();
         }
 

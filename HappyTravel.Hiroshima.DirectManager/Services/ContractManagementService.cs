@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Hiroshima.Data;
+using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.Data.Models;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure;
-using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {

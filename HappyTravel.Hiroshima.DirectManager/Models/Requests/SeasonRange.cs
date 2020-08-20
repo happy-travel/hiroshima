@@ -1,17 +1,11 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
 {
-    public class Season
+    public class SeasonRange
     {
-        [Required]
         public int SeasonId { get; set; }
-        
-        [Required]
         public DateTime StartDate { get; set; }
-        
-        [Required]
         public DateTime EndDate { get; set; }
     }
 }

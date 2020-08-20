@@ -15,6 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Infrastructure\Extensions" />
       <Folder Include="Models\Common" />
     </ItemGroup>
 
