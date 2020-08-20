@@ -7,7 +7,6 @@ using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Models.Booking;
-using HappyTravel.Hiroshima.Data.Models.Rooms;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -53,6 +52,48 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.HasIndex("SeasonId");
 
                     b.ToTable("CancellationPolicies");
+                });
+
+            modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.Season", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<int>("ContractId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContractId");
+
+                    b.ToTable("Seasons");
+                });
+
+            modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.SeasonRange", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("SeasonId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SeasonRanges");
                 });
 
             modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.Accommodations.Accommodation", b =>
@@ -349,23 +390,20 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<int?>("Allotment")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int?>("MinimumStayNights")
-                        .HasColumnType("integer");
-
-                    b.Property<ReleasePeriod>("ReleasePeriod")
                         .IsRequired()
-                        .HasColumnType("jsonb");
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("MinimumLengthOfStay")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ReleaseDays")
+                        .HasColumnType("integer");
 
                     b.Property<int>("RoomId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("timestamp without time zone");
+                    b.Property<int>("SeasonRangeId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -478,48 +516,6 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.HasIndex("SeasonId");
 
                     b.ToTable("RoomRates");
-                });
-
-            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.Season", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<int>("ContractId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ContractId");
-
-                    b.ToTable("Seasons");
-                });
-
-            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.SeasonRange", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int>("SeasonId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SeasonRanges");
                 });
 #pragma warning restore 612, 618
         }

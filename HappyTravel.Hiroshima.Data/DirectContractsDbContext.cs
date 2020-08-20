@@ -207,11 +207,10 @@ namespace HappyTravel.Hiroshima.Data
             {
                 e.ToTable("RoomAllocationRequirements");
                 e.HasKey(rar => rar.Id);
-                e.Property(rar => rar.StartDate).IsRequired();
-                e.Property(rar => rar.EndDate).IsRequired();
-                e.Property(rar => rar.MinimumStayNights);
-                e.Property(rar => rar.ReleasePeriod).HasColumnType("jsonb");
-                e.Property(rar => rar.Allotment);
+                e.Property(rar => rar.SeasonRangeId).IsRequired();
+                e.Property(rar => rar.MinimumLengthOfStay);
+                e.Property(rar => rar.ReleaseDays).IsRequired();
+                e.Property(rar => rar.Allotment).IsRequired();
                 e.Property(rar => rar.RoomId).IsRequired();
                 e.HasIndex(rar => rar.RoomId);
             });

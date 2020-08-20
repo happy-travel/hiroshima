@@ -168,7 +168,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     RoomId = table.Column<int>(nullable: false),
                     StartDate = table.Column<DateTime>(nullable: false),
                     EndDate = table.Column<DateTime>(nullable: false),
-                    ReleasePeriod = table.Column<ReleasePeriod>(type: "jsonb", nullable: false),
+                    ReleasePeriod = table.Column<int>(nullable: false),
                     MinimumStayNights = table.Column<int>(nullable: true),
                     Allotment = table.Column<int>(nullable: true)
                 },

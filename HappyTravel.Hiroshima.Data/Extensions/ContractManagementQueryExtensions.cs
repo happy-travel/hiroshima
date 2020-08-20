@@ -5,6 +5,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Data.Models.Accommodations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace HappyTravel.Hiroshima.Data.Extensions
 {
@@ -53,7 +54,20 @@ namespace HappyTravel.Hiroshima.Data.Extensions
 
             return inappropriateSeasonIds.Any() ? Result.Failure($"Inappropriate season ids: {string.Join(", ", inappropriateSeasonIds)}") : Result.Success();
         }
+        
+        
+        public static async Task<Result> CheckIfSeasonRangesBelongToContract(this DirectContractsDbContext dbContext, int contractId, List<int> seasonRangeIds)
+        {
+            var contractRangeIds = await GetSeasonsAndSeasonRanges(dbContext)
+                .Where(seasonAndSeasonRange => seasonAndSeasonRange.Season.ContractId == contractId)
+                .Select(seasonAndSeasonRange => seasonAndSeasonRange.SeasonRange.Id)
+                .ToListAsync();
 
+            var inappropriateRangeIds = contractRangeIds.Except(seasonRangeIds).ToList();
+            
+            return inappropriateRangeIds.Any() ? Result.Failure($"Inappropriate season range ids: {string.Join(", ", inappropriateRangeIds)}") : Result.Success();
+        }
+        
 
         public static IQueryable<Accommodation> GetContractedAccommodations(this DirectContractsDbContext dbContext, int contractId, int contractManagerId) 
             => dbContext.Accommodations
