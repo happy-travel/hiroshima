@@ -156,13 +156,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<Result<Room>> GetRoom(int contractManagerId)
             {
-                var room = await _dbContext.Rooms.Join(_dbContext.Accommodations, room => room.AccommodationId, accommodation => accommodation.Id,
-                        (room, accommodation) => new {room, accommodation})
+                var room = await _dbContext.GetRoomsAndAccommodations()
                     .Where(roomAndAccommodation => 
-                        roomAndAccommodation.room.Id == roomId &&
-                        roomAndAccommodation.accommodation.ContractManagerId == contractManagerId &&
-                        roomAndAccommodation.accommodation.Id == accommodationId)
-                    .Select(roomAndAccommodation => roomAndAccommodation.room)
+                        roomAndAccommodation.Room.Id == roomId &&
+                        roomAndAccommodation.Accommodation.ContractManagerId == contractManagerId &&
+                        roomAndAccommodation.Accommodation.Id == accommodationId)
+                    .Select(roomAndAccommodation => roomAndAccommodation.Room)
                     .SingleOrDefaultAsync();
                 
                 return room == null 

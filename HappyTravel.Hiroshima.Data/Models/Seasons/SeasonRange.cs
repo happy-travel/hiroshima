@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace HappyTravel.Hiroshima.Common.Models
+namespace HappyTravel.Hiroshima.Data.Models.Seasons
 {
     public class SeasonRange
     {

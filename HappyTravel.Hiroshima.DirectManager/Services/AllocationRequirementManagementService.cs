@@ -7,6 +7,8 @@ using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.Data.Models;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {
@@ -34,9 +36,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             {
                 var allocationRequirementEntries = Create(allocationRequirements);
                 _dbContext.RoomAllocationRequirements.AddRange(allocationRequirementEntries);
-                _dbContext.DetachEntries(allocationRequirementEntries);
+                
                 await _dbContext.SaveChangesAsync();
-
+                _dbContext.DetachEntries(allocationRequirementEntries);
+                
                 return allocationRequirementEntries;
             }
 
@@ -56,6 +59,78 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 => _dbContext.CheckIfRoomsBelongToContract(contractId, contractManager.Id, roomIds);
         }
 
+
+        public Task<Result<List<Models.Responses.AllocationRequirement>>> Get(int contractId, List<int> roomIds = null, List<int> seasonIds = null, List<int> seasonRangeIds = null)
+        {
+            return _contractManagerContextService.GetContractManager()
+                .Ensure(contractManager => _dbContext.DoesContractBelongToContractManager(contractId, contractManager.Id),
+                    $"Contract '{contractId}' doesn't belong to the contract manager")
+                .Map(contractManager => GetAllocationRequirements(contractManager.Id))
+                .Map(Build);
+            
+            
+            async Task<List<RoomAllocationRequirement>> GetAllocationRequirements(int contractManagerId)
+            {
+                var seasonsAndSeasonRanges = _dbContext.GetSeasonsAndSeasonRanges()
+                    .Where(seasonAndSeasonRange => seasonAndSeasonRange.Season.ContractId == contractId);
+
+                if (seasonIds != null && seasonIds.Any())
+                    seasonsAndSeasonRanges = seasonsAndSeasonRanges.Where(seasonAndSeasonRange => seasonIds.Contains(seasonAndSeasonRange.Season.Id));
+
+                if (seasonRangeIds != null && seasonRangeIds.Any())
+                    seasonsAndSeasonRanges = seasonsAndSeasonRanges.Where(seasonAndSeasonRange => seasonRangeIds.Contains(seasonAndSeasonRange.SeasonRange.Id));
+
+                var roomAllocationRequirement = _dbContext.RoomAllocationRequirements.Join(seasonsAndSeasonRanges, allocationRequirement => allocationRequirement.SeasonRangeId,
+                    seasonAndSeasonRange => seasonAndSeasonRange.SeasonRange.Id, (allocationRequirement, _) => allocationRequirement);
+                
+                if (roomIds != null && roomIds.Any())
+                {
+                    var contractedAccommodations = _dbContext.GetContractedAccommodations(contractId, contractManagerId);
+                    var validRoomIds = _dbContext.GetRoomsAndAccommodations().Join(contractedAccommodations,
+                            roomAndAccommodation => roomAndAccommodation.Room.AccommodationId,
+                            contractedAccommodation => contractedAccommodation.Id, (roomAndAccommodation, _) => roomAndAccommodation.Room.Id)
+                        .Where(roomId => roomIds.Contains(roomId));
+
+                    if (validRoomIds.Any())
+                        roomAllocationRequirement = roomAllocationRequirement.Where(allocationRequirement => validRoomIds.Contains(allocationRequirement.RoomId));
+                }
+
+                return await roomAllocationRequirement.ToListAsync();
+            }
+        }
+
+
+        public Task<Result> Remove(int contractId, List<int> allocationRequirementIds)
+        {
+            return _contractManagerContextService.GetContractManager()
+                .Ensure(contractManager => _dbContext.DoesContractBelongToContractManager(contractId, contractManager.Id),
+                    $"Contract '{contractId}' doesn't belong to the contract manager")
+                .Map(contractManager => GetAllocationRequirements())
+                .Map(Remove)
+                .Finally(result => result.IsSuccess ? Result.Success() : Result.Failure(result.Error));
+
+
+            async Task<List<RoomAllocationRequirement>> GetAllocationRequirements()
+            {
+                var seasonsRanges = _dbContext.GetSeasonsAndSeasonRanges()
+                    .Where(seasonAndSeasonRange => seasonAndSeasonRange.Season.ContractId == contractId)
+                    .Select(seasonAndSeasonRange => seasonAndSeasonRange.SeasonRange);
+                
+                return await _dbContext.RoomAllocationRequirements.Join(seasonsRanges, allocationRequirement => allocationRequirement.SeasonRangeId,
+                    seasonRange => seasonRange.Id, (allocationRequirement, _) => allocationRequirement)
+                    .Where(allocationRequirement => allocationRequirementIds.Contains(allocationRequirement.Id))
+                    .ToListAsync();
+            }
+
+
+            async Task Remove(List<RoomAllocationRequirement> allocationRequirements)
+            {
+                _dbContext.RoomAllocationRequirements.RemoveRange(allocationRequirements);
+                
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+        
 
         private List<Models.Responses.AllocationRequirement> Build(List<RoomAllocationRequirement> allocationRequirement)
             => allocationRequirement.Select(Build).ToList();

@@ -33,7 +33,7 @@
             <summary>
             Creates a new accommodation
             </summary>
-            <param name="accommodation">New accommodation data</param>
+            <param name="accommodation">New accomprmodation data</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.UpdateAccommodation(System.Int32,HappyTravel.Hiroshima.DirectManager.Models.Requests.Accommodation)">
@@ -267,6 +267,14 @@
             Retrieves contract's season ranges
             </summary>
             <param name="contractId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.SeasonManagementController.GetSeasonRanges(System.Int32,System.Int32)">
+            <summary>
+            Retrieves contract's season ranges of the specific season
+            </summary>
+            <param name="contractId"></param>
+            <param name="seasonId"></param>
             <returns></returns>
         </member>
     </members>

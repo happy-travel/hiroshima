@@ -7,6 +7,7 @@ using HappyTravel.Hiroshima.Data.Models.Accommodations;
 using HappyTravel.Hiroshima.Data.Models.Booking;
 using HappyTravel.Hiroshima.Data.Models.Location;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
+using HappyTravel.Hiroshima.Data.Models.Seasons;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 using Room = HappyTravel.Hiroshima.Data.Models.Rooms.Room;

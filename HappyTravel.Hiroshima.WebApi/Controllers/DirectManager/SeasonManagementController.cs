@@ -113,6 +113,25 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         }
         
         
+        /// <summary>
+        /// Retrieves contract's season ranges of the specific season
+        /// </summary>
+        /// <param name="contractId"></param>
+        /// <param name="seasonId"></param>
+        /// <returns></returns>
+        [HttpGet("{contractId}/seasons/{seasonId}/ranges")]
+        [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.SeasonRange>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetSeasonRanges([FromRoute] int contractId, [FromRoute] int seasonId)
+        {
+            var (_, isFailure, response, error) = await _seasonManagementService.GetSeasonRanges(contractId, seasonId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
+        }
+        
+        
         private readonly ISeasonManagementService _seasonManagementService;
     }
 }

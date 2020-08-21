@@ -1,4 +1,6 @@
-﻿namespace HappyTravel.Hiroshima.Common.Models
+﻿using HappyTravel.Hiroshima.Data.Models.Seasons;
+
+namespace HappyTravel.Hiroshima.Data.Models
 {
     public class SeasonAndSeasonRange
     {

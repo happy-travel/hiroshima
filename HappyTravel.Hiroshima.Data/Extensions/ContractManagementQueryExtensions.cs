@@ -3,7 +3,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Models;
+using HappyTravel.Hiroshima.Data.Models;
 using HappyTravel.Hiroshima.Data.Models.Accommodations;
+using HappyTravel.Hiroshima.Data.Models.Seasons;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -63,7 +65,7 @@ namespace HappyTravel.Hiroshima.Data.Extensions
                 .Select(seasonAndSeasonRange => seasonAndSeasonRange.SeasonRange.Id)
                 .ToListAsync();
 
-            var inappropriateRangeIds = contractRangeIds.Except(seasonRangeIds).ToList();
+            var inappropriateRangeIds = seasonRangeIds.Except(contractRangeIds).ToList();
             
             return inappropriateRangeIds.Any() ? Result.Failure($"Inappropriate season range ids: {string.Join(", ", inappropriateRangeIds)}") : Result.Success();
         }
@@ -90,6 +92,15 @@ namespace HappyTravel.Hiroshima.Data.Extensions
                 {
                     Season = season,
                     SeasonRange = seasonRange
+                });
+
+
+        public static IQueryable<RoomAndAccommodation> GetRoomsAndAccommodations(this DirectContractsDbContext dbContext)
+            => dbContext.Rooms.Join(dbContext.Accommodations, room => room.AccommodationId, accommodation => accommodation.Id,
+                (room, accommodation) => new RoomAndAccommodation
+                {
+                    Room = room,
+                    Accommodation = accommodation
                 });
     }
 }
