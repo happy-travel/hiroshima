@@ -13,8 +13,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
         [Required]
         public int ReleaseDays { get; set; }
         
-        [Required]
-        public int Allotment { get; set; }
+        public int? Allotment { get; set; }
         
         public int? MinimumLengthOfStay { get; set; }
     }

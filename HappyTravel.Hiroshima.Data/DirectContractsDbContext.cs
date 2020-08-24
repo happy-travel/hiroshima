@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text.Json;
-using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.Data.Models;
 using HappyTravel.Hiroshima.Data.Models.Accommodations;
@@ -50,6 +49,7 @@ namespace HappyTravel.Hiroshima.Data
             AddCancellationPolicies(modelBuilder);
             AddContractAccommodationRelation(modelBuilder);
             AddSeasons(modelBuilder);
+            AddSeasonRanges(modelBuilder);
         }
 
 
@@ -283,10 +283,12 @@ namespace HappyTravel.Hiroshima.Data
         {
             modelBuilder.Entity<SeasonRange>(e =>
             {
-                e.ToTable("Seasons");
+                e.ToTable("SeasonRanges");
                 e.HasKey(s => s.Id);
                 e.Property(s => s.StartDate).IsRequired();
                 e.Property(s => s.EndDate).IsRequired();
+                e.Property(s => s.SeasonId).IsRequired();
+                e.HasIndex(s => s.SeasonId);
             });
         }
 

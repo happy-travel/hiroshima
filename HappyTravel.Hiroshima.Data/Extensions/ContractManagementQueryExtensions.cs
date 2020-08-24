@@ -2,12 +2,9 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Data.Models;
 using HappyTravel.Hiroshima.Data.Models.Accommodations;
-using HappyTravel.Hiroshima.Data.Models.Seasons;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace HappyTravel.Hiroshima.Data.Extensions
 {
@@ -54,20 +51,24 @@ namespace HappyTravel.Hiroshima.Data.Extensions
 
             var inappropriateSeasonIds = seasonIds.Except(availableSeasonIds).ToList();
 
-            return inappropriateSeasonIds.Any() ? Result.Failure($"Inappropriate season ids: {string.Join(", ", inappropriateSeasonIds)}") : Result.Success();
+            return inappropriateSeasonIds.Any() 
+                ? Result.Failure($"Inappropriate season ids: {string.Join(", ", inappropriateSeasonIds)}") 
+                : Result.Success();
         }
         
         
         public static async Task<Result> CheckIfSeasonRangesBelongToContract(this DirectContractsDbContext dbContext, int contractId, List<int> seasonRangeIds)
         {
-            var contractRangeIds = await GetSeasonsAndSeasonRanges(dbContext)
+            var allContractRangeIds = await GetSeasonsAndSeasonRanges(dbContext)
                 .Where(seasonAndSeasonRange => seasonAndSeasonRange.Season.ContractId == contractId)
                 .Select(seasonAndSeasonRange => seasonAndSeasonRange.SeasonRange.Id)
                 .ToListAsync();
 
-            var inappropriateRangeIds = seasonRangeIds.Except(contractRangeIds).ToList();
+            var notBelong = seasonRangeIds.Except(allContractRangeIds).ToList();
             
-            return inappropriateRangeIds.Any() ? Result.Failure($"Inappropriate season range ids: {string.Join(", ", inappropriateRangeIds)}") : Result.Success();
+            return notBelong.Any() 
+                ? Result.Failure($"Season range ids {string.Join(", ", notBelong)} don't belong to the contract manager") 
+                : Result.Success();
         }
         
 
