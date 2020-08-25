@@ -4,6 +4,7 @@ using System.Text.Json;
 using HappyTravel.EdoContracts.Extensions;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
+using HappyTravel.Hiroshima.Data.Models.Accommodations;
 
 namespace HappyTravel.Hiroshima.Data.Models.Rooms
 {
@@ -16,7 +17,8 @@ namespace HappyTravel.Hiroshima.Data.Models.Rooms
         public JsonDocument Amenities { get; set; }
         public JsonDocument Pictures { get; set; }
         public List<OccupancyConfiguration> OccupancyConfigurations { get; set; } = new List<OccupancyConfiguration>();
-
+        
+        public Accommodation Accommodation { get; set; }
         
         public override bool Equals(object obj)
         {

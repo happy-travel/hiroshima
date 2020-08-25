@@ -1,7 +1,9 @@
-﻿using System.Text.Json;
+﻿using System.Collections.Generic;
+using System.Text.Json;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Enums;
+using HappyTravel.Hiroshima.Data.Models.Rooms;
 using NetTopologySuite.Geometries;
 using PropertyTypes = HappyTravel.Hiroshima.Common.Models.Accommodations.PropertyTypes;
 
@@ -25,5 +27,6 @@ namespace HappyTravel.Hiroshima.Data.Models.Accommodations
         public OccupancyDefinition OccupancyDefinition { get; set; }
         public int LocationId { get; set; }
         public int ContractManagerId { get; set; }
+        public List<Room> Rooms { get; set; }
     }
 }
