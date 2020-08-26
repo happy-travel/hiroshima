@@ -67,7 +67,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             
             async Task<List<RoomAllocationRequirement>> GetAllocationRequirements(int contractManagerId)
             {
-                var seasonsAndSeasonRanges = _dbContext.GetSeasonsAndSeasonRanges()
+                var seasonsAndSeasonRanges = _dbContext.Seasons.Join(_dbContext.SeasonRanges, season => season.Id, seasonRange => seasonRange.SeasonId,
+                        (season, seasonRange) => new
+                        {
+                            Season = season,
+                            SeasonRange = seasonRange
+                        })
                     .Where(seasonAndSeasonRange => seasonAndSeasonRange.Season.ContractId == contractId);
 
                 if (seasonIds != null && seasonIds.Any())
@@ -82,16 +87,19 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     seasonsAndSeasonRanges = seasonsAndSeasonRanges.Where(seasonAndSeasonRange => seasonRangeIds.Contains(seasonAndSeasonRange.SeasonRange.Id));
                 }
 
-                var roomAllocationRequirement = _dbContext.RoomAllocationRequirements.Join(seasonsAndSeasonRanges, allocationRequirement => allocationRequirement.SeasonRangeId,
+                var roomAllocationRequirement = _dbContext.RoomAllocationRequirements.Join(seasonsAndSeasonRanges,
+                    allocationRequirement => allocationRequirement.SeasonRangeId,
                     seasonAndSeasonRange => seasonAndSeasonRange.SeasonRange.Id, (allocationRequirement, _) => allocationRequirement);
 
                 if (roomIds != null && roomIds.Any())
                 {
                     var contractedAccommodations = _dbContext.GetContractedAccommodations(contractId, contractManagerId);
-                    var validRoomIds = _dbContext.GetRoomsAndAccommodations().Join(contractedAccommodations,
-                            roomAndAccommodation => roomAndAccommodation.Room.AccommodationId,
-                            contractedAccommodation => contractedAccommodation.Id, (roomAndAccommodation, _) => roomAndAccommodation.Room.Id)
-                        .Where(roomId => roomIds.Contains(roomId));
+
+                    var validRoomIds = (await contractedAccommodations.Include(accommodation => accommodation.Rooms)
+                        .Select(accommodation => accommodation
+                            .Rooms.Where(room => roomIds.Contains(room.Id))
+                            .Select(room => room.Id))
+                        .SingleOrDefaultAsync()).ToList();
 
                     if (validRoomIds.Any())
                     {
@@ -118,9 +126,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<List<RoomAllocationRequirement>> GetAllocationRequirements()
             {
-                var seasonsRangeIds = _dbContext.GetSeasonsAndSeasonRanges()
-                    .Where(seasonAndSeasonRange => seasonAndSeasonRange.Season.ContractId == contractId)
-                    .Select(seasonAndSeasonRange => seasonAndSeasonRange.SeasonRange.Id);
+                var seasonsRangeIds = (await _dbContext.GetSeasons()
+                    .Where(season => season.ContractId == contractId)
+                    .Select(season => season.SeasonRanges).ToListAsync()).SelectMany(seasonRanges=>seasonRanges)
+                    .Select(seasonRange => seasonRange.Id);
+                    
 
                 return await _dbContext.RoomAllocationRequirements
                     .Where(allocationRequirement => seasonsRangeIds.Contains(allocationRequirement.SeasonRangeId) && 

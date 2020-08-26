@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Data;
@@ -26,8 +27,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.Season>>> Add(int contractId, List<string> names)
         {
             return _contractManagerContext.GetContractManager()
-                .Ensure(contractManager => _dbContext.DoesContractBelongToContractManager(contractId, contractManager.Id),
-                    $"Contract '{contractId}' doesn't belong to the contract manager")
+                .EnsureContractBelongsToContractManager(_dbContext, contractId)
                 .Map(contractManager => AddSeasonNames())
                 .Map(Build);
 
@@ -113,10 +113,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             
             async Task RemovePreviousSeasonRanges()
             {
-                var seasonRangesToDelete = await _dbContext.GetSeasonsAndSeasonRanges()
-                    .Where(seasonsAndSeasonRanges => seasonsAndSeasonRanges.Season.ContractId == contractId)
-                    .Select(seasonsAndSeasonRanges => seasonsAndSeasonRanges.SeasonRange)
-                    .ToListAsync();
+                var seasonRangesToDelete = await GetSeasonRanges(season => season.ContractId == contractId);
 
                 if (!seasonRangesToDelete.Any())
                     return;
@@ -163,15 +160,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return _contractManagerContext.GetContractManager()
                 .EnsureContractBelongsToContractManager(_dbContext, contractId)
-                .Map(contractManager => GetSeasonRanges())
+                .Map(contractManager => GetSeasonRanges(season => season.ContractId == contractId))
                 .Map(Build);
-
-            
-            async Task<List<SeasonRange>> GetSeasonRanges()
-                => await _dbContext.GetSeasonsAndSeasonRanges ()
-                    .Where(seasonAndSeasonRange => seasonAndSeasonRange.Season.ContractId == contractId)
-                    .Select(seasonAndSeasonRange => seasonAndSeasonRange.SeasonRange)
-                    .ToListAsync();
         }
 
 
@@ -179,15 +169,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return _contractManagerContext.GetContractManager()
                 .EnsureContractBelongsToContractManager(_dbContext, contractId)
-                .Map(contractManager => GetSeasonRanges())
+                .Map(contractManager => GetSeasonRanges(season => season.ContractId == contractId && season.Id == seasonId))
                 .Map(Build);
-
-
-            async Task<List<SeasonRange>> GetSeasonRanges()
-            => await _dbContext.GetSeasonsAndSeasonRanges()
-                    .Where(seasonAndSeasonRange => seasonAndSeasonRange.Season.ContractId == contractId && seasonAndSeasonRange.Season.Id == seasonId)
-                    .Select(seasonAndSeasonRange => seasonAndSeasonRange.SeasonRange)
-                    .ToListAsync();
         }
 
 
@@ -251,6 +234,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             List<(DateTime startDate, DateTime endDate)> GetSortedDateRanges()
                 => seasonRanges.Select(seasonRange => (seasonRange.StartDate, seasonRange.EndDate)).OrderBy(dateRange => dateRange.StartDate).ToList();
         }
+
+
+        private async Task<List<SeasonRange>> GetSeasonRanges(Expression<Func<Season, bool>> expression)
+            => (await _dbContext.GetSeasons().Where(expression).Select(season => season).ToListAsync())
+                .SelectMany(season => season.SeasonRanges)
+                .ToList();
         
         
         private List<Models.Responses.SeasonRange> Build(List<SeasonRange> seasonRanges)

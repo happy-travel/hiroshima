@@ -12,34 +12,10 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                 nullable: true,
                 oldClrType: typeof(int),
                 oldType: "integer");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Rooms_Accommodations_AccommodationId",
-                table: "Rooms",
-                column: "AccommodationId",
-                principalTable: "Accommodations",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_SeasonRanges_Seasons_SeasonId",
-                table: "SeasonRanges",
-                column: "SeasonId",
-                principalTable: "Seasons",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Rooms_Accommodations_AccommodationId",
-                table: "Rooms");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_SeasonRanges_Seasons_SeasonId",
-                table: "SeasonRanges");
-
             migrationBuilder.AlterColumn<int>(
                 name: "Allotment",
                 table: "RoomAllocationRequirements",
