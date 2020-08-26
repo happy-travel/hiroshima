@@ -7,7 +7,6 @@ using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Models.Booking;
-using HappyTravel.Hiroshima.Data.Models.Rooms;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -351,21 +350,17 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.Property<int?>("Allotment")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int?>("MinimumStayNights")
+                    b.Property<int?>("MinimumLengthOfStay")
                         .HasColumnType("integer");
 
-                    b.Property<ReleasePeriod>("ReleasePeriod")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
+                    b.Property<int>("ReleaseDays")
+                        .HasColumnType("integer");
 
                     b.Property<int>("RoomId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("timestamp without time zone");
+                    b.Property<int>("SeasonRangeId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -480,7 +475,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.ToTable("RoomRates");
                 });
 
-            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.Season", b =>
+            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.Seasons.Season", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -501,7 +496,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.ToTable("Seasons");
                 });
 
-            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.SeasonRange", b =>
+            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.Seasons.SeasonRange", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -519,7 +514,27 @@ namespace HappyTravel.Hiroshima.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("SeasonId");
+
                     b.ToTable("SeasonRanges");
+                });
+
+            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.Rooms.Room", b =>
+                {
+                    b.HasOne("HappyTravel.Hiroshima.Data.Models.Accommodations.Accommodation", "Accommodation")
+                        .WithMany("Rooms")
+                        .HasForeignKey("AccommodationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.Seasons.SeasonRange", b =>
+                {
+                    b.HasOne("HappyTravel.Hiroshima.Data.Models.Seasons.Season", "Season")
+                        .WithMany("SeasonRanges")
+                        .HasForeignKey("SeasonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

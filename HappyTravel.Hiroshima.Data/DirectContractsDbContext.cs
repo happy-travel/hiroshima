@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Text.Json;
-using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.Data.Models;
 using HappyTravel.Hiroshima.Data.Models.Accommodations;
 using HappyTravel.Hiroshima.Data.Models.Booking;
 using HappyTravel.Hiroshima.Data.Models.Location;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
+using HappyTravel.Hiroshima.Data.Models.Seasons;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 using Room = HappyTravel.Hiroshima.Data.Models.Rooms.Room;
@@ -49,6 +49,7 @@ namespace HappyTravel.Hiroshima.Data
             AddCancellationPolicies(modelBuilder);
             AddContractAccommodationRelation(modelBuilder);
             AddSeasons(modelBuilder);
+            AddSeasonRanges(modelBuilder);
         }
 
 
@@ -207,10 +208,9 @@ namespace HappyTravel.Hiroshima.Data
             {
                 e.ToTable("RoomAllocationRequirements");
                 e.HasKey(rar => rar.Id);
-                e.Property(rar => rar.StartDate).IsRequired();
-                e.Property(rar => rar.EndDate).IsRequired();
-                e.Property(rar => rar.MinimumStayNights);
-                e.Property(rar => rar.ReleasePeriod).HasColumnType("jsonb");
+                e.Property(rar => rar.SeasonRangeId).IsRequired();
+                e.Property(rar => rar.ReleaseDays).IsRequired();
+                e.Property(rar => rar.MinimumLengthOfStay);
                 e.Property(rar => rar.Allotment);
                 e.Property(rar => rar.RoomId).IsRequired();
                 e.HasIndex(rar => rar.RoomId);
@@ -283,10 +283,12 @@ namespace HappyTravel.Hiroshima.Data
         {
             modelBuilder.Entity<SeasonRange>(e =>
             {
-                e.ToTable("Seasons");
+                e.ToTable("SeasonRanges");
                 e.HasKey(s => s.Id);
                 e.Property(s => s.StartDate).IsRequired();
                 e.Property(s => s.EndDate).IsRequired();
+                e.Property(s => s.SeasonId).IsRequired();
+                e.HasIndex(s => s.SeasonId);
             });
         }
 

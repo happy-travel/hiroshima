@@ -4,11 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.Data;
-using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
 using HappyTravel.Hiroshima.DirectContracts.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 {
@@ -71,7 +69,12 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         private async Task<List<RateDetails>> GetRateDetails(List<int> roomIds, DateTime checkInDate, DateTime checkOutDate, string languageCode)
         {
             checkInDate = checkInDate.Date;
-            var seasonsAndSeasonRanges = _dbContext.GetSeasonsAndSeasonRanges()
+            var seasonsAndSeasonRanges = _dbContext.Seasons.Join(_dbContext.SeasonRanges, season => season.Id, seasonRange => seasonRange.SeasonId,
+                    (season, seasonRange) => new 
+                    {
+                        Season = season,
+                        SeasonRange = seasonRange
+                    })
                 .Where(seasonAndSeasonRange
                     => !(seasonAndSeasonRange.SeasonRange.EndDate < checkInDate || checkOutDate < seasonAndSeasonRange.SeasonRange.StartDate));
 
@@ -122,7 +125,12 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 
         private async Task<List<RoomCancellationPolicy>> GetCancellationPolicies(IEnumerable<int> roomIds, DateTime checkInDate)
         {
-            var seasonsAndSeasonRanges = _dbContext.GetSeasonsAndSeasonRanges()
+            var seasonsAndSeasonRanges = _dbContext.Seasons.Join(_dbContext.SeasonRanges, season => season.Id, seasonRange => seasonRange.SeasonId,
+                    (season, seasonRange) => new 
+                    {
+                        Season = season,
+                        SeasonRange = seasonRange
+                    })
                 .Where(seasonAndSeasonRange => seasonAndSeasonRange.SeasonRange.StartDate.Date <= checkInDate &&
                     checkInDate <= seasonAndSeasonRange.SeasonRange.EndDate.Date);
 

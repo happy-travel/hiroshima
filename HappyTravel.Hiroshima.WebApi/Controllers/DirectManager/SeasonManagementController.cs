@@ -23,9 +23,9 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <summary>
         /// Adds seasons to the contract
         /// </summary>
-        /// <param name="contractId"></param>
+        /// <param name="contractId">The id of a contract</param>
         /// <param name="names">Season names</param>
-        /// <returns></returns>
+        /// <returns>Season names with id</returns>
         [HttpPost("{contractId}/seasons")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.Season>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
@@ -42,8 +42,8 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <summary>
         /// Retrieves seasons 
         /// </summary>
-        /// <param name="contractId"></param>
-        /// <returns></returns>
+        /// <param name="contractId">The id of a contract</param>
+        /// <returns>Season names with id</returns>
         [HttpGet("{contractId}/seasons")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.Season>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
@@ -60,7 +60,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <summary>
         /// Removes an empty season, i.e. the season without associated date ranges.
         /// </summary>
-        /// <param name="contractId"></param>
+        /// <param name="contractId">The id of a contract</param>
         /// <param name="seasonId">Season id</param>
         /// <returns></returns>
         [HttpDelete("{contractId}/seasons/{seasonId}")]
@@ -79,8 +79,8 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <summary>
         /// Sets season's date ranges
         /// </summary>
-        /// <param name="contractId"></param>
-        /// <param name="seasonRanges">Season ranges</param>
+        /// <param name="contractId">The id of a contract</param>
+        /// <param name="seasonRanges">A list of date ranges that belong to contractes seasons</param>
         /// <returns></returns>
         [HttpPost("{contractId}/seasons/ranges")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.SeasonRange>), (int) HttpStatusCode.OK)]
@@ -98,14 +98,33 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <summary>
         /// Retrieves contract's season ranges
         /// </summary>
-        /// <param name="contractId"></param>
-        /// <returns></returns>
+        /// <param name="contractId">The id of a contract</param>
+        /// <returns>A range of dates that belong to some season with start and end date</returns>
         [HttpGet("{contractId}/seasons/ranges")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.SeasonRange>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetSeasonRanges([FromRoute] int contractId)
         {
             var (_, isFailure, response, error) = await _seasonManagementService.GetSeasonRanges(contractId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
+        }
+        
+        
+        /// <summary>
+        /// Retrieves contract's season ranges of the specific season
+        /// </summary>
+        /// <param name="contractId">The id of a contract</param>
+        /// <param name="seasonId">The id of a season</param>
+        /// <returns>A range of dates that belong to some season with start and end date</returns>
+        [HttpGet("{contractId}/seasons/{seasonId}/ranges")]
+        [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.SeasonRange>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetSeasonRanges([FromRoute] int contractId, [FromRoute] int seasonId)
+        {
+            var (_, isFailure, response, error) = await _seasonManagementService.GetSeasonRanges(contractId, seasonId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

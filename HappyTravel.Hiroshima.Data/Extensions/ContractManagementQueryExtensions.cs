@@ -2,9 +2,11 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Data.Models.Accommodations;
+using HappyTravel.Hiroshima.Data.Models.Rooms;
+using HappyTravel.Hiroshima.Data.Models.Seasons;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace HappyTravel.Hiroshima.Data.Extensions
 {
@@ -49,11 +51,30 @@ namespace HappyTravel.Hiroshima.Data.Extensions
             var availableSeasonIds =
                 await dbContext.Seasons.Where(s => seasonIds.Contains(s.Id) && s.ContractId == contractId).Select(s => s.Id).ToListAsync();
 
-            var inappropriateSeasonIds = seasonIds.Except(availableSeasonIds).ToList();
+            var notBelongIds = seasonIds.Except(availableSeasonIds).ToList();
 
-            return inappropriateSeasonIds.Any() ? Result.Failure($"Inappropriate season ids: {string.Join(", ", inappropriateSeasonIds)}") : Result.Success();
+            return notBelongIds.Any() 
+                ? Result.Failure($"Season ids {string.Join(", ", notBelongIds)} do not belong to the contract manager") 
+                : Result.Success();
         }
+        
+        
+        public static async Task<Result> CheckIfSeasonRangesBelongToContract(this DirectContractsDbContext dbContext, int contractId, List<int> seasonRangeIds)
+        {
+            var allContractRangeIds = (await dbContext.GetSeasons()
+                .Where(season => season.ContractId == contractId)
+                .Select(season => season.SeasonRanges)
+                .ToListAsync())
+                .SelectMany(season => season)
+                .Select(seasonRange => seasonRange.Id).ToList();
 
+            var notBelongIds = seasonRangeIds.Except(allContractRangeIds).ToList();
+            
+            return notBelongIds.Any() 
+                ? Result.Failure($"Season range ids {string.Join(", ", notBelongIds)} do not belong to the contract manager") 
+                : Result.Success();
+        }
+        
 
         public static IQueryable<Accommodation> GetContractedAccommodations(this DirectContractsDbContext dbContext, int contractId, int contractManagerId) 
             => dbContext.Accommodations
@@ -68,14 +89,13 @@ namespace HappyTravel.Hiroshima.Data.Extensions
 
         public static async Task<bool> DoesContractBelongToContractManager(this DirectContractsDbContext dbContext, int contractId, int contractManagerId)
             => await dbContext.Contracts.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.Id == contractId) != null;
-        
-        
-        public static IQueryable<SeasonAndSeasonRange> GetSeasonsAndSeasonRanges(this DirectContractsDbContext dbContext)
-            => dbContext.Seasons.Join(dbContext.SeasonRanges, season => season.Id, seasonRange => seasonRange.SeasonId,
-                (season, seasonRange) => new SeasonAndSeasonRange
-                {
-                    Season = season,
-                    SeasonRange = seasonRange
-                });
+
+
+        public static IIncludableQueryable<Season, List<SeasonRange>> GetSeasons(this DirectContractsDbContext dbContext)
+            => dbContext.Seasons.Include(season => season.SeasonRanges);
+
+
+        public static IIncludableQueryable<Accommodation, List<Room>> GetAccommodations(this DirectContractsDbContext dbContext)
+            => dbContext.Accommodations.Include(accommodation => accommodation.Rooms);
     }
 }

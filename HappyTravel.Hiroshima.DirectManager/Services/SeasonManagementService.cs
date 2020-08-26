@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
+using HappyTravel.Hiroshima.Data.Models.Seasons;
 using HappyTravel.Hiroshima.DirectContracts.Services.Management;
+using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {
@@ -26,8 +27,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.Season>>> Add(int contractId, List<string> names)
         {
             return _contractManagerContext.GetContractManager()
-                .Ensure(contractManager => _dbContext.DoesContractBelongToContractManager(contractId, contractManager.Id),
-                    $"Contract '{contractId}' doesn't belong to the contract manager")
+                .EnsureContractBelongsToContractManager(_dbContext, contractId)
                 .Map(contractManager => AddSeasonNames())
                 .Map(Build);
 
@@ -53,8 +53,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.Season>>> Get(int contractId)
         {
             return _contractManagerContext.GetContractManager()
-                .Ensure(contractManager => CheckIfContractBelongToContractManager(contractId, contractManager.Id),
-                    $"Contract '{contractId}' doesn't belong to the contract manager")
+                .EnsureContractBelongsToContractManager(_dbContext, contractId)
                 .Map(contractManager => GetSeasons())
                 .Map(Build);
 
@@ -67,8 +66,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result> Remove(int contractId, int seasonId)
         {
             return _contractManagerContext.GetContractManager()
-                .Ensure(contractManager => CheckIfContractBelongToContractManager(contractId, contractManager.Id),
-                    $"Contract '{contractId}' doesn't belong to the contract manager")
+                .EnsureContractBelongsToContractManager(_dbContext, contractId)
                 .Bind(contractManager => GetSeason())
                 .Ensure(CheckIfSeasonDoesntHaveAnySeasonRanges, 
                     $"Season with {nameof(seasonId)} '{seasonId}' have an associated date range" )
@@ -115,10 +113,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             
             async Task RemovePreviousSeasonRanges()
             {
-                var seasonRangesToDelete = await _dbContext.GetSeasonsAndSeasonRanges()
-                    .Where(seasonsAndSeasonRanges => seasonsAndSeasonRanges.Season.ContractId == contractId)
-                    .Select(seasonsAndSeasonRanges => seasonsAndSeasonRanges.SeasonRange)
-                    .ToListAsync();
+                var seasonRangesToDelete = await GetSeasonRanges(season => season.ContractId == contractId);
 
                 if (!seasonRangesToDelete.Any())
                     return;
@@ -164,20 +159,21 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.SeasonRange>>> GetSeasonRanges(int contractId)
         {
             return _contractManagerContext.GetContractManager()
-                .Ensure(contractManager => CheckIfContractBelongToContractManager(contractId, contractManager.Id),
-                    $"Contract '{contractId}' doesn't belong to the contract manager")
-                .Map(contractManager => GetSeasonRanges())
+                .EnsureContractBelongsToContractManager(_dbContext, contractId)
+                .Map(contractManager => GetSeasonRanges(season => season.ContractId == contractId))
                 .Map(Build);
-
-            
-            async Task<List<SeasonRange>> GetSeasonRanges()
-                => await _dbContext.GetSeasonsAndSeasonRanges ()
-                    .Where(seasonAndSeasonRange => seasonAndSeasonRange.Season.ContractId == contractId)
-                    .Select(seasonAndSeasonRange => seasonAndSeasonRange.SeasonRange)
-                    .ToListAsync();
         }
-        
-        
+
+
+        public Task<Result<List<Models.Responses.SeasonRange>>> GetSeasonRanges(int contractId, int seasonId)
+        {
+            return _contractManagerContext.GetContractManager()
+                .EnsureContractBelongsToContractManager(_dbContext, contractId)
+                .Map(contractManager => GetSeasonRanges(season => season.ContractId == contractId && season.Id == seasonId))
+                .Map(Build);
+        }
+
+
         private async Task<Result> Validate(int contractManagerId, int contractId, List<Models.Requests.SeasonRange> seasonRanges)
         {
             var contract = await _contractManagementRepository.GetContract(contractId, contractManagerId);
@@ -238,6 +234,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             List<(DateTime startDate, DateTime endDate)> GetSortedDateRanges()
                 => seasonRanges.Select(seasonRange => (seasonRange.StartDate, seasonRange.EndDate)).OrderBy(dateRange => dateRange.StartDate).ToList();
         }
+
+
+        private async Task<List<SeasonRange>> GetSeasonRanges(Expression<Func<Season, bool>> expression)
+            => (await _dbContext.GetSeasons().Where(expression).Select(season => season).ToListAsync())
+                .SelectMany(season => season.SeasonRanges)
+                .ToList();
         
         
         private List<Models.Responses.SeasonRange> Build(List<SeasonRange> seasonRanges)
@@ -254,10 +256,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private Models.Responses.Season BuildSeason(Season season) 
             => new Models.Responses.Season(season.Id, season.Name);
-
-        
-        private async Task<bool> CheckIfContractBelongToContractManager(int contractId, int contractManagerId)
-            => await _contractManagementRepository.GetContract(contractId, contractManagerId) != null;
         
         
         private readonly IContractManagementRepository _contractManagementRepository;

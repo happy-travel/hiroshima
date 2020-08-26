@@ -99,6 +99,32 @@
             <param name="ids">Room ids</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AllocationRequirementsManagementController.AddAllocationRequirements(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.AllocationRequirement})">
+            <summary>
+            Adds room allocation requirements according to a season
+            </summary>
+            <param name="contractId"></param>
+            <param name="allocationRequirements"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AllocationRequirementsManagementController.GetAllocationRequirements(System.Int32,System.Collections.Generic.List{System.Int32},System.Collections.Generic.List{System.Int32},System.Collections.Generic.List{System.Int32})">
+            <summary>
+            Retrieves room's allocation requirements. Query is used to filter requirements by room, season, season range
+            </summary>
+            <param name="contractId"></param>
+            <param name="roomIds"></param>
+            <param name="seasonIds"></param>
+            <param name="seasonRangeIds"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AllocationRequirementsManagementController.RemoveAllocationRequirements(System.Int32,System.Collections.Generic.List{System.Int32})">
+            <summary>
+            Removes room's allocation requirements by id
+            </summary>
+            <param name="contractId"></param>
+            <param name="allocationRequirementIds"></param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.CancellationPolicyController.AddCancellationPolicies(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.CancellationPolicy})">
             <summary>
             Adds contract cancellation policies 
@@ -235,22 +261,22 @@
             <summary>
             Adds seasons to the contract
             </summary>
-            <param name="contractId"></param>
+            <param name="contractId">The id of a contract</param>
             <param name="names">Season names</param>
-            <returns></returns>
+            <returns>Season names with id</returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.SeasonManagementController.GetSeasons(System.Int32)">
             <summary>
             Retrieves seasons 
             </summary>
-            <param name="contractId"></param>
-            <returns></returns>
+            <param name="contractId">The id of a contract</param>
+            <returns>Season names with id</returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.SeasonManagementController.RemoveSeason(System.Int32,System.Int32)">
             <summary>
             Removes an empty season, i.e. the season without associated date ranges.
             </summary>
-            <param name="contractId"></param>
+            <param name="contractId">The id of a contract</param>
             <param name="seasonId">Season id</param>
             <returns></returns>
         </member>
@@ -258,16 +284,24 @@
             <summary>
             Sets season's date ranges
             </summary>
-            <param name="contractId"></param>
-            <param name="seasonRanges">Season ranges</param>
+            <param name="contractId">The id of a contract</param>
+            <param name="seasonRanges">A list of date ranges that belong to contractes seasons</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.SeasonManagementController.GetSeasonRanges(System.Int32)">
             <summary>
             Retrieves contract's season ranges
             </summary>
-            <param name="contractId"></param>
-            <returns></returns>
+            <param name="contractId">The id of a contract</param>
+            <returns>A range of dates that belong to some season with start and end date</returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.SeasonManagementController.GetSeasonRanges(System.Int32,System.Int32)">
+            <summary>
+            Retrieves contract's season ranges of the specific season
+            </summary>
+            <param name="contractId">The id of a contract</param>
+            <param name="seasonId">The id of a season</param>
+            <returns>A range of dates that belong to some season with start and end date</returns>
         </member>
     </members>
 </doc>

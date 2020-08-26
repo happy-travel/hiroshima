@@ -359,9 +359,9 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.Property<int?>("MinimumStayNights")
                         .HasColumnType("integer");
 
-                    b.Property<ReleasePeriod>("ReleasePeriod")
+                    b.Property<int>("ReleasePeriod")
                         .IsRequired()
-                        .HasColumnType("jsonb");
+                        .HasColumnType("integer");
 
                     b.Property<int>("RoomId")
                         .HasColumnType("integer");

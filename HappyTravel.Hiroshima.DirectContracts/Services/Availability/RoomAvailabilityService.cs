@@ -200,12 +200,9 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                     join allocationRequirement in _dbContext.RoomAllocationRequirements on room.Id equals
                         allocationRequirement.RoomId
                     where accommodationIds.Contains(room.AccommodationId) && !availableRoomIds.Contains(room.Id) &&
-                          stayNights >= allocationRequirement.MinimumStayNights &&
+                          stayNights >= allocationRequirement.MinimumLengthOfStay &&
                           (allocationRequirement.Allotment > 0 || allocationRequirement.Allotment == null) &&
-                          (allocationRequirement.ReleasePeriod.Date != null &&
-                           dateNow < allocationRequirement.ReleasePeriod.Date ||
-                           allocationRequirement.ReleasePeriod.Days != null &&
-                           daysBeforeCheckIn > allocationRequirement.ReleasePeriod.Days)
+                          daysBeforeCheckIn > allocationRequirement.ReleaseDays
                     select new Room
                     {
                         Id = room.Id,

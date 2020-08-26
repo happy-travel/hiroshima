@@ -156,13 +156,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<Result<Room>> GetRoom(int contractManagerId)
             {
-                var room = await _dbContext.Rooms.Join(_dbContext.Accommodations, room => room.AccommodationId, accommodation => accommodation.Id,
-                        (room, accommodation) => new {room, accommodation})
-                    .Where(roomAndAccommodation => 
-                        roomAndAccommodation.room.Id == roomId &&
-                        roomAndAccommodation.accommodation.ContractManagerId == contractManagerId &&
-                        roomAndAccommodation.accommodation.Id == accommodationId)
-                    .Select(roomAndAccommodation => roomAndAccommodation.room)
+                var room = await _dbContext.GetAccommodations()
+                    .Where(accommodation => accommodation.Id == accommodationId &&
+                        accommodation.ContractManagerId == contractManagerId)
+                    .Select(accommodation => accommodation.Rooms.SingleOrDefault(room => room.Id == roomId))
                     .SingleOrDefaultAsync();
                 
                 return room == null 
@@ -196,7 +193,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     return Build(dbRoom);
                 }
         }
-        
         
 
         public Task<Result<List<Models.Responses.Room>>> AddRooms(int accommodationId, List<Models.Requests.Room> rooms)
