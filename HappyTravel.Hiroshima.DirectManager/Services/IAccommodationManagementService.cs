@@ -8,7 +8,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     {
         public Task<Result<Models.Responses.Accommodation>> Get(int accommodationId);
         
-        public Task<Result<List<Models.Responses.Accommodation>>> Get();
+        public Task<Result<List<Models.Responses.Accommodation>>> Get(int skip, int top);
        
         public Task<Result<Models.Responses.Accommodation>> Add(Models.Requests.Accommodation accommodation);
         
@@ -19,8 +19,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         Task<Result<Models.Responses.Room>> GetRoom(int accommodationId, int roomId);
         
         Task<Result<Models.Responses.Room>> UpdateRoom(int accommodationId, int roomId, Models.Requests.Room room);
-        
-        Task<Result<List<Models.Responses.Room>>> GetRooms(int accommodationId);
+
+        Task<Result<List<Models.Responses.Room>>> GetRooms(int accommodationId, int skip, int top);
         
         Task<Result> RemoveRooms(int accommodationId, List<int> roomIds);
         

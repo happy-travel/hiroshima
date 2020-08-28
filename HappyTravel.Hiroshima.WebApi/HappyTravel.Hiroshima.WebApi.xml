@@ -23,7 +23,7 @@
             <param name="accommodationId">ID of the accommodation</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.GetAllAccommodations">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.GetAllAccommodations(System.Nullable{System.Int32},System.Nullable{System.Int32})">
             <summary>
             Retrieves all Contract Manager's accommodations
             </summary>
@@ -51,11 +51,13 @@
             <param name="accommodationId">ID of the accommodation</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.GetRooms(System.Int32)">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.GetRooms(System.Int32,System.Nullable{System.Int32},System.Nullable{System.Int32})">
             <summary>
             Retrieves accommodation rooms
             </summary>
             <param name="accommodationId"></param>
+            <param name="skip"></param>
+            <param name="top"></param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.GetRoom(System.Int32,System.Int32)">

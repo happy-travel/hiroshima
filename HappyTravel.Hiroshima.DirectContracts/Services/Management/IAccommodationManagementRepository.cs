@@ -9,8 +9,6 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
     {
         Task<Accommodation> GetAccommodation(int contractManagerId, int accommodationId);
         Task<List<Room>> GetRooms(int accommodationId);
-        Task<List<Room>> GetRooms(int contractManagerId, int accommodationId);
-        Task DeleteRooms(List<int> roomIds);
 
     }
 }

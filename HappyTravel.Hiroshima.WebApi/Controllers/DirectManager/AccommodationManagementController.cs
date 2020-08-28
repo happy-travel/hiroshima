@@ -44,9 +44,9 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpGet]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.Accommodation>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetAllAccommodations()
+        public async Task<IActionResult> GetAllAccommodations([FromQuery] int? skip = 0, [FromQuery] int? top = 100)
         {
-            var (_, isFailure, response, error) = await _accommodationManagementService.Get();
+            var (_, isFailure, response, error) = await _accommodationManagementService.Get(skip!.Value, top!.Value);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -108,18 +108,20 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
             return NoContent();
         }
 
-        
+
         /// <summary>
         /// Retrieves accommodation rooms
         /// </summary>
         /// <param name="accommodationId"></param>
+        /// <param name="skip"></param>
+        /// <param name="top"></param>
         /// <returns></returns>
         [HttpGet("{accommodationId}/rooms")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.Room>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetRooms([FromRoute] int accommodationId)
+        public async Task<IActionResult> GetRooms([FromRoute] int accommodationId, [FromQuery] int? skip = 0, [FromQuery] int? top = 100)
         { 
-            var (_, isFailure, response, error) = await _accommodationManagementService.GetRooms(accommodationId);
+            var (_, isFailure, response, error) = await _accommodationManagementService.GetRooms(accommodationId, skip!.Value, top!.Value);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

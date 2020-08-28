@@ -25,25 +25,6 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
             => await _dbContext.Rooms.Where(r => r.AccommodationId == accommodationId).ToListAsync();
 
         
-        public async Task<List<Room>> GetRooms(int contractManagerId, int accommodationId) =>
-            await _dbContext.Rooms
-                .Join(_dbContext.Accommodations, room => room.AccommodationId, accommodation => accommodation.Id,
-                    (room, accommodation) => new {room, accommodation})
-                .Where(roomAndAccommodations =>
-                    roomAndAccommodations.accommodation.ContractManagerId == contractManagerId &&
-                    roomAndAccommodations.accommodation.Id == accommodationId)
-                .Select(roomAndAccommodation => roomAndAccommodation.room)
-                .ToListAsync();
-        
-        
-        public async Task DeleteRooms(List<int> roomIds)
-        {
-            var roomsToDelete = roomIds.Select(id => new Room {Id = id});
-            _dbContext.Rooms.RemoveRange(roomsToDelete);
-            await _dbContext.SaveChangesAsync();
-        }
-        
-        
         private readonly DirectContractsDbContext _dbContext;
     }
 }
