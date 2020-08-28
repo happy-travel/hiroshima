@@ -52,14 +52,14 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <summary>
         /// Retrieves all country names with paging
         /// </summary>
-        /// <param name="take"></param>
+        /// <param name="top"></param>
         /// <param name="skip"></param>
-        /// <returns></returns>
+        /// <returns>Retrieves country names</returns>
         [HttpGet("countries")]
         [ProducesResponseType(typeof(List<string>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetCountryNames([FromQuery] int? skip = 0, [FromQuery] int? take = 500) 
-            => Ok(await _locationManagementService.GetCountryNames(take!.Value, skip!.Value));
+        public async Task<IActionResult> GetCountryNames([FromQuery] int? skip = 0, [FromQuery] int? top = 500) 
+            => Ok(await _locationManagementService.GetCountryNames(top!.Value, skip!.Value));
 
         
         private readonly ILocationManagementService _locationManagementService;

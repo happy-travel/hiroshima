@@ -46,9 +46,9 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpGet]
         [ProducesResponseType(typeof(List<Contract>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetContracts()
+        public async Task<IActionResult> GetContracts([FromQuery] int? skip = 0, [FromQuery] int? top = 100)
         {
-            var (_, isFailure, response, error) = await _contractManagementService.Get();
+            var (_, isFailure, response, error) = await _contractManagementService.GetContracts(skip!.Value, top!.Value);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
