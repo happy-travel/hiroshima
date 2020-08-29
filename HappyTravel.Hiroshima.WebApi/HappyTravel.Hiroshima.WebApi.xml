@@ -135,7 +135,7 @@
             </summary>
             <param name="contractId"></param>
             <param name="cancellationPolicies"></param>
-            <returns></returns>
+            <returns>List of cancellation policies</returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.CancellationPolicyController.GetCancellationPolicies(System.Int32,System.Nullable{System.Int32},System.Nullable{System.Int32},System.Collections.Generic.List{System.Int32},System.Collections.Generic.List{System.Int32})">
             <summary>
@@ -146,7 +146,7 @@
             <param name="top"></param>
             <param name="roomIds">List of room ids</param>
             <param name="seasonIds">List of season ids</param>
-            <returns></returns>
+            <returns>List of cancellation policies</returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.CancellationPolicyController.RemoveCancellationPolicies(System.Int32,System.Collections.Generic.List{System.Int32})">
             <summary>
@@ -222,7 +222,7 @@
             <param name="roomIds">List of room ids</param>
             <param name="validFrom">Allows to set a lower bound date to get contracted promotional offers</param>
             <param name="validTo">Allows to set an upper bound date to get contracted promotional offers</param>
-            <returns>Promotional offers according to the request</returns>
+            <returns>List of promotional offers</returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.PromotionalOfferManagementController.AddPromotionalOffers(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.PromotionalOffer})">
             <summary>
@@ -230,7 +230,7 @@
             </summary>
             <param name="contractId"></param>
             <param name="promotionalOffers"></param>
-            <returns></returns>
+            <returns>List of promotional offers</returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.PromotionalOfferManagementController.RemovePromotionalOffers(System.Int32,System.Collections.Generic.List{System.Int32})">
             <summary>
@@ -246,7 +246,7 @@
             </summary>
             <param name="contractId"></param>
             <param name="rates"></param>
-            <returns></returns>
+            <returns>List of rates</returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.RateManagementController.GetRates(System.Int32,System.Nullable{System.Int32},System.Nullable{System.Int32},System.Collections.Generic.List{System.Int32},System.Collections.Generic.List{System.Int32})">
             <summary>
@@ -257,7 +257,7 @@
             <param name="top"></param>
             <param name="roomIds">List of room ids</param>
             <param name="seasonIds">List of season ids</param>
-            <returns></returns>
+            <returns>List of rates</returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.RateManagementController.RemoveRates(System.Int32,System.Collections.Generic.List{System.Int32})">
             <summary>

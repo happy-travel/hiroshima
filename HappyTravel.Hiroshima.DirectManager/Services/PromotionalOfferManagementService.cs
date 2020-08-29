@@ -25,11 +25,31 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         public Task<Result<List<Models.Responses.PromotionalOffer>>> Get(int contractId, int skip, int top, List<int> roomIds, DateTime? validFrom = null, DateTime? validTo = null)
-            => _contractManagerContext.GetContractManager()
+        {
+            return _contractManagerContext.GetContractManager()
                 .EnsureContractBelongsToContractManager(_dbContext, contractId)
                 .Bind(contractManager => _dbContext.CheckIfRoomsBelongToContract(contractId, contractManager.Id, roomIds))
-                .Map(() => GetPromotionalOffers(contractId, skip, top, roomIds, validFrom, validTo))
+                .Map(GetPromotionalOffers)
                 .Map(Build);
+            
+            
+            async Task<List<RoomPromotionalOffer>> GetPromotionalOffers()
+            {
+                var promotionalOffers = _dbContext.RoomPromotionalOffers.Where(offer => offer.ContractId == contractId);
+
+                if (roomIds.Any())
+                    promotionalOffers = promotionalOffers.Where(offer => roomIds.Contains(offer.RoomId));
+            
+                if (validFrom != null)
+                    promotionalOffers = promotionalOffers.Where(offer => validFrom.Value <= offer.ValidFromDate);
+            
+                if (validTo != null)
+                    promotionalOffers = promotionalOffers.Where(offer =>  offer.ValidToDate <= validTo.Value);
+
+                return await promotionalOffers.OrderBy(offer => offer.Id).Skip(skip).Take(top)
+                    .ToListAsync();
+            }
+        }
 
 
         public Task<Result<List<Models.Responses.PromotionalOffer>>> Add(int contractId, List<Models.Requests.PromotionalOffer> promotionalOffers)
@@ -104,24 +124,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             => promotionalOffers.Select(offer => new Models.Responses.PromotionalOffer(offer.Id, offer.ContractId, offer.RoomId, offer.BookByDate, offer.ValidFromDate,
                     offer.ValidToDate, offer.DiscountPercent, offer.BookingCode, offer.Details.GetValue<MultiLanguage<string>>()))
                 .ToList();
-        
-        
-        private async Task<List<RoomPromotionalOffer>> GetPromotionalOffers(int contractId, int skip, int top, List<int> roomIds, DateTime? validFrom = null, DateTime? validTo = null)
-        {
-            var promotionalOffers = _dbContext.RoomPromotionalOffers.Where(offer => offer.ContractId == contractId);
-
-            if (roomIds.Any())
-                promotionalOffers = promotionalOffers.Where(offer => roomIds.Contains(offer.RoomId));
-            
-            if (validFrom != null)
-                promotionalOffers = promotionalOffers.Where(offer => validFrom.Value <= offer.ValidFromDate);
-            
-            if (validTo != null)
-                promotionalOffers = promotionalOffers.Where(offer =>  offer.ValidToDate <= validTo.Value);
-
-            return await promotionalOffers.OrderBy(offer => offer.Id).Skip(skip).Take(top)
-                .ToListAsync();
-        }
         
         
         private readonly IContractManagerContextService _contractManagerContext;
