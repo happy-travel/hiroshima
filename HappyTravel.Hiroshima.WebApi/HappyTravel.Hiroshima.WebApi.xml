@@ -267,11 +267,13 @@
             <param name="names">Season names</param>
             <returns>Season names with id</returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.SeasonManagementController.GetSeasons(System.Int32)">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.SeasonManagementController.GetSeasons(System.Int32,System.Nullable{System.Int32},System.Nullable{System.Int32})">
             <summary>
             Retrieves seasons 
             </summary>
             <param name="contractId">The id of a contract</param>
+            <param name="skip"></param>
+            <param name="top"></param>
             <returns>Season names with id</returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.SeasonManagementController.RemoveSeason(System.Int32,System.Int32)">
@@ -290,19 +292,23 @@
             <param name="seasonRanges">A list of date ranges that belong to contractes seasons</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.SeasonManagementController.GetSeasonRanges(System.Int32)">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.SeasonManagementController.GetSeasonRanges(System.Int32,System.Nullable{System.Int32},System.Nullable{System.Int32})">
             <summary>
             Retrieves contract's season ranges
             </summary>
             <param name="contractId">The id of a contract</param>
+            <param name="skip"></param>
+            <param name="top"></param>
             <returns>A range of dates that belong to some season with start and end date</returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.SeasonManagementController.GetSeasonRanges(System.Int32,System.Int32)">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.SeasonManagementController.GetSeasonRanges(System.Int32,System.Int32,System.Nullable{System.Int32},System.Nullable{System.Int32})">
             <summary>
             Retrieves contract's season ranges of the specific season
             </summary>
             <param name="contractId">The id of a contract</param>
             <param name="seasonId">The id of a season</param>
+            <param name="skip"></param>
+            <param name="top"></param>
             <returns>A range of dates that belong to some season with start and end date</returns>
         </member>
     </members>
