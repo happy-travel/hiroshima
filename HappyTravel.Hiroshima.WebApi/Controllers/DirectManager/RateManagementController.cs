@@ -26,7 +26,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// </summary>
         /// <param name="contractId"></param>
         /// <param name="rates"></param>
-        /// <returns></returns>
+        /// <returns>List of rates</returns>
         [HttpPost("contracts/{contractId}/rates")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.Rate>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
@@ -48,7 +48,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="top"></param>
         /// <param name="roomIds">List of room ids</param>
         /// <param name="seasonIds">List of season ids</param>
-        /// <returns></returns>
+        /// <returns>List of rates</returns>
         [HttpGet("contracts/{contractId}/rates")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.Rate>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]

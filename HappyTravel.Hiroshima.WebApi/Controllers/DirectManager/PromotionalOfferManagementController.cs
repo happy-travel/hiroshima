@@ -30,7 +30,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="roomIds">List of room ids</param>
         /// <param name="validFrom">Allows to set a lower bound date to get contracted promotional offers</param>
         /// <param name="validTo">Allows to set an upper bound date to get contracted promotional offers</param>
-        /// <returns>Promotional offers according to the request</returns>
+        /// <returns>List of promotional offers</returns>
         [HttpGet("contracts/{contractId}/promotional-offers")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.PromotionalOffer>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
@@ -49,7 +49,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// </summary>
         /// <param name="contractId"></param>
         /// <param name="promotionalOffers"></param>
-        /// <returns></returns>
+        /// <returns>List of promotional offers</returns>
         [HttpPost("contracts/{contractId}/promotional-offers")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.PromotionalOffer>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]

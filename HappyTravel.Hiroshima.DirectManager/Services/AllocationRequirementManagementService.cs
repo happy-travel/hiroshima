@@ -57,7 +57,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<List<Models.Responses.AllocationRequirement>>> Get(int contractId, List<int> roomIds = null, List<int> seasonIds = null, List<int> seasonRangeIds = null)
+        public Task<Result<List<Models.Responses.AllocationRequirement>>> Get(int contractId, int skip, int top, List<int> roomIds = null, List<int> seasonIds = null, List<int> seasonRangeIds = null)
         {
             return _contractManagerContextService.GetContractManager()
                 .EnsureContractBelongsToContractManager(_dbContext, contractId)
@@ -108,7 +108,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     }
                 }
 
-                return await roomAllocationRequirement.ToListAsync();
+                return await roomAllocationRequirement.OrderBy( allocationRequirement => allocationRequirement.Id)
+                    .Skip(skip).Take(top).ToListAsync();
             }
         }
 
@@ -118,7 +119,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             return _contractManagerContextService.GetContractManager()
                 .EnsureContractBelongsToContractManager(_dbContext, contractId)
                 .Map(contractManager => GetAllocationRequirements())
-                .Map(Remove)
+                .Tap(Remove)
                 .Finally(result => result.IsSuccess 
                     ? Result.Success() 
                     : Result.Failure(result.Error));

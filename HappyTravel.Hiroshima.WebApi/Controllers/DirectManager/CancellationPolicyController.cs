@@ -25,7 +25,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// </summary>
         /// <param name="contractId"></param>
         /// <param name="cancellationPolicies"></param>
-        /// <returns></returns>
+        /// <returns>List of cancellation policies</returns>
         [HttpPost("contracts/{contractId}/cancellation-policies")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.CancellationPolicy>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
@@ -47,7 +47,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="top"></param>
         /// <param name="roomIds">List of room ids</param>
         /// <param name="seasonIds">List of season ids</param>
-        /// <returns></returns>
+        /// <returns>List of cancellation policies</returns>
         [HttpGet("contracts/{contractId}/cancellation-policies")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.CancellationPolicy>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
