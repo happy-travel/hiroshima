@@ -7,7 +7,6 @@ using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
-using HappyTravel.Hiroshima.Data.Models.Accommodations;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.EntityFrameworkCore;
@@ -23,10 +22,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<List<Models.Responses.Rate>>> Get(int contractId, List<int> roomIds = null, List<int> seasonIds = null)
+        public Task<Result<List<Models.Responses.Rate>>> Get(int contractId, int skip, int top, List<int> roomIds = null, List<int> seasonIds = null)
         {
             return _contractManagerContext.GetContractManager()
-                .Map(contractManager => GetRates(contractId, contractManager.Id, roomIds, seasonIds))
+                .Map(contractManager => GetRates(contractId, contractManager.Id, skip, top, roomIds, seasonIds))
                 .Map(CreateResponse);
         }
 
@@ -62,11 +61,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private async Task<List<RoomRate>> GetRates(int contractId, int contractManagerId, List<int> roomIds = null, List<int> seasonIds = null)
+        private async Task<List<RoomRate>> GetRates(int contractId, int contractManagerId, int skip, int top, List<int> roomIds = null, List<int> seasonIds = null)
         {
             var contractedAccommodationIds = _dbContext.GetContractedAccommodations(contractId, contractManagerId)
                 .Select(accommodation => accommodation.Id);
-            
             
             var ratesAndRoomsAndSeasons = _dbContext.RoomRates
                 .Join(_dbContext.Rooms, roomRate => roomRate.RoomId, room => room.Id, (roomRate, room) => new
@@ -86,7 +84,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 ratesAndRoomsAndSeasons = ratesAndRoomsAndSeasons.Where(rateAndRoomAndSeason => seasonIds.Contains(rateAndRoomAndSeason.season.Id));
             }
                 
-            return await ratesAndRoomsAndSeasons.Select(i => i.roomRate).Distinct().ToListAsync();
+            return await ratesAndRoomsAndSeasons.OrderBy(rateAndRoomAndSeason => rateAndRoomAndSeason.roomRate.Id)
+                .Skip(skip).Take(top).Select(i => i.roomRate).Distinct().ToListAsync();
         }
 
 
@@ -111,9 +110,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 return;
             
             _dbContext.RoomRates.RemoveRange(rates);
-            await _dbContext.SaveChangesAsync();
             
-            _dbContext.DetachEntries(rates);
+            await _dbContext.SaveChangesAsync();
         }
 
 
@@ -149,7 +147,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     rate.Price,
                     rate.BoardBasis,
                     rate.MealPlan,
-                    rate.Details?.GetValue<MultiLanguage<string>>()))
+                    rate.Details.GetValue<MultiLanguage<string>>()))
                 .ToList();
 
 
