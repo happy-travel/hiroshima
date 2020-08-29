@@ -9,6 +9,7 @@ using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
+using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,20 +24,18 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<List<Models.Responses.PromotionalOffer>>> Get(int contractId, List<int> roomIds, DateTime? validFrom = null, DateTime? validTo = null)
+        public Task<Result<List<Models.Responses.PromotionalOffer>>> Get(int contractId, int skip, int top, List<int> roomIds, DateTime? validFrom = null, DateTime? validTo = null)
             => _contractManagerContext.GetContractManager()
-                .Ensure(contractManager => _dbContext.DoesContractBelongToContractManager(contractId, contractManager.Id),
-                    $"Failed to get the contract by {nameof(contractId)} '{contractId}'")
+                .EnsureContractBelongsToContractManager(_dbContext, contractId)
                 .Bind(contractManager => _dbContext.CheckIfRoomsBelongToContract(contractId, contractManager.Id, roomIds))
-                .Map(() => GetPromotionalOffers(contractId, roomIds, validFrom, validTo))
-                .Map(CreateResponse);
+                .Map(() => GetPromotionalOffers(contractId, skip, top, roomIds, validFrom, validTo))
+                .Map(Build);
 
 
         public Task<Result<List<Models.Responses.PromotionalOffer>>> Add(int contractId, List<Models.Requests.PromotionalOffer> promotionalOffers)
             => ValidationHelper.Validate(promotionalOffers, new PromotionalOfferValidator())
                 .Bind(() => _contractManagerContext.GetContractManager())
-                .Ensure(contractManager => _dbContext.DoesContractBelongToContractManager(contractId, contractManager.Id),
-                    $"Failed to get the contract by {nameof(contractId)} '{contractId}'")
+                .EnsureContractBelongsToContractManager(_dbContext, contractId)
                 .Bind(contractManager
                     => _dbContext.CheckIfRoomsBelongToContract(contractId, contractManager.Id, promotionalOffers.Select(offer => offer.RoomId).ToList()))
                 .Map(() => AddPromotionalOffers(contractId, promotionalOffers));
@@ -44,8 +43,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result> Remove(int contractId, List<int> promotionalOfferIds)
             => _contractManagerContext.GetContractManager()
-                .Ensure(contractManager => _dbContext.DoesContractBelongToContractManager(contractId, contractManager.Id),
-                    $"Failed to get the contract by {nameof(contractId)} '{contractId}'")
+                .EnsureContractBelongsToContractManager(_dbContext, contractId)
                 .Bind(contractManager => GetPromotionalOffersToRemove(contractId, contractManager.Id, promotionalOfferIds))
                 .Tap(RemovePromotionalOffers)
                 .Finally(result => result.IsSuccess ? Result.Success() : Result.Failure(result.Error));
@@ -57,9 +55,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 return;
 
             _dbContext.RoomPromotionalOffers.RemoveRange(promotionalOffers);
+            
             await _dbContext.SaveChangesAsync();
-
-            _dbContext.DetachEntries(promotionalOffers);
         }
         
         
@@ -83,10 +80,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             var newPromotionalOffers = CreateRoomPromotionalOffers(contractId, promotionalOffers);
             _dbContext.RoomPromotionalOffers.AddRange(newPromotionalOffers);
             await _dbContext.SaveChangesAsync();
-            
             _dbContext.DetachEntries(newPromotionalOffers);
             
-            return CreateResponse(newPromotionalOffers);
+            return Build(newPromotionalOffers);
         }
 
 
@@ -104,13 +100,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }).ToList();
         
         
-        private List<Models.Responses.PromotionalOffer> CreateResponse(List<RoomPromotionalOffer> promotionalOffers)
+        private List<Models.Responses.PromotionalOffer> Build(List<RoomPromotionalOffer> promotionalOffers)
             => promotionalOffers.Select(offer => new Models.Responses.PromotionalOffer(offer.Id, offer.ContractId, offer.RoomId, offer.BookByDate, offer.ValidFromDate,
                     offer.ValidToDate, offer.DiscountPercent, offer.BookingCode, offer.Details.GetValue<MultiLanguage<string>>()))
                 .ToList();
         
         
-        private async Task<List<RoomPromotionalOffer>> GetPromotionalOffers(int contractId, List<int> roomIds, DateTime? validFrom = null, DateTime? validTo = null)
+        private async Task<List<RoomPromotionalOffer>> GetPromotionalOffers(int contractId, int skip, int top, List<int> roomIds, DateTime? validFrom = null, DateTime? validTo = null)
         {
             var promotionalOffers = _dbContext.RoomPromotionalOffers.Where(offer => offer.ContractId == contractId);
 
@@ -123,7 +119,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             if (validTo != null)
                 promotionalOffers = promotionalOffers.Where(offer =>  offer.ValidToDate <= validTo.Value);
 
-            return await promotionalOffers.ToListAsync();
+            return await promotionalOffers.OrderBy(offer => offer.Id).Skip(skip).Take(top)
+                .ToListAsync();
         }
         
         

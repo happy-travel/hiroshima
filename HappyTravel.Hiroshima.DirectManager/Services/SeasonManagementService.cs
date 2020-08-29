@@ -101,7 +101,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             async Task Remove(Season season)
             {
                 _dbContext.Seasons.Remove(season);
-                
                 await _dbContext.SaveChangesAsync();
             }
         }
@@ -131,9 +130,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             {
                 await RemovePreviousSeasonRanges();
                 var newSeasonRanges = AddSeasonRanges();
-
                 await _dbContext.SaveChangesAsync();
-                
                 _dbContext.DetachEntries(newSeasonRanges);
 
                 return newSeasonRanges;

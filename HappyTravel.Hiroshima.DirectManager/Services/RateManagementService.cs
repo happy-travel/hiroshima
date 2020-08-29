@@ -8,6 +8,7 @@ using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
+using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,7 +27,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return _contractManagerContext.GetContractManager()
                 .Map(contractManager => GetRates(contractId, contractManager.Id, skip, top, roomIds, seasonIds))
-                .Map(CreateResponse);
+                .Map(Build);
         }
 
 
@@ -34,8 +35,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return ValidationHelper.Validate(rates, new RateValidator())
                 .Bind(() => _contractManagerContext.GetContractManager())
-                .Ensure(contractManager => _dbContext.DoesContractBelongToContractManager(contractId, contractManager.Id),
-                    $"Failed to get the contract by {nameof(contractId)} '{contractId}'")
+                .EnsureContractBelongsToContractManager(_dbContext, contractId)
                 .Bind(async contractManager =>
                 {
                     var (isSuccess, _, error) = await CheckIfSeasonIdsAndRoomIdsBelongToContract(contractManager.Id);
@@ -53,8 +53,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result> Remove(int contractId, List<int> rateIds)
         {
             return _contractManagerContext.GetContractManager()
-                .Ensure(contractManager => _dbContext.DoesContractBelongToContractManager(contractId, contractManager.Id),
-                    $"Failed to get the contract by {nameof(contractId)} '{contractId}'")
+                .EnsureContractBelongsToContractManager(_dbContext, contractId)
                 .Bind(contractManager => GetRatesToRemove(contractId, contractManager.Id, rateIds))
                 .Tap(RemoveRates)
                 .Finally(result => result.IsSuccess ? Result.Success() : Result.Failure(result.Error));
@@ -110,22 +109,22 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 return;
             
             _dbContext.RoomRates.RemoveRange(rates);
-            
             await _dbContext.SaveChangesAsync();
         }
 
 
         private async Task<Result<List<Models.Responses.Rate>>> AddRates(List<Models.Requests.Rate> rates)
         {
-            var newRates = CreateRoomRates(rates);
+            var newRates = Create(rates);
             _dbContext.RoomRates.AddRange(newRates);
             await _dbContext.SaveChangesAsync();
             _dbContext.DetachEntries(newRates);
-            return CreateResponse(newRates);
+            
+            return Build(newRates);
         }
 
 
-        private List<RoomRate> CreateRoomRates(List<Models.Requests.Rate> rates)
+        private List<RoomRate> Create(List<Models.Requests.Rate> rates)
             => rates.Select(rate => new RoomRate
                 {
                     RoomId = rate.RoomId,
@@ -139,7 +138,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .ToList();
 
 
-        private List<Models.Responses.Rate> CreateResponse(List<RoomRate> rates)
+        private List<Models.Responses.Rate> Build(List<RoomRate> rates)
             => rates.Select(rate => new Models.Responses.Rate(
                     rate.Id,
                     rate.RoomId,
