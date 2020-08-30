@@ -129,6 +129,12 @@
             <param name="allocationRequirementIds"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AvailabilityRestrictionsManagementController.SetAvailabilityRestrictions(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.AvailabilityRestriction})">
+            <summary>
+            Replaces availability restrictions for the specific rooms. Removes previous, adds the new.
+            </summary>
+            <returns>List of the new availability restrictions</returns>
+        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.CancellationPolicyController.AddCancellationPolicies(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.CancellationPolicy})">
             <summary>
             Adds contract cancellation policies 

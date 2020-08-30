@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Text.Json;
+using HappyTravel.Hiroshima.Common.Models.Accommodations;
+using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.Data.Models;
 using HappyTravel.Hiroshima.Data.Models.Accommodations;
@@ -171,15 +173,18 @@ namespace HappyTravel.Hiroshima.Data
         
         private void AddRoomAvailabilityRestrictions(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<RoomAvailabilityRestrictions>(e =>
+            modelBuilder.Entity<RoomAvailabilityRestriction>(e =>
             {
                 e.ToTable("RoomAvailabilityRestrictions");
                 e.HasKey(rr => rr.Id);
-                e.Property(rr => rr.Restrictions).IsRequired().HasDefaultValue(SaleRestrictions.StopSale);
-                e.Property(rr => rr.StartDate).IsRequired();
-                e.Property(rr => rr.EndDate).IsRequired();
+                e.Property(rr => rr.Restriction).IsRequired().HasDefaultValue(AvailabilityRestrictions.FreeSale);
+                e.Property(rr => rr.FromDate).IsRequired();
+                e.Property(rr => rr.ToDate).IsRequired();
                 e.Property(rr => rr.RoomId).IsRequired();
+                e.Property(rr => rr.ContractId).IsRequired();
                 e.HasIndex(rr => rr.RoomId);
+                e.HasIndex(rr => rr.ContractId);
+                e.HasIndex(rr => rr.Restriction);
             });
         }
 
@@ -297,7 +302,7 @@ namespace HappyTravel.Hiroshima.Data
         public virtual DbSet<Accommodation> Accommodations { get; set; }
         public virtual DbSet<Country> Countries { get; set; }
         public virtual DbSet<Room> Rooms { get; set; }
-        public virtual DbSet<RoomAvailabilityRestrictions> RoomAvailabilityRestrictions { get; set; }
+        public virtual DbSet<RoomAvailabilityRestriction> RoomAvailabilityRestrictions { get; set; }
         public virtual DbSet<RoomRate> RoomRates { get; set; }
         public virtual DbSet<RoomAllocationRequirement> RoomAllocationRequirements { get; set; }
         public virtual DbSet<RoomPromotionalOffer> RoomPromotionalOffers { get; set; }

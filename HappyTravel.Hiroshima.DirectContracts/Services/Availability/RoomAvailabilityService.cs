@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
+using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Models.Rooms;
 using HappyTravel.Hiroshima.DirectContracts.Models;
@@ -191,9 +192,9 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             var daysBeforeCheckIn = (checkInDate - dateNow).Days;
 
             var availableRoomIds = (from availabilityRestriction in _dbContext.RoomAvailabilityRestrictions
-                where (checkInDate <= availabilityRestriction.EndDate &&
-                       checkOutDate >= availabilityRestriction.StartDate) &&
-                      availabilityRestriction.Restrictions == SaleRestrictions.StopSale
+                where (checkInDate <= availabilityRestriction.ToDate &&
+                       checkOutDate >= availabilityRestriction.FromDate) &&
+                      availabilityRestriction.Restriction == AvailabilityRestrictions.StopSale
                 select availabilityRestriction.Id).Distinct();
 
             return await (from room in _dbContext.Rooms

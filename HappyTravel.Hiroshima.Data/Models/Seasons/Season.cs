@@ -8,5 +8,6 @@ namespace HappyTravel.Hiroshima.Data.Models.Seasons
         public string Name { get; set; }
         public int ContractId { get; set; }
         public List<SeasonRange> SeasonRanges { get; set; }
+        public Contract Contract { get; set; }
     }
 }
