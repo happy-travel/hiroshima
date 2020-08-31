@@ -49,9 +49,9 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpGet("{contractId}/seasons")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.Season>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetSeasons([FromRoute] int contractId, [FromQuery] int? skip = 0, [FromQuery] int? top = 100)
+        public async Task<IActionResult> GetSeasons([FromRoute] int contractId, [FromQuery] int skip = 0, [FromQuery] int top = 100)
         { 
-            var (_, isFailure, response, error) = await _seasonManagementService.Get(contractId, skip!.Value, top!.Value);
+            var (_, isFailure, response, error) = await _seasonManagementService.Get(contractId, skip, top);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -107,9 +107,9 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpGet("{contractId}/seasons/ranges")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.SeasonRange>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetSeasonRanges([FromRoute] int contractId, [FromQuery] int? skip = 0, [FromQuery] int? top = 100)
+        public async Task<IActionResult> GetSeasonRanges([FromRoute] int contractId, [FromQuery] int skip = 0, [FromQuery] int top = 100)
         {
-            var (_, isFailure, response, error) = await _seasonManagementService.GetSeasonRanges(contractId, skip!.Value, top!.Value);
+            var (_, isFailure, response, error) = await _seasonManagementService.GetSeasonRanges(contractId, skip, top);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -128,9 +128,9 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpGet("{contractId}/seasons/{seasonId}/ranges")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.SeasonRange>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetSeasonRanges([FromRoute] int contractId, [FromRoute] int seasonId, [FromQuery] int? skip = 0, [FromQuery] int? top = 100)
+        public async Task<IActionResult> GetDateRangesOfTheSeason([FromRoute] int contractId, [FromRoute] int seasonId, [FromQuery] int skip = 0, [FromQuery] int top = 100)
         {
-            var (_, isFailure, response, error) = await _seasonManagementService.GetSeasonRanges(contractId, seasonId, skip!.Value, top!.Value);
+            var (_, isFailure, response, error) = await _seasonManagementService.GetSeasonRanges(contractId, seasonId, skip, top);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

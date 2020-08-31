@@ -51,9 +51,9 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpGet("contracts/{contractId}/cancellation-policies")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.CancellationPolicy>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetCancellationPolicies([FromRoute] int contractId, [FromQuery] int? skip = 0, [FromQuery] int? top = 100, [FromQuery(Name = "roomId")] List<int> roomIds = null, [FromQuery(Name = "seasonId")] List<int> seasonIds = null)
+        public async Task<IActionResult> GetCancellationPolicies([FromRoute] int contractId, [FromQuery] int skip = 0, [FromQuery] int top = 100, [FromQuery(Name = "roomId")] List<int> roomIds = null, [FromQuery(Name = "seasonId")] List<int> seasonIds = null)
         {
-            var (_, isFailure, response, error) = await _cancellationPolicyManagementService.Get(contractId, skip!.Value, top!.Value, roomIds, seasonIds);
+            var (_, isFailure, response, error) = await _cancellationPolicyManagementService.Get(contractId, skip, top, roomIds, seasonIds);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

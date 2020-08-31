@@ -45,8 +45,8 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpGet]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.Location>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetLocations([FromQuery] int? skip = 0, [FromQuery] int? top = 500) 
-            => Ok(await _locationManagementService.Get(top!.Value, skip!.Value));
+        public async Task<IActionResult> GetLocations([FromQuery] int skip = 0, [FromQuery] int top = 500) 
+            => Ok(await _locationManagementService.Get(top, skip));
 
         
         /// <summary>
@@ -58,8 +58,8 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpGet("countries")]
         [ProducesResponseType(typeof(List<string>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetCountryNames([FromQuery] int? skip = 0, [FromQuery] int? top = 500) 
-            => Ok(await _locationManagementService.GetCountryNames(top!.Value, skip!.Value));
+        public async Task<IActionResult> GetCountryNames([FromQuery] int skip = 0, [FromQuery] int top = 500) 
+            => Ok(await _locationManagementService.GetCountryNames(top, skip));
 
         
         private readonly ILocationManagementService _locationManagementService;
