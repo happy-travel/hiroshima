@@ -52,9 +52,9 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpGet("contracts/{contractId}/allocation-requirements")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.AllocationRequirement>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetAllocationRequirements([FromRoute] int contractId, [FromQuery] int? skip = 0, [FromQuery] int? top = 100, [FromQuery(Name = "roomId")] List<int> roomIds = null, [FromQuery(Name = "seasonId")] List<int> seasonIds = null, [FromQuery(Name = "seasonRangeId")] List<int> seasonRangeIds = null)
+        public async Task<IActionResult> GetAllocationRequirements([FromRoute] int contractId, [FromQuery] int skip = 0, [FromQuery] int top = 100, [FromQuery(Name = "roomId")] List<int> roomIds = null, [FromQuery(Name = "seasonId")] List<int> seasonIds = null, [FromQuery(Name = "seasonRangeId")] List<int> seasonRangeIds = null)
         {
-            var (_, isFailure, response, error) = await _allocationRequirementManagementService.Get(contractId, skip!.Value, top!.Value, roomIds, seasonIds, seasonRangeIds);
+            var (_, isFailure, response, error) = await _allocationRequirementManagementService.Get(contractId, skip, top, roomIds, seasonIds, seasonRangeIds);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

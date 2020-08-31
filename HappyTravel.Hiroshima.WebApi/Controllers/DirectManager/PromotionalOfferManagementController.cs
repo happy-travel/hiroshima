@@ -34,9 +34,9 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpGet("contracts/{contractId}/promotional-offers")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.PromotionalOffer>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetPromotionalOffers([FromRoute] int contractId, [FromQuery] int? skip = 0, [FromQuery] int? top = 100, [FromQuery(Name = "roomId")] List<int> roomIds = null, [FromQuery] DateTime? validFrom = null, [FromQuery] DateTime? validTo = null)
+        public async Task<IActionResult> GetPromotionalOffers([FromRoute] int contractId, [FromQuery] int skip = 0, [FromQuery] int top = 100, [FromQuery(Name = "roomId")] List<int> roomIds = null, [FromQuery] DateTime? validFrom = null, [FromQuery] DateTime? validTo = null)
         {
-            var (_, isFailure, response, error) = await _promotionalOfferManagementService.Get(contractId, skip!.Value, top!.Value, roomIds == null ? new List<int>(): roomIds , validFrom, validTo);
+            var (_, isFailure, response, error) = await _promotionalOfferManagementService.Get(contractId, skip, top, roomIds == null ? new List<int>(): roomIds , validFrom, validTo);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
