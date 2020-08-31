@@ -22,19 +22,21 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
 
         /// <summary>
-        /// Retrieves contracted promotional offer
+        /// Retrieves contracted promotional offers
         /// </summary>
         /// <param name="contractId"></param>
+        /// <param name="skip"></param>
+        /// <param name="top"></param>
         /// <param name="roomIds">List of room ids</param>
         /// <param name="validFrom">Allows to set a lower bound date to get contracted promotional offers</param>
         /// <param name="validTo">Allows to set an upper bound date to get contracted promotional offers</param>
-        /// <returns></returns>
+        /// <returns>List of promotional offers</returns>
         [HttpGet("contracts/{contractId}/promotional-offers")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.PromotionalOffer>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetPromotionalOffers([FromRoute] int contractId, [FromQuery(Name = "roomId")] List<int> roomIds = null, [FromQuery] DateTime? validFrom = null, [FromQuery] DateTime? validTo = null)
+        public async Task<IActionResult> GetPromotionalOffers([FromRoute] int contractId, [FromQuery] int skip = 0, [FromQuery] int top = 100, [FromQuery(Name = "roomId")] List<int> roomIds = null, [FromQuery] DateTime? validFrom = null, [FromQuery] DateTime? validTo = null)
         {
-            var (_, isFailure, response, error) = await _promotionalOfferManagementService.Get(contractId, roomIds == null ? new List<int>(): roomIds , validFrom, validTo);
+            var (_, isFailure, response, error) = await _promotionalOfferManagementService.Get(contractId, skip, top, roomIds == null ? new List<int>(): roomIds , validFrom, validTo);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -47,7 +49,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// </summary>
         /// <param name="contractId"></param>
         /// <param name="promotionalOffers"></param>
-        /// <returns></returns>
+        /// <returns>List of promotional offers</returns>
         [HttpPost("contracts/{contractId}/promotional-offers")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.PromotionalOffer>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]

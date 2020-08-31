@@ -18,11 +18,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             //int.MaxValue is temporary ID. 
             //TODO add auth 
-            var user = await _dbContext.ContractManagers.SingleOrDefaultAsync(cm => cm.Id  == int.MaxValue);
+            var contractManager = await _dbContext.ContractManagers.SingleOrDefaultAsync(cm => cm.Id  == int.MaxValue);
             
-            return user is null
+            return contractManager is null
                 ? Result.Failure<ContractManager>("Failed to retrieve a contract manager") 
-                : Result.Success(user);
+                : Result.Success(contractManager);
         }
 
         
