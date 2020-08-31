@@ -87,7 +87,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .EnsureAccommodationBelongsToContractManager(_dbContext, accommodationId)
                 .Map(Update)
-                .Map(dbAccommodation => Build(dbAccommodation));
+                .Map(Build);
 
 
             async Task<Accommodation> Update(ContractManager contractManager)
@@ -107,12 +107,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public async Task<Result> Remove(int accommodationId)
         {
             //TODO Try to find out why MAP doesn't work here:
-            /*
-             Cannot access a disposed object. A common cause of this error is disposing a context that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. 
-             This may occur if you are calling Dispose() on the context, or wrapping the context in a using statement. 
-             If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.
-             Object name: 'DirectContractsDbContext'.
-             */
+            //https://happytravel.atlassian.net/browse/HIR-74
             return await _contractManagerContext.GetContractManager()
                 .Tap(contractManager => RemoveAccommodationWithRooms(contractManager.Id));
                 
@@ -310,7 +305,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 additionalInfo: accommodation.AdditionalInfo.GetValue<MultiLanguage<string>>(),
                 description: accommodation.TextualDescription.GetValue<MultiLanguage<TextualDescription>>(),
                 locationId:accommodation.LocationId,
-                roomIds: accommodation.Rooms != null ? accommodation.Rooms.Select(room => room.Id).ToList() : new List<int>());
+                roomIds: accommodation.Rooms != null 
+                    ? accommodation.Rooms.Select(room => room.Id).ToList() 
+                    : new List<int>());
         }
 
         

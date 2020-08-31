@@ -26,7 +26,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.Contract>> Get(int contractId)
         {
-            return _contractManagerContext.GetContractManager().Bind(contractManager => Get(contractManager.Id));
+            return _contractManagerContext.GetContractManager()
+                .Bind(contractManager => Get(contractManager.Id));
 
 
             async Task<Result<Models.Responses.Contract>> Get(int contractManagerId)
@@ -43,7 +44,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<List<Models.Responses.Contract>>> GetContracts(int skip = 0, int top = 100)
+        public Task<Result<List<Models.Responses.Contract>>> GetContracts(int skip, int top)
         {
            return _contractManagerContext.GetContractManager()
                 .Map(Get);
@@ -82,9 +83,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .EnsureAccommodationBelongsToContractManager(_dbContext, contract.AccommodationId)
                 .Bind(contractManager =>
                 {
-                    var (_, failure, error) = Validate(contract);
+                    var validationResult = Validate(contract);
                     
-                    return failure ? Result.Failure<ContractManager>(error) : Result.Success(contractManager);
+                    return validationResult.IsFailure ? Result.Failure<ContractManager>(validationResult.Error) : Result.Success(contractManager);
                 })
                 .Map(contractManager => Create(contractManager.Id, contract))
                 .Map(Add)
