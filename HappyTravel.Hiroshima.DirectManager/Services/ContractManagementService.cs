@@ -16,12 +16,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     {
         public ContractManagementService(IContractManagerContextService contractManagerContextService,
             DirectContracts.Services.Management.IContractManagementRepository contractManagementRepository,
-            DirectContracts.Services.Management.IAccommodationManagementRepository accommodationManagementRepository,
             DirectContractsDbContext dbContext)
         {
             _contractManagerContext = contractManagerContextService;
             _contractManagementRepository = contractManagementRepository;
-            _accommodationManagementRepository = accommodationManagementRepository;
             _dbContext = dbContext;
         }
 
@@ -114,21 +112,20 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result> Update(int contractId, Models.Requests.Contract contract)
+        public async Task<Result> Update(int contractId, Models.Requests.Contract contract)
         {
-            return _contractManagerContext.GetContractManager()
+            return await _contractManagerContext.GetContractManager()
                 .EnsureContractBelongsToContractManager(_dbContext, contractId)
                 .EnsureAccommodationBelongsToContractManager(_dbContext, contract.AccommodationId)
                 .Bind(contractManager =>
-                    {
-                        var (_, failure, error) = Validate(contract);
-                        
-                        return failure ? Result.Failure<ContractManager>(error) : Result.Success(contractManager);
-                    })
-                .Map(contractManager => Create(contractManager.Id, contract))
-                .Map(Update)
-                .Finally(result => result.IsSuccess ? Result.Success() : Result.Failure(result.Error));
+                {
+                    var (_, failure, error) = Validate(contract);
 
+                    return failure ? Result.Failure<ContractManager>(error) : Result.Success(contractManager);
+                })
+                .Map(contractManager => Create(contractManager.Id, contract))
+                .Map(Update);
+               
 
             async Task Update(Contract dbContract)
             {
@@ -141,12 +138,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result> Remove(int contractId)
+        public async Task<Result> Remove(int contractId)
         {
-            return _contractManagerContext.GetContractManager()
-                .Tap(async contractManager => await RemoveContract(contractManager.Id))
-                .Finally(result => result.IsSuccess ? Result.Success() : Result.Failure(result.Error));
-            
+            return await _contractManagerContext.GetContractManager()
+                .Tap(async contractManager => await RemoveContract(contractManager.Id));
+               
             
             async Task RemoveContract(int contractManagerId)
             {
@@ -204,7 +200,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private readonly IContractManagerContextService _contractManagerContext;
         private readonly DirectContracts.Services.Management.IContractManagementRepository _contractManagementRepository;
-        private readonly DirectContracts.Services.Management.IAccommodationManagementRepository _accommodationManagementRepository;
         private readonly DirectContractsDbContext _dbContext;
     }
 }

@@ -114,15 +114,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result> Remove(int contractId, List<int> allocationRequirementIds)
+        public async Task<Result> Remove(int contractId, List<int> allocationRequirementIds)
         {
-            return _contractManagerContextService.GetContractManager()
+            return await _contractManagerContextService.GetContractManager()
                 .EnsureContractBelongsToContractManager(_dbContext, contractId)
                 .Map(contractManager => GetAllocationRequirements())
-                .Tap(Remove)
-                .Finally(result => result.IsSuccess 
-                    ? Result.Success() 
-                    : Result.Failure(result.Error));
+                .Tap(Remove);
 
 
             async Task<List<RoomAllocationRequirement>> GetAllocationRequirements()

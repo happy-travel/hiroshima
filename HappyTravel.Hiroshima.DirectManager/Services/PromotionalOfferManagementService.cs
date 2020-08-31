@@ -61,14 +61,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Map(() => AddPromotionalOffers(contractId, promotionalOffers));
 
 
-        public Task<Result> Remove(int contractId, List<int> promotionalOfferIds)
-            => _contractManagerContext.GetContractManager()
+        public async Task<Result> Remove(int contractId, List<int> promotionalOfferIds)
+            => await _contractManagerContext.GetContractManager()
                 .EnsureContractBelongsToContractManager(_dbContext, contractId)
                 .Bind(contractManager => GetPromotionalOffersToRemove(contractId, contractManager.Id, promotionalOfferIds))
-                .Tap(RemovePromotionalOffers)
-                .Finally(result => result.IsSuccess ? Result.Success() : Result.Failure(result.Error));
-
-
+                .Tap(RemovePromotionalOffers);
+        
+        
         private async Task RemovePromotionalOffers(List<RoomPromotionalOffer> promotionalOffers)
         {
             if (!promotionalOffers.Any())

@@ -10,8 +10,6 @@ using HappyTravel.Hiroshima.Data.Models.Seasons;
 using HappyTravel.Hiroshima.DirectContracts.Services.Management;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
-using MoreLinq;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {
@@ -67,16 +65,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result> Remove(int contractId, int seasonId)
+        public async Task<Result> Remove(int contractId, int seasonId)
         {
-            return _contractManagerContext.GetContractManager()
+            return await _contractManagerContext.GetContractManager()
                 .EnsureContractBelongsToContractManager(_dbContext, contractId)
                 .Bind(contractManager => GetSeason())
-                .Ensure(CheckIfSeasonDoesntHaveAnySeasonRanges, 
-                    $"Season with {nameof(seasonId)} '{seasonId}' have an associated date range" )
-                .Map(async season => await Remove(season))
-                .Finally(result => result.IsSuccess ? Result.Success() : Result.Failure(result.Error));
-
+                .Ensure(CheckIfSeasonDoesntHaveAnySeasonRanges,
+                    $"Season with {nameof(seasonId)} '{seasonId}' have an associated date range")
+                .Tap(Remove);
+            
 
             async Task<Result<Season>> GetSeason()
             {

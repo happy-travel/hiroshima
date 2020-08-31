@@ -78,13 +78,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result> Remove(int contractId, List<int> rateIds)
+        public async Task<Result> Remove(int contractId, List<int> rateIds)
         {
-            return _contractManagerContext.GetContractManager()
+            return await _contractManagerContext.GetContractManager()
                 .EnsureContractBelongsToContractManager(_dbContext, contractId)
                 .Bind(contractManager => GetRatesToRemove(contractId, contractManager.Id, rateIds))
-                .Tap(RemoveRates)
-                .Finally(result => result.IsSuccess ? Result.Success() : Result.Failure(result.Error));
+                .Tap(RemoveRates);
         }
 
       
