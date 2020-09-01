@@ -38,10 +38,10 @@ namespace HappyTravel.Hiroshima.Data.Extensions
                 .Select(accommodationAndRoomAndRelationAndContract => accommodationAndRoomAndRelationAndContract.room.Id)
                 .ToListAsync();
                 
-            var inappropriateRoomIds = roomIds.Except(availableRoomIds).ToList();
+            var notBelongIds = roomIds.Except(availableRoomIds).ToList();
 
-            return inappropriateRoomIds.Any() 
-                ? Result.Failure($"Inappropriate room ids: {string.Join(", ", inappropriateRoomIds)}") 
+            return notBelongIds.Any() 
+                ? Result.Failure($"Invalid room ids: {string.Join(", ", notBelongIds)}") 
                 : Result.Success();
         }
         

@@ -385,7 +385,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.Property<int>("Restriction")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasDefaultValue(3);
+                        .HasDefaultValue(4);
 
                     b.Property<int>("RoomId")
                         .HasColumnType("integer");

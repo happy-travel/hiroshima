@@ -17,8 +17,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Hiroshima.Data.Migrations
 {
     [DbContext(typeof(DirectContractsDbContext))]
-    [Migration("20200830160111_Modify AvailabilityRestrictions table")]
-    partial class ModifyAvailabilityRestrictionstable
+    [Migration("20200901101806_ModifyAvailabilityRestrictions")]
+    partial class ModifyAvailabilityRestrictions
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -387,7 +387,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.Property<int>("Restriction")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasDefaultValue(3);
+                        .HasDefaultValue(4);
 
                     b.Property<int>("RoomId")
                         .HasColumnType("integer");

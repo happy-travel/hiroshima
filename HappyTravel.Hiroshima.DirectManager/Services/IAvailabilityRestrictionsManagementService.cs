@@ -10,6 +10,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     {
         public Task<Result<List<Models.Responses.AvailabilityRestriction>>> Set(int contractId, List<Models.Requests.AvailabilityRestriction> availabilityRestrictions);
         
-        public Task<Result<Models.Responses.AvailabilityRestriction>> Get(int contractId, List<int> roomIds, DateTime? fromDate, DateTime? toDate, AvailabilityRestrictions? restrictions);
+        public Task<Result<List<Models.Responses.AvailabilityRestriction>>> Get(int contractId, int skip, int top, List<int> roomIds, DateTime? fromDate, DateTime? toDate, AvailabilityRestrictions? restriction);
+
+        public Task<Result> Remove(int contractId, List<int> availabilityRestrictionIds);
     }
 }

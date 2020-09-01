@@ -64,9 +64,87 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<Models.Responses.AvailabilityRestriction>> Get(int contractId, List<int> roomIds, DateTime? fromDate, DateTime? toDate, AvailabilityRestrictions? restriction) => throw new NotImplementedException();
+        public Task<Result<List<Models.Responses.AvailabilityRestriction>>> Get(int contractId, int skip, int top, List<int> roomIds, DateTime? fromDate, DateTime? toDate, AvailabilityRestrictions? restriction)
+        {
+            return _contractManagerContext.GetContractManager()
+                .Map(contractManager => Get(contractManager.Id))
+                .Map(Build);
+
+
+            async Task<List<RoomAvailabilityRestriction>> Get(int contractManagerId)
+            {
+                var availabilityRestrictions = _dbContext.RoomAvailabilityRestrictions.Where(availabilityRestriction => availabilityRestriction.ContractId == contractId);
+                
+                if (roomIds != null && roomIds.Any())
+                {
+                    var validRoomIds = _dbContext.GetContractedAccommodations(contractId, contractManagerId)
+                        .Join(_dbContext.Rooms.Where(room => roomIds.Contains(room.Id)), accommodation => accommodation.Id, room => room.AccommodationId,
+                            (accommodation, room) => room.Id)
+                        .OrderBy(id => id);
+                        
+                    availabilityRestrictions = availabilityRestrictions.Where(availabilityRestriction => validRoomIds.Contains(availabilityRestriction.RoomId));
+                }
+
+                if (fromDate != null)
+                {
+                    availabilityRestrictions = availabilityRestrictions.Where(availabilityRestriction => fromDate <= availabilityRestriction.FromDate);
+                }
+
+                if (toDate != null)
+                {
+                    availabilityRestrictions = availabilityRestrictions.Where(availabilityRestriction => availabilityRestriction.FromDate <= toDate);
+                }
+
+                if (restriction != null)
+                {
+                    availabilityRestrictions = availabilityRestrictions.Where(availabilityRestriction => availabilityRestriction.Restriction == restriction.Value);
+                }
+
+                return await availabilityRestrictions
+                    .OrderBy(availabilityRestriction => availabilityRestriction.Id)
+                    .Skip(skip)
+                    .Take(top)
+                    .ToListAsync();
+            }
+        }
 
         
+        public async Task<Result> Remove(int contractId, List<int> availabilityRestrictionIds)
+        {
+          return await _contractManagerContext.GetContractManager()
+                .EnsureContractBelongsToContractManager(_dbContext, contractId)
+                .Bind(contractManager => GetAvailabilityRestrictionsToRemove(contractManager.Id))
+                .Map(RemoveAvailabilityRestrictions);
+                
+          
+            async Task<Result<List<RoomAvailabilityRestriction>>> GetAvailabilityRestrictionsToRemove(int contractManagerId)
+            {
+                var availabilityRestrictions = await _dbContext.RoomAvailabilityRestrictions
+                    .Where(availabilityRestriction => availabilityRestrictionIds.Contains(availabilityRestriction.Id))
+                    .ToListAsync();
+
+                if (availabilityRestrictions == null || !availabilityRestrictions.Any())
+                    return Result.Success(availabilityRestrictions);
+
+                var checkingResult = await _dbContext.CheckIfRoomsBelongToContract(contractId, contractManagerId,
+                    availabilityRestrictions.Select(availabilityRestriction => availabilityRestriction.RoomId).ToList());
+
+                return checkingResult.IsFailure 
+                    ? Result.Failure<List<RoomAvailabilityRestriction>>(checkingResult.Error) 
+                    : Result.Success(availabilityRestrictions);
+            }
+                
+            async Task RemoveAvailabilityRestrictions(List<RoomAvailabilityRestriction> availabilityRestrictions)
+            {
+                if (!availabilityRestrictions.Any())
+                    return;
+
+                _dbContext.RoomAvailabilityRestrictions.RemoveRange(availabilityRestrictions);
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+        
+    
         private async Task<Result> Validate(int contractManagerId, int contractId, List<Models.Requests.AvailabilityRestriction> availabilityRestrictions)
         {
             var contract = await _dbContext.Contracts.SingleOrDefaultAsync(contract => contract.Id == contractId && contract.ContractManagerId == contractManagerId);

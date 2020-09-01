@@ -5,20 +5,20 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
     public readonly struct AvailabilityRestriction
     {
-        public AvailabilityRestriction(int id, DateTime validFrom, DateTime validTo, int roomId, AvailabilityRestrictions restriction)
+        public AvailabilityRestriction(int id, DateTime fromDate, DateTime toDate, int roomId, AvailabilityRestrictions restriction)
         {
             Id = id;
             RoomId = roomId;
-            ValidFrom = validFrom;
-            ValidTo = validTo;
+            FromDate = fromDate;
+            ToDate = toDate;
             Restriction = restriction;
         }
 
 
         public int Id { get; }
         public int RoomId { get; }
-        public DateTime ValidFrom { get; }
-        public DateTime ValidTo { get; }
+        public DateTime FromDate { get; }
+        public DateTime ToDate { get; }
         public AvailabilityRestrictions Restriction { get; }
     }
 }

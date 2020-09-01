@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace HappyTravel.Hiroshima.Data.Migrations
 {
-    public partial class ModifyAvailabilityRestrictionstable : Migration
+    public partial class ModifyAvailabilityRestrictions : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -35,7 +35,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                 name: "Restriction",
                 table: "RoomAvailabilityRestrictions",
                 nullable: false,
-                defaultValue: 3);
+                defaultValue: 4);
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "ToDate",
