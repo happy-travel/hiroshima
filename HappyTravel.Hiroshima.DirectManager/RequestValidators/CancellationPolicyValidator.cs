@@ -7,15 +7,13 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
     {
         public CancellationPolicyValidator()
         {
-            RuleFor(policyItem => policyItem.PenaltyCharge).InclusiveBetween(0, 100)
-                .When(policyItem => policyItem.PenaltyType == PolicyPenaltyTypes.Percent);
-            RuleFor(policyItem => policyItem.PenaltyCharge).GreaterThanOrEqualTo(MinPenaltyNights)
+            RuleFor(policyItem => policyItem.PenaltyCharge).InclusiveBetween(0, 100).When(policyItem => policyItem.PenaltyType == PolicyPenaltyTypes.Percent);
+            RuleFor(policyItem => policyItem.PenaltyCharge)
+                .GreaterThanOrEqualTo(MinPenaltyNights)
                 .When(policyItem => policyItem.PenaltyType == PolicyPenaltyTypes.Nights);
-            RuleFor(policyItem => policyItem.DaysPriorToArrival).NotNull() 
-                .ChildRules(dayInterval =>
-                {
-                    dayInterval.RuleFor(interval => interval).Must(interval => interval.FromDay < interval.ToDay);
-                });
+            RuleFor(policyItem => policyItem.DaysPriorToArrival)
+                .NotNull()
+                .ChildRules(dayInterval => { dayInterval.RuleFor(interval => interval).Must(interval => interval.FromDay < interval.ToDay); });
         }
 
 

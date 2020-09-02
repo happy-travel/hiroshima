@@ -9,6 +9,7 @@ using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.Data.Models.Seasons;
 using HappyTravel.Hiroshima.DirectContracts.Services.Management;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
+using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
@@ -182,9 +183,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             var dateRanges = GetSortedDateRanges();
 
-            return Result.Combine(CheckIfRangesInAscendingOrder(), CheckIfRangesCoverContractedPeriod(), await CheckIfSeasonsBelongToContract());
+            return Result.Combine(ValidationHelper.Validate(seasonRanges, new SeasonRangeValidator()), CheckIfRangesInAscendingOrder(), CheckIfRangesCoverContractedPeriod(), await CheckIfSeasonsBelongToContract());
 
-
+            
             Result CheckIfRangesInAscendingOrder()
             {
                 var previousDateRange = dateRanges.First();

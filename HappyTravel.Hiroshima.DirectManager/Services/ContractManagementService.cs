@@ -2,12 +2,11 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using FluentValidation;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.Data.Models;
-using HappyTravel.Hiroshima.DirectManager.Infrastructure;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
+using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
@@ -83,7 +82,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .EnsureAccommodationBelongsToContractManager(_dbContext, contract.AccommodationId)
                 .Bind(contractManager =>
                 {
-                    var validationResult = Validate(contract);
+                    var validationResult = ValidationHelper.Validate(contract, new ContractValidator());
                     
                     return validationResult.IsFailure ? Result.Failure<ContractManager>(validationResult.Error) : Result.Success(contractManager);
                 })
@@ -120,7 +119,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .EnsureAccommodationBelongsToContractManager(_dbContext, contract.AccommodationId)
                 .Bind(contractManager =>
                 {
-                    var (_, failure, error) = Validate(contract);
+                    var (_, failure, error) = ValidationHelper.Validate(contract, new ContractValidator());
 
                     return failure ? Result.Failure<ContractManager>(error) : Result.Success(contractManager);
                 })
@@ -181,19 +180,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 ContractManagerId = contractManagerId
             };
         
-        
-        private Result Validate(Models.Requests.Contract contract)
-        {
-            var result = GenericValidator<Models.Requests.Contract>.Validate(v =>
-            {
-                v.RuleFor(c => c.Name).NotEmpty();
-                v.RuleFor(c => c.Description).NotEmpty();
-                v.RuleFor(c => c.AccommodationId).NotEmpty();
-                v.RuleFor(c => c.ValidFrom).LessThan(c => c.ValidTo);
-            }, contract);
-            return result;
-        }
-
         
         private Models.Responses.Contract Build(Contract contract, int accommodationId)
             => new Models.Responses.Contract(contract.Id, accommodationId, contract.ValidFrom, contract.ValidTo, contract.Name, contract.Description);

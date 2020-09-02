@@ -7,15 +7,15 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
     {
         public RoomValidator()
         {
-            RuleFor(r => r.Name).AnyLanguage($"Invalid {nameof(Models.Requests.Room)}, field {nameof(Models.Requests.Room.Name)}");
-            RuleFor(r => r.OccupancyConfigurations).NotNull();
-            RuleForEach(r=> r.OccupancyConfigurations).SetValidator(new OccupancyConfigurationValidator());
-            RuleForEach(r => r.Pictures.Ar)
-                .SetValidator(new PictureValidator()).When(r=>r.Pictures.Ar != null);
-            RuleForEach(r => r.Pictures.En)
-                .SetValidator(new PictureValidator()).When(r=>r.Pictures.En != null);
-            RuleForEach(r => r.Pictures.Ru)
-                .SetValidator(new PictureValidator()).When(r=>r.Pictures.Ru != null);
+            RuleFor(room => room.Name).NotNull().AnyLanguage();
+            RuleFor(room => room.OccupancyConfigurations).NotEmpty();
+            RuleForEach(room => room.OccupancyConfigurations).SetValidator(new OccupancyConfigurationValidator());
+            RuleFor(accommodation => accommodation.Pictures)
+                .AnyLanguage()
+                .When(room => room.Pictures != null)
+                .ChildRules(room => room.RuleForEach(pictures => pictures.Ar).SetValidator(new PictureValidator()))
+                .ChildRules(room => room.RuleForEach(pictures => pictures.En).SetValidator(new PictureValidator()))
+                .ChildRules(room => room.RuleForEach(pictures => pictures.Ru).SetValidator(new PictureValidator()));
         }
     }
 }

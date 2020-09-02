@@ -8,29 +8,33 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
     {
         public AccommodationValidator()
         {
-            RuleFor(a => a.Name).NotNull().AnyLanguage($"Invalid {nameof(Accommodation)}, field: {nameof(Accommodation.Name)}");
-            RuleFor( a => a.Address).NotNull().AnyLanguage($"Invalid {nameof(Accommodation)}, field: {nameof(Accommodation.Address)}");
-            RuleFor( a => a.Coordinates).NotNull();
-            RuleFor( a => a.Rating).NotNull().IsInEnum();
-            RuleFor(a => a.Type).NotNull().IsInEnum();
-            RuleFor(a => a.CheckInTime).NotEmpty();
-            RuleFor(a => a.CheckOutTime).NotEmpty();
-            RuleFor(a => a.ContactInfo).NotNull()
-                .ChildRules(vci => vci.RuleFor(ci => ci.Email).NotNull()
-                    .EmailAddress())
-                .ChildRules(vci => vci.RuleFor(ci => ci.Phone).NotNull()
-                    .SetValidator(new PhoneNumberValidator()))
-                .ChildRules(vci => vci.RuleFor(ci => ci.Website)
-                    .SetValidator(new UriValidator())
-                    .When(ci => !string.IsNullOrWhiteSpace(ci.Website)));
-            RuleFor(a => a.OccupancyDefinition).SetValidator(new OccupancyDefinitionValidator()).NotNull();
-            RuleFor(a => a.Amenities).AnyLanguage($"Invalid {nameof(Accommodation)}, field {nameof(Accommodation.Amenities)} ").When(a => a.Amenities != null);
-            RuleForEach(a => a.Pictures.Ar)
-                .SetValidator(new PictureValidator()).When(a=> a.Pictures.Ar != null);
-            RuleForEach(a => a.Pictures.En)
-                .SetValidator(new PictureValidator()).When(a=> a.Pictures.En != null);
-            RuleForEach(a => a.Pictures.Ru)
-                .SetValidator(new PictureValidator()).When(a=> a.Pictures.Ru != null);
+            RuleFor(accommodation => accommodation.Name).NotNull().AnyLanguage();
+            RuleFor(accommodation => accommodation.Address).NotNull().AnyLanguage();
+            RuleFor(accommodation => accommodation.Description)
+                .NotEmpty()
+                .AnyLanguage()
+                .ChildRules(validator => validator.RuleFor(textualDescription => textualDescription.Ar).SetValidator(new TextualDescriptionValidator()))
+                .ChildRules(validator => validator.RuleFor(textualDescription => textualDescription.En).SetValidator(new TextualDescriptionValidator()))
+                .ChildRules(validator => validator.RuleFor(textualDescription => textualDescription.Ru).SetValidator(new TextualDescriptionValidator()));
+            RuleFor(accommodation => accommodation.Coordinates).NotNull();
+            RuleFor(accommodation => accommodation.Rating).NotNull();
+            RuleFor(accommodation => accommodation.Type).NotNull().IsInEnum();
+            RuleFor(accommodation => accommodation.CheckInTime).NotEmpty();
+            RuleFor(accommodation => accommodation.CheckOutTime).NotEmpty();
+            RuleFor(accommodation => accommodation.ContactInfo)
+                .NotNull()
+                .ChildRules(validator => validator.RuleFor(contactInfo => contactInfo.Email).NotEmpty().EmailAddress())
+                .ChildRules(validator => validator.RuleFor(contactInfo => contactInfo.Phone).NotEmpty().SetValidator(new PhoneNumberValidator()))
+                .ChildRules(validator => validator.RuleFor(contactInfo => contactInfo.Website).SetValidator(new UriValidator()).When(contactInfo => !string.IsNullOrWhiteSpace(contactInfo.Website)));
+            RuleFor(accommodation => accommodation.OccupancyDefinition).SetValidator(new OccupancyDefinitionValidator()).NotNull();
+            RuleFor(accommodation => accommodation.Amenities).AnyLanguage().When(accommodation => accommodation.Amenities != null);
+            RuleFor(accommodation => accommodation.Pictures)
+                .AnyLanguage()
+                .When(a => a.Pictures != null)
+                .ChildRules(a => a.RuleForEach(ml => ml.Ar).SetValidator(new PictureValidator()))
+                .ChildRules(a => a.RuleForEach(ml => ml.En).SetValidator(new PictureValidator()))
+                .ChildRules(a => a.RuleForEach(ml => ml.Ru).SetValidator(new PictureValidator()));
+            RuleFor(a => a.LocationId).NotEmpty();
         }
     }
 }

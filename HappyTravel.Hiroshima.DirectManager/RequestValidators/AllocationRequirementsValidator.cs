@@ -6,6 +6,8 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
     {
         public AllocationRequirementsValidator()
         {
+            RuleFor(requirements => requirements.SeasonRangeId).NotEmpty();
+            RuleFor(requirements => requirements.RoomId).NotEmpty();
             RuleFor(requirements => requirements.ReleaseDays).GreaterThanOrEqualTo(0);
             RuleFor(requirements => requirements.MinimumLengthOfStay).GreaterThanOrEqualTo(0)
                 .When(requirements => requirements.MinimumLengthOfStay != null);

@@ -69,7 +69,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.Accommodation>> Add(Models.Requests.Accommodation accommodation)
         {
-            return ValidateAccommodation(accommodation)
+            return ValidationHelper.Validate(accommodation, new AccommodationValidator())
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .Map(async contractManager =>
                 {
@@ -83,7 +83,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.Accommodation>> Update(int accommodationId, Models.Requests.Accommodation accommodation)
         {
-            return ValidateAccommodation(accommodation)
+            return ValidationHelper.Validate(accommodation, new AccommodationValidator())
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .EnsureAccommodationBelongsToContractManager(_dbContext, accommodationId)
                 .Map(Update)
@@ -247,18 +247,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Select(roomAndAccommodation => roomAndAccommodation.room);
        
         
-
-        private Result ValidateAccommodation(Models.Requests.Accommodation accommodation)
-        {
-            var validator = new AccommodationValidator();
-            var validationResult = validator.Validate(accommodation);
-            
-            return validationResult.IsValid
-                ? Result.Success()
-                : Result.Combine(validationResult.Errors.Select(e => Result.Failure($"{e.PropertyName}: {e.ErrorMessage}")).ToArray());
-        }
-
-
         private Accommodation CreateAccommodation(int contractManagerId, Models.Requests.Accommodation accommodation)
         {
             return new Accommodation

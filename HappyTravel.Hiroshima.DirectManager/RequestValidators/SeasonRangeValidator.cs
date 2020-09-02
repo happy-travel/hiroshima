@@ -1,5 +1,4 @@
-﻿using System;
-using FluentValidation;
+﻿using FluentValidation;
 
 namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
 {
@@ -7,8 +6,8 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
     {
         public SeasonRangeValidator()
         {
-            RuleFor(r => r.StartDate).NotEqual(default(DateTime));
-            RuleFor(r => r.EndDate).NotEqual(default(DateTime));
+            RuleFor(r => r.StartDate).NotEmpty();
+            RuleFor(r => r.EndDate).NotEmpty();
             RuleFor(r => r.StartDate < r.EndDate);
         }
     }

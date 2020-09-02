@@ -11,6 +11,7 @@ using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.Data.Models.Location;
+using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
@@ -24,11 +25,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         public Task<Result<Models.Responses.Location>> Add(Models.Requests.Location location)
-            => GetCountry(location.Country)
+        {
+            return ValidationHelper.Validate(location, new LocationValidator())
+                .Bind(async () => await GetCountry(location.Country))
                 .Map(country => AddLocation(country, location.Locality, location.Zone))
                 .Map(locationAndCountry => CreateResponse(locationAndCountry.location, locationAndCountry.country));
+        }
 
-
+        
         public async Task<List<Models.Responses.Location>> Get(int top = 100, int skip = 0)
         {
               var locations = await _dbContext.Locations.Join( _dbContext.Countries, location => location.CountryCode, country => country.Code, (location, country) => new {location, country})
