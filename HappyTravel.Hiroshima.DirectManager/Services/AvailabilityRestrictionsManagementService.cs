@@ -6,7 +6,6 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
-using HappyTravel.Hiroshima.Data.Models.Rooms;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
@@ -73,34 +72,34 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<List<RoomAvailabilityRestriction>> Get(int contractManagerId)
             {
-                var availabilityRestrictions = _dbContext.RoomAvailabilityRestrictions.Where(availabilityRestriction => availabilityRestriction.ContractId == contractId);
+                var availabilityRestrictionsQueryable = _dbContext.RoomAvailabilityRestrictions.Where(availabilityRestriction => availabilityRestriction.ContractId == contractId);
                 
                 if (roomIds != null && roomIds.Any())
                 {
-                    var validRoomIds = _dbContext.GetContractedAccommodations(contractId, contractManagerId)
+                    var validRoomIdsQueryable = _dbContext.GetContractedAccommodations(contractId, contractManagerId)
                         .Join(_dbContext.Rooms.Where(room => roomIds.Contains(room.Id)), accommodation => accommodation.Id, room => room.AccommodationId,
                             (accommodation, room) => room.Id)
                         .OrderBy(id => id);
                         
-                    availabilityRestrictions = availabilityRestrictions.Where(availabilityRestriction => validRoomIds.Contains(availabilityRestriction.RoomId));
+                    availabilityRestrictionsQueryable = availabilityRestrictionsQueryable.Where(availabilityRestriction => validRoomIdsQueryable.Contains(availabilityRestriction.RoomId));
                 }
 
                 if (fromDate != null)
                 {
-                    availabilityRestrictions = availabilityRestrictions.Where(availabilityRestriction => fromDate <= availabilityRestriction.FromDate);
+                    availabilityRestrictionsQueryable = availabilityRestrictionsQueryable.Where(availabilityRestriction => fromDate <= availabilityRestriction.FromDate);
                 }
 
                 if (toDate != null)
                 {
-                    availabilityRestrictions = availabilityRestrictions.Where(availabilityRestriction => availabilityRestriction.FromDate <= toDate);
+                    availabilityRestrictionsQueryable = availabilityRestrictionsQueryable.Where(availabilityRestriction => availabilityRestriction.FromDate <= toDate);
                 }
 
                 if (restriction != null)
                 {
-                    availabilityRestrictions = availabilityRestrictions.Where(availabilityRestriction => availabilityRestriction.Restriction == restriction.Value);
+                    availabilityRestrictionsQueryable = availabilityRestrictionsQueryable.Where(availabilityRestriction => availabilityRestriction.Restriction == restriction.Value);
                 }
 
-                return await availabilityRestrictions
+                return await availabilityRestrictionsQueryable
                     .OrderBy(availabilityRestriction => availabilityRestriction.Id)
                     .Skip(skip)
                     .Take(top)

@@ -2,9 +2,9 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Hiroshima.Data.Models.Accommodations;
-using HappyTravel.Hiroshima.Data.Models.Rooms;
-using HappyTravel.Hiroshima.Data.Models.Seasons;
+using HappyTravel.Hiroshima.Common.Models.Accommodations;
+using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
+using HappyTravel.Hiroshima.Common.Models.Seasons;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 

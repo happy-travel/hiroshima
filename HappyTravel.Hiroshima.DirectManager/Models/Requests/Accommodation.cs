@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
+using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OcuppancyDefinitions;
 using HappyTravel.Hiroshima.Common.Models.Enums;
 namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
 {

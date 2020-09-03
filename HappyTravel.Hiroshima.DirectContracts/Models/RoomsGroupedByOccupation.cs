@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.Hiroshima.Data.Models.Rooms;
+using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Models
 {

@@ -3,22 +3,39 @@ using System.Collections.Generic;
 using System.Text.Json;
 using HappyTravel.EdoContracts.Extensions;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
-using HappyTravel.Hiroshima.Common.Models.Accommodations;
-using HappyTravel.Hiroshima.Data.Models.Accommodations;
+using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
+using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OcuppancyDefinitions;
 
-namespace HappyTravel.Hiroshima.Data.Models.Rooms
+namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms
 {
     public class Room
     {
         public int Id { get; set; }
+        
         public int AccommodationId { get; set; }
+        
         public JsonDocument Name { get; set; }
+        
         public JsonDocument Description { get; set; }
+        
         public JsonDocument Amenities { get; set; }
+        
         public JsonDocument Pictures { get; set; }
+        
         public List<OccupancyConfiguration> OccupancyConfigurations { get; set; } = new List<OccupancyConfiguration>();
         
         public Accommodation Accommodation { get; set; }
+        
+        public List<RoomRate> RoomRates { get; set; }
+        
+        public List<RoomPromotionalOffer> RoomPromotionalOffers { get; set; }
+        
+        public List<RoomAllocationRequirement> RoomAllocationRequirements { get; set; }
+        
+        public List<RoomAvailabilityRestriction> RoomAvailabilityRestrictions { get; set; }
+        
+        public List<RoomCancellationPolicy> RoomCancellationPolicies { get; set; } 
+        
         
         public override bool Equals(object obj)
         {

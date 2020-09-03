@@ -70,7 +70,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="ids">Availability restriction ids</param>
         /// <returns></returns>
         [HttpDelete("contracts/{contractId}/availability-restrictions")]
-        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> RemoveAvailabilityRestrictions([FromRoute] int contractId, [FromBody] List<int> ids)
         { 
