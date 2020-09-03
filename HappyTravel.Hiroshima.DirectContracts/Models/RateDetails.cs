@@ -2,7 +2,6 @@
 using System.Text.Json;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.Hiroshima.Data.Models;
-using HappyTravel.Hiroshima.Data.Models.Rooms;
 using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Models

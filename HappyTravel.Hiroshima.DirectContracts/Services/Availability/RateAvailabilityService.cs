@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.Data;
-using HappyTravel.Hiroshima.Data.Models.Rooms;
 using HappyTravel.Hiroshima.DirectContracts.Models;
 using Microsoft.EntityFrameworkCore;
 

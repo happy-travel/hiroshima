@@ -8,9 +8,9 @@ using HappyTravel.Hiroshima.Common.Constants;
 using HappyTravel.Hiroshima.Common.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models;
+using HappyTravel.Hiroshima.Common.Models.Locations;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
-using HappyTravel.Hiroshima.Data.Models.Location;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services

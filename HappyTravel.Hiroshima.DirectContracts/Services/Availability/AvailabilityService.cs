@@ -7,10 +7,10 @@ using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.GeoData.Enums;
 using HappyTravel.Hiroshima.Common.Constants;
 using HappyTravel.Hiroshima.Common.Infrastructure.Extensions;
+using HappyTravel.Hiroshima.Common.Models.Accommodations;
+using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
+using HappyTravel.Hiroshima.Common.Models.Locations;
 using HappyTravel.Hiroshima.Data;
-using HappyTravel.Hiroshima.Data.Models.Accommodations;
-using HappyTravel.Hiroshima.Data.Models.Location;
-using HappyTravel.Hiroshima.Data.Models.Rooms;
 using HappyTravel.Hiroshima.DirectContracts.Models;
 using Microsoft.EntityFrameworkCore;
 using AccommodationDetails = HappyTravel.Hiroshima.DirectContracts.Models.AccommodationDetails;
@@ -167,7 +167,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                             CheckInTime = accWithLoc.Accommodation.CheckInTime,
                             CheckOutTime = accWithLoc.Accommodation.CheckOutTime
                         },
-                    Location = new Data.Models.Location.Location
+                    Location = new Common.Models.Locations.Location
                     {
                         Id = accWithLoc.Location.Id,
                         Locality =
