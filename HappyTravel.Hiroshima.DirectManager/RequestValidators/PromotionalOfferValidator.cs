@@ -7,9 +7,16 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
     {
         public PromotionalOfferValidator()
         {
+            RuleFor(offer => offer.RoomId).NotEmpty();
+            RuleFor(offer => offer.BookByDate).NotEmpty();
+            RuleFor(offer => offer.ValidFrom).NotEmpty();
+            RuleFor(offer => offer.ValidTo).NotEmpty();
             RuleFor(offer => offer.ValidFrom).LessThanOrEqualTo(offer => offer.ValidTo);
+            RuleFor(offer => offer.BookByDate).LessThanOrEqualTo(offer => offer.ValidFrom);
             RuleFor(offer => offer.DiscountPercent).GreaterThanOrEqualTo(0d).LessThanOrEqualTo(100d);
-            RuleFor(offer => offer.Details).NotNull().AnyLanguage($"Invalid {nameof(Models.Responses.PromotionalOffer)}, field: {nameof(Models.Responses.PromotionalOffer.Details)}");
+            RuleFor(offer => offer.Details)
+                .AnyLanguage()
+                .When(offer => offer.Details != null);
         }
     }
 }

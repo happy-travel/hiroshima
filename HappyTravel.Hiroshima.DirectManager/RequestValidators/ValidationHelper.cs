@@ -29,5 +29,15 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
                 ? Result.Success()
                 : Result.Failure(string.Join("; ", errors?? new List<string>()));
         }
+        
+        
+        public static Result Validate<T>(T model, AbstractValidator<T> validator)
+        {
+            var validationResult = validator.Validate(model);
+            
+            return validationResult.IsValid
+                ? Result.Success()
+                : Result.Combine(validationResult.Errors.Select(e => Result.Failure($"{e.PropertyName}: {e.ErrorMessage}")).ToArray());
+        }
     }
 }

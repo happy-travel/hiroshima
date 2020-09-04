@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using HappyTravel.Hiroshima.Common.Models;
 
 namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
 {
@@ -7,8 +6,9 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
     {
         public PictureValidator()
         {
-            RuleFor(p => p.Source).SetValidator(new UriValidator());
-            RuleFor(p => p.Caption.Length).LessThanOrEqualTo(150);
+            RuleFor(picture => picture.Source).SetValidator(new UriValidator());
+            RuleFor(picture => picture.Caption).MaximumLength(150);
+            RuleFor(picture => picture.Type).IsInEnum();
         }
     }
 }

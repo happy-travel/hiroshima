@@ -9,6 +9,8 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
     {
         public CancellationPoliciesValidator()
         {
+            RuleFor(policy => policy.RoomId).NotEmpty();
+            RuleFor(policy => policy.SeasonId).NotEmpty();
             RuleFor(policy => policy.Policies)
                 .NotEmpty()
                 .Must(ArePolicesOrderedFromLatestToEarliest).WithMessage("Incorrect policies order");

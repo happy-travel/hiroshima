@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using HappyTravel.Hiroshima.DirectManager.RequestValidators.Extensions;
 using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
@@ -7,8 +8,15 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
     {
         public RateValidator()
         {
-            RuleFor(r => r.Currency).IsInEnum().NotEqual(Currencies.NotSpecified);
-            RuleFor(r => r.BoardBasis).IsInEnum();
+            RuleFor(rate => rate.RoomId).NotEmpty();
+            RuleFor(rate => rate.SeasonId).NotEmpty();
+            RuleFor(rate => rate.Price).NotEmpty();
+            RuleFor(rate => rate.Currency).IsInEnum().NotEqual(Currencies.NotSpecified);
+            RuleFor(rate => rate.BoardBasis).IsInEnum();
+            RuleFor(rate => rate.MealPlan).NotEmpty();
+            RuleFor(rate => rate.Details)
+                .AnyLanguage()
+                .When(rate => rate.Details != null);
         }        
     }
 }
