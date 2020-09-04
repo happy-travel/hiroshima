@@ -4,7 +4,7 @@ using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
 {
-    public class RateValidator: AbstractValidator<Models.Requests.Rate>
+    public class RateValidator : AbstractValidator<Models.Requests.Rate>
     {
         public RateValidator()
         {
@@ -14,9 +14,8 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
             RuleFor(rate => rate.Currency).IsInEnum().NotEqual(Currencies.NotSpecified);
             RuleFor(rate => rate.BoardBasis).IsInEnum();
             RuleFor(rate => rate.MealPlan).NotEmpty();
-            RuleFor(rate => rate.Details)
-                .AnyLanguage()
-                .When(rate => rate.Details != null);
-        }        
+            RuleFor(rate => rate.RoomType).IsInEnum();
+            RuleFor(rate => rate.Details).AnyLanguage().When(rate => rate.Details != null);
+        }
     }
 }

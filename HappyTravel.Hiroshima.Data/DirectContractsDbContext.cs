@@ -165,6 +165,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(rr => rr.BoardBasis).IsRequired();;
                 e.Property(rr=> rr.SeasonId).IsRequired();
                 e.Property(rr => rr.RoomId).IsRequired();
+                e.Property(rr => rr.RoomType).IsRequired();
                 e.HasIndex(rr => rr.SeasonId);
                 e.HasIndex(rr => rr.RoomId);
             });
