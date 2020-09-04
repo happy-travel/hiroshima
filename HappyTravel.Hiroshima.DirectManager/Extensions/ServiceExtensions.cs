@@ -15,6 +15,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Extensions
             services.AddTransient<ICancellationPolicyManagementService, CancellationPolicyManagementService>();
             services.AddTransient<ILocationManagementService, LocationManagementService>();
             services.AddTransient<IAllocationRequirementManagementService, AllocationRequirementManagementService>();
+            services.AddTransient<IAvailabilityRestrictionsManagementService, AvailabilityRestrictionsManagementService>();
             services.AddScoped<IContractManagerContextService, ContractManagerContextService>();
             
             return services;

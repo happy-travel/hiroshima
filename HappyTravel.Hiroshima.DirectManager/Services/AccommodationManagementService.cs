@@ -14,9 +14,9 @@ using HappyTravel.Hiroshima.DirectManager.Infrastructure;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.EntityFrameworkCore;
-using Accommodation = HappyTravel.Hiroshima.Data.Models.Accommodations.Accommodation;
+using Accommodation = HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation;
 using NetTopologySuite.Geometries;
-using Room = HappyTravel.Hiroshima.Data.Models.Rooms.Room;
+using Room = HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.Room;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {

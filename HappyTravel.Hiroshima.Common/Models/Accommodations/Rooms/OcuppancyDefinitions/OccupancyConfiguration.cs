@@ -1,12 +1,15 @@
 ﻿using System;
 
-namespace HappyTravel.Hiroshima.Common.Models.Accommodations
+namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OcuppancyDefinitions
 {
     public class OccupancyConfiguration
     {
         public int Adults { get; set; }
+        
         public int Teenagers { get; set; }
+        
         public int Children { get; set; }
+        
         public int Infants { get; set; }
 
         

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.Hiroshima.Common.Infrastructure.Extensions;
-using HappyTravel.Hiroshima.Data.Models.Rooms;
+using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.DirectContracts.Models;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Helpers;

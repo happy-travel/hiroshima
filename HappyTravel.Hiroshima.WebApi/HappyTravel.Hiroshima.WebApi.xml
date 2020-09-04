@@ -129,6 +129,33 @@
             <param name="allocationRequirementIds"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AvailabilityRestrictionsManagementController.SetAvailabilityRestrictions(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.AvailabilityRestriction})">
+            <summary>
+            Replaces availability restrictions for the specific rooms. Removes previous, adds the new.
+            </summary>
+            <returns>List of the new availability restrictions</returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AvailabilityRestrictionsManagementController.GetAvailabilityRestrictions(System.Int32,System.Collections.Generic.List{System.Int32},System.Nullable{System.DateTime},System.Nullable{System.DateTime},System.Nullable{HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.AvailabilityRestrictions},System.Int32,System.Int32)">
+            <summary>
+            Retrieves availability restrictions
+            </summary>
+            <param name="contractId"></param>
+            <param name="roomIds"></param>
+            <param name="fromDate"></param>
+            <param name="toDate"></param>
+            <param name="restriction"></param>
+            <param name="skip"></param>
+            <param name="top"></param>
+            <returns>List of availability restrictions</returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AvailabilityRestrictionsManagementController.RemoveAvailabilityRestrictions(System.Int32,System.Collections.Generic.List{System.Int32})">
+            <summary>
+            Removes availability restrictions
+            </summary>
+            <param name="contractId"></param>
+            <param name="ids">Availability restriction ids</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.CancellationPolicyController.AddCancellationPolicies(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.CancellationPolicy})">
             <summary>
             Adds contract cancellation policies 

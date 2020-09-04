@@ -18,8 +18,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Hiroshima.Data.Migrations
 {
     [DbContext(typeof(DirectContractsDbContext))]
-    [Migration("20200818172931_SplitSeasonsTableToSeasonsAndSeasonRanges")]
-    partial class SplitSeasonsTableToSeasonsAndSeasonRanges
+    [Migration("20200901101806_ModifyAvailabilityRestrictions")]
+    partial class ModifyAvailabilityRestrictions
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -353,21 +353,17 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.Property<int?>("Allotment")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int?>("MinimumStayNights")
+                    b.Property<int?>("MinimumLengthOfStay")
                         .HasColumnType("integer");
 
-                    b.Property<int>("ReleasePeriod")
-                        .IsRequired()
+                    b.Property<int>("ReleaseDays")
                         .HasColumnType("integer");
 
                     b.Property<int>("RoomId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("timestamp without time zone");
+                    b.Property<int>("SeasonRangeId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -376,28 +372,35 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.ToTable("RoomAllocationRequirements");
                 });
 
-            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.Rooms.RoomAvailabilityRestrictions", b =>
+            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.Rooms.RoomAvailabilityRestriction", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<DateTime>("EndDate")
+                    b.Property<int>("ContractId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("FromDate")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<int>("Restrictions")
+                    b.Property<int>("Restriction")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasDefaultValue(0);
+                        .HasDefaultValue(4);
 
                     b.Property<int>("RoomId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("StartDate")
+                    b.Property<DateTime>("ToDate")
                         .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ContractId");
+
+                    b.HasIndex("Restriction");
 
                     b.HasIndex("RoomId");
 
@@ -437,6 +440,8 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ContractId");
 
                     b.HasIndex("RoomId");
 
@@ -482,7 +487,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.ToTable("RoomRates");
                 });
 
-            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.Season", b =>
+            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.Seasons.Season", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -503,7 +508,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.ToTable("Seasons");
                 });
 
-            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.SeasonRange", b =>
+            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.Seasons.SeasonRange", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -521,7 +526,54 @@ namespace HappyTravel.Hiroshima.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("SeasonId");
+
                     b.ToTable("SeasonRanges");
+                });
+
+            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.Rooms.Room", b =>
+                {
+                    b.HasOne("HappyTravel.Hiroshima.Data.Models.Accommodations.Accommodation", "Accommodation")
+                        .WithMany("Rooms")
+                        .HasForeignKey("AccommodationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.Rooms.RoomAvailabilityRestriction", b =>
+                {
+                    b.HasOne("HappyTravel.Hiroshima.Data.Models.Contract", null)
+                        .WithMany("RoomAvailabilityRestriction")
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.Rooms.RoomPromotionalOffer", b =>
+                {
+                    b.HasOne("HappyTravel.Hiroshima.Data.Models.Contract", null)
+                        .WithMany("PromotionalOffers")
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.Seasons.Season", b =>
+                {
+                    b.HasOne("HappyTravel.Hiroshima.Data.Models.Contract", "Contract")
+                        .WithMany("Seasons")
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.Seasons.SeasonRange", b =>
+                {
+                    b.HasOne("HappyTravel.Hiroshima.Data.Models.Seasons.Season", "Season")
+                        .WithMany("SeasonRanges")
+                        .HasForeignKey("SeasonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

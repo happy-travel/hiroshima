@@ -5,7 +5,7 @@ using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolic
 
 namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
 {
-    public class CancellationPoliciesValidator:AbstractValidator<Models.Requests.CancellationPolicy>
+    public class CancellationPoliciesValidator : AbstractValidator<Models.Requests.CancellationPolicy>
     {
         public CancellationPoliciesValidator()
         {

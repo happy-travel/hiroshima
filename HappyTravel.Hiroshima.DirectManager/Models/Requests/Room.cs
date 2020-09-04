@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
+using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OcuppancyDefinitions;
 
- namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
+namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
 {
     public class Room
     {
