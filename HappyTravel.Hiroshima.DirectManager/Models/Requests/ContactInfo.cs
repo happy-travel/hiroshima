@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
+﻿
 namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
 {
     public class ContactInfo

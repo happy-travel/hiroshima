@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using System;
+using FluentValidation;
 using HappyTravel.Hiroshima.DirectManager.Models.Requests;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators.Extensions;
 
@@ -19,8 +20,8 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
             RuleFor(accommodation => accommodation.Coordinates).NotNull();
             RuleFor(accommodation => accommodation.Rating).NotNull();
             RuleFor(accommodation => accommodation.Type).NotNull().IsInEnum();
-            RuleFor(accommodation => accommodation.CheckInTime).NotEmpty();
-            RuleFor(accommodation => accommodation.CheckOutTime).NotEmpty();
+            RuleFor(accommodation => accommodation.CheckInTime).NotEmpty().Must(IsValidTimeFormat);
+            RuleFor(accommodation => accommodation.CheckOutTime).NotEmpty().Must(IsValidTimeFormat);
             RuleFor(accommodation => accommodation.ContactInfo)
                 .NotNull()
                 .ChildRules(validator => validator.RuleFor(contactInfo => contactInfo.Email).NotEmpty().EmailAddress())
@@ -30,11 +31,15 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
             RuleFor(accommodation => accommodation.Amenities).AnyLanguage().When(accommodation => accommodation.Amenities != null);
             RuleFor(accommodation => accommodation.Pictures)
                 .AnyLanguage()
-                .When(a => a.Pictures != null)
-                .ChildRules(a => a.RuleForEach(ml => ml.Ar).SetValidator(new PictureValidator()))
-                .ChildRules(a => a.RuleForEach(ml => ml.En).SetValidator(new PictureValidator()))
-                .ChildRules(a => a.RuleForEach(ml => ml.Ru).SetValidator(new PictureValidator()));
-            RuleFor(a => a.LocationId).NotEmpty();
+                .When(accommodation => accommodation.Pictures != null)
+                .ChildRules(accommodation => accommodation.RuleForEach(pictures => pictures.Ar).SetValidator(new PictureValidator()))
+                .ChildRules(accommodation => accommodation.RuleForEach(pictures => pictures.En).SetValidator(new PictureValidator()))
+                .ChildRules(accommodation => accommodation.RuleForEach(pictures => pictures.Ru).SetValidator(new PictureValidator()));
+            RuleFor(accommodation => accommodation.LocationId).NotEmpty();
+            RuleFor(accommodation => accommodation.Status).IsInEnum();
         }
+        
+        
+        private bool IsValidTimeFormat(string input) => TimeSpan.TryParse(input, out _);
     }
 }

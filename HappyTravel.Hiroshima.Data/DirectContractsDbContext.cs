@@ -130,6 +130,9 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(a => a.CheckOutTime).IsRequired();
                 e.Property(a => a.OccupancyDefinition).HasColumnType("jsonb");
                 e.Property(a => a.ContractManagerId).IsRequired();
+                e.Property(a => a.LeisureAndSports).HasColumnType("jsonb").IsRequired();
+                e.Property(a => a.Status).IsRequired();
+                e.Property(a => a.RateOptions).HasColumnType("jsonb").IsRequired();
                 e.HasIndex(a=> a.Coordinates).HasMethod("GIST");
                 e.HasIndex(a => a.LocationId);
                 e.HasIndex(a => a.ContractManagerId);

@@ -2,8 +2,10 @@
 using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
-using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OcuppancyDefinitions;
+using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefinitions;
 using HappyTravel.Hiroshima.Common.Models.Enums;
+using PropertyTypes = HappyTravel.Hiroshima.Common.Models.Accommodations.PropertyTypes;
+
 namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
 {
     public class Accommodation
@@ -22,17 +24,23 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
         
         public string CheckOutTime { get; set; }
         
-        public MultiLanguage<List<Picture>> Pictures { get; set; }
+        public MultiLanguage<List<Picture>> Pictures { get; set; } = new MultiLanguage<List<Picture>> { En = new List<Picture>()};
         
         public ContactInfo ContactInfo { get; set; }
         
         public PropertyTypes Type { get; set; }
         
-        public MultiLanguage<List<string>> Amenities { get; set; }
-        
-        public MultiLanguage<string> AdditionalInfo { get; set; }
+        public MultiLanguage<List<string>> Amenities { get; set; } = new MultiLanguage<List<string>>{ En = new List<string>() };
+
+        public MultiLanguage<string> AdditionalInfo { get; set; } = new MultiLanguage<string> { En = string.Empty };
         
         public OccupancyDefinition OccupancyDefinition { get; set; }
+        
+        public MultiLanguage<List<string>> LeisureAndSports { get; set; } = new MultiLanguage<List<string>> { En = new List<string>() };
+
+        public RateOptions RateOptions { get; set; } = new RateOptions {SingleAdultAndChildBookings = SingleAdultAndChildBookings.ApplyAdultRate};
+        
+        public Status Status { get; set; }
         
         public int LocationId { get; set; }
     }

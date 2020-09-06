@@ -9,7 +9,6 @@ using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
-using HappyTravel.Hiroshima.Data.Models;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
@@ -63,7 +62,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     .Skip(skip)
                     .Take(top)
                     .ToListAsync();
-            
         }
 
 
@@ -257,6 +255,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 Pictures = JsonDocumentUtilities.CreateJDocument(accommodation.Pictures),
                 AccommodationAmenities = JsonDocumentUtilities.CreateJDocument(accommodation.Amenities),
                 TextualDescription = JsonDocumentUtilities.CreateJDocument(accommodation.Description),
+                LeisureAndSports = JsonDocumentUtilities.CreateJDocument(accommodation.LeisureAndSports),
                 Rating = accommodation.Rating,
                 ContractManagerId = contractManagerId,
                 ContactInfo =  new ContactInfo
@@ -271,6 +270,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 CheckInTime = accommodation.CheckInTime,
                 CheckOutTime = accommodation.CheckOutTime,
                 LocationId = accommodation.LocationId,
+                RateOptions = accommodation.RateOptions,
+                Status = accommodation.Status,
             };
         }
 
@@ -279,22 +280,25 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return new Models.Responses.Accommodation(
                 accommodation.Id,
-                coordinates: new GeoPoint(accommodation.Coordinates),
-                rating: accommodation.Rating,
-                checkInTime: accommodation.CheckInTime, 
-                checkOutTime: accommodation.CheckOutTime,
-                contactInfo: accommodation.ContactInfo, 
-                occupancyDefinition: accommodation.OccupancyDefinition,
-                propertyType: accommodation.PropertyType, 
-                name: accommodation.Name.GetValue<MultiLanguage<string>>(),
-                address: accommodation.Address.GetValue<MultiLanguage<string>>(), 
-                pictures: accommodation.Pictures.GetValue<MultiLanguage<List<Picture>>>(),
-                amenities: accommodation.AccommodationAmenities.GetValue<MultiLanguage<List<string>>>(),
-                additionalInfo: accommodation.AdditionalInfo.GetValue<MultiLanguage<string>>(),
-                description: accommodation.TextualDescription.GetValue<MultiLanguage<TextualDescription>>(),
-                locationId:accommodation.LocationId,
-                roomIds: accommodation.Rooms != null 
-                    ? accommodation.Rooms.Select(room => room.Id).ToList() 
+                accommodation.Name.GetValue<MultiLanguage<string>>(),
+                accommodation.Address.GetValue<MultiLanguage<string>>(),
+                accommodation.TextualDescription.GetValue<MultiLanguage<TextualDescription>>(),
+                 new GeoPoint(accommodation.Coordinates),
+                accommodation.Rating,
+                accommodation.CheckInTime, 
+                accommodation.CheckOutTime,
+                accommodation.Pictures.GetValue<MultiLanguage<List<Picture>>>(),
+                accommodation.ContactInfo,
+                accommodation.PropertyType,
+                accommodation.AccommodationAmenities.GetValue<MultiLanguage<List<string>>>(),
+                accommodation.AdditionalInfo.GetValue<MultiLanguage<string>>(),
+                accommodation.OccupancyDefinition, 
+                accommodation.LocationId,
+                accommodation.LeisureAndSports.GetValue<MultiLanguage<List<string>>>(),
+                accommodation.Status,
+                accommodation.RateOptions,
+                accommodation.Rooms != null
+                    ? accommodation.Rooms.Select(room => room.Id).ToList()
                     : new List<int>());
         }
 
