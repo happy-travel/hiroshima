@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -71,7 +72,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .Map(async contractManager =>
                 {
-                    var entry = _dbContext.Accommodations.Add(CreateAccommodation(contractManager.Id, accommodation));
+                    var newAccommodation = CreateAccommodation(contractManager.Id, accommodation);
+                    newAccommodation.Created = DateTime.UtcNow;
+                    var entry = _dbContext.Accommodations.Add(newAccommodation);
                     await _dbContext.SaveChangesAsync();
                     entry.State = EntityState.Detached;
                     return Build(entry.Entity);
@@ -197,7 +200,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .EnsureAccommodationBelongsToContractManager(_dbContext, accommodationId)
                 .Map(async contractManager =>
                 {
-                    var newRooms = CreateRooms(accommodationId, rooms); 
+                    var newRooms = CreateRooms(accommodationId, rooms);
+                    var utcNow = DateTime.UtcNow;
+                    newRooms.ForEach(room => room.Created = utcNow); 
                     _dbContext.Rooms.AddRange(newRooms);
                     await _dbContext.SaveChangesAsync();
                     _dbContext.DetachEntries(newRooms);
@@ -271,7 +276,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 CheckOutTime = accommodation.CheckOutTime,
                 LocationId = accommodation.LocationId,
                 RateOptions = accommodation.RateOptions,
-                Status = accommodation.Status,
+                Modified = DateTime.UtcNow,
+                Status = accommodation.Status
             };
         }
 
@@ -314,7 +320,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             Name = JsonDocumentUtilities.CreateJDocument(room.Name),
             Description = JsonDocumentUtilities.CreateJDocument(room.Description),
             Amenities = JsonDocumentUtilities.CreateJDocument(room.Amenities),
-            Pictures = JsonDocumentUtilities.CreateJDocument(room.Pictures),  
+            Pictures = JsonDocumentUtilities.CreateJDocument(room.Pictures),
+            Modified = DateTime.UtcNow,
             OccupancyConfigurations = room.OccupancyConfigurations
         };
         

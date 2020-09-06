@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefinitions;
@@ -52,5 +53,9 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations
         public RateOptions RateOptions { get; set; } = new RateOptions{SingleAdultAndChildBookings = SingleAdultAndChildBookings.ApplyAdultRate};
 
         public Status Status { get; set; }
+        
+        public DateTime Created { get; set; }
+        
+        public DateTime Modified { get; set; }
     }
 }

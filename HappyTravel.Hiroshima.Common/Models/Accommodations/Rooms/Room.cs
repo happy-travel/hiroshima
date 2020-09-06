@@ -22,6 +22,10 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms
         
         public JsonDocument Pictures { get; set; }
         
+        public DateTime Created { get; set; }
+        
+        public DateTime Modified { get; set; }
+        
         public List<OccupancyConfiguration> OccupancyConfigurations { get; set; } = new List<OccupancyConfiguration>();
         
         public Accommodation Accommodation { get; set; }
