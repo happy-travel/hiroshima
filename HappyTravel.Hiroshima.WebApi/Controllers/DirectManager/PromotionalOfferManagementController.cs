@@ -81,6 +81,66 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
             return NoContent();
         }
 
+
+        /// <summary>
+        /// Adds stop sale periods for promotional offers
+        /// </summary>
+        /// <param name="contractId"></param>
+        /// <param name="stopSalePeriods"></param>
+        /// <returns>List of promotional offers</returns>
+        [HttpPost("contracts/{contractId}/promotional-offers/stop-sale")]
+        [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.PromotionalOfferStopSale>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> AddStopSalePeriods([FromRoute] int contractId, [FromBody] List<Hiroshima.DirectManager.Models.Requests.PromotionalOfferStopSale> stopSalePeriods)
+        {
+            var (_, isFailure, response, error) = await _promotionalOfferManagementService.AddStopSalePeriods(contractId, stopSalePeriods);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
+        }
+
+
+        /// <summary>
+        /// Gets stop sale periods for promotional offers
+        /// </summary>
+        /// <param name="contractId"></param>
+        /// <param name="top"></param>
+        /// <param name="skip"></param>
+        /// <param name="roomIds"></param>
+        /// <param name="fromDate"></param>
+        /// <param name="toDate"></param>
+        /// <returns>List of promotional offers</returns>
+        [HttpGet("contracts/{contractId}/promotional-offers/stop-sale")]
+        [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.PromotionalOfferStopSale>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetStopSalePeriods([FromRoute] int contractId, [FromQuery] int skip = 0, [FromQuery] int top = 100, [FromQuery(Name = "roomId")] List<int> roomIds = null, [FromQuery] DateTime? fromDate = null, [FromQuery] DateTime? toDate = null)
+        {
+            var (_, isFailure, response, error) = await _promotionalOfferManagementService.GetStopSalePeriods(contractId, skip, top, roomIds, fromDate, toDate);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
+        }
+        
+        
+        /// <summary>
+        /// Removes stop sale periods of the promotional offers
+        /// </summary>
+        /// <param name="contractId"></param>
+        /// <param name="stopSalePeriodIds">IDs to remove</param>
+        /// <returns></returns>
+        [HttpDelete("contracts/{contractId}/promotional-offers/stop-sale")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> RemoveStopSalePeriods([FromRoute] int contractId, [FromBody] List<int> stopSalePeriodIds)
+        {
+            var (_, isFailure, error) = await _promotionalOfferManagementService.RemoveStopSalePeriods(contractId, stopSalePeriodIds);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
         
         private readonly IPromotionalOfferManagementService _promotionalOfferManagementService;
     }

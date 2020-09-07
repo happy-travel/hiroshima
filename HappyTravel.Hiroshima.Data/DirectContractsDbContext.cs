@@ -52,6 +52,7 @@ namespace HappyTravel.Hiroshima.Data
             AddContractAccommodationRelation(modelBuilder);
             AddSeasons(modelBuilder);
             AddSeasonRanges(modelBuilder);
+            AddPromotionalOffersStopSale(modelBuilder);
         }
 
 
@@ -296,8 +297,23 @@ namespace HappyTravel.Hiroshima.Data
                 e.HasIndex(s => s.SeasonId);
             });
         }
+        
 
+        private void AddPromotionalOffersStopSale(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<PromotionalOfferStopSale>(e =>
+            {
+                e.ToTable("PromotionalOffersStopSale");
+                e.HasKey(pofs => pofs.Id);
+                e.Property(pofs => pofs.RoomId).IsRequired();
+                e.Property(pofs => pofs.FromDate).IsRequired();
+                e.Property(pofs => pofs.ToDate).IsRequired();
+                e.Property(pofs => pofs.ContractId).IsRequired();
+                e.HasIndex(pofs => pofs.RoomId);
+            });
+        }
 
+        
         public virtual DbSet<Location> Locations { get; set; }
         public virtual DbSet<Accommodation> Accommodations { get; set; }
         public virtual DbSet<Country> Countries { get; set; }
@@ -305,7 +321,8 @@ namespace HappyTravel.Hiroshima.Data
         public virtual DbSet<RoomAvailabilityRestriction> RoomAvailabilityRestrictions { get; set; }
         public virtual DbSet<RoomRate> RoomRates { get; set; }
         public virtual DbSet<RoomAllocationRequirement> RoomAllocationRequirements { get; set; }
-        public virtual DbSet<RoomPromotionalOffer> RoomPromotionalOffers { get; set; }
+        public virtual DbSet<RoomPromotionalOffer> PromotionalOffers { get; set; }
+        public virtual DbSet<PromotionalOfferStopSale> PromotionalOfferStopSales { get; set; }
         public virtual DbSet<Booking> Booking { get; set; }
         public virtual DbSet<RoomCancellationPolicy> RoomCancellationPolicies { get; set; }
         public virtual DbSet<ContractManager> ContractManagers { get; set; }

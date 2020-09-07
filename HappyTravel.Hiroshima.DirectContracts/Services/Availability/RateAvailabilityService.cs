@@ -105,7 +105,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         {
             checkInDate = checkInDate.Date;
             var dateNow = DateTime.UtcNow.Date;
-            return await _dbContext.RoomPromotionalOffers
+            return await _dbContext.PromotionalOffers
                 .Where(offer => roomIds.Contains(offer.RoomId) && dateNow <= offer.BookByDate &&
                     !(offer.ValidToDate < checkInDate || checkOutDate < offer.ValidFromDate))
                 .Select(offer => new RoomPromotionalOffer
