@@ -142,6 +142,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
             return NoContent();
         }
         
+        
         private readonly IPromotionalOfferManagementService _promotionalOfferManagementService;
     }
 }

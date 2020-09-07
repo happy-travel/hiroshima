@@ -89,11 +89,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 if (promotionalOffers == null || !promotionalOffers.Any())
                     return Result.Success(promotionalOffers);
 
-                var checkingResult = await _dbContext.CheckIfRoomsBelongToContract(contractId, contractManagerId, promotionalOffers.Select(offer => offer.RoomId).ToList());
-            
+                var checkingResult = await CheckIfRoomsBelongToContract();
+                
                 return checkingResult.IsFailure
                     ? Result.Failure<List<RoomPromotionalOffer>>(checkingResult.Error)
                     : Result.Success(promotionalOffers);
+                
+                
+                Task<Result> CheckIfRoomsBelongToContract() 
+                    => _dbContext.CheckIfRoomsBelongToContract(contractId, contractManagerId, promotionalOffers.Select(offer => offer.RoomId).ToList());
             }
             
             
@@ -186,11 +190,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 if (stopSales == null || !stopSales.Any())
                     return Result.Success(stopSales);
 
-                var checkingResult = await _dbContext.CheckIfRoomsBelongToContract(contractId, contractManagerId, stopSales.Select(offer => offer.RoomId).ToList());
+                var checkingResult = await CheckIfRoomsBelongToContract();
             
                 return checkingResult.IsFailure
                     ? Result.Failure<List<PromotionalOfferStopSale>>(checkingResult.Error)
                     : Result.Success(stopSales);
+
+                Task<Result> CheckIfRoomsBelongToContract() => 
+                    _dbContext.CheckIfRoomsBelongToContract(contractId, contractManagerId, stopSales.Select(offer => offer.RoomId).ToList());
             }
             
             
