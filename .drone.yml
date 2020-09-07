@@ -87,7 +87,7 @@ steps:
       - VAULT_TOKEN
 
 - name: Deploy to DEV
-  image: pelotech/drone-helm3
+  image: pelotech/drone-helm3:0.14.2
   settings:
     mode: upgrade
     chart: ./Helm_v3/dc
@@ -95,8 +95,8 @@ steps:
     values_files: ["Helm_v3/dc/values_dev.yaml"]
     namespace: dev
     skip_tls_verify: true
-    wait_for_upgrade: true
-    force_upgrade: true
+    wait: true
+    force: true
     values: image.tag=${DRONE_COMMIT_SHA:0:7}
   environment:
     KUBE_API_SERVER:
@@ -172,7 +172,7 @@ steps:
       - BUILD_VERSION
 
 - name: Deploy to production
-  image: pelotech/drone-helm3
+  image: pelotech/drone-helm3:0.14.2
   settings:
     mode: upgrade
     chart: ./Helm_v3/dc
@@ -180,7 +180,7 @@ steps:
     values_files: ["Helm_v3/dc/values_prod.yaml"]
     namespace: production
     skip_tls_verify: true
-    wait_for_upgrade: true
+    wait: true
     values: image.tag=${DRONE_COMMIT_SHA:0:7}
   environment:
     KUBE_API_SERVER:
