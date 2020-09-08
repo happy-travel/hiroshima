@@ -4,7 +4,7 @@ using System.Text.Json;
 using HappyTravel.EdoContracts.Extensions;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
-using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OcuppancyDefinitions;
+using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefinitions;
 
 namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms
 {
@@ -22,19 +22,23 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms
         
         public JsonDocument Pictures { get; set; }
         
+        public DateTime Created { get; set; }
+        
+        public DateTime Modified { get; set; }
+        
         public List<OccupancyConfiguration> OccupancyConfigurations { get; set; } = new List<OccupancyConfiguration>();
         
         public Accommodation Accommodation { get; set; }
         
         public List<RoomRate> RoomRates { get; set; }
         
-        public List<RoomPromotionalOffer> RoomPromotionalOffers { get; set; }
+        public List<RoomPromotionalOffer> RoomPromotionalOffers { get; set; } = new List<RoomPromotionalOffer>();
         
-        public List<RoomAllocationRequirement> RoomAllocationRequirements { get; set; }
+        public List<RoomAllocationRequirement> RoomAllocationRequirements { get; set; } = new List<RoomAllocationRequirement>();
         
-        public List<RoomAvailabilityRestriction> RoomAvailabilityRestrictions { get; set; }
+        public List<RoomAvailabilityRestriction> RoomAvailabilityRestrictions { get; set; } = new List<RoomAvailabilityRestriction>();
         
-        public List<RoomCancellationPolicy> RoomCancellationPolicies { get; set; } 
+        public List<RoomCancellationPolicy> RoomCancellationPolicies { get; set; } = new List<RoomCancellationPolicy>();
         
         
         public override bool Equals(object obj)

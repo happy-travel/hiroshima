@@ -17,6 +17,12 @@ namespace HappyTravel.Hiroshima.Common.Models
         
         public string Description { get; set; }
         
+        public DateTime Created { get; set; }
+        
+        public DateTime Modified { get; set; }
+        
+        public bool Verified { get; set; }
+        
         public int ContractManagerId { get; set; }
         
         public ContractManager ContractManager { get; set; }

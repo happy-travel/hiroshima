@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OcuppancyDefinitions
+namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefinitions
 {
     public class OccupancyConfiguration
     {

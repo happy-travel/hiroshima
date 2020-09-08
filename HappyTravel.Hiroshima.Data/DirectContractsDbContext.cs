@@ -80,6 +80,9 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(c => c.Name).IsRequired();
                 e.Property(c => c.Description);
                 e.Property(c => c.ContractManagerId).IsRequired();
+                e.Property(c => c.Created).IsRequired();
+                e.Property(c => c.Modified).IsRequired();
+                e.Property(c => c.Verified).IsRequired();
                 e.HasIndex(c => c.ContractManagerId);
             });
         }
@@ -130,6 +133,11 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(a => a.CheckOutTime).IsRequired();
                 e.Property(a => a.OccupancyDefinition).HasColumnType("jsonb");
                 e.Property(a => a.ContractManagerId).IsRequired();
+                e.Property(a => a.LeisureAndSports).HasColumnType("jsonb").IsRequired();
+                e.Property(a => a.Status).IsRequired();
+                e.Property(a => a.RateOptions).HasColumnType("jsonb").IsRequired();
+                e.Property(a => a.Created).IsRequired();
+                e.Property(a => a.Modified).IsRequired();
                 e.HasIndex(a=> a.Coordinates).HasMethod("GIST");
                 e.HasIndex(a => a.LocationId);
                 e.HasIndex(a => a.ContractManagerId);
@@ -148,6 +156,8 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(r => r.Name).HasColumnType("jsonb").IsRequired();
                 e.Property(r => r.OccupancyConfigurations).HasColumnType("jsonb").IsRequired();
                 e.Property(r => r.AccommodationId).IsRequired();
+                e.Property(r => r.Created).IsRequired();
+                e.Property(r => r.Modified).IsRequired();
                 e.HasIndex(r => r.AccommodationId);
             });
         }
@@ -165,6 +175,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(rr => rr.BoardBasis).IsRequired();;
                 e.Property(rr=> rr.SeasonId).IsRequired();
                 e.Property(rr => rr.RoomId).IsRequired();
+                e.Property(rr => rr.RoomType).IsRequired();
                 e.HasIndex(rr => rr.SeasonId);
                 e.HasIndex(rr => rr.RoomId);
             });

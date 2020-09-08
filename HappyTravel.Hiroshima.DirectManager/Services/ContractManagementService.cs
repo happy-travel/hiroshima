@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -94,6 +95,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             
            async Task<Contract> Add(Contract dbContract)
             {
+                dbContract.Created = DateTime.UtcNow;
                 var entry = _dbContext.Contracts.Add(dbContract);
                 await _dbContext.SaveChangesAsync();
                 
@@ -178,6 +180,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 Description = contract.Description,
                 ValidFrom = contract.ValidFrom,
                 ValidTo = contract.ValidTo,
+                Modified = DateTime.UtcNow,
                 ContractManagerId = contractManagerId
             };
         

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -9,7 +10,6 @@ using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
-using HappyTravel.Hiroshima.Data.Models;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
@@ -63,7 +63,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     .Skip(skip)
                     .Take(top)
                     .ToListAsync();
-            
         }
 
 
@@ -73,7 +72,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .Map(async contractManager =>
                 {
-                    var entry = _dbContext.Accommodations.Add(CreateAccommodation(contractManager.Id, accommodation));
+                    var newAccommodation = CreateAccommodation(contractManager.Id, accommodation);
+                    newAccommodation.Created = DateTime.UtcNow;
+                    var entry = _dbContext.Accommodations.Add(newAccommodation);
                     await _dbContext.SaveChangesAsync();
                     entry.State = EntityState.Detached;
                     return Build(entry.Entity);
@@ -199,7 +200,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .EnsureAccommodationBelongsToContractManager(_dbContext, accommodationId)
                 .Map(async contractManager =>
                 {
-                    var newRooms = CreateRooms(accommodationId, rooms); 
+                    var newRooms = CreateRooms(accommodationId, rooms);
+                    var utcNow = DateTime.UtcNow;
+                    newRooms.ForEach(room => room.Created = utcNow); 
                     _dbContext.Rooms.AddRange(newRooms);
                     await _dbContext.SaveChangesAsync();
                     _dbContext.DetachEntries(newRooms);
@@ -257,6 +260,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 Pictures = JsonDocumentUtilities.CreateJDocument(accommodation.Pictures),
                 AccommodationAmenities = JsonDocumentUtilities.CreateJDocument(accommodation.Amenities),
                 TextualDescription = JsonDocumentUtilities.CreateJDocument(accommodation.Description),
+                LeisureAndSports = JsonDocumentUtilities.CreateJDocument(accommodation.LeisureAndSports),
                 Rating = accommodation.Rating,
                 ContractManagerId = contractManagerId,
                 ContactInfo =  new ContactInfo
@@ -271,6 +275,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 CheckInTime = accommodation.CheckInTime,
                 CheckOutTime = accommodation.CheckOutTime,
                 LocationId = accommodation.LocationId,
+                RateOptions = accommodation.RateOptions,
+                Modified = DateTime.UtcNow,
+                Status = accommodation.Status
             };
         }
 
@@ -279,22 +286,25 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return new Models.Responses.Accommodation(
                 accommodation.Id,
-                coordinates: new GeoPoint(accommodation.Coordinates),
-                rating: accommodation.Rating,
-                checkInTime: accommodation.CheckInTime, 
-                checkOutTime: accommodation.CheckOutTime,
-                contactInfo: accommodation.ContactInfo, 
-                occupancyDefinition: accommodation.OccupancyDefinition,
-                propertyType: accommodation.PropertyType, 
-                name: accommodation.Name.GetValue<MultiLanguage<string>>(),
-                address: accommodation.Address.GetValue<MultiLanguage<string>>(), 
-                pictures: accommodation.Pictures.GetValue<MultiLanguage<List<Picture>>>(),
-                amenities: accommodation.AccommodationAmenities.GetValue<MultiLanguage<List<string>>>(),
-                additionalInfo: accommodation.AdditionalInfo.GetValue<MultiLanguage<string>>(),
-                description: accommodation.TextualDescription.GetValue<MultiLanguage<TextualDescription>>(),
-                locationId:accommodation.LocationId,
-                roomIds: accommodation.Rooms != null 
-                    ? accommodation.Rooms.Select(room => room.Id).ToList() 
+                accommodation.Name.GetValue<MultiLanguage<string>>(),
+                accommodation.Address.GetValue<MultiLanguage<string>>(),
+                accommodation.TextualDescription.GetValue<MultiLanguage<TextualDescription>>(),
+                 new GeoPoint(accommodation.Coordinates),
+                accommodation.Rating,
+                accommodation.CheckInTime, 
+                accommodation.CheckOutTime,
+                accommodation.Pictures.GetValue<MultiLanguage<List<Picture>>>(),
+                accommodation.ContactInfo,
+                accommodation.PropertyType,
+                accommodation.AccommodationAmenities.GetValue<MultiLanguage<List<string>>>(),
+                accommodation.AdditionalInfo.GetValue<MultiLanguage<string>>(),
+                accommodation.OccupancyDefinition, 
+                accommodation.LocationId,
+                accommodation.LeisureAndSports.GetValue<MultiLanguage<List<string>>>(),
+                accommodation.Status,
+                accommodation.RateOptions,
+                accommodation.Rooms != null
+                    ? accommodation.Rooms.Select(room => room.Id).ToList()
                     : new List<int>());
         }
 
@@ -310,7 +320,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             Name = JsonDocumentUtilities.CreateJDocument(room.Name),
             Description = JsonDocumentUtilities.CreateJDocument(room.Description),
             Amenities = JsonDocumentUtilities.CreateJDocument(room.Amenities),
-            Pictures = JsonDocumentUtilities.CreateJDocument(room.Pictures),  
+            Pictures = JsonDocumentUtilities.CreateJDocument(room.Pictures),
+            Modified = DateTime.UtcNow,
             OccupancyConfigurations = room.OccupancyConfigurations
         };
         

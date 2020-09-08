@@ -9,6 +9,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
         
         public int SeasonId { get; set; }
         
-        public List<Policy> Policies { get; set; }
+        public List<Policy> Policies { get; set; } = new List<Policy>();
     }
 }
