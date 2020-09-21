@@ -10,7 +10,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/management/contracts/accommodations")]
+    [Route("api/{v:apiVersion}/management/contracts")]
     [Produces("application/json")]
     public class AccommodationManagementController: ControllerBase
     {
@@ -25,7 +25,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// </summary>
         /// <param name="accommodationId">ID of the accommodation</param>
         /// <returns></returns>
-        [HttpGet("{accommodationId}")]
+        [HttpGet("accommodations/{accommodationId}")]
         [ProducesResponseType(typeof(Hiroshima.DirectManager.Models.Responses.Accommodation), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetAccommodation([FromRoute] int accommodationId)
@@ -37,11 +37,30 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
             return Ok(response);
         }
         
+        
+        /// <summary>
+        /// Retrieves accommodations of the specific contract
+        /// </summary>
+        /// <param name="contractId">ID of the contract</param>
+        /// <returns>List of accommodations</returns>
+        [HttpGet("{contractId}/accommodations")]
+        [ProducesResponseType(typeof(Hiroshima.DirectManager.Models.Responses.Accommodation), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetContractAccommodations([FromRoute] int contractId)
+        {
+            var (_, isFailure, response, error) = await _accommodationManagementService.GetAccommodations(contractId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
+        }
+        
+        
         /// <summary>
         /// Retrieves all Contract Manager's accommodations
         /// </summary>
         /// <returns></returns>
-        [HttpGet]
+        [HttpGet("accommodations")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.Accommodation>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetAllAccommodations([FromQuery] int skip = 0, [FromQuery] int top = 100)
@@ -59,7 +78,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// </summary>
         /// <param name="accommodation">New accommodation data</param>
         /// <returns></returns>
-        [HttpPost]
+        [HttpPost("accommodations")]
         [ProducesResponseType(typeof(Hiroshima.DirectManager.Models.Responses.Accommodation), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> AddAccommodation([FromBody] Hiroshima.DirectManager.Models.Requests.Accommodation accommodation)
@@ -78,7 +97,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="accommodationId">ID of the accommodation</param>
         /// <param name="accommodation">New accommodation data</param>
         /// <returns></returns>
-        [HttpPut("{accommodationId}")]
+        [HttpPut("accommodations/{accommodationId}")]
         [ProducesResponseType(typeof(Hiroshima.DirectManager.Models.Responses.Accommodation), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> UpdateAccommodation([FromRoute] int accommodationId, [FromBody] Hiroshima.DirectManager.Models.Requests.Accommodation accommodation)
@@ -96,7 +115,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// </summary>
         /// <param name="accommodationId">ID of the accommodation</param>
         /// <returns></returns>
-        [HttpDelete("{accommodationId}")]
+        [HttpDelete("accommodations/{accommodationId}")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> RemoveAccommodation([FromRoute] int accommodationId)
@@ -116,7 +135,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="skip"></param>
         /// <param name="top"></param>
         /// <returns></returns>
-        [HttpGet("{accommodationId}/rooms")]
+        [HttpGet("accommodations/{accommodationId}/rooms")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.Room>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetRooms([FromRoute] int accommodationId, [FromQuery] int skip = 0, [FromQuery] int top = 100)
@@ -135,7 +154,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="accommodationId"></param>
         /// <param name="roomId"></param>
         /// <returns></returns>
-        [HttpGet("{accommodationId}/rooms/{roomId}")]
+        [HttpGet("accommodations/{accommodationId}/rooms/{roomId}")]
         [ProducesResponseType(typeof(Hiroshima.DirectManager.Models.Responses.Room), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetRoom([FromRoute] int accommodationId, [FromRoute] int roomId)
@@ -154,7 +173,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="accommodationId"></param>
         /// <param name="rooms"></param>
         /// <returns></returns>
-        [HttpPost("{accommodationId}/rooms")]
+        [HttpPost("accommodations/{accommodationId}/rooms")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.Room>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> AddRooms([FromRoute] int accommodationId, [FromBody] List<Hiroshima.DirectManager.Models.Requests.Room> rooms)
@@ -174,7 +193,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="roomId"></param>
         /// <param name="room"></param>
         /// <returns></returns>
-        [HttpPut("{accommodationId}/rooms/{roomId}")]
+        [HttpPut("accommodations/{accommodationId}/rooms/{roomId}")]
         [ProducesResponseType(typeof(Hiroshima.DirectManager.Models.Responses.Room), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> UpdateRoom([FromRoute] int accommodationId, [FromRoute] int roomId, [FromBody] Hiroshima.DirectManager.Models.Requests.Room room)
@@ -193,7 +212,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="accommodationId"></param>
         /// <param name="roomId"></param>
         /// <returns></returns>
-        [HttpDelete("{accommodationId}/rooms/{roomId}")]
+        [HttpDelete("accommodations/{accommodationId}/rooms/{roomId}")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> RemoveRoom([FromRoute] int accommodationId, [FromRoute] int roomId)
@@ -212,7 +231,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="accommodationId">Accommodation id</param>
         /// <param name="ids">Room ids</param>
         /// <returns></returns>
-        [HttpDelete("{accommodationId}/rooms")]
+        [HttpDelete("accommodations/{accommodationId}/rooms")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> RemoveRooms([FromRoute] int accommodationId, [FromBody] List<int> ids)

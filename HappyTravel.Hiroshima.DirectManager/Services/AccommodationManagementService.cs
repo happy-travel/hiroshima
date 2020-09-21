@@ -14,6 +14,7 @@ using HappyTravel.Hiroshima.DirectManager.Infrastructure;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using Accommodation = HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation;
 using NetTopologySuite.Geometries;
 using Room = HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.Room;
@@ -31,6 +32,26 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
+        public Task<Result<List<Models.Responses.Accommodation>>> GetAccommodations(int contractId)
+        {
+            return _contractManagerContext.GetContractManager()
+                .EnsureContractBelongsToContractManager(_dbContext, contractId)
+                .Map(contractManager => GetContractAccommodations(contractManager.Id))
+                .Map(Build);
+
+            
+            Task<List<Accommodation>> GetContractAccommodations(int contractManagerId)
+            {
+                return _dbContext.Accommodations.Include(accommodation => accommodation.Rooms)
+                    .Join(_dbContext.ContractAccommodationRelations, accommodation => accommodation.Id, relation => relation.AccommodationId,
+                        (accommodation, relation) => new {accommodation, relation})
+                    .Where(accommodationAndRelation => accommodationAndRelation.relation.ContractId == contractId)
+                    .Select(accommodationAndRelation => accommodationAndRelation.accommodation)
+                    .ToListAsync();
+            }
+        }
+        
+        
         public Task<Result<Models.Responses.Accommodation>> Get(int accommodationId)
         {
             return _contractManagerContext.GetContractManager()
@@ -308,6 +329,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     : new List<int>());
         }
 
+
+        private List<Models.Responses.Accommodation> Build(List<Accommodation> accommodations) => 
+            accommodations.Select(Build).ToList();
+        
         
         private List<Room> CreateRooms(int accommodationId, List<Models.Requests.Room> rooms) 
             => rooms.Select(room => CreateRoom(accommodationId, room))
