@@ -37,7 +37,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
         public OccupancyDefinition OccupancyDefinition { get; set; }
         
         public MultiLanguage<List<string>> LeisureAndSports { get; set; } = new MultiLanguage<List<string>> { En = new List<string>() };
-
+        
+        public int? BuildYear { get; set; }
+        
+        public int? Floors { get; set; }
+        
         public RateOptions RateOptions { get; set; } = new RateOptions {SingleAdultAndChildBookings = SingleAdultAndChildBookings.ApplyAdultRate};
         
         public Status Status { get; set; }
