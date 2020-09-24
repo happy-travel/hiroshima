@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefinitions;
+using HappyTravel.Hiroshima.Common.Models.Seasons;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.DirectContracts.Models;
 using Microsoft.EntityFrameworkCore;
@@ -35,16 +35,16 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             
             // Temporary dictionary for grouping by the room's occupation request
             var roomOccupationRequestDictionary = new Dictionary<int, RoomOccupationRequest>();
-            for (var i = 0; i < availabilityRequest.RoomDetails.Count; i++)
-                roomOccupationRequestDictionary.Add(i, availabilityRequest.RoomDetails[i]);
+            for (var i = 0; i < availabilityRequest.Rooms.Count; i++)
+                roomOccupationRequestDictionary.Add(i, availabilityRequest.Rooms[i]);
             
             // <int accommodationId, (int roomOccupationRequestId, List<Room> rooms)
             var roomsGroupedByAccommodationIdAndOccupancyId = new Dictionary<int, Dictionary<int, List<Room>>>();
             
             // Check rooms' availability according the occupation request
-            for (var i = 0; i < availabilityRequest.RoomDetails.Count; i++)
+            for (var i = 0; i < availabilityRequest.Rooms.Count; i++)
             {
-                var roomOccupationRequest = availabilityRequest.RoomDetails[i];
+                var roomOccupationRequest = availabilityRequest.Rooms[i];
                 foreach (var room in rooms)
                 {
                     var isRoomSuitableForRequest = IsRoomSuitableForRequest(roomOccupationRequest,
@@ -66,7 +66,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                     var accommodationId = idsDictionaryItem.Key;
                     var roomOccupationIdsWithRoomsDictionary = idsDictionaryItem.Value;
                     
-                    if (roomOccupationRequestDictionary.Count < availabilityRequest.RoomDetails.Count) 
+                    if (roomOccupationRequestDictionary.Count < availabilityRequest.Rooms.Count) 
                         continue;
 
                     if (!IsRoomExistInAllOccupancyRequests(roomOccupationIdsWithRoomsDictionary))
@@ -91,7 +91,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                 
                 bool IsRoomExistInAllOccupancyRequests(Dictionary<int, List<Room>> roomOccupationIdsWithRoomsDictionary)
                 {
-                    for (var i = 0; i < availabilityRequest.RoomDetails.Count; i++)
+                    for (var i = 0; i < availabilityRequest.Rooms.Count; i++)
                     {
                         var occupancyRequestRooms = roomOccupationIdsWithRoomsDictionary[i];
                         if (occupancyRequestRooms == null || !occupancyRequestRooms.Any())
@@ -191,19 +191,25 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             var dateNow = DateTime.UtcNow.Date;
             var daysBeforeCheckIn = (checkInDate - dateNow).Days;
 
+            var availableRoomRestrictions = from availabilityRestriction in _dbContext.RoomAvailabilityRestrictions
+                where checkInDate <= availabilityRestriction.ToDate &&
+                    checkOutDate >= availabilityRestriction.FromDate &&
+                    availabilityRestriction.Restriction != AvailabilityRestrictions.StopSale
+                select availabilityRestriction;
+
             var availableRoomIds = (from availabilityRestriction in _dbContext.RoomAvailabilityRestrictions
                 where (checkInDate <= availabilityRestriction.ToDate &&
-                       checkOutDate >= availabilityRestriction.FromDate) &&
-                      availabilityRestriction.Restriction == AvailabilityRestrictions.StopSale
+                        checkOutDate >= availabilityRestriction.FromDate) &&
+                    availabilityRestriction.Restriction == AvailabilityRestrictions.StopSale
                 select availabilityRestriction.Id).Distinct();
 
             return await (from room in _dbContext.Rooms
                     join allocationRequirement in _dbContext.RoomAllocationRequirements on room.Id equals
                         allocationRequirement.RoomId
                     where accommodationIds.Contains(room.AccommodationId) && !availableRoomIds.Contains(room.Id) &&
-                          stayNights >= allocationRequirement.MinimumLengthOfStay &&
-                          (allocationRequirement.Allotment > 0 || allocationRequirement.Allotment == null) &&
-                          daysBeforeCheckIn > allocationRequirement.ReleaseDays
+                        stayNights >= allocationRequirement.MinimumLengthOfStay &&
+                        (allocationRequirement.Allotment > 0 || allocationRequirement.Allotment == null) &&
+                        daysBeforeCheckIn > allocationRequirement.ReleaseDays
                     select new Room
                     {
                         Id = room.Id,

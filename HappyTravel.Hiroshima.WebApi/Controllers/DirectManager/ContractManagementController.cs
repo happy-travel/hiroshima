@@ -5,6 +5,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Infrastructure;
 using HappyTravel.Hiroshima.DirectManager.Models.Responses;
 using HappyTravel.Hiroshima.DirectManager.Services;
+using HappyTravel.Hiroshima.WebApi.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager

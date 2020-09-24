@@ -3,18 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.GeoData.Enums;
 using HappyTravel.Hiroshima.Common.Constants;
 using HappyTravel.Hiroshima.Common.Infrastructure.Extensions;
-using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Common.Models.Locations;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.DirectContracts.Models;
 using Microsoft.EntityFrameworkCore;
-using AccommodationDetails = HappyTravel.Hiroshima.DirectContracts.Models.AccommodationDetails;
-using AvailabilityDetails = HappyTravel.Hiroshima.DirectContracts.Models.AvailabilityDetails;
+using Accommodation = HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation;
 using Location = HappyTravel.EdoContracts.GeoData.Location;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
@@ -32,7 +29,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         }
 
 
-        public async Task<List<AvailabilityDetails>> Get(AvailabilityRequest availabilityRequest, string languageCode)
+        public async Task<List<AvailabilityDetails>> Get(EdoContracts.Accommodations.AvailabilityRequest availabilityRequest, string languageCode)
         {
             var accommodations = await GetAccommodationDetails(availabilityRequest.Location);
             
@@ -136,50 +133,32 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                 .Where(expression)
                 .Select(accWithLoc => new AccommodationDetails
                 {
-                    Accommodation =
-                        new Accommodation
-                        {
-                            Id = accWithLoc.Accommodation.Id,
-                            Address =
-                                DirectContractsDbContext.GetLangFromJsonb(accWithLoc.Accommodation.Address,
-                                    languageCode),
-                            ContactInfo = accWithLoc.Accommodation.ContactInfo,
-                            Coordinates = accWithLoc.Accommodation.Coordinates,
-                            Name =
-                                DirectContractsDbContext.GetLangFromJsonb(accWithLoc.Accommodation.Name,
-                                    languageCode),
-                            Pictures =
-                                DirectContractsDbContext.GetLangFromJsonb(accWithLoc.Accommodation.Pictures,
-                                    languageCode),
-                            Rating = accWithLoc.Accommodation.Rating,
-                            AccommodationAmenities =
-                                DirectContractsDbContext.GetLangFromJsonb(accWithLoc.Accommodation.Pictures,
-                                    languageCode),
-                            AdditionalInfo =
-                                DirectContractsDbContext.GetLangFromJsonb(
-                                    accWithLoc.Accommodation.AdditionalInfo, languageCode),
-                            LocationId = accWithLoc.Accommodation.LocationId,
-                            OccupancyDefinition = accWithLoc.Accommodation.OccupancyDefinition,
-                            PropertyType = accWithLoc.Accommodation.PropertyType,
-                            TextualDescription =
-                                DirectContractsDbContext.GetLangFromJsonb(
-                                    accWithLoc.Accommodation.TextualDescription, languageCode),
-                            CheckInTime = accWithLoc.Accommodation.CheckInTime,
-                            CheckOutTime = accWithLoc.Accommodation.CheckOutTime
-                        },
+                    Accommodation = new Accommodation
+                    {
+                        Id = accWithLoc.Accommodation.Id,
+                        Address = DirectContractsDbContext.GetLangFromJsonb(accWithLoc.Accommodation.Address, languageCode),
+                        ContactInfo = accWithLoc.Accommodation.ContactInfo,
+                        Coordinates = accWithLoc.Accommodation.Coordinates,
+                        CheckInTime = accWithLoc.Accommodation.CheckInTime,
+                        CheckOutTime = accWithLoc.Accommodation.CheckOutTime,
+                        Name = DirectContractsDbContext.GetLangFromJsonb(accWithLoc.Accommodation.Name, languageCode),
+                        Pictures = DirectContractsDbContext.GetLangFromJsonb(accWithLoc.Accommodation.Pictures, languageCode),
+                        Rating = accWithLoc.Accommodation.Rating,
+                        AccommodationAmenities = DirectContractsDbContext.GetLangFromJsonb(accWithLoc.Accommodation.Pictures, languageCode),
+                        AdditionalInfo = DirectContractsDbContext.GetLangFromJsonb(accWithLoc.Accommodation.AdditionalInfo, languageCode),
+                        LocationId = accWithLoc.Accommodation.LocationId,
+                        OccupancyDefinition = accWithLoc.Accommodation.OccupancyDefinition,
+                        PropertyType = accWithLoc.Accommodation.PropertyType,
+                        TextualDescription = DirectContractsDbContext.GetLangFromJsonb(accWithLoc.Accommodation.TextualDescription, languageCode),
+                        Created = accWithLoc.Accommodation.Created
+                        
+                    },
                     Location = new Common.Models.Locations.Location
                     {
                         Id = accWithLoc.Location.Id,
-                        Locality =
-                            DirectContractsDbContext.GetLangFromJsonb(accWithLoc.Location.Locality,
-                                languageCode),
+                        Locality = DirectContractsDbContext.GetLangFromJsonb(accWithLoc.Location.Locality, languageCode),
                         CountryCode = accWithLoc.Location.CountryCode,
                         Zone = DirectContractsDbContext.GetLangFromJsonb(accWithLoc.Location.Zone, languageCode)
-                    },
-                    Country = new Country
-                    {
-                        Code = accWithLoc.Country.Code,
-                        Name = DirectContractsDbContext.GetLangFromJsonb(accWithLoc.Country.Name, languageCode)
                     }
                 })
                 .ToListAsync();

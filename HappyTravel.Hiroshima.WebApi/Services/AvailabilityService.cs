@@ -15,7 +15,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services
         }
 
 
-        public async Task<Result<AvailabilityDetails, ProblemDetails>> GetAvailabilityDetails(
+        public async Task<Result<Availability, ProblemDetails>> GetAvailabilityDetails(
             AvailabilityRequest availabilityRequest,
             string languageCode)
         {

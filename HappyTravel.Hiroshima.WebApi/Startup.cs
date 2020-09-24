@@ -6,7 +6,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using CacheFlow.Json.Extensions;
 using FloxDc.CacheFlow.Extensions;
-using FluentValidation.AspNetCore;
 using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Infrastructure;
 using HappyTravel.Hiroshima.Data;
@@ -101,7 +100,6 @@ namespace HappyTravel.Hiroshima.WebApi
                 .AddControllersAsServices()
                 .AddFormatterMappings()
                 .AddApiExplorer()
-                .AddFluentValidation()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             
             services.AddSwaggerGen(options =>

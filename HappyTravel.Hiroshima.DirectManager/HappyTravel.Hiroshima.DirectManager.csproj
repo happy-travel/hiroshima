@@ -10,8 +10,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="CSharpFunctionalExtensions" Version="2.11.7" />
       <PackageReference Include="FluentValidation" Version="9.0.1" />
-      <PackageReference Include="FluentValidation.AspNetCore" Version="9.0.1" />
     </ItemGroup>
 
 </Project>
