@@ -11,5 +11,7 @@ namespace HappyTravel.Hiroshima.Common.Models.Locations
         public JsonDocument Zone { get; set; }
         
         public string CountryCode { get; set; }
+
+        public Country Country { get; set; }
     }
 }

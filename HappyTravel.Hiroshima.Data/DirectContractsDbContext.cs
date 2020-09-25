@@ -207,7 +207,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.ToTable("RoomPromotionalOffers");
                 e.HasKey(po => po.Id);
                 e.Property(po => po.DiscountPercent).IsRequired();
-                e.Property(po => po.Details).HasColumnType("jsonb");
+                e.Property(po => po.Remarks).HasColumnType("jsonb");
                 e.Property(po => po.BookByDate).IsRequired();
                 e.Property(po => po.ValidFromDate).IsRequired();
                 e.Property(po => po.ValidToDate).IsRequired();

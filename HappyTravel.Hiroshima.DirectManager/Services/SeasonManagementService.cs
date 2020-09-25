@@ -210,7 +210,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 var firstSeason = dateRanges.First();
                 var lastSeason = dateRanges.Last();
 
-                return contractStartDate.Date == firstSeason.startDate.Date && contractEndDate.Date == lastSeason.endDate
+                return contractStartDate.Date == firstSeason.startDate.Date && contractEndDate.Date == lastSeason.endDate.Date
                     ? Result.Success()
                     : Result.Failure($"Contracted period '{contract.ValidFrom} - {contract.ValidTo}' must be fully covered");
             }

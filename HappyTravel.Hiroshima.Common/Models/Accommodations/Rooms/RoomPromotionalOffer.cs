@@ -21,7 +21,7 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms
         
         public int ContractId { get; set; }
         
-        public JsonDocument Details { get; set; }
+        public JsonDocument Remarks { get; set; }
         
         public Room Room { get; set; }
         

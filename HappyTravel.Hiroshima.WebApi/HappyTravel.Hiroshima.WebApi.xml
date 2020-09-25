@@ -4,7 +4,7 @@
         <name>HappyTravel.Hiroshima.WebApi</name>
     </assembly>
     <members>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.Connector.AccommodationsController.GetAvailability(HappyTravel.EdoContracts.Accommodations.AvailabilityRequest)">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.Connector.AccommodationsController.Get(HappyTravel.EdoContracts.Accommodations.AvailabilityRequest)">
             <summary>
             Returns available accommodations with room contracts
             </summary>

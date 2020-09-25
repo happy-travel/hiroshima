@@ -28,7 +28,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
         [HttpPost("availabilities")]
         [ProducesResponseType(typeof(Availability), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetAvailability([FromBody] AvailabilityRequest request)
+        public async Task<IActionResult> Get([FromBody] AvailabilityRequest request)
         {
             var (_, isFailure, value, error) = await _availabilityService.GetAvailabilityDetails(request, LanguageCode);
             if (isFailure)

@@ -7,6 +7,6 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
 {
     public interface ICancellationPolicyService
     {
-        List<CancellationPolicyDetails> Get(RoomCancellationPolicy roomCancellationPolicy, DateTime checkInDate, PaymentDetails paymentDetails);
+        List<CancellationPolicyDetails> Create(RoomCancellationPolicy roomCancellationPolicy, DateTime checkInDate, PaymentDetails paymentDetails);
     }
 }

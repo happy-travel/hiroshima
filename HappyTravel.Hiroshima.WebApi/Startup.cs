@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -23,6 +24,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using NetTopologySuite;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace HappyTravel.Hiroshima.WebApi
 {
@@ -39,12 +42,15 @@ namespace HappyTravel.Hiroshima.WebApi
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers().AddJsonOptions(options =>
+            services.AddControllers().AddNewtonsoftJson(options =>
             {
-                options.JsonSerializerOptions.WriteIndented = false;
-                options.JsonSerializerOptions.IgnoreNullValues = true;
-                options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, false));
+                options.SerializerSettings.ContractResolver = new DefaultContractResolver();
+                options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                options.SerializerSettings.Converters = new List<Newtonsoft.Json.JsonConverter>
+                {
+                    new Newtonsoft.Json.Converters.StringEnumConverter()
+                };
+                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             });
 
             using var vaultClient = VaultHelper.CreateVaultClient(Configuration);

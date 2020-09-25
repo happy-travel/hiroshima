@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using HappyTravel.EdoContracts.Accommodations.Internals;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Models
 {
     public readonly struct SeasonPriceDetails
     {
-        public SeasonPriceDetails(DateTime startDate, DateTime endDate, decimal ratePrice, int numberOfNights, decimal totalPrice, List<string> details)
+        public SeasonPriceDetails(DateTime startDate, DateTime endDate, decimal ratePrice, int numberOfNights, decimal totalPrice, List<double> appliedDiscounts, List<string> remarks)
         {
             StartDate = startDate;
             EndDate = endDate;
             RatePrice = ratePrice;
             NumberOfNights = numberOfNights;
             TotalPrice = totalPrice;
-            Details = details ?? new List<string>();
+            AppliedDiscounts = appliedDiscounts ?? new List<double>();
+            Remarks = remarks ?? new List<string>();
         }
 
 
@@ -42,8 +44,14 @@ namespace HappyTravel.Hiroshima.DirectContracts.Models
         public decimal TotalPrice { get; }
         
         /// <summary>
-        /// Description
+        /// Remarks
         /// </summary>
-        public List<string> Details { get; }
+        public List<string> Remarks { get; }
+        
+        
+        /// <summary>
+        /// Discount percent applied to a rate price 
+        /// </summary>
+        public List<double> AppliedDiscounts { get; }
     }
 }
