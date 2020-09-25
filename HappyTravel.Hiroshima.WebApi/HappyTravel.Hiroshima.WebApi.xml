@@ -28,7 +28,7 @@
             Retrieves accommodations of the specific contract
             </summary>
             <param name="contractId">ID of the contract</param>
-            <returns></returns>
+            <returns>List of accommodations</returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.GetAllAccommodations(System.Int32,System.Int32)">
             <summary>
