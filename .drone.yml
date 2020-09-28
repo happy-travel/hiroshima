@@ -74,7 +74,7 @@ steps:
     registry: registry.happytravel.com
     repo: registry.happytravel.com/dc
     tags:
-      - ${DRONE_COMMIT_SHA:0:7}
+      - ${DRONE_COMMIT_SHA:0:7}-DEV
       - ${DRONE_COMMIT_BRANCH}
     force_tag: true
     use_cache: true
@@ -97,7 +97,7 @@ steps:
     skip_tls_verify: true
     wait: true
     force: true
-    values: image.tag=${DRONE_COMMIT_SHA:0:7}
+    values: image.tag=${DRONE_COMMIT_SHA:0:7}-DEV
   environment:
     KUBE_API_SERVER:
       from_secret: KUBERNETES_DEV_API
@@ -141,7 +141,7 @@ steps:
     HTDC_VAULT_ENDPOINT:
       from_secret: VAULT_PROD_ENDPOINT
   commands:
-    - cd Illusions.Data
+    - cd HappyTravel.Hiroshima.Data
     - dotnet tool restore
     - dotnet ef database update
 
