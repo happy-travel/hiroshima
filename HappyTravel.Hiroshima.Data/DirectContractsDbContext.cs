@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection.Metadata;
 using System.Text.Json;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
@@ -38,6 +39,7 @@ namespace HappyTravel.Hiroshima.Data
             modelBuilder.UseIdentityColumns();
 
             AddContractManagers(modelBuilder);
+            AddDocuments(modelBuilder);
             AddContracts(modelBuilder);
             AddLocations(modelBuilder);
             AddAccommodations(modelBuilder);
@@ -68,7 +70,23 @@ namespace HappyTravel.Hiroshima.Data
             });
         }
         
-        
+        private void AddDocuments(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Common.Models.Document>(e =>
+            {
+                e.ToTable("Documents");
+                e.HasKey(c => c.Id);
+                e.Property(c => c.Name).IsRequired();
+                e.Property(c => c.Key).IsRequired();
+                e.Property(c => c.MimeType).IsRequired();
+                e.Property(c => c.Created).IsRequired();
+                e.Property(c => c.ContractManagerId).IsRequired();
+                e.Property(c => c.ContractId).IsRequired();
+                e.HasIndex(c => c.ContractManagerId);
+                e.HasIndex(c => c.ContractId);
+            });
+        }
+
         private void AddContracts(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Contract>(e =>
@@ -321,6 +339,7 @@ namespace HappyTravel.Hiroshima.Data
         public virtual DbSet<RoomCancellationPolicy> RoomCancellationPolicies { get; set; }
         public virtual DbSet<ContractManager> ContractManagers { get; set; }
         public virtual DbSet<Contract> Contracts { get; set; }
+        public virtual DbSet<Common.Models.Document> Documents { get; set; }
         public virtual DbSet<ContractAccommodationRelation> ContractAccommodationRelations { get; set; }
         public virtual DbSet<Season> Seasons { get; set; }
         public virtual DbSet<SeasonRange> SeasonRanges { get; set; }

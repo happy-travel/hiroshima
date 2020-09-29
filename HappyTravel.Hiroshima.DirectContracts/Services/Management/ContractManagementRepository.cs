@@ -49,8 +49,12 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
                 {
                     ContractAccommodationRelation = contractAccommodationRelation, Accommodation = accommodation
                 });
-        
-        
+
+
+        public async Task<Document> GetContractDocument(int documentId, int contractId, int contractManagerId) =>
+            await _dbContext.Documents.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.ContractId == contractId && c.Id == documentId);
+
+
         private readonly DirectContractsDbContext _dbContext;
 
         

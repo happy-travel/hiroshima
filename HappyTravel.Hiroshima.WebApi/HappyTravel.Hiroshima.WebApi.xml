@@ -28,7 +28,7 @@
             Retrieves accommodations of the specific contract
             </summary>
             <param name="contractId">ID of the contract</param>
-            <returns></returns>
+            <returns>List of accommodations</returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.GetAllAccommodations(System.Int32,System.Int32)">
             <summary>
@@ -223,6 +223,22 @@
             Removes a contract by ID
             </summary>
             <param name="contractId">New contract data</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ContractManagementController.AddContractFile(System.Int32,HappyTravel.Hiroshima.DirectManager.Models.Requests.Document)">
+            <summary>
+            Upload file of the contract
+            </summary>
+            <param name="contractId">Contract Id</param>
+            <param name="document">Adding document</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ContractManagementController.RemoveContractFile(System.Int32,System.Int32)">
+            <summary>
+            Delete file of the contract by ID
+            </summary>
+            <param name="contractId">Contract Id</param>
+            <param name="documentId">Id of the file to be deleted</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.LocationManagementController.AddLocation(HappyTravel.Hiroshima.DirectManager.Models.Requests.Location)">

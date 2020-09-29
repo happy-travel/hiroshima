@@ -11,5 +11,6 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
         Task<Contract> GetContract(int contractId, int contractManagerId);
         Task<List<Accommodation>> GetRelatedAccommodations(int contractId, int contractManagerId);
         Task<List<ContractAccommodationRelation>> GetContractRelations(int contractManagerId, List<int> contractIds);
+        Task<Document> GetContractDocument(int documentId, int contractId, int contractManagerId);
     }
 }
