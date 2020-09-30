@@ -40,7 +40,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<Document> Add(Document dbDocument)
             {
-                dbDocument.Key = $"{dbDocument.ContractId}/{dbDocument.Name}";
+                dbDocument.Key = $"contracts/{dbDocument.ContractId}/{dbDocument.Name}";
                 dbDocument.Created = DateTime.UtcNow;
                 // Add document to Amazon S3
 

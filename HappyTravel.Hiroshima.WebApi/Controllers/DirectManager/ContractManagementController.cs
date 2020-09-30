@@ -111,43 +111,6 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         }
 
 
-        /// <summary>
-        /// Upload file of the contract
-        /// </summary>
-        /// <param name="contractId">Contract Id</param>
-        /// <param name="document">Adding document</param>
-        /// <returns></returns>
-        [HttpPost("{contractId}/file")]
-        [ProducesResponseType(typeof(Contract), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> AddContractFile([FromRoute] int contractId, [FromBody] Hiroshima.DirectManager.Models.Requests.Document document)
-        {
-            var (_, isFailure, response, error) = await _documentManagementService.Add(document);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok(response); 
-        }
-
-        /// <summary>
-        /// Delete file of the contract by ID
-        /// </summary>
-        /// <param name="contractId">Contract Id</param>
-        /// <param name="documentId">Id of the file to be deleted</param>
-        /// <returns></returns>
-        [HttpDelete("{contractId}/file/{DocumentId}")]
-        [ProducesResponseType((int)HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> RemoveContractFile([FromRoute] int contractId, [FromRoute] int documentId)
-        {
-            var (_, isFailure, error) = await _documentManagementService.Remove(contractId, documentId);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return NoContent();
-        }
-
         private readonly IContractManagementService _contractManagementService;
-        private readonly IDocumentManagementService _documentManagementService;
     }
 }

@@ -225,7 +225,7 @@
             <param name="contractId">New contract data</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ContractManagementController.AddContractFile(System.Int32,HappyTravel.Hiroshima.DirectManager.Models.Requests.Document)">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.DocumentManagementController.AddContractFile(System.Int32,HappyTravel.Hiroshima.DirectManager.Models.Requests.Document)">
             <summary>
             Upload file of the contract
             </summary>
@@ -233,7 +233,7 @@
             <param name="document">Adding document</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ContractManagementController.RemoveContractFile(System.Int32,System.Int32)">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.DocumentManagementController.RemoveContractFile(System.Int32,System.Int32)">
             <summary>
             Delete file of the contract by ID
             </summary>
