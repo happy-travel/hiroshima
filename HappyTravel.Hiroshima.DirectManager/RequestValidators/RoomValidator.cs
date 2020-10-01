@@ -12,6 +12,11 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
                 .ChildRules(validator => validator.RuleFor(name => name.En).NotEmpty().When(name => name.En != null))
                 .ChildRules(validator => validator.RuleFor(name => name.Ru).NotEmpty().When(name => name.Ru != null));
 
+            RuleFor(room => room.Description).NotNull().AnyLanguage()
+                .ChildRules(validator => validator.RuleFor(name => name.Ar).NotEmpty().When(name => name.Ar != null))
+                .ChildRules(validator => validator.RuleFor(name => name.En).NotEmpty().When(name => name.En != null))
+                .ChildRules(validator => validator.RuleFor(name => name.Ru).NotEmpty().When(name => name.Ru != null));
+            
             RuleFor(room => room.OccupancyConfigurations).NotEmpty();
             RuleForEach(room => room.OccupancyConfigurations).SetValidator(new OccupancyConfigurationValidator());
             RuleFor(accommodation => accommodation.Pictures)
