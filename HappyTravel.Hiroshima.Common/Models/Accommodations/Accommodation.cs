@@ -34,6 +34,10 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations
         
         public PropertyTypes PropertyType { get; set; }
         
+        public int? BuildYear { get; set; }
+        
+        public int? Floors { get; set; }
+        
         public JsonDocument AccommodationAmenities { get; set; }
         
         public JsonDocument AdditionalInfo { get; set; }
