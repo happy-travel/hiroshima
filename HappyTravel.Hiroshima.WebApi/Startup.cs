@@ -51,6 +51,7 @@ namespace HappyTravel.Hiroshima.WebApi
                 {
                     new Newtonsoft.Json.Converters.StringEnumConverter()
                 };
+                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             });
 
             using var vaultClient = VaultHelper.CreateVaultClient(Configuration);
