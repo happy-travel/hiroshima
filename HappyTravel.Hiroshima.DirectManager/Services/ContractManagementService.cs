@@ -127,7 +127,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     return failure ? Result.Failure<ContractManager>(error) : Result.Success(contractManager);
                 })
                 .Map(contractManager => Create(contractManager.Id, contract))
-                .Map(Update);
+                .Tap(Update);
                
 
             async Task Update(Contract dbContract)
@@ -178,8 +178,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             {
                 Name = contract.Name,
                 Description = contract.Description,
-                ValidFrom = contract.ValidFrom,
-                ValidTo = contract.ValidTo,
+                ValidFrom = contract.ValidFrom.Date,
+                ValidTo = contract.ValidTo.Date,
                 Modified = DateTime.UtcNow,
                 ContractManagerId = contractManagerId
             };
