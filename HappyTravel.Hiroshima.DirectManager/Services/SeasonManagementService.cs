@@ -151,8 +151,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 => new SeasonRange
             {
                 SeasonId = seasonRange.SeasonId,
-                StartDate = seasonRange.StartDate,
-                EndDate = seasonRange.EndDate
+                StartDate = seasonRange.StartDate.Date,
+                EndDate = seasonRange.EndDate.Date
             };
         }
 

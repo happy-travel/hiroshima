@@ -14,7 +14,6 @@ using HappyTravel.Hiroshima.DirectManager.Infrastructure;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Accommodation = HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation;
 using NetTopologySuite.Geometries;
 using Room = HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.Room;
@@ -91,15 +90,20 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return ValidationHelper.Validate(accommodation, new AccommodationValidator())
                 .Bind(() => _contractManagerContext.GetContractManager())
-                .Map(async contractManager =>
-                {
-                    var newAccommodation = CreateAccommodation(contractManager.Id, accommodation);
-                    newAccommodation.Created = DateTime.UtcNow;
-                    var entry = _dbContext.Accommodations.Add(newAccommodation);
-                    await _dbContext.SaveChangesAsync();
-                    entry.State = EntityState.Detached;
-                    return Build(entry.Entity);
-                });
+                .Map(contractManager => AddAccommodation(contractManager.Id))
+                .Map(Build);
+            
+            
+             async Task<Accommodation> AddAccommodation(int contractManagerId)
+             {
+                 var newAccommodation = CreateAccommodation(contractManagerId, accommodation);
+                 newAccommodation.Created = DateTime.UtcNow;
+                 var entry = _dbContext.Accommodations.Add(newAccommodation);
+                 await _dbContext.SaveChangesAsync();
+                 entry.State = EntityState.Detached;
+
+                 return entry.Entity;
+             }
         }
 
 
@@ -298,7 +302,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 LocationId = accommodation.LocationId,
                 RateOptions = accommodation.RateOptions,
                 Modified = DateTime.UtcNow,
-                Status = accommodation.Status
+                Status = accommodation.Status,
+                Floors = accommodation.Floors,
+                BuildYear = accommodation.BuildYear
             };
         }
 
@@ -324,6 +330,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 accommodation.LeisureAndSports.GetValue<MultiLanguage<List<string>>>(),
                 accommodation.Status,
                 accommodation.RateOptions,
+                accommodation.Floors,
+                accommodation.BuildYear,
                 accommodation.Rooms != null
                     ? accommodation.Rooms.Select(room => room.Id).ToList()
                     : new List<int>());

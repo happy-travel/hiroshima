@@ -86,12 +86,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                 if (fromDate != null)
                 {
-                    availabilityRestrictionsQueryable = availabilityRestrictionsQueryable.Where(availabilityRestriction => fromDate <= availabilityRestriction.FromDate);
+                    availabilityRestrictionsQueryable = availabilityRestrictionsQueryable.Where(availabilityRestriction => fromDate.Value.Date <= availabilityRestriction.FromDate);
                 }
 
                 if (toDate != null)
                 {
-                    availabilityRestrictionsQueryable = availabilityRestrictionsQueryable.Where(availabilityRestriction => availabilityRestriction.FromDate <= toDate);
+                    availabilityRestrictionsQueryable = availabilityRestrictionsQueryable.Where(availabilityRestriction => availabilityRestriction.FromDate <= toDate.Value.Date);
                 }
 
                 if (restriction != null)
@@ -162,8 +162,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             {
                 ContractId = contractId,
                 RoomId = availabilityRestriction.RoomId,
-                FromDate = availabilityRestriction.FromDate,
-                ToDate = availabilityRestriction.ToDate,
+                FromDate = availabilityRestriction.FromDate.Date,
+                ToDate = availabilityRestriction.ToDate.Date,
                 Restriction = availabilityRestriction.Restriction
             };
 

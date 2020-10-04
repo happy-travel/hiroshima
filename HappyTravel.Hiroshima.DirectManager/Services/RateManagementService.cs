@@ -144,6 +144,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     rate.RoomId,
                     rate.SeasonId,
                     rate.Price,
+                    rate.Currency,
                     rate.BoardBasis,
                     rate.MealPlan,
                     rate.RoomType,

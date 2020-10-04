@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using FluentValidation;
 using HappyTravel.Hiroshima.DirectManager.Models.Requests;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators.Extensions;
@@ -9,8 +10,16 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
     {
         public AccommodationValidator()
         {
-            RuleFor(accommodation => accommodation.Name).NotNull().AnyLanguage();
-            RuleFor(accommodation => accommodation.Address).NotNull().AnyLanguage();
+            RuleFor(accommodation => accommodation.Name).NotNull().AnyLanguage()
+                .ChildRules(validator => validator.RuleFor(name => name.Ar).NotEmpty().When(name => name.Ar != null))
+                .ChildRules(validator => validator.RuleFor(name => name.En).NotEmpty().When(name => name.En != null))
+                .ChildRules(validator => validator.RuleFor(name => name.Ru).NotEmpty().When(name => name.Ru != null));
+            
+            RuleFor(accommodation => accommodation.Address).NotNull().AnyLanguage()
+                .ChildRules(validator => validator.RuleFor(address => address.Ar).NotEmpty().When(address => address.Ar != null))
+                .ChildRules(validator => validator.RuleFor(address => address.En).NotEmpty().When(address => address.En != null))
+                .ChildRules(validator => validator.RuleFor(address => address.Ru).NotEmpty().When(address => address.Ru != null));
+            
             RuleFor(accommodation => accommodation.Description)
                 .NotEmpty()
                 .AnyLanguage()
@@ -37,6 +46,11 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
                 .ChildRules(accommodation => accommodation.RuleForEach(pictures => pictures.Ru).SetValidator(new PictureValidator()));
             RuleFor(accommodation => accommodation.LocationId).NotEmpty();
             RuleFor(accommodation => accommodation.Status).IsInEnum();
+            RuleFor(accommodation => accommodation.BuildYear).LessThanOrEqualTo(DateTime.UtcNow.Year).When(accommodation => accommodation.BuildYear != null);
+            RuleFor(accommodation => accommodation.Floors).GreaterThan(0).When(accommodation => accommodation.Floors != null);
+            RuleFor(accommodation => accommodation.LeisureAndSports)
+                .AnyLanguage()
+                .When(accommodation => accommodation.LeisureAndSports != null);
         }
         
         
