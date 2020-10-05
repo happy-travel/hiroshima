@@ -3,13 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using HappyTravel.Hiroshima.Common.Models;
-using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
-using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefinitions;
+using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OcuppancyDefinitions;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Models.Booking;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -17,16 +17,17 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Hiroshima.Data.Migrations
 {
     [DbContext(typeof(DirectContractsDbContext))]
-    partial class DirectContractsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200907095643_AddPromotionalOfferStopSales")]
+    partial class AddPromotionalOfferStopSales
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:PostgresExtension:postgis", ",,")
                 .HasAnnotation("Npgsql:PostgresExtension:uuid-ossp", ",,")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.1.8")
+                .HasAnnotation("ProductVersion", "3.1.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation", b =>
@@ -50,9 +51,6 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
-                    b.Property<int?>("BuildYear")
-                        .HasColumnType("integer");
-
                     b.Property<string>("CheckInTime")
                         .IsRequired()
                         .HasColumnType("text");
@@ -72,21 +70,8 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .IsRequired()
                         .HasColumnType("geometry (point)");
 
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int?>("Floors")
-                        .HasColumnType("integer");
-
-                    b.Property<JsonDocument>("LeisureAndSports")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
                     b.Property<int>("LocationId")
                         .HasColumnType("integer");
-
-                    b.Property<DateTime>("Modified")
-                        .HasColumnType("timestamp without time zone");
 
                     b.Property<JsonDocument>("Name")
                         .IsRequired()
@@ -103,14 +88,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.Property<int>("PropertyType")
                         .HasColumnType("integer");
 
-                    b.Property<RateOptions>("RateOptions")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
                     b.Property<int>("Rating")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Status")
                         .HasColumnType("integer");
 
                     b.Property<JsonDocument>("TextualDescription")
@@ -195,15 +173,9 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp without time zone");
-
                     b.Property<JsonDocument>("Description")
                         .IsRequired()
                         .HasColumnType("jsonb");
-
-                    b.Property<DateTime>("Modified")
-                        .HasColumnType("timestamp without time zone");
 
                     b.Property<JsonDocument>("Name")
                         .IsRequired()
@@ -358,9 +330,6 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.Property<int>("RoomId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("RoomType")
-                        .HasColumnType("integer");
-
                     b.Property<int>("SeasonId")
                         .HasColumnType("integer");
 
@@ -383,15 +352,9 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.Property<int>("ContractManagerId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp without time zone");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<DateTime>("Modified")
-                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -402,9 +365,6 @@ namespace HappyTravel.Hiroshima.Data.Migrations
 
                     b.Property<DateTime>("ValidTo")
                         .HasColumnType("timestamp without time zone");
-
-                    b.Property<bool>("Verified")
-                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
