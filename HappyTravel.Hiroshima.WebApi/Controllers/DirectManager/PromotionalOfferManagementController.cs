@@ -88,7 +88,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="contractId"></param>
         /// <param name="stopSalePeriods"></param>
         /// <returns>List of promotional offers</returns>
-        [HttpPost("contracts/{contractId}/promotional-offers/stop-sale")]
+        [HttpPost("contracts/{contractId}/promotional-offers/stop-sale-periods")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.PromotionalOfferStopSale>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> AddStopSalePeriods([FromRoute] int contractId, [FromBody] List<Hiroshima.DirectManager.Models.Requests.PromotionalOfferStopSale> stopSalePeriods)
@@ -111,7 +111,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="fromDate"></param>
         /// <param name="toDate"></param>
         /// <returns>List of promotional offers</returns>
-        [HttpGet("contracts/{contractId}/promotional-offers/stop-sale")]
+        [HttpGet("contracts/{contractId}/promotional-offers/stop-sale-periods")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.PromotionalOfferStopSale>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetStopSalePeriods([FromRoute] int contractId, [FromQuery] int skip = 0, [FromQuery] int top = 100, [FromQuery(Name = "roomId")] List<int> roomIds = null, [FromQuery] DateTime? fromDate = null, [FromQuery] DateTime? toDate = null)
@@ -130,7 +130,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="contractId"></param>
         /// <param name="stopSalePeriodIds">IDs to remove</param>
         /// <returns></returns>
-        [HttpDelete("contracts/{contractId}/promotional-offers/stop-sale")]
+        [HttpDelete("contracts/{contractId}/promotional-offers/stop-sale-periods")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> RemoveStopSalePeriods([FromRoute] int contractId, [FromBody] List<int> stopSalePeriodIds)
