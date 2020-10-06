@@ -21,7 +21,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     {
         public DocumentManagementService(IContractManagerContextService contractManagerContextService,
             DirectContracts.Services.Management.IContractManagementRepository contractManagementRepository,
-            DirectContractsDbContext dbContext, AmazonS3ClientService amazonS3ClientService)
+            DirectContractsDbContext dbContext, IAmazonS3ClientService amazonS3ClientService)
         {
             _contractManagerContext = contractManagerContextService;
             _contractManagementRepository = contractManagementRepository;
@@ -104,7 +104,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         private readonly IContractManagerContextService _contractManagerContext;
         private readonly DirectContracts.Services.Management.IContractManagementRepository _contractManagementRepository;
         private readonly DirectContractsDbContext _dbContext;
-        private readonly AmazonS3ClientService _amazonS3ClientService;
+        private readonly IAmazonS3ClientService _amazonS3ClientService;
         private readonly string _bucketName;
     }
 }
