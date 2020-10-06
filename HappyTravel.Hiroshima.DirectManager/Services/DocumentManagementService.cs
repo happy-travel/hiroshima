@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.AmazonS3Client.Options;
+using HappyTravel.AmazonS3Client.Services;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
@@ -10,6 +13,7 @@ using HappyTravel.Hiroshima.Data.Models;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {
@@ -17,11 +21,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     {
         public DocumentManagementService(IContractManagerContextService contractManagerContextService,
             DirectContracts.Services.Management.IContractManagementRepository contractManagementRepository,
-            DirectContractsDbContext dbContext)
+            DirectContractsDbContext dbContext, AmazonS3ClientService amazonS3ClientService)
         {
             _contractManagerContext = contractManagerContextService;
             _contractManagementRepository = contractManagementRepository;
             _dbContext = dbContext;
+            _amazonS3ClientService = amazonS3ClientService;
+            _bucketName = "happy-travel-dc";
         }
 
         public Task<Result<Models.Responses.Document>> Add(Models.Requests.Document document)
@@ -34,17 +40,24 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     return validationResult.IsFailure ? Result.Failure<ContractManager>(validationResult.Error) : Result.Success(contractManager);
                 })
                 .Map(contractManager => Create(contractManager.Id, document))
-                .Map(Add)
+                .Map(dbDocument => Add(dbDocument, document.FileContent))
                 .Map(dbDocument => Build(dbDocument));
 
 
-            async Task<Document> Add(Document dbDocument)
+            async Task<Document> Add(Document dbDocument, byte[] fileContent)
             {
                 dbDocument.Key = $"contracts/{dbDocument.ContractId}/{dbDocument.Name}";
                 dbDocument.Created = DateTime.UtcNow;
-                // Add document to Amazon S3
 
+                // Add document to Amazon S3
+                using (MemoryStream stream = new MemoryStream(fileContent.Length))
+                {
+                    stream.Write(fileContent, 0, fileContent.Length);
+                    var result = await _amazonS3ClientService.Add(_bucketName, dbDocument.Key, stream);
+                }
+                
                 var entry = _dbContext.Documents.Add(dbDocument);
+
                 await _dbContext.SaveChangesAsync();
 
                 _dbContext.DetachEntry(entry.Entity);
@@ -64,11 +77,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 var document = await _dbContext.Documents.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.ContractId == contractId && c.Id == documentId);
                 if (document is null)
                     return;
+
                 // Remove file from Amazon S3
+                var result = await _amazonS3ClientService.Delete(_bucketName, document.Key);
+                if (result.IsSuccess)
+                {
+                    _dbContext.Documents.Remove(document);
 
-                _dbContext.Documents.Remove(document);
-
-                await _dbContext.SaveChangesAsync();
+                    await _dbContext.SaveChangesAsync();
+                }
             }
         }
 
@@ -87,5 +104,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         private readonly IContractManagerContextService _contractManagerContext;
         private readonly DirectContracts.Services.Management.IContractManagementRepository _contractManagementRepository;
         private readonly DirectContractsDbContext _dbContext;
+        private readonly AmazonS3ClientService _amazonS3ClientService;
+        private readonly string _bucketName;
     }
 }

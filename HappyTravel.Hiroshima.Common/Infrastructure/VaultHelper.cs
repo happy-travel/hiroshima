@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Reflection.Metadata.Ecma335;
+using Amazon;
+using HappyTravel.AmazonS3Client.Options;
 using HappyTravel.VaultClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -37,6 +40,34 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure
                 connectionOptions["database"],
                 connectionOptions["userId"],
                 connectionOptions["password"]);
+        }
+
+        /// <summary>
+        /// The method to get a Amazon S3 credentials for the contract documents from the Vault
+        /// </summary>
+        /// <param name="vaultClient">The instance of the Vault client </param>
+        /// <param name="pathToConnectionOptions">The path to connection options in appsettings.json</param>
+        /// <param name="pathToConnectionString">The path to the connection string template in appsettings.json</param>
+        /// <param name="configuration">Represents the application configuration</param>
+        /// <returns></returns>
+        public static AmazonS3ClientOptions GetAmazonS3Credentials(VaultClient.VaultClient vaultClient, string pathToAmazonS3Credentials, IConfiguration configuration)
+        {
+            var amazonS3Credentials = vaultClient.Get(configuration[pathToAmazonS3Credentials]).Result;
+
+            var amazonS3Config = new Amazon.S3.AmazonS3Config();
+            switch (amazonS3Credentials["regionEndpoint"])
+            {
+                case "eu-west-1":
+                    amazonS3Config.RegionEndpoint = RegionEndpoint.EUWest1;
+                    break;
+            }
+
+            return new AmazonS3ClientOptions
+            {
+                AmazonS3Config = amazonS3Config,
+                AccessKeyId = amazonS3Credentials["accessKeyId"],
+                AccessKey = amazonS3Credentials["accessKey"]
+            };
         }
     }
 }

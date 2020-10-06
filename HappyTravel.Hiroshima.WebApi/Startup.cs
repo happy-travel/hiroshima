@@ -7,6 +7,8 @@ using System.Text.Json.Serialization;
 using CacheFlow.Json.Extensions;
 using FloxDc.CacheFlow.Extensions;
 using FluentValidation.AspNetCore;
+using HappyTravel.AmazonS3Client.Extensions;
+using HappyTravel.AmazonS3Client.Options;
 using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Infrastructure;
 using HappyTravel.Hiroshima.Data;
@@ -52,10 +54,13 @@ namespace HappyTravel.Hiroshima.WebApi
             vaultClient.Login(Configuration[Configuration["Vault:Token"]]).GetAwaiter().GetResult();
             var dbConnectionString = VaultHelper.GetDbConnectionString(vaultClient, "DirectContracts:Database:ConnectionOptions", "DirectContracts:Database:ConnectionString", Configuration);
             var redisEndpoint = Configuration[Configuration["Redis:Endpoint"]];
-           
+            var amazonS3ClientOptions = VaultHelper.GetAmazonS3Credentials(vaultClient, "DirectContracts:S3:Contracts", Configuration);
+
+
             services.AddDirectContractsServices(dbConnectionString);
             services.AddDirectManagerServices();
-            
+            services.AddAmazonS3Client(options => options = amazonS3ClientOptions);
+
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(GeoConstants.SpatialReferenceId));
             services.AddTransient<IAvailabilityService, AvailabilityService>();
           
