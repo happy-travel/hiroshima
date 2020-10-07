@@ -6,10 +6,8 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
     {
         public DocumentValidator()
         {
-            RuleFor(document => document.Name).NotEmpty();
-            RuleFor(document => document.MimeType).NotEmpty();
             RuleFor(document => document.ContractId).NotEmpty();
-            RuleFor(document => document.FileContent).NotEmpty();
+            RuleFor(document => document.UploadedFile).NotEmpty();
         }
 
     }

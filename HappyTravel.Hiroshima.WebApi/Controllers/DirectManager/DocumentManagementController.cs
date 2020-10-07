@@ -5,6 +5,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Infrastructure;
 using HappyTravel.Hiroshima.DirectManager.Models.Responses;
 using HappyTravel.Hiroshima.DirectManager.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
@@ -20,7 +21,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
             _documentManagementService = documentManagementService;
         }
 
-        /// <summary>
+/*        /// <summary>
         /// Upload file of the contract
         /// </summary>
         /// <param name="contractId">Contract Id</param>
@@ -31,6 +32,29 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> AddContractFile([FromRoute] int contractId, [FromBody] Hiroshima.DirectManager.Models.Requests.Document document)
         {
+            var (_, isFailure, response, error) = await _documentManagementService.Add(document);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
+        }*/
+
+        /// <summary>
+        /// Upload file of the contract
+        /// </summary>
+        /// <param name="contractId">Contract Id</param>
+        /// <param name="uploadedFile">Adding contract file</param>
+        /// <returns></returns>
+        [HttpPost("{contractId}")]
+        [ProducesResponseType(typeof(Document), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> AddContractFile([FromRoute] int contractId, [FromForm] IFormFile uploadedFile)
+        {
+            var document = new Hiroshima.DirectManager.Models.Requests.Document
+            {
+                ContractId = contractId,
+                UploadedFile = (FormFile)uploadedFile
+            };
             var (_, isFailure, response, error) = await _documentManagementService.Add(document);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -59,22 +83,27 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 /*        /// <summary>
         /// Upload an image
         /// </summary>
-        /// <param name="contractId">Contract Id</param>
-        /// <param name="document">Adding image</param>
+        /// <param name="accommodationId">Accomodation Id</param>
+        /// <param name="uploadedFile">Adding image</param>
         /// <returns></returns>
-        [HttpPost("{contractId}")]
-        [ProducesResponseType(typeof(Document), (int)HttpStatusCode.OK)]
+        [HttpPost("{accommodationId}")]
+        [ProducesResponseType(typeof(Image), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> AddImageFile([FromRoute] int contractId, [FromBody] Hiroshima.DirectManager.Models.Requests.Document document)
+        public async Task<IActionResult> AddImageFile([FromRoute] int accommodationId, [FromBody] FormFile uploadedFile)
         {
-            var (_, isFailure, response, error) = await _documentManagementService.Add(document);
+            var image = new Hiroshima.DirectManager.Models.Requests.Image
+            {
+                AccommodationId = accommodationId,
+                UploadedFile = uploadedFile
+            };
+            var (_, isFailure, response, error) = await _documentManagementService.AddImage(image);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return Ok(response);
-        }
+        }*/
 
-        /// <summary>
+/*        /// <summary>
         /// Delete image by ID
         /// </summary>
         /// <param name="contractId">Contract Id</param>

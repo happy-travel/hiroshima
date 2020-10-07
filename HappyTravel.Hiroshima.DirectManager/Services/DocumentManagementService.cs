@@ -12,6 +12,7 @@ using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.Data.Models;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -40,22 +41,33 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     return validationResult.IsFailure ? Result.Failure<ContractManager>(validationResult.Error) : Result.Success(contractManager);
                 })
                 .Map(contractManager => Create(contractManager.Id, document))
-                .Map(dbDocument => Add(dbDocument, document.FileContent))
+                .Map(dbDocument => Add(dbDocument, document.UploadedFile))
                 .Map(dbDocument => Build(dbDocument));
 
 
-            async Task<Document> Add(Document dbDocument, byte[] fileContent)
+            async Task<Document> Add(Document dbDocument, FormFile uploadedFile)
             {
                 dbDocument.Key = $"contracts/{dbDocument.ContractId}/{dbDocument.Name}";
                 dbDocument.Created = DateTime.UtcNow;
 
                 // Add document to Amazon S3
-                using (MemoryStream stream = new MemoryStream(fileContent.Length))
+                //using (MemoryStream stream = new MemoryStream(fileContent.Length))
                 {
-                    stream.Write(fileContent, 0, fileContent.Length);
-                    var result = await _amazonS3ClientService.Add(_bucketName, dbDocument.Key, stream);
+                    //stream.Write(fileContent, 0, fileContent.Length);
+                    var result = await _amazonS3ClientService.Add(_bucketName, dbDocument.Key, uploadedFile.OpenReadStream());
                 }
-                
+
+                /*byte[] imageData = null;
+                // считываем переданный файл в массив байтов
+                using (var binaryReader = new BinaryReader(pvm.Avatar.OpenReadStream()))
+                {
+                    imageData = binaryReader.ReadBytes((int)pvm.Avatar.Length);
+                }
+                // установка массива байтов
+                person.Avatar = imageData;*/
+
+
+
                 var entry = _dbContext.Documents.Add(dbDocument);
 
                 await _dbContext.SaveChangesAsync();
@@ -92,16 +104,39 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         private Document Create(int contractManagerId, Models.Requests.Document document)
         => new Document
         {
-            Name = document.Name,
-            MimeType = document.MimeType,
             ContractId = document.ContractId,
+            Name = document.UploadedFile.FileName,
+            MimeType = document.UploadedFile.ContentType,
             ContractManagerId = contractManagerId
         };
 
         private Models.Responses.Document Build(Document document)
             => new Models.Responses.Document(document.Id, document.Name, document.Key, document.MimeType, document.ContractId);
 
-        private readonly IContractManagerContextService _contractManagerContext;
+
+/*        async Task<Image> AddImage(Image dbImage)
+        {
+            dbImage.Key = $"images/{dbImage.AccommodationId}/{dbImage.Name}";
+            dbImage.Created = DateTime.UtcNow;
+
+            // Add document to Amazon S3
+            using (MemoryStream stream = new MemoryStream(fileContent.Length))
+            {
+                stream.Write(fileContent, 0, fileContent.Length);
+                var result = await _amazonS3ClientService.Add(_bucketName, dbDocument.Key, stream);
+            }
+
+            var entry = _dbContext.Documents.Add(dbDocument);
+
+            await _dbContext.SaveChangesAsync();
+
+            _dbContext.DetachEntry(entry.Entity);
+
+            return entry.Entity;
+        }
+    }*/
+
+    private readonly IContractManagerContextService _contractManagerContext;
         private readonly DirectContracts.Services.Management.IContractManagementRepository _contractManagementRepository;
         private readonly DirectContractsDbContext _dbContext;
         private readonly IAmazonS3ClientService _amazonS3ClientService;
