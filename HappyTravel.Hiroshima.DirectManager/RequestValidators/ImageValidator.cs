@@ -6,11 +6,8 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
     {
         public ImageValidator()
         {
-            RuleFor(image => image.Name).NotEmpty();
-            RuleFor(image => image.MimeType).NotEmpty();
             RuleFor(image => image.AccommodationId).NotEmpty();
-            RuleFor(image => image.FileContent).NotEmpty();
+            RuleFor(image => image.UploadedFile).NotEmpty();
         }
-
     }
 }

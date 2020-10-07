@@ -43,6 +43,7 @@ namespace HappyTravel.Hiroshima.Data
             AddContracts(modelBuilder);
             AddLocations(modelBuilder);
             AddAccommodations(modelBuilder);
+            AddImages(modelBuilder);
             AddRooms(modelBuilder);
             AddRates(modelBuilder);
             AddRoomAvailabilityRestrictions(modelBuilder);
@@ -162,7 +163,25 @@ namespace HappyTravel.Hiroshima.Data
             });
         }
 
-        
+
+        private void AddImages(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Common.Models.Image>(e =>
+            {
+                e.ToTable("Images");
+                e.HasKey(c => c.Id);
+                e.Property(c => c.Name).IsRequired();
+                e.Property(c => c.Key).IsRequired();
+                e.Property(c => c.MimeType).IsRequired();
+                e.Property(c => c.Created).IsRequired();
+                e.Property(c => c.ContractManagerId).IsRequired();
+                e.Property(c => c.AccommodationId).IsRequired();
+                e.HasIndex(c => c.ContractManagerId);
+                e.HasIndex(c => c.AccommodationId);
+            });
+        }
+
+
         private void AddRooms(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Room>(e =>
@@ -329,6 +348,7 @@ namespace HappyTravel.Hiroshima.Data
 
         public virtual DbSet<Location> Locations { get; set; }
         public virtual DbSet<Accommodation> Accommodations { get; set; }
+        public virtual DbSet<Image> Images { get; set; }
         public virtual DbSet<Country> Countries { get; set; }
         public virtual DbSet<Room> Rooms { get; set; }
         public virtual DbSet<RoomAvailabilityRestriction> RoomAvailabilityRestrictions { get; set; }

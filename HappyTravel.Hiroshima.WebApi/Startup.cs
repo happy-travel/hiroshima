@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Amazon.S3;
 using CacheFlow.Json.Extensions;
 using FloxDc.CacheFlow.Extensions;
 using FluentValidation.AspNetCore;
@@ -59,7 +60,15 @@ namespace HappyTravel.Hiroshima.WebApi
 
             services.AddDirectContractsServices(dbConnectionString);
             services.AddDirectManagerServices();
-            services.AddAmazonS3Client(options => options = amazonS3ClientOptions);
+            services.AddAmazonS3Client(options => 
+            { 
+                options.AccessKey = amazonS3ClientOptions.AccessKey;
+                options.AccessKeyId = amazonS3ClientOptions.AccessKeyId;
+                options.AmazonS3Config = new AmazonS3Config
+                { 
+                    RegionEndpoint = amazonS3ClientOptions.AmazonS3Config.RegionEndpoint 
+                };
+            });
 
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(GeoConstants.SpatialReferenceId));
             services.AddTransient<IAvailabilityService, AvailabilityService>();

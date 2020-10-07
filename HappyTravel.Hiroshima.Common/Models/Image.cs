@@ -12,6 +12,6 @@ namespace HappyTravel.Hiroshima.Common.Models
         public string MimeType { get; set; }
         public DateTime Created { get; set; }
         public int ContractManagerId { get; set; }
-        public int AccomodationId { get; set; }
+        public int AccommodationId { get; set; }
     }
 }
