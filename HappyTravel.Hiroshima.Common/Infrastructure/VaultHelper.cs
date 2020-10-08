@@ -43,7 +43,7 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure
         }
 
         /// <summary>
-        /// The method to get a Amazon S3 credentials for the contract documents from the Vault
+        /// The method to get a Amazon S3 credentials from the Vault
         /// </summary>
         /// <param name="vaultClient">The instance of the Vault client </param>
         /// <param name="pathToAmazonS3Credentials">The path to Amazon S3 credentials in appsettings.json</param>
@@ -62,6 +62,18 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure
                 AccessKeyId = amazonS3Credentials["accessKeyId"],
                 AccessKey = amazonS3Credentials["accessKey"]
             };
+        }
+
+        /// <summary>
+        /// The method to get a Amazon S3 bucket name from the Vault
+        /// </summary>
+        /// <param name="vaultClient">The instance of the Vault client </param>
+        /// <param name="pathToAmazonS3Credentials">The path to Amazon S3 credentials in appsettings.json</param>
+        public static string GetAmazonS3BucketName(VaultClient.VaultClient vaultClient, string pathToAmazonS3Credentials, IConfiguration configuration)
+        {
+            var amazonS3Credentials = vaultClient.Get(configuration[pathToAmazonS3Credentials]).Result;
+
+            return amazonS3Credentials["bucket"];
         }
     }
 }

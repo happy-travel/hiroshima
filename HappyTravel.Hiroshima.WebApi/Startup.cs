@@ -9,12 +9,12 @@ using CacheFlow.Json.Extensions;
 using FloxDc.CacheFlow.Extensions;
 using FluentValidation.AspNetCore;
 using HappyTravel.AmazonS3Client.Extensions;
-using HappyTravel.AmazonS3Client.Options;
 using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Infrastructure;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.DirectContracts.Extensions;
 using HappyTravel.Hiroshima.DirectManager.Extensions;
+using HappyTravel.Hiroshima.DirectManager.Services;
 using HappyTravel.Hiroshima.WebApi.Infrastructure;
 using HappyTravel.Hiroshima.WebApi.Services;
 using Microsoft.AspNetCore.Builder;
@@ -55,8 +55,8 @@ namespace HappyTravel.Hiroshima.WebApi
             vaultClient.Login(Configuration[Configuration["Vault:Token"]]).GetAwaiter().GetResult();
             var dbConnectionString = VaultHelper.GetDbConnectionString(vaultClient, "DirectContracts:Database:ConnectionOptions", "DirectContracts:Database:ConnectionString", Configuration);
             var redisEndpoint = Configuration[Configuration["Redis:Endpoint"]];
-            var amazonS3ClientOptions = VaultHelper.GetAmazonS3Credentials(vaultClient, "DirectContracts:S3:Contracts", Configuration);
-
+            var amazonS3ClientOptions = VaultHelper.GetAmazonS3Credentials(vaultClient, "DirectContracts:AmazonS3:Contracts", Configuration);
+            string amazonS3Backet = VaultHelper.GetAmazonS3BucketName(vaultClient, "DirectContracts:AmazonS3:Contracts", Configuration);
 
             services.AddDirectContractsServices(dbConnectionString);
             services.AddDirectManagerServices();
@@ -85,6 +85,10 @@ namespace HappyTravel.Hiroshima.WebApi
                         new CultureInfo("ru")
                     };
                     options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider {Options = options});
+                })
+                .Configure<DocumentManagementServiceOptions>(options => 
+                {
+                    options.AmazonS3Bucket = amazonS3Backet;
                 });
 
             services.AddHealthChecks()
