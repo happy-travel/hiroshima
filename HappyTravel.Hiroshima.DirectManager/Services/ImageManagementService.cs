@@ -7,8 +7,6 @@ using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
@@ -25,6 +23,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             _amazonS3ClientService = amazonS3ClientService;
             _bucketName = "happy-travel-dc";
         }
+
 
         public Task<Result<Models.Responses.Image>> Add(Models.Requests.Image image)
         {
@@ -58,6 +57,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
         }
 
+
         public async Task<Result> Remove(int accommodationId, int imageId)
         {
             return await _contractManagerContext.GetContractManager()
@@ -89,6 +89,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             MimeType = image.UploadedFile.ContentType,
             ContractManagerId = contractManagerId
         };
+
 
         private Models.Responses.Image Build(Image image)
             => new Models.Responses.Image(image.Id, image.Name, image.Key, image.MimeType, image.AccommodationId);

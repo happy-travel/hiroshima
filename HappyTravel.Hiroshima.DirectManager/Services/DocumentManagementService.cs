@@ -31,6 +31,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             _bucketName = "happy-travel-dc";
         }
 
+
         public Task<Result<Models.Responses.Document>> Add(Models.Requests.Document document)
         {
             return _contractManagerContext.GetContractManager()
@@ -63,6 +64,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
         }
 
+
         public async Task<Result> Remove(int contractId, int documentId)
         {
             return await _contractManagerContext.GetContractManager()
@@ -94,6 +96,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             MimeType = document.UploadedFile.ContentType,
             ContractManagerId = contractManagerId
         };
+
 
         private Models.Responses.Document Build(Document document)
             => new Models.Responses.Document(document.Id, document.Name, document.Key, document.MimeType, document.ContractId);

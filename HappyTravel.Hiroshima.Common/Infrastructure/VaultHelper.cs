@@ -46,8 +46,7 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure
         /// The method to get a Amazon S3 credentials for the contract documents from the Vault
         /// </summary>
         /// <param name="vaultClient">The instance of the Vault client </param>
-        /// <param name="pathToConnectionOptions">The path to connection options in appsettings.json</param>
-        /// <param name="pathToConnectionString">The path to the connection string template in appsettings.json</param>
+        /// <param name="pathToAmazonS3Credentials">The path to Amazon S3 credentials in appsettings.json</param>
         /// <param name="configuration">Represents the application configuration</param>
         /// <returns></returns>
         public static AmazonS3ClientOptions GetAmazonS3Credentials(VaultClient.VaultClient vaultClient, string pathToAmazonS3Credentials, IConfiguration configuration)
