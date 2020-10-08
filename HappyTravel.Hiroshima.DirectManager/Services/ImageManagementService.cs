@@ -6,6 +6,7 @@ using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System;
 using System.Threading.Tasks;
 
@@ -15,13 +16,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     {
         public ImageManagementService(IContractManagerContextService contractManagerContextService,
             DirectContracts.Services.Management.IContractManagementRepository contractManagementRepository,
-            DirectContractsDbContext dbContext, IAmazonS3ClientService amazonS3ClientService)
+            DirectContractsDbContext dbContext, IAmazonS3ClientService amazonS3ClientService, IOptions<ImageManagementServiceOptions> options)
         {
             _contractManagerContext = contractManagerContextService;
             _contractManagementRepository = contractManagementRepository;
             _dbContext = dbContext;
             _amazonS3ClientService = amazonS3ClientService;
-            _bucketName = "happy-travel-dc";
+            _bucketName = options.Value.AmazonS3Bucket;
         }
 
 

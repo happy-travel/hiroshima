@@ -89,7 +89,11 @@ namespace HappyTravel.Hiroshima.WebApi
                 .Configure<DocumentManagementServiceOptions>(options => 
                 {
                     options.AmazonS3Bucket = amazonS3Backet;
-                });
+                })
+                .Configure<ImageManagementServiceOptions>(options =>
+                 {
+                     options.AmazonS3Bucket = amazonS3Backet;
+                 });
 
             services.AddHealthChecks()
                 .AddCheck<ControllerResolveHealthCheck>(nameof(ControllerResolveHealthCheck))
