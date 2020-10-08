@@ -54,17 +54,12 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure
         {
             var amazonS3Credentials = vaultClient.Get(configuration[pathToAmazonS3Credentials]).Result;
 
-            var amazonS3Config = new Amazon.S3.AmazonS3Config();
-            switch (amazonS3Credentials["regionEndpoint"])
-            {
-                case "eu-west-1":
-                    amazonS3Config.RegionEndpoint = RegionEndpoint.EUWest1;
-                    break;
-            }
-
             return new AmazonS3ClientOptions
             {
-                AmazonS3Config = amazonS3Config,
+                AmazonS3Config = new Amazon.S3.AmazonS3Config
+                {
+                    RegionEndpoint = RegionEndpoint.GetBySystemName(amazonS3Credentials["regionEndpoint"])
+                },
                 AccessKeyId = amazonS3Credentials["accessKeyId"],
                 AccessKey = amazonS3Credentials["accessKey"]
             };
