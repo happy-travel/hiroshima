@@ -42,7 +42,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<Image> AddImage(Image dbImage, FormFile uploadedFile)
             {
-                dbImage.Key = $"images/{dbImage.AccommodationId}/{dbImage.Name}";
+                dbImage.Key = $"{S3FolderName}/{dbImage.AccommodationId}/{dbImage.Name}";
                 dbImage.Created = DateTime.UtcNow;
 
                 // Add document to Amazon S3
@@ -94,6 +94,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private Models.Responses.Image Build(Image image)
             => new Models.Responses.Image(image.Id, image.Name, image.Key, image.MimeType, image.AccommodationId);
+
+
+        private const string S3FolderName = "images";
 
 
         private readonly IContractManagerContextService _contractManagerContext;

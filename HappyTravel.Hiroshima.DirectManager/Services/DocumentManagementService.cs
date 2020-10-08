@@ -44,7 +44,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<Document> AddDocument(Document dbDocument, FormFile uploadedFile)
             {
-                dbDocument.Key = $"contracts/{dbDocument.ContractId}/{dbDocument.Name}";
+                dbDocument.Key = $"{S3FolderName}/{dbDocument.ContractId}/{dbDocument.Name}";
                 dbDocument.Created = DateTime.UtcNow;
 
                 // Add document to Amazon S3
@@ -96,6 +96,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private Models.Responses.Document Build(Document document)
             => new Models.Responses.Document(document.Id, document.Name, document.Key, document.MimeType, document.ContractId);
+
+
+        private const string S3FolderName = "contracts";
 
 
         private readonly IContractManagerContextService _contractManagerContext;
