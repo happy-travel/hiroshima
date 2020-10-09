@@ -23,10 +23,10 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
 
         /// <summary>
-        /// Upload file of the contract
+        /// Uploads a document to a contract
         /// </summary>
         /// <param name="contractId">Contract Id</param>
-        /// <param name="uploadedFile">Adding contract file</param>
+        /// <param name="uploadedFile">Document file to add</param>
         /// <returns></returns>
         [HttpPost("{contractId}")]
         [RequestSizeLimit(100 * 1024 * 1024)]
@@ -48,10 +48,10 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
 
         /// <summary>
-        /// Delete file of the contract by ID
+        /// Deletes a document from a contract
         /// </summary>
         /// <param name="contractId">Contract Id</param>
-        /// <param name="documentId">Id of the file to be deleted</param>
+        /// <param name="documentId">Document Id</param>
         /// <returns></returns>
         [HttpDelete("{contractId}/{documentId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]

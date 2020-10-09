@@ -23,7 +23,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
 
         /// <summary>
-        /// Upload image file
+        /// Uploads image file
         /// </summary>
         /// <param name="accommodationId">Accommodation Id</param>
         /// <param name="uploadedFile">Adding image file</param>
@@ -48,7 +48,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
 
         /// <summary>
-        /// Delete image file by ID
+        /// Deletes image file by ID
         /// </summary>
         /// <param name="accommodationId">Accommodation Id</param>
         /// <param name="imageId">Id of the image file to be deleted</param>

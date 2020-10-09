@@ -52,10 +52,6 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
                 });
 
 
-        //public async Task<Document> GetContractDocument(Guid documentId, int contractId, int contractManagerId) =>
-       //     await _dbContext.Documents.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.ContractId == contractId && c.Id == documentId);
-
-
         private readonly DirectContractsDbContext _dbContext;
 
         
