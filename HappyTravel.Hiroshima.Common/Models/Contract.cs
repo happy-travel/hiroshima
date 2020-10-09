@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Common.Models.Seasons;
 
@@ -31,7 +32,9 @@ namespace HappyTravel.Hiroshima.Common.Models
         
         public List<RoomPromotionalOffer> PromotionalOffers { get; set; }
         
-        public List<RoomAvailabilityRestriction> RoomAvailabilityRestriction { get; set; } 
+        public List<RoomAvailabilityRestriction> RoomAvailabilityRestriction { get; set; }
+
+        [NotMapped]
         public List<Document> Documents { get; set; }
     }
 }

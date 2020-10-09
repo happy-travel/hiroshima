@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.AmazonS3Client.Services;
@@ -44,7 +45,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<Document> AddDocument(Document dbDocument, FormFile uploadedFile)
             {
-                dbDocument.Key = $"{S3FolderName}/{dbDocument.ContractId}/{dbDocument.Name}";
+                string extension = Path.GetExtension(uploadedFile.FileName);
+                dbDocument.UniqueId = Guid.NewGuid();
+                dbDocument.Key = $"{S3FolderName}/{dbDocument.ContractId}/{dbDocument.UniqueId}{extension}";
                 dbDocument.Created = DateTime.UtcNow;
 
                 // Add document to Amazon S3
@@ -61,15 +64,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public async Task<Result> Remove(int contractId, int documentId)
+        public async Task<Result> Remove(int contractId, Guid documentId)
         {
             return await _contractManagerContext.GetContractManager()
                 .Tap(async contractManager => await RemoveDocument(contractManager.Id, contractId, documentId));
 
 
-            async Task RemoveDocument(int contractManagerId, int contractId, int documentId)
+            async Task RemoveDocument(int contractManagerId, int contractId, Guid documentId)
             {
-                var document = await _dbContext.Documents.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.ContractId == contractId && c.Id == documentId);
+                var document = await _dbContext.Documents.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.ContractId == contractId && c.UniqueId == documentId);
                 if (document is null)
                     return;
 
@@ -95,7 +98,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         private Models.Responses.Document Build(Document document)
-            => new Models.Responses.Document(document.Id, document.Name, document.Key, document.MimeType, document.ContractId);
+            => new Models.Responses.Document(document.UniqueId, document.Name, document.Key, document.MimeType, document.ContractId);
 
 
         private const string S3FolderName = "contracts";

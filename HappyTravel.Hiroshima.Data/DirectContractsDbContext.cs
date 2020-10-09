@@ -76,7 +76,7 @@ namespace HappyTravel.Hiroshima.Data
             modelBuilder.Entity<Common.Models.Document>(e =>
             {
                 e.ToTable("Documents");
-                e.HasKey(c => c.Id);
+                e.HasKey(c => c.UniqueId);
                 e.Property(c => c.Name).IsRequired();
                 e.Property(c => c.Key).IsRequired();
                 e.Property(c => c.MimeType).IsRequired();
@@ -169,7 +169,7 @@ namespace HappyTravel.Hiroshima.Data
             modelBuilder.Entity<Common.Models.Image>(e =>
             {
                 e.ToTable("Images");
-                e.HasKey(c => c.Id);
+                e.HasKey(c => c.UniqueId);
                 e.Property(c => c.Name).IsRequired();
                 e.Property(c => c.Key).IsRequired();
                 e.Property(c => c.MimeType).IsRequired();

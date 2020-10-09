@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Hiroshima.Common.Models;
@@ -51,8 +52,8 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
                 });
 
 
-        public async Task<Document> GetContractDocument(int documentId, int contractId, int contractManagerId) =>
-            await _dbContext.Documents.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.ContractId == contractId && c.Id == documentId);
+        //public async Task<Document> GetContractDocument(Guid documentId, int contractId, int contractManagerId) =>
+       //     await _dbContext.Documents.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.ContractId == contractId && c.Id == documentId);
 
 
         private readonly DirectContractsDbContext _dbContext;

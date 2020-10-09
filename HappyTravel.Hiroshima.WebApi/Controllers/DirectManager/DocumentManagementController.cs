@@ -21,6 +21,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
             _documentManagementService = documentManagementService;
         }
 
+
         /// <summary>
         /// Upload file of the contract
         /// </summary>
@@ -28,6 +29,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="uploadedFile">Adding contract file</param>
         /// <returns></returns>
         [HttpPost("{contractId}")]
+        [RequestSizeLimit(100 * 1024 * 1024)]
         [ProducesResponseType(typeof(Document), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> AddContractFile([FromRoute] int contractId, [FromForm] IFormFile uploadedFile)
@@ -44,6 +46,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
             return Ok(response);
         }
 
+
         /// <summary>
         /// Delete file of the contract by ID
         /// </summary>
@@ -53,7 +56,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpDelete("{contractId}/{documentId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> RemoveContractFile([FromRoute] int contractId, [FromRoute] int documentId)
+        public async Task<IActionResult> RemoveContractFile([FromRoute] int contractId, [FromRoute] Guid documentId)
         {
             var (_, isFailure, error) = await _documentManagementService.Remove(contractId, documentId);
             if (isFailure)

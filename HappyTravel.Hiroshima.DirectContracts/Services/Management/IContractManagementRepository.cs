@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
@@ -11,6 +12,6 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
         Task<Contract> GetContract(int contractId, int contractManagerId);
         Task<List<Accommodation>> GetRelatedAccommodations(int contractId, int contractManagerId);
         Task<List<ContractAccommodationRelation>> GetContractRelations(int contractManagerId, List<int> contractIds);
-        Task<Document> GetContractDocument(int documentId, int contractId, int contractManagerId);
+        //Task<Document> GetContractDocument(Guid documentId, int contractId, int contractManagerId);
     }
 }

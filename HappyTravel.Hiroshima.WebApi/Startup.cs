@@ -56,7 +56,7 @@ namespace HappyTravel.Hiroshima.WebApi
             var dbConnectionString = VaultHelper.GetDbConnectionString(vaultClient, "DirectContracts:Database:ConnectionOptions", "DirectContracts:Database:ConnectionString", Configuration);
             var redisEndpoint = Configuration[Configuration["Redis:Endpoint"]];
             var amazonS3ClientOptions = VaultHelper.GetAmazonS3Credentials(vaultClient, "DirectContracts:AmazonS3:Contracts", Configuration);
-            string amazonS3Backet = VaultHelper.GetAmazonS3BucketName(vaultClient, "DirectContracts:AmazonS3:Contracts", Configuration);
+            string amazonS3Bucket = VaultHelper.GetAmazonS3BucketName(vaultClient, "DirectContracts:AmazonS3:Contracts", Configuration);
 
             services.AddDirectContractsServices(dbConnectionString);
             services.AddDirectManagerServices();
@@ -88,11 +88,11 @@ namespace HappyTravel.Hiroshima.WebApi
                 })
                 .Configure<DocumentManagementServiceOptions>(options => 
                 {
-                    options.AmazonS3Bucket = amazonS3Backet;
+                    options.AmazonS3Bucket = amazonS3Bucket;
                 })
                 .Configure<ImageManagementServiceOptions>(options =>
                  {
-                     options.AmazonS3Bucket = amazonS3Backet;
+                     options.AmazonS3Bucket = amazonS3Bucket;
                  });
 
             services.AddHealthChecks()

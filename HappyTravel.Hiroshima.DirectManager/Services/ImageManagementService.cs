@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
@@ -42,7 +43,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<Image> AddImage(Image dbImage, FormFile uploadedFile)
             {
-                dbImage.Key = $"{S3FolderName}/{dbImage.AccommodationId}/{dbImage.Name}";
+                string extension = Path.GetExtension(uploadedFile.FileName);
+                dbImage.UniqueId = Guid.NewGuid();
+                dbImage.Key = $"{S3FolderName}/{dbImage.AccommodationId}/{dbImage.UniqueId}{extension}";
                 dbImage.Created = DateTime.UtcNow;
 
                 // Add document to Amazon S3
@@ -59,15 +62,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public async Task<Result> Remove(int accommodationId, int imageId)
+        public async Task<Result> Remove(int accommodationId, Guid imageId)
         {
             return await _contractManagerContext.GetContractManager()
                 .Tap(async contractManager => await RemoveImage(contractManager.Id, accommodationId, imageId));
 
 
-            async Task RemoveImage(int contractManagerId, int accommodationId, int imageId)
+            async Task RemoveImage(int contractManagerId, int accommodationId, Guid imageId)
             {
-                var image = await _dbContext.Images.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.AccommodationId == accommodationId && c.Id == imageId);
+                var image = await _dbContext.Images.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.AccommodationId == accommodationId && c.UniqueId == imageId);
                 if (image is null)
                     return;
 
@@ -93,7 +96,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         private Models.Responses.Image Build(Image image)
-            => new Models.Responses.Image(image.Id, image.Name, image.Key, image.MimeType, image.AccommodationId);
+            => new Models.Responses.Image(image.UniqueId, image.Name, image.Key, image.MimeType, image.AccommodationId);
 
 
         private const string S3FolderName = "images";

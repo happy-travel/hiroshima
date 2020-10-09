@@ -1,21 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
     public readonly struct Image
     {
-        public Image(int id, string name, string key, string mimeType, int accommodationId)
+        public Image(Guid uniqueId, string name, string key, string mimeType, int accommodationId)
         {
-            Id = id;
+            UniqueId = uniqueId;
             Name = name;
             Key = key;
             MimeType = mimeType;
             AccommodationId = accommodationId;
         }
 
-        public int Id { get; }
+        public Guid UniqueId { get; }
         public string Name { get; }
         public string Key { get; }
         public string MimeType { get; }

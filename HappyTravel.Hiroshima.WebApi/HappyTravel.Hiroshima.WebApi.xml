@@ -233,7 +233,7 @@
             <param name="uploadedFile">Adding contract file</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.DocumentManagementController.RemoveContractFile(System.Int32,System.Int32)">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.DocumentManagementController.RemoveContractFile(System.Int32,System.Guid)">
             <summary>
             Delete file of the contract by ID
             </summary>
@@ -249,7 +249,7 @@
             <param name="uploadedFile">Adding image file</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ImageManagementController.RemoveImageFile(System.Int32,System.Int32)">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ImageManagementController.RemoveImageFile(System.Int32,System.Guid)">
             <summary>
             Delete image file by ID
             </summary>

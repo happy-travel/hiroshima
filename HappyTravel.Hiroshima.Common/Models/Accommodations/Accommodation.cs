@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefinitions;
@@ -57,5 +58,8 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations
         public DateTime Created { get; set; }
         
         public DateTime Modified { get; set; }
+
+        [NotMapped]
+        public List<Image> Images { get; set; }
     }
 }

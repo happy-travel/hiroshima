@@ -21,6 +21,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
             _imageManagementService = imageManagementService;
         }
 
+
         /// <summary>
         /// Upload image file
         /// </summary>
@@ -28,6 +29,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="uploadedFile">Adding image file</param>
         /// <returns></returns>
         [HttpPost("{accommodationId}")]
+        [RequestSizeLimit(50 * 1024 * 1024)]
         [ProducesResponseType(typeof(Image), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> AddImageFile([FromRoute] int accommodationId, [FromForm] IFormFile uploadedFile)
@@ -44,6 +46,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
             return Ok(response);
         }
 
+
         /// <summary>
         /// Delete image file by ID
         /// </summary>
@@ -53,7 +56,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpDelete("{accommodationId}/{imageId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> RemoveImageFile([FromRoute] int accommodationId, [FromRoute] int imageId)
+        public async Task<IActionResult> RemoveImageFile([FromRoute] int accommodationId, [FromRoute] Guid imageId)
         {
             var (_, isFailure, error) = await _imageManagementService.Remove(accommodationId, imageId);
             if (isFailure)
