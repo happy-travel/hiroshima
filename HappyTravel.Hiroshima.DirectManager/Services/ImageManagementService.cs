@@ -44,8 +44,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             async Task<Image> AddImage(Image dbImage, FormFile uploadedFile)
             {
                 string extension = Path.GetExtension(uploadedFile.FileName);
-                dbImage.UniqueId = Guid.NewGuid();
-                dbImage.Key = $"{S3FolderName}/{dbImage.AccommodationId}/{dbImage.UniqueId}{extension}";
+                dbImage.Id = Guid.NewGuid();
+                dbImage.Key = $"{S3FolderName}/{dbImage.AccommodationId}/{dbImage.Id}{extension}";
                 dbImage.Created = DateTime.UtcNow;
 
                 // Add document to Amazon S3
@@ -70,7 +70,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task RemoveImage(int contractManagerId, int accommodationId, Guid imageId)
             {
-                var image = await _dbContext.Images.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.AccommodationId == accommodationId && c.UniqueId == imageId);
+                var image = await _dbContext.Images.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.AccommodationId == accommodationId && c.Id == imageId);
                 if (image is null)
                     return;
 
@@ -96,7 +96,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         private Models.Responses.Image Build(Image image)
-            => new Models.Responses.Image(image.UniqueId, image.Name, image.Key, image.MimeType, image.AccommodationId);
+            => new Models.Responses.Image(image.Id, image.Name, image.Key, image.MimeType, image.AccommodationId);
 
 
         private const string S3FolderName = "images";
