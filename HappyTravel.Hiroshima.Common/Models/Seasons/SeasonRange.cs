@@ -15,7 +15,6 @@ namespace HappyTravel.Hiroshima.Common.Models.Seasons
         
         public Season Season { get; set; }
         
-        
-        public bool Intersects(SeasonRange range) => DateRange.AreIntersect(StartDate, EndDate, range.StartDate, range.EndDate);
+        public bool AreIntersect(SeasonRange range) => DateRange.AreIntersect(StartDate, EndDate, range.StartDate, range.EndDate);
     }
 }

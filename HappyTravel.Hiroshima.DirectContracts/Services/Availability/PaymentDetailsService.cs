@@ -85,6 +85,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                     var (priceWithDiscount, discountPercent, priceRemark) = ApplyDiscount(fromDate);
                     if (!string.IsNullOrEmpty(priceRemark))
                         priceRemarks.Add(priceRemark);
+                    
                     appliedDiscounts.Add(discountPercent);
                     seasonPriceWithDiscount += priceWithDiscount;
                     fromDate = fromDate.AddDays(1);
