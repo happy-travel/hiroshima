@@ -27,18 +27,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public async Task<Result<ContractManager>> EnsureContractBelongsToContractManager(int contractId)
-        {
-            return await GetContractManager()
-                .Bind(contractManager => 
-                {
-                    return (_dbContext.Contracts.SingleOrDefaultAsync(c => c.ContractManagerId == contractManager.Id && c.Id == contractId).Result == null) ?
-                        Result.Failure<ContractManager>($"The contract with Id {contractId} does not belong to the current contract manager") :
-                        Result.Success(contractManager);
-                });
-        }
-
-
         private readonly DirectContractsDbContext _dbContext;
     }
 }

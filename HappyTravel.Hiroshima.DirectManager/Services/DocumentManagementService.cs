@@ -6,6 +6,7 @@ using HappyTravel.AmazonS3Client.Services;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
+using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -30,7 +31,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.Document>> Add(Models.Requests.Document document)
         {
-            return _contractManagerContext.EnsureContractBelongsToContractManager(document.ContractId)
+            return _contractManagerContext.GetContractManager()
+                .EnsureContractBelongsToContractManager(_dbContext, document.ContractId)
                 .Bind(contractManager =>
                 {
                     var validationResult = ValidationHelper.Validate(document, new DocumentValidator());
@@ -39,6 +41,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 })
                 .Map(contractManager => Create(contractManager.Id, document))
                 .Map(dbDocument => AddDocument(dbDocument, document.UploadedFile))
+                .Ensure(dbDocument => dbDocument != null, $"Error saving document to Amazon S3")
                 .Map(dbDocument => Build(dbDocument));
 
 
@@ -51,7 +54,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                 // Add document to Amazon S3
                 var result = await _amazonS3ClientService.Add(_bucketName, dbDocument.Key, uploadedFile.OpenReadStream());
-
                 if (result.IsSuccess)
                 {
                     var entry = _dbContext.Documents.Add(dbDocument);

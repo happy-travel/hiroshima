@@ -8,6 +8,5 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     public interface IContractManagerContextService
     {
         Task<Result<ContractManager>> GetContractManager();
-        Task<Result<ContractManager>> EnsureContractBelongsToContractManager(int contractId);
     }
 }
