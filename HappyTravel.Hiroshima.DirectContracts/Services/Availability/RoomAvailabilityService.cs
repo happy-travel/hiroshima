@@ -81,7 +81,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             foreach (var allocationRequirement in room.RoomAllocationRequirements.Where(allocationRequirement
                 => allocationRequirement.Allotment != null && allocationRequirement.Allotment == 0))
             {
-                if (room.RoomAvailabilityRestrictions.Any(availabilityRestriction => DateRange.Intersects(allocationRequirement.SeasonRange.StartDate,
+                if (room.RoomAvailabilityRestrictions.Any(availabilityRestriction => DateRange.AreIntersect(allocationRequirement.SeasonRange.StartDate,
                     allocationRequirement.SeasonRange.EndDate,
                     availabilityRestriction.FromDate, availabilityRestriction.ToDate)))
                     return true;

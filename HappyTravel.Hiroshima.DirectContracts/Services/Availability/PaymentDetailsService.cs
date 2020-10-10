@@ -29,7 +29,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 
 
         private List<string> RetrievePaymentRemarks(List<RoomRate> rates)
-            => rates.Where(rate => rate.Remarks.NotEmpty()).Select(rateDetails => rateDetails.Remarks.GetFirstValue()).ToList();
+            => rates.Where(rate => rate.Remarks.IsNotEmpty()).Select(rateDetails => rateDetails.Remarks.GetFirstValue()).ToList();
             
     
         private static decimal ApplyDiscount(decimal originalPrice, double discountPercent, Currencies currency) 

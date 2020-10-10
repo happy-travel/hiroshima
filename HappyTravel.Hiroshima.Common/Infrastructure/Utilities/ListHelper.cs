@@ -27,7 +27,7 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure.Utilities
         public static IEnumerable<List<T>> GetCombinations<T>(IEnumerable<List<T>> listOfItems, List<T> selectedItems = null)
         {
             selectedItems ??= new List<T>();
-            if (listOfItems.Any())
+            if (!listOfItems.Any())
             {
                 var listOfItemsExceptFirst = listOfItems.Skip(1);
                 foreach (var item in listOfItems.First().Where(item => !selectedItems.Contains(item)))
