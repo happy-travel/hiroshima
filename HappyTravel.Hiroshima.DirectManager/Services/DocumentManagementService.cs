@@ -30,13 +30,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.Document>> Add(Models.Requests.Document document)
         {
-            return _contractManagerContext.GetContractManager()
-                .Bind(contractManager => 
-                {
-                    return _contractManagementRepository.GetContract(document.ContractId, contractManager.Id) == null ?
-                        Result.Failure<ContractManager>($"The contract with Id {document.ContractId} does not belong to the current contract manager") : 
-                        Result.Success(contractManager);
-                })
+            return _contractManagerContext.EnsureContractBelongsToContractManager(document.ContractId)
                 .Bind(contractManager =>
                 {
                     var validationResult = ValidationHelper.Validate(document, new DocumentValidator());
@@ -58,13 +52,18 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 // Add document to Amazon S3
                 var result = await _amazonS3ClientService.Add(_bucketName, dbDocument.Key, uploadedFile.OpenReadStream());
 
-                var entry = _dbContext.Documents.Add(dbDocument);
+                if (result.IsSuccess)
+                {
+                    var entry = _dbContext.Documents.Add(dbDocument);
 
-                await _dbContext.SaveChangesAsync();
+                    await _dbContext.SaveChangesAsync();
 
-                _dbContext.DetachEntry(entry.Entity);
+                    _dbContext.DetachEntry(entry.Entity);
 
-                return entry.Entity;
+                    return entry.Entity;
+                }
+                else
+                    return null;
             }
         }
 
