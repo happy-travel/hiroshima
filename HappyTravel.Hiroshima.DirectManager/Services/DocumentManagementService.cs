@@ -50,7 +50,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<Document> AddDocument(Document dbDocument, FormFile uploadedFile)
             {
-                string extension = Path.GetExtension(uploadedFile.FileName);
+                var extension = Path.GetExtension(uploadedFile.FileName);
                 dbDocument.Id = Guid.NewGuid();
                 dbDocument.Key = $"{S3FolderName}/{dbDocument.ContractId}/{dbDocument.Id}{extension}";
                 dbDocument.Created = DateTime.UtcNow;
