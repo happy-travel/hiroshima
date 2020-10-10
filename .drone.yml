@@ -61,7 +61,7 @@ steps:
   commands:
     - cd HappyTravel.Hiroshima.Data
     - dotnet tool restore
-    - dotnet ef database update
+    - dotnet ef database update --verbose
 
 - name: Build docker image & push to repository
   image: plugins/docker

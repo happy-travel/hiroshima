@@ -274,6 +274,34 @@
             <param name="promotionalOfferIds">IDs to remove</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.PromotionalOfferManagementController.AddStopSalePeriods(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.PromotionalOfferStopSale})">
+            <summary>
+            Adds stop sale periods for promotional offers
+            </summary>
+            <param name="contractId"></param>
+            <param name="stopSalePeriods"></param>
+            <returns>List of promotional offers</returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.PromotionalOfferManagementController.GetStopSalePeriods(System.Int32,System.Int32,System.Int32,System.Collections.Generic.List{System.Int32},System.Nullable{System.DateTime},System.Nullable{System.DateTime})">
+            <summary>
+            Gets stop sale periods for promotional offers
+            </summary>
+            <param name="contractId"></param>
+            <param name="top"></param>
+            <param name="skip"></param>
+            <param name="roomIds"></param>
+            <param name="fromDate"></param>
+            <param name="toDate"></param>
+            <returns>List of promotional offers</returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.PromotionalOfferManagementController.RemoveStopSalePeriods(System.Int32,System.Collections.Generic.List{System.Int32})">
+            <summary>
+            Removes stop sale periods of the promotional offers
+            </summary>
+            <param name="contractId"></param>
+            <param name="stopSalePeriodIds">IDs to remove</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.RateManagementController.AddRates(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.Rate})">
             <summary>
             Adds contract rates 

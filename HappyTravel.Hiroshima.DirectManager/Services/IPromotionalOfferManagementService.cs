@@ -12,5 +12,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         Task<Result<List<Models.Responses.PromotionalOffer>>> Add(int contractId, List<Models.Requests.PromotionalOffer> promotionalOffers);
 
         Task<Result> Remove(int contractId, List<int> promotionalOfferIds);
+
+        Task<Result<List<Models.Responses.PromotionalOfferStopSale>>> AddStopSalePeriods(int contractId, List<Models.Requests.PromotionalOfferStopSale> stopSalePeriods);
+
+        Task<Result<List<Models.Responses.PromotionalOfferStopSale>>> GetStopSalePeriods(int contractId, int skip, int top, List<int> roomIds, DateTime? fromDate, DateTime? toDate);
+        
+        Task<Result> RemoveStopSalePeriods(int contractId, List<int> stopSalePeriodIds);
     }
 }
