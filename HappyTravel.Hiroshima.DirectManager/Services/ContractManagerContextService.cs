@@ -26,7 +26,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 : Result.Success(contractManager);
         }
 
-        
+
         private readonly DirectContractsDbContext _dbContext;
     }
 }
