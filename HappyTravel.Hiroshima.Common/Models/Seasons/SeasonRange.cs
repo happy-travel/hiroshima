@@ -1,4 +1,5 @@
 ﻿using System;
+using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 
 namespace HappyTravel.Hiroshima.Common.Models.Seasons
 {
@@ -13,5 +14,7 @@ namespace HappyTravel.Hiroshima.Common.Models.Seasons
         public DateTime EndDate { get; set; }
         
         public Season Season { get; set; }
+        
+        public bool AreIntersect(SeasonRange range) => DateRange.AreIntersect(StartDate, EndDate, range.StartDate, range.EndDate);
     }
 }

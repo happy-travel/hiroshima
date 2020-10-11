@@ -3,28 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.GeoData.Enums;
 using HappyTravel.Hiroshima.Common.Constants;
-using HappyTravel.Hiroshima.Common.Infrastructure.Extensions;
-using HappyTravel.Hiroshima.Common.Models.Accommodations;
+using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
-using HappyTravel.Hiroshima.Common.Models.Locations;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.DirectContracts.Models;
 using Microsoft.EntityFrameworkCore;
-using AccommodationDetails = HappyTravel.Hiroshima.DirectContracts.Models.AccommodationDetails;
-using AvailabilityDetails = HappyTravel.Hiroshima.DirectContracts.Models.AvailabilityDetails;
-using Location = HappyTravel.EdoContracts.GeoData.Location;
+using Accommodation = HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation;
+
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 {
     public class AvailabilityService : IAvailabilityService
     {
-        public AvailabilityService(
-            IRoomAvailabilityService roomAvailabilityService,
-            IRateAvailabilityService rateAvailabilityService,
-            DirectContractsDbContext dbContext)
+        public AvailabilityService(IRoomAvailabilityService roomAvailabilityService, IRateAvailabilityService rateAvailabilityService, DirectContractsDbContext dbContext)
         {
             _roomAvailabilityService = roomAvailabilityService;
             _rateAvailabilityService = rateAvailabilityService;
@@ -32,171 +25,123 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         }
 
 
-        public async Task<List<AvailabilityDetails>> Get(AvailabilityRequest availabilityRequest, string languageCode)
+        public async Task<List<AvailableRates>> Get(EdoContracts.Accommodations.AvailabilityRequest availabilityRequest, string languageCode)
         {
-            var accommodations = await GetAccommodationDetails(availabilityRequest.Location);
-            
-            var roomsGroupedByOccupationRequest =
-                await _roomAvailabilityService.GetGroupedRooms(accommodations, availabilityRequest, languageCode);
+            var accommodations = await ExtractAvailabilityData();
+  
+            var groupedAvailableRooms = _roomAvailabilityService.GetGroupedAvailableRooms(accommodations, availabilityRequest.Rooms);
 
-            var availableRates = await _rateAvailabilityService.GetAvailableRates(GetDistinctRooms(roomsGroupedByOccupationRequest), availabilityRequest.CheckInDate.Date, availabilityRequest.CheckOutDate.Date, languageCode);
-            
-            //Match rooms' data with available rates' data. Rooms are grouped by roomOccupationRequest
-            var availabilityDetails = ExtractAvailabilityDetails(roomsGroupedByOccupationRequest, availableRates);
+            return !DoAvailableRoomsMatchOccupancyRequest() 
+                ? new List<AvailableRates>() 
+                : GetAvailableRates();
 
-            return availabilityDetails;
-            
-            
-            Task<List<AccommodationDetails>> GetAccommodationDetails(Location location)
+
+            bool DoAvailableRoomsMatchOccupancyRequest() =>
+                groupedAvailableRooms.Any(accommodationAvailableRooms=> accommodationAvailableRooms.Count == availabilityRequest.Rooms.Count);
+
+
+            List<AvailableRates> GetAvailableRates()
             {
-                switch (location.Type)
+                var availableRates = new List<AvailableRates>();
+                foreach (var accommodationGroupedRooms in groupedAvailableRooms)
                 {
-                    case LocationTypes.Location:
-                        return GetAccommodations(location.Country, location.Locality, languageCode);
-                    case LocationTypes.Accommodation:
-                        return GetAccommodations(location.Name, languageCode);
-                }
-
-                return Task.FromResult(new List<AccommodationDetails>());
-            }
-        }
-
-
-        private List<AvailabilityDetails> ExtractAvailabilityDetails(List<RoomsGroupedByOccupation> roomsGroupedByOccupation, List<RateOffer> availableRates)
-        { 
-            var availabilityDetails = new List<AvailabilityDetails>();
-
-            var availableRatesDictionary = availableRates.ToDictionary(ar => ar.Room.Id);
-            foreach (var groupedByOccupation in roomsGroupedByOccupation)
-            {
-                var availableAccommodation = new AvailabilityDetails();
-                var roomCombinations = groupedByOccupation.SuitableRooms
-                    .Select(sr => sr.Value)
-                    .CartesianProduct();
-                availableAccommodation.AccommodationDetails = groupedByOccupation.Accommodation;
-                availableAccommodation.AvailableRateOffers = GetAvailableRates(roomCombinations.ToList());
-                availabilityDetails.Add(availableAccommodation);
-            }
-
-            return availabilityDetails;
-            
-            
-            List<List<RateOffer>> GetAvailableRates(List<IEnumerable<Room>> roomCombinations)
-            {
-                var availableRates = new List<List<RateOffer>>(roomCombinations.Count);
-                foreach (var roomCombination in roomCombinations)
-                {
-                    var rateOffers = new List<RateOffer>(roomCombination
-                        .Select(rc => availableRatesDictionary[rc.Id])
-                        .ToList());
-                    availableRates.Add(rateOffers);
+                    var availableRateDetails = _rateAvailabilityService.GetAvailableRates(accommodationGroupedRooms.SelectMany( a=>a.Value).Distinct().ToList(), availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate)
+                        .ToDictionary(rateDetails => rateDetails.Room, rateDetails => rateDetails);
+                    
+                     var roomCombinations = ListHelper.GetCombinations(accommodationGroupedRooms.Select(occupationRequestRooms => occupationRequestRooms.Value)).Distinct().ToList();
+                     
+                     if (roomCombinations.Any()) 
+                         availableRates.AddRange(ConvertToAvailableRates(availableRateDetails, roomCombinations));
                 }
 
                 return availableRates;
+                
+                
+                List<AvailableRates> ConvertToAvailableRates(Dictionary<Room, RateDetails> availableRateDetails, List<List<Room>> roomCombinations)
+                {
+                    var availableRates = new List<AvailableRates>();
+                    foreach (var rooms in roomCombinations)
+                    {
+                        var availableRateCombination = new AvailableRates();
+                        foreach (var room in rooms)
+                        {
+                            if (availableRateDetails.TryGetValue(room, out var rateDetails))
+                                availableRateCombination.Rates.Add(rateDetails);
+                        }
+                        availableRates.Add(availableRateCombination);
+                    }
+
+                    return availableRates;
+                }
+            }
+            
+            
+            Task<List<Accommodation>> ExtractAvailabilityData()
+            {
+                var location = availabilityRequest.Location;
+                switch (availabilityRequest.Location.Type)
+                {
+                    case LocationTypes.Location:
+                    {
+                        Expression<Func<Accommodation, bool>> expression = accommodation =>
+                            accommodation.Location.Country.Name.RootElement.GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage))
+                                .GetString() == location.Country &&
+                            accommodation.Location.Locality.RootElement
+                                .GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage))
+                                .GetString() == location.Locality;
+
+                        return GetAccommodationsWithAvailableRooms(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate, expression);
+                    }
+                    case LocationTypes.Accommodation:
+                    {
+                        Expression<Func<Accommodation, bool>> expression = accommodation =>
+                            accommodation.Name.RootElement
+                                .GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage))
+                                .GetString() == location.Name;
+
+                        return GetAccommodationsWithAvailableRooms(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate, expression);
+                    }
+                    case LocationTypes.Unknown:
+                    case LocationTypes.Destination:
+                    case LocationTypes.Landmark:
+                        throw new NotImplementedException("Not implemented yet");
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
         }
 
 
-        private List<Room> GetDistinctRooms(List<RoomsGroupedByOccupation> rooms) => rooms
-            .SelectMany(rg => rg.SuitableRooms.Values)
-            .SelectMany(rl => rl)
-            .GroupBy(r => r.Id)
-            .Select(grp => grp.FirstOrDefault()).ToList();
-
-        
-        private Task<List<AccommodationDetails>> GetAccommodations(string accommodationName, string languageCode)
+        private async Task<List<Accommodation>> GetAccommodationsWithAvailableRooms(DateTime checkInDate, DateTime checkOutDate, Expression<Func<Accommodation, bool>> expression)
         {
-            Expression<Func<AccommodationDetails, bool>> expression = accWithLoc =>
-                accWithLoc.Accommodation.Name.RootElement
-                    .GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage))
-                    .GetString() == accommodationName;
-
-            return GetAccommodationsWithLocation(expression, languageCode);
-        }
-
-        
-        private Task<List<AccommodationDetails>> GetAccommodations(string countryName, string localityName,
-            string languageCode)
-        {
-            Expression<Func<AccommodationDetails, bool>> expression = accWithLoc =>
-                accWithLoc.Country.Name.RootElement.GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage))
-                    .GetString() == countryName &&
-                accWithLoc.Location.Locality.RootElement
-                    .GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage))
-                    .GetString() == localityName;
-
-            return GetAccommodationsWithLocation(expression, languageCode);
-        }
-        
-        
-        private async Task<List<AccommodationDetails>> GetAccommodationsWithLocation(
-            Expression<Func<AccommodationDetails, bool>> expression, string languageCode)
-        {
-            return await GetAccommodationsWithLocation()
+            return await _dbContext.Accommodations
+                .Include(accommodation => accommodation.Rooms.Where(room => !room.RoomAvailabilityRestrictions.Any(availabilityRestrictions
+                    => checkInDate <= availabilityRestrictions.ToDate && availabilityRestrictions.FromDate <= checkOutDate &&
+                    availabilityRestrictions.Restriction == AvailabilityRestrictions.StopSale)))
+                    .ThenInclude(room => room.RoomAllocationRequirements.Where(allocationRequirements => checkInDate <= allocationRequirements.SeasonRange.EndDate && allocationRequirements.SeasonRange.StartDate <= checkOutDate))
+                        .ThenInclude(allocationRequirements => allocationRequirements.SeasonRange)
+                .Include(accommodation => accommodation.Rooms)
+                    .ThenInclude(room => room.RoomAvailabilityRestrictions.Where(availabilityRestrictions
+                        => checkInDate <= availabilityRestrictions.ToDate && availabilityRestrictions.FromDate <= checkOutDate))
+                .Include(accommodation => accommodation.Rooms)
+                    .ThenInclude(room => room.RoomCancellationPolicies.Where(cancellationPolicy => cancellationPolicy.Season.SeasonRanges.Any(seasonRange => checkInDate <= seasonRange.EndDate && seasonRange.StartDate <= checkOutDate)))
+                        .ThenInclude(cancellationPolicy => cancellationPolicy.Season)
+                            .ThenInclude(season => season.SeasonRanges.Where(seasonRange => checkInDate <= seasonRange.EndDate && seasonRange.StartDate <= checkOutDate))
+                .Include(accommodation => accommodation.Rooms)
+                    .ThenInclude(room => room.RoomRates.Where(rate => rate.Season.SeasonRanges.Any(seasonRange => checkInDate <= seasonRange.EndDate && seasonRange.StartDate <= checkOutDate)))
+                        .ThenInclude(rate => rate.Season)
+                            .ThenInclude(season => season.SeasonRanges.Where(seasonRange => checkInDate <= seasonRange.EndDate && seasonRange.StartDate <= checkOutDate))
+                .Include(accommodation => accommodation.Rooms)
+                    .ThenInclude(room => room.RoomPromotionalOffers.Where(promotionalOffer
+                        => checkInDate <= promotionalOffer.ValidToDate && promotionalOffer.ValidFromDate <= checkOutDate))
+                .Include(accommodation => accommodation.Location)
+                    .ThenInclude(location => location.Country)
                 .Where(expression)
-                .Select(accWithLoc => new AccommodationDetails
-                {
-                    Accommodation =
-                        new Accommodation
-                        {
-                            Id = accWithLoc.Accommodation.Id,
-                            Address =
-                                DirectContractsDbContext.GetLangFromJsonb(accWithLoc.Accommodation.Address,
-                                    languageCode),
-                            ContactInfo = accWithLoc.Accommodation.ContactInfo,
-                            Coordinates = accWithLoc.Accommodation.Coordinates,
-                            Name =
-                                DirectContractsDbContext.GetLangFromJsonb(accWithLoc.Accommodation.Name,
-                                    languageCode),
-                            Pictures =
-                                DirectContractsDbContext.GetLangFromJsonb(accWithLoc.Accommodation.Pictures,
-                                    languageCode),
-                            Rating = accWithLoc.Accommodation.Rating,
-                            AccommodationAmenities =
-                                DirectContractsDbContext.GetLangFromJsonb(accWithLoc.Accommodation.Pictures,
-                                    languageCode),
-                            AdditionalInfo =
-                                DirectContractsDbContext.GetLangFromJsonb(
-                                    accWithLoc.Accommodation.AdditionalInfo, languageCode),
-                            LocationId = accWithLoc.Accommodation.LocationId,
-                            OccupancyDefinition = accWithLoc.Accommodation.OccupancyDefinition,
-                            PropertyType = accWithLoc.Accommodation.PropertyType,
-                            TextualDescription =
-                                DirectContractsDbContext.GetLangFromJsonb(
-                                    accWithLoc.Accommodation.TextualDescription, languageCode),
-                            CheckInTime = accWithLoc.Accommodation.CheckInTime,
-                            CheckOutTime = accWithLoc.Accommodation.CheckOutTime
-                        },
-                    Location = new Common.Models.Locations.Location
-                    {
-                        Id = accWithLoc.Location.Id,
-                        Locality =
-                            DirectContractsDbContext.GetLangFromJsonb(accWithLoc.Location.Locality,
-                                languageCode),
-                        CountryCode = accWithLoc.Location.CountryCode,
-                        Zone = DirectContractsDbContext.GetLangFromJsonb(accWithLoc.Location.Zone, languageCode)
-                    },
-                    Country = new Country
-                    {
-                        Code = accWithLoc.Country.Code,
-                        Name = DirectContractsDbContext.GetLangFromJsonb(accWithLoc.Country.Name, languageCode)
-                    }
-                })
                 .ToListAsync();
         }
 
         
-        private IQueryable<AccommodationDetails> GetAccommodationsWithLocation() =>
-            _dbContext.Accommodations
-                .Join(_dbContext.Locations, acc => acc.LocationId, loc => loc.Id,
-                    (acc, loc) => new AccommodationDetails {Accommodation = acc, Location = loc})
-                .Join(_dbContext.Countries, accWithLoc => accWithLoc.Location.CountryCode, country => country.Code,
-                    (accWithLoc, country) => new AccommodationDetails
-                    {
-                        Accommodation = accWithLoc.Accommodation, Location = accWithLoc.Location, Country = country
-                    });
         
-
         private readonly IRateAvailabilityService _rateAvailabilityService;
         private readonly IRoomAvailabilityService _roomAvailabilityService;
         private readonly DirectContractsDbContext _dbContext;

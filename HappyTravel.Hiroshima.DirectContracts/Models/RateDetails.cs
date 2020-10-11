@@ -1,24 +1,30 @@
-﻿using System;
-using System.Text.Json;
+﻿using System.Collections.Generic;
 using HappyTravel.EdoContracts.Accommodations.Enums;
-using HappyTravel.Hiroshima.Data.Models;
-using HappyTravel.Money.Enums;
+using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Models
 {
-    public class RateDetails
+    public readonly struct RateDetails
     {
-        public int RateId { get; set; }
-        public int RoomId { get; set; }
-        public decimal Price { get; set; }
-        public int SeasonId { get; set; }
-        public Currencies Currency { get; set; }
-        public BoardBasisTypes BoardBasis { get; set; }
-        public string MealPlan { get; set; }
-        public JsonDocument Details { get; set; }
-        public string SeasonName { get; set; }
-        public DateTime SeasonStartDate { get; set; }
-        public DateTime SeasonEndDate { get; set; }
-        public int SeasonContractId { get; set; }
+        public RateDetails(Room room, PaymentDetails paymentDetails, List<CancellationPolicyDetails> cancellationPolicies, string meal,
+            BoardBasisTypes boardBasis, List<TaxDetails> taxes, List<string> amenities)
+        {
+            Room = room;
+            PaymentDetails = paymentDetails;
+            Meal = meal;
+            BoardBasis = boardBasis;
+            CancellationPolicies = cancellationPolicies ?? new List<CancellationPolicyDetails>();
+            Taxes = taxes ?? new List<TaxDetails>();
+            Amenities = amenities ?? new List<string>();
+        }
+
+        
+        public Room Room { get; }
+        public PaymentDetails PaymentDetails { get; }
+        public List<CancellationPolicyDetails> CancellationPolicies { get; }
+        public List<TaxDetails> Taxes { get; }
+        public List<string> Amenities { get; }
+        public string Meal { get; }
+        public BoardBasisTypes BoardBasis { get; }
     }
 }

@@ -10,7 +10,6 @@ using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
@@ -18,11 +17,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     public class DocumentManagementService : IDocumentManagementService
     {
         public DocumentManagementService(IContractManagerContextService contractManagerContextService,
-            DirectContracts.Services.Management.IContractManagementRepository contractManagementRepository,
             DirectContractsDbContext dbContext, IAmazonS3ClientService amazonS3ClientService, IOptions<DocumentManagementServiceOptions> options)
         {
             _contractManagerContext = contractManagerContextService;
-            _contractManagementRepository = contractManagementRepository;
             _dbContext = dbContext;
             _amazonS3ClientService = amazonS3ClientService;
             _bucketName = options.Value.AmazonS3Bucket;
@@ -115,7 +112,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         private readonly IContractManagerContextService _contractManagerContext;
-        private readonly DirectContracts.Services.Management.IContractManagementRepository _contractManagementRepository;
         private readonly DirectContractsDbContext _dbContext;
         private readonly IAmazonS3ClientService _amazonS3ClientService;
         private readonly string _bucketName;

@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Net;
+﻿using System.Net;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace HappyTravel.Hiroshima.Common.Infrastructure
+namespace HappyTravel.Hiroshima.WebApi.Infrastructure
 {
     public static class ProblemDetailsBuilder
     {

@@ -14,9 +14,9 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
             RuleFor(offer => offer.ValidFrom).LessThanOrEqualTo(offer => offer.ValidTo);
             RuleFor(offer => offer.BookByDate).LessThanOrEqualTo(offer => offer.ValidFrom);
             RuleFor(offer => offer.DiscountPercent).GreaterThanOrEqualTo(0d).LessThanOrEqualTo(100d);
-            RuleFor(offer => offer.Details)
+            RuleFor(offer => offer.Remarks)
                 .AnyLanguage()
-                .When(offer => offer.Details != null);
+                .When(offer => offer.Remarks != null);
         }
     }
 }

@@ -8,21 +8,18 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
 {
     public class CancellationPolicyService: ICancellationPolicyService
     {
-        public List<CancellationPolicyDetails> Get(RoomCancellationPolicy roomCancellationPolicy, DateTime checkInDate, PaymentDetails paymentDetails)
+        public List<CancellationPolicyDetails> Create(RoomCancellationPolicy roomCancellationPolicy, DateTime checkInDate, PaymentDetails paymentDetails)
         {
             var cancellationPolicyData = roomCancellationPolicy.Policies;
             var cancellationPolicyDetails = new List<CancellationPolicyDetails>(cancellationPolicyData.Count);
-            
+
             foreach (var cancellationPolicyDataItem in cancellationPolicyData)
             {
-                var cancellationDetails = new CancellationPolicyDetails
-                (
-                    startDate: checkInDate.Date.AddDays(-cancellationPolicyDataItem.DaysPriorToArrival.ToDay),
-                    endDate: checkInDate.Date.AddDays(-cancellationPolicyDataItem.DaysPriorToArrival.FromDay),
-                    price: cancellationPolicyDataItem.PenaltyType == PolicyPenaltyTypes.Percent
+                var cancellationDetails = new CancellationPolicyDetails(checkInDate.Date.AddDays(-cancellationPolicyDataItem.DaysPriorToArrival.ToDay),
+                    checkInDate.Date.AddDays(-cancellationPolicyDataItem.DaysPriorToArrival.FromDay),
+                    cancellationPolicyDataItem.PenaltyType == PolicyPenaltyTypes.Percent
                         ? CalculatePercentPenaltyPrice(cancellationPolicyDataItem.PenaltyCharge, paymentDetails)
-                        : CalculateNightsPenaltyPrice((int) cancellationPolicyDataItem.PenaltyCharge, paymentDetails)
-                );
+                        : CalculateNightsPenaltyPrice((int) cancellationPolicyDataItem.PenaltyCharge, paymentDetails));
                 cancellationPolicyDetails.Add(cancellationDetails);
             }
 

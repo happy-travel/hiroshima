@@ -27,6 +27,10 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure.Extensions
         }
 
 
+        public static bool IsNotEmpty(this JsonDocument jsonDocument)
+            => jsonDocument?.RootElement.ToString() != "{}";
+        
+        
         public static TResult GetFirstValue<TResult>(this JsonDocument jsonDocument)
         {
             if (jsonDocument is null)

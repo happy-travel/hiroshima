@@ -12,78 +12,60 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
     public class PaymentDetailsService: IPaymentDetailsService
     {
         public PaymentDetails Create(DateTime checkInDate, DateTime checkOutDate,
-            List<RateDetails> rateDetails, List<RoomPromotionalOffer> roomPromotionalOffers)
+            List<RoomRate> rates, List<RoomPromotionalOffer> promotionalOffers)
         {
-            var currency = rateDetails.First().Currency;
-            var seasonPrices = GetSeasonPrices(checkInDate, checkOutDate,
-                rateDetails.Select(rd => (rd.SeasonStartDate, rd.SeasonEndDate, rd.Price)).ToList(), currency, roomPromotionalOffers);
-            var dailyPrices = GetDailyPrices(seasonPrices);
-            var totalPrice = seasonPrices.Sum(sp => sp.TotalPrice);
-            var details = CreatePaymentDetails(rateDetails);
+            var currency = rates.First().Currency;
+            
+            var seasonRangesWithPrice = rates.SelectMany(rate =>
+                rate.Season.SeasonRanges.Select(seasonRange => (seasonRange.StartDate, seasonRange.EndDate, rate.Price))).ToList();
+                
+            var seasonPrices = CalculateSeasonPrices(checkInDate, checkOutDate, seasonRangesWithPrice, currency, promotionalOffers);
+  
+            var totalPrice = seasonPrices.Sum(priceDetails => priceDetails.TotalPrice);
+            var remarks = RetrievePaymentRemarks(rates);
 
-            return new PaymentDetails(
-                currency: currency,
-                seasonPrices: seasonPrices,
-                dailyPrices: dailyPrices,
-                totalPrice: totalPrice,
-                details: details
-            );
+            return new PaymentDetails(totalPrice, seasonPrices, currency, remarks);
         }
 
 
-        private List<string> CreatePaymentDetails(List<RateDetails> rates)
-            => rates.Select(rateDetails => rateDetails.Details.GetFirstValue()).ToList();
+        private List<string> RetrievePaymentRemarks(List<RoomRate> rates)
+            => rates.Where(rate => rate.Remarks.IsNotEmpty()).Select(rateDetails => rateDetails.Remarks.GetFirstValue()).ToList();
             
     
         private static decimal ApplyDiscount(decimal originalPrice, double discountPercent, Currencies currency) 
             => originalPrice - MoneyRounder.Truncate( originalPrice / 100 * Convert.ToDecimal(discountPercent), currency);
         
-        
-        private List<decimal> GetDailyPrices(List<SeasonPriceDetails> seasonPrices)
+
+        private List<SeasonPriceDetails> CalculateSeasonPrices(DateTime checkInDate, DateTime checkOutDate,
+            List<(DateTime StartDate, DateTime EndDate, decimal ratePrice)> seasonRangesWithPrice, Currencies currency, List<RoomPromotionalOffer> promotionalOffers)
         {
-            var dailyPrices = new List<decimal>();
-            foreach (var seasonPrice in seasonPrices)
-            {
-                var nights = (seasonPrice.EndDate - seasonPrice.StartDate).Days;
-
-                for (var i = 0; i < nights; i++)
-                    dailyPrices.Add(seasonPrice.RatePrice);
-            }
-
-            return dailyPrices;
-        }
-
-
-        private List<SeasonPriceDetails> GetSeasonPrices(DateTime checkInDate, DateTime checkOutDate,
-            List<(DateTime StartDate, DateTime EndDate, decimal ratePrice)> seasons, Currencies currency, List<RoomPromotionalOffer> promotionalOffers)
-        {
-            if (checkInDate >= checkOutDate || !seasons.Any())
+            if (checkInDate >= checkOutDate || !seasonRangesWithPrice.Any())
                 return new List<SeasonPriceDetails>();
 
-            seasons = seasons.OrderBy(i => i.EndDate).ToList();
+            seasonRangesWithPrice = seasonRangesWithPrice.OrderBy(i => i.EndDate).ToList();
  
-            var seasonPrices = new List<SeasonPriceDetails>(seasons.Count);
+            var seasonPrices = new List<SeasonPriceDetails>(seasonRangesWithPrice.Count);
 
             var startDate = checkInDate;
-            for (var i = 0; i < seasons.Count; i++)
+            for (var i = 0; i < seasonRangesWithPrice.Count; i++)
             {
-                var currentSeason = seasons[i];
+                var currentSeason = seasonRangesWithPrice[i];
                 var nextSeasonIndex = i + 1;
-                var endDate = nextSeasonIndex < seasons.Count
-                    ? seasons[nextSeasonIndex].StartDate
+                var endDate = nextSeasonIndex < seasonRangesWithPrice.Count
+                    ? seasonRangesWithPrice[nextSeasonIndex].StartDate
                     : checkOutDate;
                 var nights = (endDate - startDate).Days;
-                var (price, priceDetails) = CalculatePrice(startDate, endDate, currentSeason.ratePrice);
+                var (totalSeasonPrice, appliedDiscounts, priceRemarks) = CalculatePrice(startDate, endDate, currentSeason.ratePrice);
                 
                 if (nights != 0)
                     seasonPrices.Add(new SeasonPriceDetails(
-                    
-                        startDate : startDate,
-                        endDate : endDate,
-                        numberOfNights : nights,
-                        ratePrice : currentSeason.ratePrice,
-                        totalPrice : price,
-                        details : priceDetails
+                        startDate,
+                        endDate,
+                        currentSeason.ratePrice,
+                        nights,
+                        totalSeasonPrice,
+                        appliedDiscounts,
+                        priceRemarks
                     ));
 
                 startDate = endDate;
@@ -92,41 +74,43 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             return seasonPrices;
 
             
-            (decimal price, List<string> priceDetails) CalculatePrice(DateTime seasonStartDate, DateTime seasonEndDate, decimal seasonPrice)
+            (decimal priceWithDiscount, List<double> appliedDiscounts, List<string> priceRemarks) CalculatePrice(DateTime seasonStartDate, DateTime seasonEndDate, decimal seasonPrice)
             {
                 var fromDate = seasonStartDate;
                 var seasonPriceWithDiscount = 0m;
-                var priceDetails = new List<string>();
+                var priceRemarks = new List<string>();
+                var appliedDiscounts = new List<double>();
                 while (fromDate < seasonEndDate)
                 {
-                    var (price, details) = AddDiscount(fromDate);
-                    if (!string.IsNullOrEmpty(details))
-                        priceDetails.Add(details);
+                    var (priceWithDiscount, discountPercent, priceRemark) = ApplyDiscount(fromDate);
+                    if (!string.IsNullOrEmpty(priceRemark))
+                        priceRemarks.Add(priceRemark);
                     
-                    seasonPriceWithDiscount += price;
+                    appliedDiscounts.Add(discountPercent);
+                    seasonPriceWithDiscount += priceWithDiscount;
                     fromDate = fromDate.AddDays(1);
                 }
 
-                return (seasonPriceWithDiscount, priceDetails);
+                return (seasonPriceWithDiscount, appliedDiscounts, priceRemarks);
                 
                 
-                (decimal price, string details) AddDiscount(DateTime day)
+                (decimal price, double discountPercent, string details) ApplyDiscount(DateTime day)
                 {
                     foreach (var promotionalOffer in promotionalOffers)
                     {
                         if (promotionalOffer.ValidFromDate <= day &&
                             day <= promotionalOffer.ValidToDate)
                         {
-                            var details = promotionalOffer.Details == null
+                            var remarks = promotionalOffer.Remarks == null
                                 ? string.Empty
-                                : promotionalOffer.Details.GetFirstValue();
+                                : promotionalOffer.Remarks.GetFirstValue();
                                 
-                            seasonPrice = ApplyDiscount(seasonPrice, promotionalOffer.DiscountPercent, currency);
-                            return (seasonPrice, details);
+                            var priceWithDiscount = PaymentDetailsService.ApplyDiscount(seasonPrice, promotionalOffer.DiscountPercent, currency);
+                            return (priceWithDiscount, promotionalOffer.DiscountPercent, remarks);
                         }
                     }
 
-                    return (seasonPrice, string.Empty);
+                    return (seasonPrice, 0, string.Empty);
                 }
             }
         }

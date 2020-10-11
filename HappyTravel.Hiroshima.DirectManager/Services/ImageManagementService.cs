@@ -16,11 +16,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     public class ImageManagementService : IImageManagementService
     {
         public ImageManagementService(IContractManagerContextService contractManagerContextService,
-            DirectContracts.Services.Management.IContractManagementRepository contractManagementRepository,
             DirectContractsDbContext dbContext, IAmazonS3ClientService amazonS3ClientService, IOptions<ImageManagementServiceOptions> options)
         {
             _contractManagerContext = contractManagerContextService;
-            _contractManagementRepository = contractManagementRepository;
             _dbContext = dbContext;
             _amazonS3ClientService = amazonS3ClientService;
             _bucketName = options.Value.AmazonS3Bucket;
@@ -112,7 +110,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         private readonly IContractManagerContextService _contractManagerContext;
-        private readonly DirectContracts.Services.Management.IContractManagementRepository _contractManagementRepository;
         private readonly DirectContractsDbContext _dbContext;
         private readonly IAmazonS3ClientService _amazonS3ClientService;
         private readonly string _bucketName;
