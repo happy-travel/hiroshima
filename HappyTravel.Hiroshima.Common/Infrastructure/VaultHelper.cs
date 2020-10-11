@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Reflection.Metadata.Ecma335;
+using Amazon;
+using HappyTravel.AmazonS3Client.Options;
 using HappyTravel.VaultClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -37,6 +40,40 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure
                 connectionOptions["database"],
                 connectionOptions["userId"],
                 connectionOptions["password"]);
+        }
+
+        /// <summary>
+        /// The method to get a Amazon S3 credentials from the Vault
+        /// </summary>
+        /// <param name="vaultClient">The instance of the Vault client </param>
+        /// <param name="pathToAmazonS3Credentials">The path to Amazon S3 credentials in appsettings.json</param>
+        /// <param name="configuration">Represents the application configuration</param>
+        /// <returns></returns>
+        public static AmazonS3ClientOptions GetAmazonS3Credentials(VaultClient.VaultClient vaultClient, string pathToAmazonS3Credentials, IConfiguration configuration)
+        {
+            var amazonS3Credentials = vaultClient.Get(configuration[pathToAmazonS3Credentials]).Result;
+
+            return new AmazonS3ClientOptions
+            {
+                AmazonS3Config = new Amazon.S3.AmazonS3Config
+                {
+                    RegionEndpoint = RegionEndpoint.GetBySystemName(amazonS3Credentials["regionEndpoint"])
+                },
+                AccessKeyId = amazonS3Credentials["accessKeyId"],
+                AccessKey = amazonS3Credentials["accessKey"]
+            };
+        }
+
+        /// <summary>
+        /// The method to get a Amazon S3 bucket name from the Vault
+        /// </summary>
+        /// <param name="vaultClient">The instance of the Vault client </param>
+        /// <param name="pathToAmazonS3Credentials">The path to Amazon S3 credentials in appsettings.json</param>
+        public static string GetAmazonS3BucketName(VaultClient.VaultClient vaultClient, string pathToAmazonS3Credentials, IConfiguration configuration)
+        {
+            var amazonS3Credentials = vaultClient.Get(configuration[pathToAmazonS3Credentials]).Result;
+
+            return amazonS3Credentials["bucket"];
         }
     }
 }

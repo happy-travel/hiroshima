@@ -49,8 +49,8 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
                 {
                     ContractAccommodationRelation = contractAccommodationRelation, Accommodation = accommodation
                 });
-        
-        
+
+
         private readonly DirectContractsDbContext _dbContext;
 
         
