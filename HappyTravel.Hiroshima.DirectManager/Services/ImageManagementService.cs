@@ -38,31 +38,29 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 })
                 .Map(contractManager => Create(contractManager.Id, image))
                 .Map(dbImage => AddImage(dbImage, image.UploadedFile))
-                .Ensure(dbImage => dbImage != null, $"Error saving image to Amazon S3")
+                .Ensure(dbImage => dbImage != null, $"Error saving image")
                 .Map(dbImage => Build(dbImage));
 
 
             async Task<Image> AddImage(Image dbImage, FormFile uploadedFile)
             {
-                string extension = Path.GetExtension(uploadedFile.FileName);
+                var extension = Path.GetExtension(uploadedFile.FileName);
                 dbImage.Id = Guid.NewGuid();
                 dbImage.Key = $"{S3FolderName}/{dbImage.AccommodationId}/{dbImage.Id}{extension}";
                 dbImage.Created = DateTime.UtcNow;
 
                 // Add document to Amazon S3
                 var result = await _amazonS3ClientService.Add(_bucketName, dbImage.Key, uploadedFile.OpenReadStream());
-                if (result.IsSuccess)
-                {
-                    var entry = _dbContext.Images.Add(dbImage);
-
-                    await _dbContext.SaveChangesAsync();
-
-                    _dbContext.DetachEntry(entry.Entity);
-
-                    return entry.Entity;
-                }
-                else
+                if (result.IsFailure)
                     return null;
+
+                var entry = _dbContext.Images.Add(dbImage);
+
+                await _dbContext.SaveChangesAsync();
+
+                _dbContext.DetachEntry(entry.Entity);
+
+                return entry.Entity;
             }
         }
 

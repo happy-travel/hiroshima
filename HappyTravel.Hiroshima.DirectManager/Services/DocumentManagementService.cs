@@ -41,7 +41,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 })
                 .Map(contractManager => Create(contractManager.Id, document))
                 .Map(dbDocument => AddDocument(dbDocument, document.UploadedFile))
-                .Ensure(dbDocument => dbDocument != null, $"Error saving document to Amazon S3")
+                .Ensure(dbDocument => dbDocument != null, $"Error saving document")
                 .Map(dbDocument => Build(dbDocument));
 
 
@@ -54,18 +54,16 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                 // Add document to Amazon S3
                 var result = await _amazonS3ClientService.Add(_bucketName, dbDocument.Key, uploadedFile.OpenReadStream());
-                if (result.IsSuccess)
-                {
-                    var entry = _dbContext.Documents.Add(dbDocument);
-
-                    await _dbContext.SaveChangesAsync();
-
-                    _dbContext.DetachEntry(entry.Entity);
-
-                    return entry.Entity;
-                }
-                else
+                if (result.IsFailure)
                     return null;
+
+                var entry = _dbContext.Documents.Add(dbDocument);
+
+                await _dbContext.SaveChangesAsync();
+
+                _dbContext.DetachEntry(entry.Entity);
+
+                return entry.Entity;
             }
         }
 
