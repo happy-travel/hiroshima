@@ -41,7 +41,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 })
                 .Map(contractManager => Create(contractManager.Id, document))
                 .Map(dbDocument => AddDocument(dbDocument, document.UploadedFile))
-                .Ensure(dbDocument => dbDocument != null, $"Error saving document")
+                .Ensure(dbDocument => dbDocument != null, "Error saving document")
                 .Map(dbDocument => Build(dbDocument));
 
 
@@ -71,23 +71,29 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public async Task<Result> Remove(int contractId, Guid documentId)
         {
             return await _contractManagerContext.GetContractManager()
-                .Tap(async contractManager => await RemoveDocument(contractManager.Id, contractId, documentId));
+                .Tap(async contractManager => 
+                {
+                    bool result = await RemoveDocument(contractManager.Id, contractId, documentId);
+                    return result ? Result.Success(contractManager) : Result.Failure<ContractManager>("Document deletion error"); 
+                });
 
 
-            async Task RemoveDocument(int contractManagerId, int contractId, Guid documentId)
+            async Task<bool> RemoveDocument(int contractManagerId, int contractId, Guid documentId)
             {
                 var document = await _dbContext.Documents.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.ContractId == contractId && c.Id == documentId);
                 if (document is null)
-                    return;
+                    return false;
 
                 // Remove file from Amazon S3
                 var result = await _amazonS3ClientService.Delete(_bucketName, document.Key);
-                if (result.IsSuccess)
-                {
-                    _dbContext.Documents.Remove(document);
+                if (result.IsFailure)
+                    return false;
 
-                    await _dbContext.SaveChangesAsync();
-                }
+                _dbContext.Documents.Remove(document);
+
+                await _dbContext.SaveChangesAsync();
+                
+                return true;
             }
         }
 

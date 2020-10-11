@@ -68,23 +68,29 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public async Task<Result> Remove(int accommodationId, Guid imageId)
         {
             return await _contractManagerContext.GetContractManager()
-                .Tap(async contractManager => await RemoveImage(contractManager.Id, accommodationId, imageId));
+                .Tap(async contractManager => 
+                { 
+                    bool result = await RemoveImage(contractManager.Id, accommodationId, imageId);
+                    return result ? Result.Success(contractManager) : Result.Failure<ContractManager>("Image deletion error");
+                });
 
 
-            async Task RemoveImage(int contractManagerId, int accommodationId, Guid imageId)
+            async Task<bool> RemoveImage(int contractManagerId, int accommodationId, Guid imageId)
             {
                 var image = await _dbContext.Images.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.AccommodationId == accommodationId && c.Id == imageId);
                 if (image is null)
-                    return;
+                    return false;
 
                 // Remove file from Amazon S3
                 var result = await _amazonS3ClientService.Delete(_bucketName, image.Key);
-                if (result.IsSuccess)
-                {
-                    _dbContext.Images.Remove(image);
+                if (result.IsFailure)
+                    return false;
+                
+                _dbContext.Images.Remove(image);
 
-                    await _dbContext.SaveChangesAsync();
-                }
+                await _dbContext.SaveChangesAsync();
+
+                return true;
             }
         }
 
