@@ -15,6 +15,7 @@ using HappyTravel.Hiroshima.DirectContracts.Extensions;
 using HappyTravel.Hiroshima.DirectManager.Extensions;
 using HappyTravel.Hiroshima.DirectManager.Services;
 using HappyTravel.Hiroshima.WebApi.Infrastructure;
+using HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.WebApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -33,28 +34,14 @@ namespace HappyTravel.Hiroshima.WebApi
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment hostingEnvironment)
         {
             Configuration = configuration;
+            HostingEnvironment = hostingEnvironment;
         }
-
-
-        public IConfiguration Configuration { get; }
-
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers().AddNewtonsoftJson(options =>
-            {
-                options.SerializerSettings.ContractResolver = new DefaultContractResolver();
-                options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-                options.SerializerSettings.Converters = new List<Newtonsoft.Json.JsonConverter>
-                {
-                    new Newtonsoft.Json.Converters.StringEnumConverter()
-                };
-                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-            });
-
             using var vaultClient = VaultHelper.CreateVaultClient(Configuration);
             vaultClient.Login(Configuration[Configuration["Vault:Token"]]).GetAwaiter().GetResult();
             var dbConnectionString = VaultHelper.GetDbConnectionString(vaultClient, "DirectContracts:Database:ConnectionOptions", "DirectContracts:Database:ConnectionString", Configuration);
@@ -74,8 +61,6 @@ namespace HappyTravel.Hiroshima.WebApi
                 };
             });
 
-            services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(GeoConstants.SpatialReferenceId));
-            services.AddTransient<IAvailabilityService, AvailabilityService>();
           
             services.AddLocalization();
             services.AddOptions()
@@ -130,6 +115,20 @@ namespace HappyTravel.Hiroshima.WebApi
                 .AddFluentValidation()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             
+            services.AddControllers().AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.ContractResolver = new DefaultContractResolver();
+                options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                options.SerializerSettings.Converters = new List<JsonConverter>
+                {
+                    new Newtonsoft.Json.Converters.StringEnumConverter()
+                };
+                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            });
+            
+            services.ConfigureAuthentication(Configuration, HostingEnvironment, vaultClient)
+                .AddServices();
+            
             services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1.0", new OpenApiInfo {Title = "HappyTravel.com Direct Contracts API", Version = "v1.0"});
@@ -166,5 +165,9 @@ namespace HappyTravel.Hiroshima.WebApi
                     options.RoutePrefix = string.Empty;
                 });
         }
+        
+        
+        public IConfiguration Configuration { get; }
+        public IWebHostEnvironment HostingEnvironment { get; }
     }
 }
