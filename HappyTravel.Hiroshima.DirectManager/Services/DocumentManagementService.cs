@@ -44,7 +44,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<Document> AddDocument(Document dbDocument, FormFile uploadedFile)
             {
-                var extension = Path.GetExtension(uploadedFile.FileName);
+                /*var extension = Path.GetExtension(uploadedFile.FileName);
                 dbDocument.Id = Guid.NewGuid();
                 dbDocument.Key = $"{S3FolderName}/{dbDocument.ContractId}/{dbDocument.Id}{extension}";
                 dbDocument.Created = DateTime.UtcNow;
@@ -58,6 +58,33 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                 await _dbContext.SaveChangesAsync();
 
+                _dbContext.DetachEntry(entry.Entity);
+
+                return entry.Entity;*/
+
+                var extension = Path.GetExtension(uploadedFile.FileName);
+                dbDocument.Key = "";
+                dbDocument.Created = DateTime.UtcNow;
+
+                var entry = _dbContext.Documents.Add(dbDocument);
+
+                await _dbContext.SaveChangesAsync();
+
+                entry.Entity.Key = $"{S3FolderName}/{dbDocument.ContractId}/{entry.Entity.Id}{extension}";
+
+                // Add document to Amazon S3
+                var result = await _amazonS3ClientService.Add(_bucketName, dbDocument.Key, uploadedFile.OpenReadStream());
+                if (result.IsFailure)
+                {
+                    _dbContext.Documents.Remove(entry.Entity);
+
+                    await _dbContext.SaveChangesAsync();
+
+                    return null;
+                }
+
+                await _dbContext.SaveChangesAsync();
+                
                 _dbContext.DetachEntry(entry.Entity);
 
                 return entry.Entity;
