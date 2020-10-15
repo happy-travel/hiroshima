@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
 
-namespace HappyTravel.Hiroshima.WebApi.Infrastructure
+namespace HappyTravel.Hiroshima.DirectManager.Infrastructure
 {
     public interface ITokenInfoAccessor
     {
-        string GetIdentity();
+        string GetIdentityHash();
 
         string GetClientId();
 

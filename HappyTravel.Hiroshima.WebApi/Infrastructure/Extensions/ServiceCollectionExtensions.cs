@@ -1,4 +1,5 @@
-﻿using HappyTravel.Geography;
+﻿using System;
+using HappyTravel.Geography;
 using HappyTravel.Hiroshima.WebApi.Infrastructure.Environments;
 using HappyTravel.Hiroshima.WebApi.Services;
 using HappyTravel.VaultClient;
@@ -32,11 +33,20 @@ namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions
         }
 
 
+        public static IServiceCollection ConfigureHttpClients(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment,
+            IVaultClient vaultClient)
+        {
+            var (_, authorityUrl) = GetApiNameAndAuthority(configuration, environment, vaultClient);
+            services.AddHttpClient<IdentityHttpClient>(client => client.BaseAddress = new Uri(authorityUrl));
+
+            return services;
+        }
+
+
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(GeoConstants.SpatialReferenceId));
             services.AddTransient<IAvailabilityService, AvailabilityService>();
-            services.AddScoped<ITokenInfoAccessor, TokenInfoAccessor>();
             
             return services;
         }

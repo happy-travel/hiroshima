@@ -1,10 +1,10 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 
-namespace HappyTravel.Hiroshima.WebApi.Infrastructure
+namespace HappyTravel.Hiroshima.DirectManager.Infrastructure
 {
     public class TokenInfoAccessor: ITokenInfoAccessor
     {
@@ -14,7 +14,7 @@ namespace HappyTravel.Hiroshima.WebApi.Infrastructure
         }
 
 
-        public string GetIdentity() 
+        public string GetIdentityHash() 
             => GetClaimValue("sub");
 
         
@@ -29,7 +29,6 @@ namespace HappyTravel.Hiroshima.WebApi.Infrastructure
         private string GetClaimValue(string claimType)
         {
             var claims = _httpContextAccessor.HttpContext.User.Claims;
-            
             return (claims != null
                 ? claims.SingleOrDefault(claim => claim.Type == claimType)?.Value
                 : string.Empty) ?? string.Empty;

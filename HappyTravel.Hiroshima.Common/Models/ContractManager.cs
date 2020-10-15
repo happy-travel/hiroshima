@@ -10,15 +10,25 @@ namespace HappyTravel.Hiroshima.Common.Models
         
         public string IdentityHash { get; set; }
         
+        public string FirstName { get; set; }
+        
+        public string LastName { get; set; }
+        
+        public string Title { get; set; }
+        
+        public string Position { get; set; }
+        
         public string Email { get; set; }
         
-        public string? Title { get; set; }
+        public string Phone { get; set; }
         
-        public string Name { get; set; }
-        
-        public string? Description { get; set; }
-        
+        public string Fax { get; set; }
+
         public DateTime Created { get; set; }
+        
+        public DateTime Updated { get; set; }
+        
+        public bool IsActive { get; set; }
         
         public List<Accommodation> Accommodations { get; set; }
         
