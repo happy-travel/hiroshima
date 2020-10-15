@@ -88,7 +88,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<Image> AddImage(Image dbImage, FormFile uploadedFile)
             {
-                var extension = Path.GetExtension(uploadedFile.FileName);
+                /*var extension = Path.GetExtension(uploadedFile.FileName);
                 dbImage.Id = Guid.NewGuid();
                 dbImage.Key = $"{S3FolderName}/{dbImage.AccommodationId}/{dbImage.Id}{extension}";
                 dbImage.Created = DateTime.UtcNow;
@@ -101,6 +101,33 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     return null;
 
                 var entry = _dbContext.Images.Add(dbImage);
+
+                await _dbContext.SaveChangesAsync();
+
+                _dbContext.DetachEntry(entry.Entity);
+
+                return entry.Entity;*/
+
+                var extension = Path.GetExtension(uploadedFile.FileName);
+                dbImage.Key = "";
+                dbImage.Created = DateTime.UtcNow;
+
+                var entry = _dbContext.Images.Add(dbImage);
+
+                await _dbContext.SaveChangesAsync();
+
+                entry.Entity.Key = $"{S3FolderName}/{dbImage.AccommodationId}/{entry.Entity.Id}{extension}";
+
+                // Add document to Amazon S3
+                var result = await _amazonS3ClientService.Add(_bucketName, dbImage.Key, uploadedFile.OpenReadStream());
+                if (result.IsFailure)
+                {
+                    _dbContext.Images.Remove(entry.Entity);
+
+                    await _dbContext.SaveChangesAsync();
+
+                    return null;
+                }
 
                 await _dbContext.SaveChangesAsync();
 
