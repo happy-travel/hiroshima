@@ -68,13 +68,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Ensure(contractManager => ratesRequest.Any(), "Request is empty")
                 .EnsureContractBelongsToContractManager(_dbContext, contractId)
                 .Bind(contractManager => CheckIfSeasonIdsAndRoomIdsBelongToContract(contractManager.Id))
-                .Bind(CheckIfRatesAlreadyExist)
+                .Bind(CheckIfAlreadyExists)
                 .Map(() => Create(ratesRequest))
                 .Map(AddRates)
                 .Map(Build);
 
 
-            async Task<Result> CheckIfRatesAlreadyExist()
+            async Task<Result> CheckIfAlreadyExists()
             {
                 var seasonIdsFromRequest = ratesRequest.Select(rate => rate.SeasonId).ToList();
                 var roomIdsFromRequest = ratesRequest.Select(rate => rate.RoomId).ToList();
@@ -86,10 +86,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                         roomTypesFromRequest.Contains(roomRate.RoomType) && boardBasisFromRequest.Contains(roomRate.BoardBasis))
                     .ToListAsync();
 
-                return !existedRates.Any() ? Result.Success() : Result.Failure(CreateRateError());
+                return !existedRates.Any() ? Result.Success() : Result.Failure(CreateError());
 
 
-                string CreateRateError()
+                string CreateError()
                     => "Existed rates: " + string.Join("; ",
                         existedRates.Select(rate
                             => $"{nameof(rate.RoomId)} '{rate.RoomId}' {nameof(rate.SeasonId)} '{rate.SeasonId}' {nameof(rate.RoomType)} '{rate.RoomType}' {nameof(rate.BoardBasis)} '{rate.BoardBasis}'"));

@@ -34,11 +34,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .EnsureContractBelongsToContractManager(_dbContext, contractId)
                 .Bind(contractManager => CheckIfSeasonIdsAndRoomIdsBelongToContract(contractManager.Id)) 
-                .Bind(CheckIfCancellationPoliciesAlreadyExist)
+                .Bind(CheckIfAlreadyExists)
                 .Bind(() => AddCancellationPolicies(cancellationPolicies));
 
 
-            async Task<Result> CheckIfCancellationPoliciesAlreadyExist()
+            async Task<Result> CheckIfAlreadyExists()
             {
                 var seasonIdsFromRequest = cancellationPolicies.Select(cancellationPolicy => cancellationPolicy.SeasonId).ToList();
                 var roomIdsFromRequest = cancellationPolicies.Select(cancellationPolicy => cancellationPolicy.RoomId).ToList();
@@ -47,10 +47,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                         => seasonIdsFromRequest.Contains(cancellationPolicy.SeasonId) && roomIdsFromRequest.Contains(cancellationPolicy.RoomId))
                     .ToListAsync();
 
-                return !existedCancellationPolicies.Any() ? Result.Success() : Result.Failure(CreateCancellationPoliciesError());
+                return !existedCancellationPolicies.Any() ? Result.Success() : Result.Failure(CreateError());
 
 
-                string CreateCancellationPoliciesError()
+                string CreateError()
                     => "Existed cancellation policies: " + string.Join("; ",
                         existedCancellationPolicies.Select(rate
                             => $"{nameof(rate.RoomId)} '{rate.RoomId}' {nameof(rate.SeasonId)} '{rate.SeasonId}'"));
