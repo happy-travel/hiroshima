@@ -33,13 +33,28 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             return ValidationHelper.Validate(cancellationPolicies, new CancellationPoliciesValidator())
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .EnsureContractBelongsToContractManager(_dbContext, contractId)
-                .Bind(async contractManager =>
-                {
-                    var (isSuccess, _, error) = await CheckIfSeasonIdsAndRoomIdsBelongToContract(contractManager.Id);
-                    
-                    return isSuccess ? Result.Success() : Result.Failure(error);
-                })
+                .Bind(contractManager => CheckIfSeasonIdsAndRoomIdsBelongToContract(contractManager.Id)) 
+                .Bind(CheckIfCancellationPoliciesAlreadyExist)
                 .Bind(() => AddCancellationPolicies(cancellationPolicies));
+
+
+            async Task<Result> CheckIfCancellationPoliciesAlreadyExist()
+            {
+                var seasonIdsFromRequest = cancellationPolicies.Select(cancellationPolicy => cancellationPolicy.SeasonId).ToList();
+                var roomIdsFromRequest = cancellationPolicies.Select(cancellationPolicy => cancellationPolicy.RoomId).ToList();
+
+                var existedCancellationPolicies = await _dbContext.RoomCancellationPolicies.Where(cancellationPolicy
+                        => seasonIdsFromRequest.Contains(cancellationPolicy.SeasonId) && roomIdsFromRequest.Contains(cancellationPolicy.RoomId))
+                    .ToListAsync();
+
+                return !existedCancellationPolicies.Any() ? Result.Success() : Result.Failure(CreateCancellationPoliciesError());
+
+
+                string CreateCancellationPoliciesError()
+                    => "Existed cancellation policies: " + string.Join("; ",
+                        existedCancellationPolicies.Select(rate
+                            => $"{nameof(rate.RoomId)} '{rate.RoomId}' {nameof(rate.SeasonId)} '{rate.SeasonId}'"));
+            }
             
             
             async Task<Result> CheckIfSeasonIdsAndRoomIdsBelongToContract(int contractManagerId)
