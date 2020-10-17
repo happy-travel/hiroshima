@@ -184,9 +184,10 @@ namespace HappyTravel.Hiroshima.Data
                 e.ToTable("Images");
                 e.HasKey(c => c.Id);
                 e.Property(c => c.Id).HasColumnType("uuid").HasDefaultValueSql("uuid_generate_v4()");
-                e.Property(c => c.Name).IsRequired();
-                e.Property(c => c.Key).IsRequired();
-                e.Property(c => c.MimeType).IsRequired();
+                e.Property(c => c.OriginalName).IsRequired();
+                e.Property(c => c.OriginalContentType).IsRequired();
+                e.Property(c => c.LargeImageKey).IsRequired();
+                e.Property(c => c.LargeImageKey).IsRequired();
                 e.Property(c => c.Created).IsRequired();
                 e.Property(c => c.ContractManagerId).IsRequired();
                 e.Property(c => c.AccommodationId).IsRequired();

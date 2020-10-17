@@ -10,6 +10,7 @@ using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Models.Booking;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -17,9 +18,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Hiroshima.Data.Migrations
 {
     [DbContext(typeof(DirectContractsDbContext))]
-    partial class DirectContractsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201016143210_ChangedTableImagesAddSecondKey")]
+    partial class ChangedTableImagesAddSecondKey
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -421,19 +423,12 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .UseIdentityByDefaultColumn();
 
                     b.Property<DateTime>("Created")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone")
-                        .HasDefaultValueSql("now() at time zone 'utc'");
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
 
                     b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Fax")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -441,39 +436,14 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Position")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Title")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("Updated")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone")
-                        .HasDefaultValueSql("now() at time zone 'utc'");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("Email")
-                        .IsUnique();
-
-                    b.HasIndex("IdentityHash")
-                        .IsUnique();
 
                     b.ToTable("ContractManagers");
                 });
@@ -535,11 +505,11 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("OriginalContentType")
+                    b.Property<string>("MimeType")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("OriginalName")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 

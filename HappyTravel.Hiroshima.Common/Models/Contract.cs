@@ -34,7 +34,7 @@ namespace HappyTravel.Hiroshima.Common.Models
         
         public List<RoomAvailabilityRestriction> RoomAvailabilityRestriction { get; set; }
 
-        [NotMapped]
+        //[NotMapped]
         public List<Document> Documents { get; set; }
     }
 }
