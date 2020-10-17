@@ -27,6 +27,7 @@
     <PackageReference Include="HappyTravel.Geography" Version="1.1.1" />
     <PackageReference Include="HappyTravel.StdOutLogger" Version="1.0.15" />
     <PackageReference Include="HappyTravel.VaultClient" Version="1.0.5" />
+    <PackageReference Include="Imageflow.NativeRuntime.win-x86_64" Version="1.4.11-rc51" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.8" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="4.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="4.1.1" />

@@ -3,6 +3,7 @@ using HappyTravel.AmazonS3Client.Services;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
+using HappyTravel.Hiroshima.DirectManager.Models.Internal;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Imageflow.Fluent;
 using Microsoft.AspNetCore.Http;
@@ -41,85 +42,36 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Ensure(dbImage => dbImage != null, $"Error saving image")
                 .Map(dbImage => Build(dbImage));
 
-            async Task<Result> ValidateImage(FormFile uploadedFile)
-            {
-                // Validation image type
-                var extension = Path.GetExtension(uploadedFile.FileName).ToLower();
-                if ((extension != ".ipg") && (extension != ".ipeg") && (extension != ".png"))
-                    return Result.Failure("Invalid image file type");
-
-                byte[] imageBytes = null;
-                using (BinaryReader binaryReader = new BinaryReader(uploadedFile.OpenReadStream()))
-                {
-                    imageBytes = binaryReader.ReadBytes((int)imageBytes.Length);
-                }
-
-                var info = await ImageJob.GetImageInfo(new BytesSource(imageBytes));
-
-                // Validation image size
-                if ((info.ImageWidth < minimumImageWidth) || (info.ImageHeight < minimumImageHeight))
-                    return Result.Failure("Uploading picture size is less than the minimum");
-
-                // Validation image dimension difference
-                if ((info.ImageWidth / info.ImageHeight > 2) || (info.ImageHeight / info.ImageWidth > 2))
-                    return Result.Failure("Uploading picture dimension difference is more then the maximum");
-
-
-                using (var b = new ImageJob())
-                {
-                    
-                    var r = await b.Decode(imageBytes).
-                        Constrain(new Constraint(ConstraintMode.Fit, 160, 120))
-                        .Branch(f => f.ConstrainWithin(80, 60).EncodeToBytes(new WebPLosslessEncoder()))
-                        .Branch(f => f.ConstrainWithin(40, 30).EncodeToBytes(new WebPLossyEncoder(85)))
-                        .EncodeToBytes(new MozJpegEncoder(targetJpegQuality, true))
-                        .Finish().InProcessAsync();
-
-                    //Assert.Equal(60, r.TryGet(1).Width);
-                    //Assert.Equal(30, r.TryGet(2).Width);
-                    //Assert.Equal(120, r.TryGet(3).Width);
-                    //Assert.True(r.First.TryGetBytes().HasValue);
-                    var i = 0;
-                }
-
-
-                return Result.Success();
-            }
-
             async Task<Image> AddImage(Image dbImage, FormFile uploadedFile)
             {
-                /*var extension = Path.GetExtension(uploadedFile.FileName);
-                dbImage.Id = Guid.NewGuid();
-                dbImage.Key = $"{S3FolderName}/{dbImage.AccommodationId}/{dbImage.Id}{extension}";
-                dbImage.Created = DateTime.UtcNow;
-
-                await ValidateImage(uploadedFile);
-
-                // Add document to Amazon S3
-                var result = await _amazonS3ClientService.Add(_bucketName, dbImage.Key, uploadedFile.OpenReadStream());
-                if (result.IsFailure)
-                    return null;
-
-                var entry = _dbContext.Images.Add(dbImage);
-
-                await _dbContext.SaveChangesAsync();
-
-                _dbContext.DetachEntry(entry.Entity);
-
-                return entry.Entity;*/
+                var imageBytes = await ValidateImage(uploadedFile);
+                
+                var imageSet = await ConvertImage(imageBytes.Value);
 
                 var extension = Path.GetExtension(uploadedFile.FileName);
-                dbImage.Key = "";
                 dbImage.Created = DateTime.UtcNow;
 
                 var entry = _dbContext.Images.Add(dbImage);
 
                 await _dbContext.SaveChangesAsync();
 
-                entry.Entity.Key = $"{S3FolderName}/{dbImage.AccommodationId}/{entry.Entity.Id}{extension}";
+                entry.Entity.LargeImageKey = $"{S3FolderName}/{dbImage.AccommodationId}/{entry.Entity.Id}-large.jpg";
 
-                // Add document to Amazon S3
-                var result = await _amazonS3ClientService.Add(_bucketName, dbImage.Key, uploadedFile.OpenReadStream());
+                var stream = new MemoryStream(imageSet.LargeImage);
+                var result = await _amazonS3ClientService.Add(_bucketName, dbImage.LargeImageKey, stream);
+                if (result.IsFailure)
+                {
+                    _dbContext.Images.Remove(entry.Entity);
+
+                    await _dbContext.SaveChangesAsync();
+
+                    return null;
+                }
+
+                entry.Entity.SmallImageKey = $"{S3FolderName}/{dbImage.AccommodationId}/{entry.Entity.Id}-small.jpg";
+
+                stream = new MemoryStream(imageSet.SmallImage);
+                result = await _amazonS3ClientService.Add(_bucketName, dbImage.SmallImageKey, stream);
                 if (result.IsFailure)
                 {
                     _dbContext.Images.Remove(entry.Entity);
@@ -134,6 +86,51 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 _dbContext.DetachEntry(entry.Entity);
 
                 return entry.Entity;
+            }
+
+            async Task<Result<byte[]>> ValidateImage(FormFile uploadedFile)
+            {
+                // Validation image type
+                var extension = Path.GetExtension(uploadedFile.FileName).ToLower();
+                if ((extension != ".jpg") && (extension != ".jpeg") && (extension != ".png"))
+                    return Result.Failure<byte[]>("Invalid image file type");
+
+                byte[] imageBytes = null;
+                using (BinaryReader binaryReader = new BinaryReader(uploadedFile.OpenReadStream()))
+                {
+                    imageBytes = binaryReader.ReadBytes((int)uploadedFile.Length);
+                }
+
+                var info = await ImageJob.GetImageInfo(new BytesSource(imageBytes));
+
+                // Validation image size
+                if ((info.ImageWidth < minimumImageWidth) || (info.ImageHeight < minimumImageHeight))
+                    return Result.Failure<byte[]>("Uploading picture size is less than the minimum");
+
+                // Validation image dimension difference
+                if ((info.ImageWidth / info.ImageHeight > 2) || (info.ImageHeight / info.ImageWidth > 2))
+                    return Result.Failure<byte[]>("Uploading picture dimension difference is more then the maximum");
+
+                return imageBytes;
+            }
+
+            async Task<ImagesSet> ConvertImage(byte[] imageBytes)
+            {
+                ImagesSet imagesSet = new ImagesSet();
+
+                using (var imageJob = new ImageJob())
+                {
+                    var jobResult = await imageJob.Decode(imageBytes).
+                        Constrain(new Constraint(ConstraintMode.Within, maximumSideSizeLarge, maximumSideSizeLarge))
+                        .Branch(f => f.ConstrainWithin(maximumSideSizeSmall, maximumSideSizeSmall).EncodeToBytes(new MozJpegEncoder(targetJpegQuality, true)))
+                        .EncodeToBytes(new MozJpegEncoder(targetJpegQuality, true))
+                        .Finish().InProcessAsync();
+
+                    imagesSet.SmallImage = jobResult.TryGet(1).TryGetBytes().Value.ToArray();
+                    imagesSet.LargeImage = jobResult.TryGet(2).TryGetBytes().Value.ToArray();
+                }
+
+                return imagesSet;
             }
         }
 
@@ -154,11 +151,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 if (image is null)
                     return false;
 
-                // Remove file from Amazon S3
-                var result = await _amazonS3ClientService.Delete(_bucketName, image.Key);
+                var result = await _amazonS3ClientService.Delete(_bucketName, image.LargeImageKey);
                 if (result.IsFailure)
                     return false;
-                
+
+                result = await _amazonS3ClientService.Delete(_bucketName, image.SmallImageKey);
+                if (result.IsFailure)
+                    return false;
+
                 _dbContext.Images.Remove(image);
 
                 await _dbContext.SaveChangesAsync();
@@ -171,21 +171,23 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         private Image Create(int contractManagerId, Models.Requests.Image image) => new Image
         {
             AccommodationId = image.AccommodationId,
-            Name = image.UploadedFile.FileName,
-            MimeType = image.UploadedFile.ContentType,
+            OriginalName = image.UploadedFile.FileName,
+            OriginalContentType = image.UploadedFile.ContentType,
+            LargeImageKey = "",
+            SmallImageKey = "",
             ContractManagerId = contractManagerId
         };
 
 
         private Models.Responses.Image Build(Image image)
-            => new Models.Responses.Image(image.Id, image.Name, image.Key, image.MimeType, image.AccommodationId);
+            => new Models.Responses.Image(image.Id, image.OriginalName, image.OriginalContentType, image.LargeImageKey, image.SmallImageKey, image.AccommodationId);
 
 
         private const string S3FolderName = "images";
         private const long minimumImageWidth = 500;
         private const long minimumImageHeight = 300;
-        private const long maximumSideSizeLarge = 1600;
-        private const long maximumSideSizeSmall = 400;
+        private const int maximumSideSizeLarge = 1600;
+        private const int maximumSideSizeSmall = 400;
         private const int targetJpegQuality = 85;
 
 
