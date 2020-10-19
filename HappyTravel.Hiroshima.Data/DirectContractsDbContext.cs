@@ -171,17 +171,17 @@ namespace HappyTravel.Hiroshima.Data
             modelBuilder.Entity<Common.Models.Image>(e =>
             {
                 e.ToTable("Images");
-                e.HasKey(c => c.Id);
-                e.Property(c => c.Id).HasColumnType("uuid").HasDefaultValueSql("uuid_generate_v4()");
-                e.Property(c => c.OriginalName).IsRequired();
-                e.Property(c => c.OriginalContentType).IsRequired();
-                e.Property(c => c.LargeImageKey).IsRequired();
-                e.Property(c => c.LargeImageKey).IsRequired();
-                e.Property(c => c.Created).IsRequired();
-                e.Property(c => c.ContractManagerId).IsRequired();
-                e.Property(c => c.AccommodationId).IsRequired();
-                e.HasIndex(c => c.ContractManagerId);
-                e.HasIndex(c => c.AccommodationId);
+                e.HasKey(i => i.Id);
+                e.Property(i => i.Id).HasColumnType("uuid").HasDefaultValueSql("uuid_generate_v4()");
+                e.Property(i => i.OriginalName).IsRequired();
+                e.Property(i => i.OriginalContentType).IsRequired();
+                e.Property(i => i.LargeImageKey).IsRequired();
+                e.Property(i => i.LargeImageKey).IsRequired();
+                e.Property(i => i.Created).IsRequired();
+                e.Property(i => i.ContractManagerId).IsRequired();
+                e.Property(i => i.AccommodationId).IsRequired();
+                e.HasIndex(i => i.ContractManagerId);
+                e.HasIndex(i => i.AccommodationId);
             });
         }
 
