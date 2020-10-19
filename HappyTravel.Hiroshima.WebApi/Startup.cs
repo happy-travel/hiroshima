@@ -14,6 +14,8 @@ using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.DirectContracts.Extensions;
 using HappyTravel.Hiroshima.DirectManager.Extensions;
 using HappyTravel.Hiroshima.DirectManager.Services;
+using HappyTravel.Hiroshima.WebApi.Conventions;
+using HappyTravel.Hiroshima.WebApi.Filters;
 using HappyTravel.Hiroshima.WebApi.Infrastructure;
 using HappyTravel.Hiroshima.WebApi.Services;
 using Microsoft.AspNetCore.Builder;
@@ -122,8 +124,12 @@ namespace HappyTravel.Hiroshima.WebApi
                 })
                 .AddDoubleFlow()
                 .AddCacheFlowJsonSerialization();
-                
-            services.AddMvcCore()
+
+            services.AddMvcCore(options =>
+                {
+                    options.Conventions.Insert(0, new LocalizationConvention());
+                    options.Filters.Add(new MiddlewareFilterAttribute(typeof(LocalizationPipelineFilter)));
+                })
                 .AddControllersAsServices()
                 .AddFormatterMappings()
                 .AddApiExplorer()
