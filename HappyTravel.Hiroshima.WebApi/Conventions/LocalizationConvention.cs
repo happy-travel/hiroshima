@@ -16,8 +16,7 @@ namespace HappyTravel.Hiroshima.WebApi.Conventions
                 if (matchedSelectors.Any())
                 {
                     foreach (var selectorModel in matchedSelectors)
-                        selectorModel.AttributeRouteModel = AttributeRouteModel.CombineAttributeRouteModel(culturePrefix,
-                            selectorModel.AttributeRouteModel);
+                        selectorModel.AttributeRouteModel = AttributeRouteModel.CombineAttributeRouteModel(culturePrefix, selectorModel.AttributeRouteModel);
                 }
 
                 var unmatchedSelectors = controller.Selectors.Where(x => x.AttributeRouteModel == null).ToList();
