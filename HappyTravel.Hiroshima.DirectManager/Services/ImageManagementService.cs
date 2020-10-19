@@ -37,7 +37,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     return validationResult.IsFailure ? Result.Failure<ContractManager>(validationResult.Error) : Result.Success(contractManager);
                 })
                 .Map(contractManager => Create(contractManager.Id, image))
-                //.Map(dbImage => ValidateImage(image.UploadedFile))
                 .Map(dbImage => AddImage(dbImage, image.UploadedFile))
                 .Ensure(dbImage => dbImage != null, $"Error saving image")
                 .Map(dbImage => Build(dbImage));

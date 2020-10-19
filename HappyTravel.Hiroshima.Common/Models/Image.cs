@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HappyTravel.Hiroshima.Common.Models.Accommodations;
+using System;
 
 namespace HappyTravel.Hiroshima.Common.Models
 {
