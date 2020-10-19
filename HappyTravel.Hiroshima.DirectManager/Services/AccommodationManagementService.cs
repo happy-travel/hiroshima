@@ -318,14 +318,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 accommodation.TextualDescription.GetValue<MultiLanguage<TextualDescription>>(),
                  new GeoPoint(accommodation.Coordinates),
                 accommodation.Rating,
-                accommodation.CheckInTime, 
+                accommodation.CheckInTime,
                 accommodation.CheckOutTime,
                 accommodation.Pictures.GetValue<MultiLanguage<List<Picture>>>(),
                 accommodation.ContactInfo,
                 accommodation.PropertyType,
                 accommodation.AccommodationAmenities.GetValue<MultiLanguage<List<string>>>(),
                 accommodation.AdditionalInfo.GetValue<MultiLanguage<string>>(),
-                accommodation.OccupancyDefinition, 
+                accommodation.OccupancyDefinition,
                 accommodation.LocationId,
                 accommodation.LeisureAndSports.GetValue<MultiLanguage<List<string>>>(),
                 accommodation.Status,
@@ -334,7 +334,18 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 accommodation.BuildYear,
                 accommodation.Rooms != null
                     ? accommodation.Rooms.Select(room => room.Id).ToList()
-                    : new List<int>());
+                    : new List<int>(),
+                accommodation.Images != null 
+                    ? accommodation.Images.Select(image => new Models.Responses.Image
+                    (
+                        image.Id,
+                        image.OriginalName,
+                        image.OriginalContentType,
+                        image.LargeImageKey,
+                        image.SmallImageKey,
+                        image.AccommodationId
+                    )).ToList() 
+                    : new List<Models.Responses.Image>());
         }
 
 
@@ -376,6 +387,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         private IQueryable<Accommodation> GetAccommodationWithRooms(int contractManagerId, int accommodationId) 
             => _dbContext.Accommodations
             .Include(accommodation => accommodation.Rooms)
+            .Include(accommodation => accommodation.Images)
             .Where(accommodation => accommodation.ContractManagerId == contractManagerId &&
                 accommodation.Id == accommodationId);
 

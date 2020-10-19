@@ -12,7 +12,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/management/images")]
+    [Route("api/{v:apiVersion}/management/contracts")]
     [Produces("application/json")]
     public class ImageManagementController : ControllerBase
     {
@@ -28,7 +28,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="accommodationId">Accommodation Id</param>
         /// <param name="uploadedFile">Adding image file</param>
         /// <returns></returns>
-        [HttpPost("{accommodationId}")]
+        [HttpPost("accommodations/{accommodationId}/photo")]
         [RequestSizeLimit(50 * 1024 * 1024)]
         [ProducesResponseType(typeof(Image), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
@@ -53,7 +53,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="accommodationId">Accommodation Id</param>
         /// <param name="imageId">Id of the image file to be deleted</param>
         /// <returns></returns>
-        [HttpDelete("{accommodationId}/{imageId}")]
+        [HttpDelete("accommodations/{accommodationId}/photo/{imageId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> RemoveImageFile([FromRoute] int accommodationId, [FromRoute] Guid imageId)
