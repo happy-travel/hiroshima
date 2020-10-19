@@ -44,24 +44,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<Document> AddDocument(Document dbDocument, FormFile uploadedFile)
             {
-                /*var extension = Path.GetExtension(uploadedFile.FileName);
-                dbDocument.Id = Guid.NewGuid();
-                dbDocument.Key = $"{S3FolderName}/{dbDocument.ContractId}/{dbDocument.Id}{extension}";
-                dbDocument.Created = DateTime.UtcNow;
-
-                // Add document to Amazon S3
-                var result = await _amazonS3ClientService.Add(_bucketName, dbDocument.Key, uploadedFile.OpenReadStream());
-                if (result.IsFailure)
-                    return null;
-
-                var entry = _dbContext.Documents.Add(dbDocument);
-
-                await _dbContext.SaveChangesAsync();
-
-                _dbContext.DetachEntry(entry.Entity);
-
-                return entry.Entity;*/
-
                 var extension = Path.GetExtension(uploadedFile.FileName);
                 dbDocument.Key = "";
                 dbDocument.Created = DateTime.UtcNow;
@@ -126,13 +108,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             ContractId = document.ContractId,
             Name = document.UploadedFile.FileName,
-            MimeType = document.UploadedFile.ContentType,
+            ContentType = document.UploadedFile.ContentType,
             ContractManagerId = contractManagerId
         };
 
 
         private Models.Responses.Document Build(Document document)
-            => new Models.Responses.Document(document.Id, document.Name, document.Key, document.MimeType, document.ContractId);
+            => new Models.Responses.Document(document.Id, document.Name, document.ContentType, document.Key, document.ContractId);
 
 
         private const string S3FolderName = "contracts";
