@@ -42,6 +42,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Ensure(dbImage => dbImage != null, $"Error saving image")
                 .Map(dbImage => Build(dbImage));
 
+
             async Task<Image> AddImage(Image dbImage, FormFile uploadedFile)
             {
                 var imageBytes = await ValidateImage(uploadedFile);
