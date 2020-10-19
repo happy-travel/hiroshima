@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
     public readonly struct Contract
     {
-        public Contract(int id, int accommodationId, DateTime validFrom, DateTime validTo, string name, string description)
+        public Contract(int id, int accommodationId, DateTime validFrom, DateTime validTo, string name, string description, List<Document> documents)
         {
             Id = id;
             AccommodationId = accommodationId;
@@ -12,6 +13,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
             ValidTo = validTo;
             Name = name;
             Description = description;
+            Documents = documents ?? new List<Document>();
         }
 
 
@@ -21,5 +23,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
         public DateTime ValidTo { get; }
         public string Name { get; }
         public string Description { get; }
+        public List<Document> Documents { get; }
+
     }
 }

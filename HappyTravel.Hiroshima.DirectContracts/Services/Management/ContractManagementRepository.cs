@@ -25,7 +25,6 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Management
             
             return contract;
         }
-        //=> await _dbContext.Contracts.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.Id == contractId);
 
 
         public async Task<List<Accommodation>> GetRelatedAccommodations(int contractId, int contractManagerId) =>

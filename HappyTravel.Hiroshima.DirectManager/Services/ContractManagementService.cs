@@ -186,7 +186,23 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         
         
         private Models.Responses.Contract Build(Contract contract, int accommodationId)
-            => new Models.Responses.Contract(contract.Id, accommodationId, contract.ValidFrom, contract.ValidTo, contract.Name, contract.Description);
+            => new Models.Responses.Contract(
+                contract.Id, 
+                accommodationId, 
+                contract.ValidFrom, 
+                contract.ValidTo, 
+                contract.Name, 
+                contract.Description,
+                contract.Documents != null
+                    ? contract.Documents.Select(document => new Models.Responses.Document
+                    (
+                        document.Id,
+                        document.Name,
+                        document.ContentType,
+                        document.Key,
+                        document.ContractId
+                    )).ToList()
+                    : new List<Models.Responses.Document>());
 
 
         private readonly IContractManagerContextService _contractManagerContext;
