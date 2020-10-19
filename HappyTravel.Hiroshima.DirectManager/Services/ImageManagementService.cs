@@ -104,31 +104,32 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 var info = await ImageJob.GetImageInfo(new BytesSource(imageBytes));
 
                 // Validation image size
-                if ((info.ImageWidth < minimumImageWidth) || (info.ImageHeight < minimumImageHeight))
+                if ((info.ImageWidth < MinimumImageWidth) || (info.ImageHeight < MinimumImageHeight))
                     return Result.Failure<byte[]>("Uploading picture size is less than the minimum");
 
                 // Validation image dimension difference
-                if ((info.ImageWidth / info.ImageHeight > 2) || (info.ImageHeight / info.ImageWidth > 2))
-                    return Result.Failure<byte[]>("Uploading picture dimension difference is more then the maximum");
+                if (info.ImageWidth / info.ImageHeight > 2)
+                    return Result.Failure<byte[]>("Uploading picture width is more than 2 times the height");
+
+                if (info.ImageHeight / info.ImageWidth > 2)
+                    return Result.Failure<byte[]>("Uploading picture height is more than 2 times the width");
 
                 return imageBytes;
             }
 
-            async Task<ImagesSet> ConvertImage(byte[] imageBytes)
+            async Task<ImageSet> ConvertImage(byte[] imageBytes)
             {
-                ImagesSet imagesSet = new ImagesSet();
+                ImageSet imagesSet = new ImageSet();
 
-                using (var imageJob = new ImageJob())
-                {
-                    var jobResult = await imageJob.Decode(imageBytes).
-                        Constrain(new Constraint(ConstraintMode.Within, maximumSideSizeLarge, maximumSideSizeLarge))
-                        .Branch(f => f.ConstrainWithin(maximumSideSizeSmall, maximumSideSizeSmall).EncodeToBytes(new MozJpegEncoder(targetJpegQuality, true)))
-                        .EncodeToBytes(new MozJpegEncoder(targetJpegQuality, true))
-                        .Finish().InProcessAsync();
+                using var imageJob = new ImageJob();
+                var jobResult = await imageJob.Decode(imageBytes)
+                    .Constrain(new Constraint(ConstraintMode.Within, MaximumSideSizeLarge, MaximumSideSizeLarge))
+                    .Branch(f => f.ConstrainWithin(MaximumSideSizeSmall, MaximumSideSizeSmall).EncodeToBytes(new MozJpegEncoder(TargetJpegQuality, true)))
+                    .EncodeToBytes(new MozJpegEncoder(TargetJpegQuality, true))
+                    .Finish().InProcessAsync();
 
-                    imagesSet.SmallImage = jobResult.TryGet(1).TryGetBytes().Value.ToArray();
-                    imagesSet.LargeImage = jobResult.TryGet(2).TryGetBytes().Value.ToArray();
-                }
+                imagesSet.SmallImage = jobResult.TryGet(1).TryGetBytes().Value.ToArray();
+                imagesSet.LargeImage = jobResult.TryGet(2).TryGetBytes().Value.ToArray();
 
                 return imagesSet;
             }
@@ -173,8 +174,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             AccommodationId = image.AccommodationId,
             OriginalName = image.UploadedFile.FileName,
             OriginalContentType = image.UploadedFile.ContentType,
-            LargeImageKey = "",
-            SmallImageKey = "",
+            LargeImageKey = string.Empty,
+            SmallImageKey = string.Empty,
             ContractManagerId = contractManagerId
         };
 
@@ -184,11 +185,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         private const string S3FolderName = "images";
-        private const long minimumImageWidth = 500;
-        private const long minimumImageHeight = 300;
-        private const int maximumSideSizeLarge = 1600;
-        private const int maximumSideSizeSmall = 400;
-        private const int targetJpegQuality = 85;
+        private const long MinimumImageWidth = 500;
+        private const long MinimumImageHeight = 300;
+        private const int MaximumSideSizeLarge = 1600;
+        private const int MaximumSideSizeSmall = 400;
+        private const int TargetJpegQuality = 85;
 
 
         private readonly IContractManagerContextService _contractManagerContext;
