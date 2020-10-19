@@ -45,7 +45,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             async Task<Document> AddDocument(Document dbDocument, FormFile uploadedFile)
             {
                 var extension = Path.GetExtension(uploadedFile.FileName);
-                dbDocument.Key = "";
+                dbDocument.Key = string.Empty;
                 dbDocument.Created = DateTime.UtcNow;
 
                 var entry = _dbContext.Documents.Add(dbDocument);
