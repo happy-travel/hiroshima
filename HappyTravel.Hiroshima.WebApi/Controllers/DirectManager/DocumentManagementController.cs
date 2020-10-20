@@ -12,7 +12,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/management/documents")]
+    [Route("api/{v:apiVersion}/management/contracts")]
     [Produces("application/json")]
     public class DocumentManagementController : ControllerBase
     {
@@ -23,12 +23,31 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
 
         /// <summary>
+        /// Returns a direct contract document file by ID
+        /// </summary>
+        /// <param name="contractId">ID of the contract</param>
+        /// <param name="documentId">Uuid of the document</param>
+        /// <returns></returns>
+        [HttpGet("{contractId}/file/{documentId}")]
+        [ProducesResponseType(typeof(DocumentFile), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetContractFile([FromRoute] int contractId, [FromRoute] Guid documentId)
+        {
+            var (_, isFailure, response, error) = await _documentManagementService.Get(contractId, documentId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(File(response.FileStream, response.ContentType, response.Name));
+        }
+
+
+        /// <summary>
         /// Uploads a document to a contract
         /// </summary>
         /// <param name="contractId">Contract Id</param>
         /// <param name="uploadedFile">Document file to add</param>
         /// <returns></returns>
-        [HttpPost("{contractId}")]
+        [HttpPost("{contractId}/file")]
         [RequestSizeLimit(100 * 1024 * 1024)]
         [ProducesResponseType(typeof(Document), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
@@ -53,7 +72,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="contractId">Contract Id</param>
         /// <param name="documentId">Document Id</param>
         /// <returns></returns>
-        [HttpDelete("{contractId}/{documentId}")]
+        [HttpDelete("{contractId}/file/{documentId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> RemoveContractFile([FromRoute] int contractId, [FromRoute] Guid documentId)

@@ -9,6 +9,7 @@ using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -25,6 +26,25 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             _bucketName = options.Value.AmazonS3Bucket;
         }
 
+
+        public Task<Result<Models.Responses.DocumentFile>> Get(int contractId, Guid documentId)
+        {
+            return _contractManagerContext.GetContractManager()
+                .EnsureContractBelongsToContractManager(_dbContext, contractId)
+                .Map(dbDocument => GetDocument(contractId, documentId));
+                //.Ensure(dbDocument => dbDocument != null, "Document not found")
+                //.Map(dbDocument => Build(dbDocument));
+
+
+            async Task<Models.Responses.DocumentFile> GetDocument(int contractId, Guid documentId)
+            {
+                var document = await _dbContext.Documents.SingleOrDefaultAsync(document => document.ContractId == contractId && document.Id == documentId);
+
+                var stream = await _amazonS3ClientService.Get(_bucketName, document.Key);
+
+                return new Models.Responses.DocumentFile(document.Name, document.ContentType, stream.Value);
+            }
+        }
 
         public Task<Result<Models.Responses.Document>> Add(Models.Requests.Document document)
         {
@@ -54,7 +74,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                 entry.Entity.Key = $"{S3FolderName}/{dbDocument.ContractId}/{entry.Entity.Id}{extension}";
 
-                // Add document to Amazon S3
                 var result = await _amazonS3ClientService.Add(_bucketName, dbDocument.Key, uploadedFile.OpenReadStream());
                 if (result.IsFailure)
                 {
