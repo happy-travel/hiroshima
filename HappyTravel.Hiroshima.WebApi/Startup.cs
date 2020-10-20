@@ -139,6 +139,7 @@ namespace HappyTravel.Hiroshima.WebApi
                 options.CustomSchemaIds(t => t.FullName);
                 options.IncludeXmlComments(xmlCommentsFilePath);
             });
+            services.AddSwaggerGenNewtonsoftSupport();
         }
 
 
