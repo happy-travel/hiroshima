@@ -38,12 +38,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 })
                 .Map(contractManager => Create(contractManager.Id, image))
                 .Ensure(dbImage => ValidateImageType(image.UploadedFile).Value, "Invalid image file type")
-                .Tap(dbImage => AddImage(dbImage, image.UploadedFile))
-                .Ensure(dbImage => dbImage != null, "Error saving image")
-                .Map(dbImage => Build(dbImage));
+                .Bind(dbImage => AppendContent(dbImage, image.UploadedFile))
+                .Ensure(maybeImage => maybeImage.HasValue, "Error saving image")
+                .Map(maybeImage => Build(maybeImage));
 
 
-            async Task<Result<Maybe<Image>>> AddImage(Image dbImage, FormFile uploadedFile)
+            async Task<Result<Maybe<Image>>> AppendContent(Image dbImage, FormFile uploadedFile)
             {
                 byte[] imageBytes = null;
                 using BinaryReader binaryReader = new BinaryReader(uploadedFile.OpenReadStream());
@@ -182,8 +182,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         };
 
 
-        private Models.Responses.Image Build(Image image)
-            => new Models.Responses.Image(image.Id, image.OriginalName, image.OriginalContentType, image.LargeImageKey, image.SmallImageKey, image.AccommodationId);
+        private Models.Responses.Image Build(Maybe<Image> image)
+            => new Models.Responses.Image(image.Value.Id, image.Value.OriginalName, image.Value.OriginalContentType, image.Value.LargeImageKey, image.Value.SmallImageKey, image.Value.AccommodationId);
 
 
         private const string S3FolderName = "images";
