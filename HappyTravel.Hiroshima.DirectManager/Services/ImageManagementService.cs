@@ -37,16 +37,25 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     return validationResult.IsFailure ? Result.Failure<ContractManager>(validationResult.Error) : Result.Success(contractManager);
                 })
                 .Map(contractManager => Create(contractManager.Id, image))
-                .Map(dbImage => AddImage(dbImage, image.UploadedFile))
-                .Ensure(dbImage => dbImage != null, $"Error saving image")
+                .Ensure(dbImage => ValidateImageType(image.UploadedFile).Value, "Invalid image file type")
+                .Tap(dbImage => AddImage(dbImage, image.UploadedFile))
+                .Ensure(dbImage => dbImage != null, "Error saving image")
                 .Map(dbImage => Build(dbImage));
 
 
-            async Task<Image> AddImage(Image dbImage, FormFile uploadedFile)
+            async Task<Result<Image>> AddImage(Image dbImage, FormFile uploadedFile)
             {
-                var imageBytes = await ValidateImage(uploadedFile);
-                
-                var imageSet = await ConvertImage(imageBytes.Value);
+                byte[] imageBytes = null;
+                using (BinaryReader binaryReader = new BinaryReader(uploadedFile.OpenReadStream()))
+                {
+                    imageBytes = binaryReader.ReadBytes((int)uploadedFile.Length);
+                }
+
+                var validationResult = ValidateImageDimensions(imageBytes);
+                if (validationResult.Result.IsFailure)
+                    return Result.Failure<Image>(validationResult.Result.Error);
+
+                var imageSet = await ConvertImage(imageBytes);
 
                 var extension = Path.GetExtension(uploadedFile.FileName);
                 dbImage.Created = DateTime.UtcNow;
@@ -88,19 +97,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 return entry.Entity;
             }
 
-            async Task<Result<byte[]>> ValidateImage(FormFile uploadedFile)
+            Result<bool> ValidateImageType(FormFile uploadedFile)
             {
-                // Validation image type
                 var extension = Path.GetExtension(uploadedFile.FileName).ToLower();
-                if ((extension != ".jpg") && (extension != ".jpeg") && (extension != ".png"))
-                    return Result.Failure<byte[]>("Invalid image file type");
+                return ((extension == ".jpg") || (extension == ".jpeg") || (extension == ".png"));
+            }
 
-                byte[] imageBytes = null;
-                using (BinaryReader binaryReader = new BinaryReader(uploadedFile.OpenReadStream()))
-                {
-                    imageBytes = binaryReader.ReadBytes((int)uploadedFile.Length);
-                }
-
+            async Task<Result> ValidateImageDimensions(byte[] imageBytes)
+            {
                 var info = await ImageJob.GetImageInfo(new BytesSource(imageBytes));
 
                 // Validation image size
@@ -114,7 +118,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 if (info.ImageHeight / info.ImageWidth > 2)
                     return Result.Failure<byte[]>("Uploading picture height is more than 2 times the width");
 
-                return imageBytes;
+                return Result.Success();
             }
 
             async Task<ImageSet> ConvertImage(byte[] imageBytes)
