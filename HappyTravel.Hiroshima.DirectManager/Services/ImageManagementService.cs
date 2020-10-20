@@ -43,17 +43,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Map(dbImage => Build(dbImage));
 
 
-            async Task<Result<Image>> AddImage(Image dbImage, FormFile uploadedFile)
+            async Task<Result<Maybe<Image>>> AddImage(Image dbImage, FormFile uploadedFile)
             {
                 byte[] imageBytes = null;
-                using (BinaryReader binaryReader = new BinaryReader(uploadedFile.OpenReadStream()))
-                {
-                    imageBytes = binaryReader.ReadBytes((int)uploadedFile.Length);
-                }
+                using BinaryReader binaryReader = new BinaryReader(uploadedFile.OpenReadStream());
+                imageBytes = binaryReader.ReadBytes((int)uploadedFile.Length);
 
                 var validationResult = ValidateImageDimensions(imageBytes);
                 if (validationResult.Result.IsFailure)
-                    return Result.Failure<Image>(validationResult.Result.Error);
+                    return Result.Failure<Maybe<Image>>(validationResult.Result.Error);
 
                 var imageSet = await ConvertImage(imageBytes);
 
@@ -66,35 +64,35 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                 entry.Entity.LargeImageKey = $"{S3FolderName}/{dbImage.AccommodationId}/{entry.Entity.Id}-large.jpg";
 
-                var stream = new MemoryStream(imageSet.LargeImage);
-                var result = await _amazonS3ClientService.Add(_bucketName, dbImage.LargeImageKey, stream);
+                using var largeStream = new MemoryStream(imageSet.LargeImage);
+                var result = await _amazonS3ClientService.Add(_bucketName, dbImage.LargeImageKey, largeStream);
                 if (result.IsFailure)
                 {
                     _dbContext.Images.Remove(entry.Entity);
 
                     await _dbContext.SaveChangesAsync();
 
-                    return null;
+                    return Maybe<Image>.None;
                 }
 
                 entry.Entity.SmallImageKey = $"{S3FolderName}/{dbImage.AccommodationId}/{entry.Entity.Id}-small.jpg";
 
-                stream = new MemoryStream(imageSet.SmallImage);
-                result = await _amazonS3ClientService.Add(_bucketName, dbImage.SmallImageKey, stream);
+                using var smallStream = new MemoryStream(imageSet.SmallImage);
+                result = await _amazonS3ClientService.Add(_bucketName, dbImage.SmallImageKey, smallStream);
                 if (result.IsFailure)
                 {
                     _dbContext.Images.Remove(entry.Entity);
 
                     await _dbContext.SaveChangesAsync();
 
-                    return null;
+                    return Maybe<Image>.None;
                 }
 
                 await _dbContext.SaveChangesAsync();
 
                 _dbContext.DetachEntry(entry.Entity);
 
-                return entry.Entity;
+                return Maybe<Image>.From(entry.Entity);
             }
 
             Result<bool> ValidateImageType(FormFile uploadedFile)
