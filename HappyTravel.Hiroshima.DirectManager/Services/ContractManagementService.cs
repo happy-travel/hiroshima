@@ -33,7 +33,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<Result<Models.Responses.Contract>> Get(int contractManagerId)
             {
-                var contract = await _contractManagementRepository.GetContract(contractId, contractManagerId);
+                var contract = await GetContractWithDocuments(contractId, contractManagerId);
 
                 if (contract is null)
                     return Result.Failure<Models.Responses.Contract>($"Failed to get the contract with {nameof(contractId)} '{contractId}'");
@@ -203,6 +203,16 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                         document.ContractId
                     )).ToList()
                     : new List<Models.Responses.Document>());
+
+
+        private async Task<Contract> GetContractWithDocuments(int contractId, int contractManagerId)
+        {
+            var contract = await _dbContext.Contracts.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.Id == contractId);
+
+            contract.Documents = await _dbContext.Documents.Where(d => d.ContractManagerId == contractManagerId && d.ContractId == contractId).ToListAsync();
+
+            return contract;
+        }
 
 
         private readonly IContractManagerContextService _contractManagerContext;
