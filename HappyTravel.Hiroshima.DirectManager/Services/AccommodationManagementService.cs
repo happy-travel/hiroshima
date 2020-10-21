@@ -338,8 +338,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 accommodation.Rooms != null
                     ? accommodation.Rooms.Select(room => room.Id).ToList()
                     : new List<int>(),
-                accommodation.Images != null
-                    ? accommodation.Images.Select(image => new Models.Responses.Image
+                accommodation.Images.Select(image => new Models.Responses.Image
                     (
                         image.Id,
                         image.OriginalName,
@@ -347,8 +346,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                         image.LargeImageKey,
                         image.SmallImageKey,
                         image.AccommodationId
-                    )).ToList()
-                    : new List<Models.Responses.Image>());
+                    )).ToList());
         }
 
 

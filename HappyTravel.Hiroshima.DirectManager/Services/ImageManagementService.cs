@@ -45,9 +45,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<Result<Maybe<Image>>> AppendContent(Image dbImage, FormFile uploadedFile)
             {
-                byte[] imageBytes = null;
                 using BinaryReader binaryReader = new BinaryReader(uploadedFile.OpenReadStream());
-                imageBytes = binaryReader.ReadBytes((int)uploadedFile.Length);
+                var imageBytes = binaryReader.ReadBytes((int)uploadedFile.Length);
 
                 var validationResult = ValidateImageDimensions(imageBytes);
                 if (validationResult.Result.IsFailure)
@@ -55,7 +54,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                 var imageSet = await ConvertImage(imageBytes);
 
-                var extension = Path.GetExtension(uploadedFile.FileName);
                 dbImage.Created = DateTime.UtcNow;
 
                 var entry = _dbContext.Images.Add(dbImage);
@@ -64,7 +62,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                 entry.Entity.LargeImageKey = $"{S3FolderName}/{dbImage.AccommodationId}/{entry.Entity.Id}-large.jpg";
 
-                using var largeStream = new MemoryStream(imageSet.LargeImage);
+                await using var largeStream = new MemoryStream(imageSet.LargeImage);
                 var result = await _amazonS3ClientService.Add(_bucketName, dbImage.LargeImageKey, largeStream);
                 if (result.IsFailure)
                 {
@@ -77,7 +75,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                 entry.Entity.SmallImageKey = $"{S3FolderName}/{dbImage.AccommodationId}/{entry.Entity.Id}-small.jpg";
 
-                using var smallStream = new MemoryStream(imageSet.SmallImage);
+                await using var smallStream = new MemoryStream(imageSet.SmallImage);
                 result = await _amazonS3ClientService.Add(_bucketName, dbImage.SmallImageKey, smallStream);
                 if (result.IsFailure)
                 {
@@ -97,7 +95,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             Result<bool> ValidateImageType(FormFile uploadedFile)
             {
-                var extension = Path.GetExtension(uploadedFile.FileName).ToLower();
+                var extension = uploadedFile != null ? Path.GetExtension(uploadedFile.FileName).ToLower() : string.Empty;
                 return ((extension == ".jpg") || (extension == ".jpeg") || (extension == ".png"));
             }
 
@@ -107,7 +105,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                 // Validation image size
                 if ((info.ImageWidth < MinimumImageWidth) || (info.ImageHeight < MinimumImageHeight))
-                    return Result.Failure<byte[]>("Uploading picture size is less than the minimum");
+                    return Result.Failure<byte[]>($"Uploading picture size must be at least {MinimumImageWidth}×{MinimumImageHeight} pixels");
 
                 // Validation image dimension difference
                 if (info.ImageWidth / info.ImageHeight > 2)
@@ -121,12 +119,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<ImageSet> ConvertImage(byte[] imageBytes)
             {
-                ImageSet imagesSet = new ImageSet();
+                var imagesSet = new ImageSet();
 
                 using var imageJob = new ImageJob();
                 var jobResult = await imageJob.Decode(imageBytes)
-                    .Constrain(new Constraint(ConstraintMode.Within, MaximumSideSizeLarge, MaximumSideSizeLarge))
-                    .Branch(f => f.ConstrainWithin(MaximumSideSizeSmall, MaximumSideSizeSmall).EncodeToBytes(new MozJpegEncoder(TargetJpegQuality, true)))
+                    .Constrain(new Constraint(ConstraintMode.Within, ResizedLargeImageMaximumSideSize, ResizedLargeImageMaximumSideSize))
+                    .Branch(f => f.ConstrainWithin(ResizedSmallImageMaximumSideSize, ResizedSmallImageMaximumSideSize).EncodeToBytes(new MozJpegEncoder(TargetJpegQuality, true)))
                     .EncodeToBytes(new MozJpegEncoder(TargetJpegQuality, true))
                     .Finish().InProcessAsync();
 
@@ -143,7 +141,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             return await _contractManagerContext.GetContractManager()
                 .Tap(async contractManager => 
                 { 
-                    bool result = await RemoveImage(contractManager.Id, accommodationId, imageId);
+                    var result = await RemoveImage(contractManager.Id, accommodationId, imageId);
                     return result ? Result.Success(contractManager) : Result.Failure<ContractManager>("Image deletion error");
                 });
 
@@ -189,8 +187,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         private const string S3FolderName = "images";
         private const long MinimumImageWidth = 500;
         private const long MinimumImageHeight = 300;
-        private const int MaximumSideSizeLarge = 1600;
-        private const int MaximumSideSizeSmall = 400;
+        private const int ResizedLargeImageMaximumSideSize = 1600;
+        private const int ResizedSmallImageMaximumSideSize = 400;
         private const int TargetJpegQuality = 85;
 
 
