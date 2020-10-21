@@ -37,7 +37,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return Ok(File(response.FileStream, response.ContentType, response.Name));
+            return Ok(File(response.FileBytes, response.ContentType, response.Name));
         }
 
 
