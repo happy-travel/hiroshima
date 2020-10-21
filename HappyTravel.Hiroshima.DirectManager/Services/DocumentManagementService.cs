@@ -105,14 +105,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             return await _contractManagerContext.GetContractManager()
                 .Tap(async contractManager => 
                 {
-                    bool result = await RemoveDocument(contractManager.Id, contractId, documentId);
+                    var result = await RemoveDocument(contractManager.Id, contractId, documentId);
                     return result ? Result.Success(contractManager) : Result.Failure<ContractManager>("Document deletion error"); 
                 });
 
 
             async Task<bool> RemoveDocument(int contractManagerId, int contractId, Guid documentId)
             {
-                var document = await _dbContext.Documents.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.ContractId == contractId && c.Id == documentId);
+                var document = await _dbContext.Documents.SingleOrDefaultAsync(document => document.ContractManagerId == contractManagerId && 
+                    document.ContractId == contractId && document.Id == documentId);
                 if (document is null)
                     return false;
 

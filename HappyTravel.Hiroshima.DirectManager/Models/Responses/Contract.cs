@@ -24,6 +24,5 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
         public string Name { get; }
         public string Description { get; }
         public List<Document> Documents { get; }
-
     }
 }
