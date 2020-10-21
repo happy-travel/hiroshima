@@ -61,7 +61,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                         return Result.Failure<Models.Responses.Accommodation>(
                             $"Failed to get an accommodation by {nameof(accommodationId)} '{accommodationId}'");
                     
-                    accommodation.Images = await GetImagesForAccommodation(contractManager.Id, accommodationId).ToListAsync();
+                    accommodation.Images = await _dbContext.Images
+                        .Where(image => image.ContractManagerId == contractManager.Id && image.AccommodationId == accommodationId).ToListAsync();
 
                     return Build(accommodation);
                 });
@@ -391,11 +392,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             .Include(accommodation => accommodation.Rooms)
             .Where(accommodation => accommodation.ContractManagerId == contractManagerId &&
                 accommodation.Id == accommodationId);
-
-
-        private IQueryable<Image> GetImagesForAccommodation(int contractManagerId, int accommodationId)  
-            => _dbContext.Images
-            .Where(image => image.ContractManagerId == contractManagerId && image.AccommodationId == accommodationId);
 
 
         private readonly IContractManagerContextService _contractManagerContext;
