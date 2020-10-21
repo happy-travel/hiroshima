@@ -8,7 +8,6 @@ using CacheFlow.Json.Extensions;
 using FloxDc.CacheFlow.Extensions;
 using FluentValidation.AspNetCore;
 using HappyTravel.AmazonS3Client.Extensions;
-using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Infrastructure;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.DirectContracts.Extensions;
@@ -17,7 +16,7 @@ using HappyTravel.Hiroshima.DirectManager.Services;
 using HappyTravel.Hiroshima.WebApi.Conventions;
 using HappyTravel.Hiroshima.WebApi.Filters;
 using HappyTravel.Hiroshima.WebApi.Infrastructure;
-using HappyTravel.Hiroshima.WebApi.Services;
+using HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Localization;
@@ -27,7 +26,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
-using NetTopologySuite;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -35,28 +33,15 @@ namespace HappyTravel.Hiroshima.WebApi
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment hostingEnvironment)
         {
             Configuration = configuration;
+            HostingEnvironment = hostingEnvironment;
         }
 
-
-        public IConfiguration Configuration { get; }
-
-
+        
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers().AddNewtonsoftJson(options =>
-            {
-                options.SerializerSettings.ContractResolver = new DefaultContractResolver();
-                options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-                options.SerializerSettings.Converters = new List<Newtonsoft.Json.JsonConverter>
-                {
-                    new Newtonsoft.Json.Converters.StringEnumConverter()
-                };
-                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-            });
-
             using var vaultClient = VaultHelper.CreateVaultClient(Configuration);
             vaultClient.Login(Configuration[Configuration["Vault:Token"]]).GetAwaiter().GetResult();
             var dbConnectionString = VaultHelper.GetDbConnectionString(vaultClient, "DirectContracts:Database:ConnectionOptions", "DirectContracts:Database:ConnectionString", Configuration);
@@ -75,9 +60,6 @@ namespace HappyTravel.Hiroshima.WebApi
                     RegionEndpoint = amazonS3ClientOptions.AmazonS3Config.RegionEndpoint 
                 };
             });
-
-            services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(GeoConstants.SpatialReferenceId));
-            services.AddTransient<IAvailabilityService, AvailabilityService>();
           
             services.AddLocalization();
             services.AddOptions()
@@ -124,17 +106,35 @@ namespace HappyTravel.Hiroshima.WebApi
                 })
                 .AddDoubleFlow()
                 .AddCacheFlowJsonSerialization();
-
-            services.AddMvcCore(options =>
+            services.AddHttpContextAccessor();
+            services.AddMvcCore(options => 
+            {
+                options.Conventions.Insert(0, new LocalizationConvention());
+                options.Conventions.Add(new AuthorizeControllerModelConvention());
+                options.Filters.Add(new MiddlewareFilterAttribute(typeof(LocalizationPipelineFilter)));
+                    options.Filters.Add(typeof(ModelValidationFilter));
+            })
+            .AddAuthorization()
+            .AddControllersAsServices()
+            .AddFormatterMappings()
+            .AddApiExplorer()
+            .AddFluentValidation()
+            .SetCompatibilityVersion(CompatibilityVersion.Latest);
+        
+            services.AddControllers().AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.ContractResolver = new DefaultContractResolver();
+                options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                options.SerializerSettings.Converters = new List<JsonConverter>
                 {
-                    options.Conventions.Insert(0, new LocalizationConvention());
-                    options.Filters.Add(new MiddlewareFilterAttribute(typeof(LocalizationPipelineFilter)));
-                })
-                .AddControllersAsServices()
-                .AddFormatterMappings()
-                .AddApiExplorer()
-                .AddFluentValidation()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+                    new Newtonsoft.Json.Converters.StringEnumConverter()
+                };
+                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            });
+            
+            services.ConfigureAuthentication(Configuration, HostingEnvironment, vaultClient)
+                .ConfigureHttpClients(Configuration, HostingEnvironment, vaultClient)
+                .AddServices();
             
             services.AddSwaggerGen(options =>
             {
@@ -155,23 +155,32 @@ namespace HappyTravel.Hiroshima.WebApi
             app.UseHsts();
             app.UseHttpsRedirection();
             app.UseRequestLocalization(localizationOptions.Value);
-            app.UseRouting();
+            
+            app.UseResponseCompression();
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
                 .AllowAnyHeader()
                 .AllowAnyMethod());
-            app.UseResponseCompression();
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapHealthChecks("/health");
-                endpoints.MapControllers();
-            });
+           
             app.UseSwagger()
                 .UseSwaggerUI(options =>
                 {
                     options.SwaggerEndpoint("/swagger/v1.0/swagger.json", "HappyTravel.com Emerging Travel Group Connector API");
                     options.RoutePrefix = string.Empty;
                 });
+            
+            app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapHealthChecks("/health");
+                endpoints.MapControllers();
+            });
         }
+        
+        
+        public IConfiguration Configuration { get; }
+        public IWebHostEnvironment HostingEnvironment { get; }
     }
 }
