@@ -31,19 +31,25 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return _contractManagerContext.GetContractManager()
                 .EnsureContractBelongsToContractManager(_dbContext, contractId)
-                .Map(dbDocument => GetDocument(contractId, documentId));
-                //.Ensure(dbDocument => dbDocument != null, "Document not found")
-                //.Map(dbDocument => Build(dbDocument));
+                .Bind(dbDocument => GetDocumentFile(contractId, documentId));
 
 
-            async Task<Models.Responses.DocumentFile> GetDocument(int contractId, Guid documentId)
+            async Task<Result<Models.Responses.DocumentFile>> GetDocumentFile(int contractId, Guid documentId)
             {
                 var document = await _dbContext.Documents.SingleOrDefaultAsync(document => document.ContractId == contractId && document.Id == documentId);
+                if (document == null)
+                    return Result.Failure<Models.Responses.DocumentFile>("Document not found");
 
                 var stream = await _amazonS3ClientService.Get(_bucketName, document.Key);
+                if (stream.Value == null)
+                    return Result.Failure<Models.Responses.DocumentFile>("Document file not found in storage");
 
-                //byte[] documentBytes = stream.Value
-                return new Models.Responses.DocumentFile(document.Name, document.ContentType, stream.Value);
+                using BinaryReader binaryReader = new BinaryReader(stream.Value);
+                var imageBytes = binaryReader.ReadBytes((int)stream.Value.Length);
+                if (imageBytes == null)
+                    return Result.Failure<Models.Responses.DocumentFile>("Error loading file from storage");
+
+                return new Models.Responses.DocumentFile(document.Name, document.ContentType, imageBytes);
             }
         }
 
