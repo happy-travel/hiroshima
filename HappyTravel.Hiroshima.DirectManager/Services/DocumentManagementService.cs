@@ -42,6 +42,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                 var stream = await _amazonS3ClientService.Get(_bucketName, document.Key);
 
+                //byte[] documentBytes = stream.Value
                 return new Models.Responses.DocumentFile(document.Name, document.ContentType, stream.Value);
             }
         }
