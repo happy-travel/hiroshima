@@ -225,12 +225,6 @@
             <param name="contractId">New contract data</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.DocumentManagementController.GetContractFile(System.Int32,System.Guid)">
-            <summary>
-            Returns a direct contract document file by ID
-            </summary>
-            <param name="contractId">ID of the contract</param>
-            <param name="documentId">Uuid of the document</param>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ContractManagerController.AddContractManager(HappyTravel.Hiroshima.DirectManager.Models.Requests.ContractManager)">
             <summary>
             Registers a contract manager
@@ -249,6 +243,14 @@
             Modifies contract manager's data
             </summary>
             <param name="contractManager"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.DocumentManagementController.GetContractFile(System.Int32,System.Guid)">
+            <summary>
+            Returns a direct contract document file by ID
+            </summary>
+            <param name="contractId">ID of the contract</param>
+            <param name="documentId">Uuid of the document</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.DocumentManagementController.AddContractFile(System.Int32,Microsoft.AspNetCore.Http.IFormFile)">
