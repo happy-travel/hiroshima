@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Models;
@@ -186,23 +187,25 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         
         
         private Models.Responses.Contract Build(Contract contract, int accommodationId)
-            => new Models.Responses.Contract(
-                contract.Id, 
-                accommodationId, 
-                contract.ValidFrom, 
-                contract.ValidTo, 
-                contract.Name, 
+        {
+            var contractDocuments = contract.Documents.Select(document => new Models.Responses.Document
+                (
+                    document.Id,
+                    document.Name,
+                    document.ContentType,
+                    document.Key,
+                    document.ContractId
+                )).ToList();
+
+            return new Models.Responses.Contract(
+                contract.Id,
+                accommodationId,
+                contract.ValidFrom,
+                contract.ValidTo,
+                contract.Name,
                 contract.Description,
-                contract.Documents != null
-                    ? contract.Documents.Select(document => new Models.Responses.Document
-                    (
-                        document.Id,
-                        document.Name,
-                        document.ContentType,
-                        document.Key,
-                        document.ContractId
-                    )).ToList()
-                    : new List<Models.Responses.Document>());
+                contractDocuments);
+        }
 
 
         private async Task<Contract> GetContractWithDocuments(int contractId, int contractManagerId)

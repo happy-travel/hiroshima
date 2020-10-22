@@ -53,6 +53,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     return Result.Failure<Maybe<Image>>(validationResult.Result.Error);
 
                 var imageSet = await ConvertImage(imageBytes);
+                if (imageSet.LargeImage == null || imageSet.SmallImage == null)
+                    return Maybe<Image>.None;
 
                 dbImage.Created = DateTime.UtcNow;
 
@@ -105,14 +107,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                 // Validation image size
                 if ((info.ImageWidth < MinimumImageWidth) || (info.ImageHeight < MinimumImageHeight))
-                    return Result.Failure<byte[]>($"Uploading picture size must be at least {MinimumImageWidth}×{MinimumImageHeight} pixels");
+                    return Result.Failure($"Uploading picture size must be at least {MinimumImageWidth}×{MinimumImageHeight} pixels");
 
                 // Validation image dimension difference
                 if (info.ImageWidth / info.ImageHeight > 2)
-                    return Result.Failure<byte[]>("Uploading picture width is more than 2 times the height");
+                    return Result.Failure("Uploading picture width is more than 2 times the height");
 
                 if (info.ImageHeight / info.ImageWidth > 2)
-                    return Result.Failure<byte[]>("Uploading picture height is more than 2 times the width");
+                    return Result.Failure("Uploading picture height is more than 2 times the width");
 
                 return Result.Success();
             }
@@ -128,8 +130,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     .EncodeToBytes(new MozJpegEncoder(TargetJpegQuality, true))
                     .Finish().InProcessAsync();
 
-                imagesSet.SmallImage = jobResult.TryGet(1).TryGetBytes().Value.ToArray();
-                imagesSet.LargeImage = jobResult.TryGet(2).TryGetBytes().Value.ToArray();
+                imagesSet.SmallImage = (jobResult != null && jobResult.TryGet(1) != null && jobResult.TryGet(1).TryGetBytes() != null) 
+                    ? jobResult.TryGet(1).TryGetBytes().Value.ToArray() 
+                    : null;
+                imagesSet.LargeImage = (jobResult != null && jobResult.TryGet(1) != null && jobResult.TryGet(1).TryGetBytes() != null) 
+                    ?jobResult.TryGet(2).TryGetBytes().Value.ToArray()
+                    : null;
 
                 return imagesSet;
             }
