@@ -17,17 +17,20 @@ using Microsoft.EntityFrameworkCore;
 using Accommodation = HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation;
 using NetTopologySuite.Geometries;
 using Room = HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.Room;
+using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class AccommodationManagementService : IAccommodationManagementService
     {
         public AccommodationManagementService(
-            IContractManagerContextService contractManagerContext, DirectContractsDbContext dbContext, GeometryFactory geometryFactory)
+            IContractManagerContextService contractManagerContext, DirectContractsDbContext dbContext, GeometryFactory geometryFactory, IOptions<AccommodationManagementServiceOptions> options)
         {
             _contractManagerContext = contractManagerContext;
             _geometryFactory = geometryFactory;
             _dbContext = dbContext;
+            _bucketName = options.Value.AmazonS3Bucket;
+            _regionEndpoint = options.Value.AmazonS3RegionEndpoint;
         }
 
 
@@ -319,8 +322,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     image.Id,
                     image.OriginalName,
                     image.OriginalContentType,
-                    image.LargeImageKey,
-                    image.SmallImageKey,
+                    $"https://{_bucketName}.s3-{_regionEndpoint}.amazonaws.com/{image.LargeImageKey}",
+                    $"https://{_bucketName}.s3-{_regionEndpoint}.amazonaws.com/{image.SmallImageKey}",
                     image.AccommodationId
                 )).ToList();
 
@@ -397,5 +400,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         private readonly IContractManagerContextService _contractManagerContext;
         private readonly GeometryFactory _geometryFactory;
         private readonly DirectContractsDbContext _dbContext;
+        private readonly string _bucketName;
+        private readonly string _regionEndpoint;
     }
 }

@@ -75,5 +75,17 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure
 
             return amazonS3Credentials["bucket"];
         }
+
+        /// <summary>
+        /// The method to get a Amazon S3 region endpoint from the Vault
+        /// </summary>
+        /// <param name="vaultClient">The instance of the Vault client </param>
+        /// <param name="pathToAmazonS3Credentials">The path to Amazon S3 credentials in appsettings.json</param>
+        public static string GetAmazonS3RegionEndpoint(VaultClient.VaultClient vaultClient, string pathToAmazonS3Credentials, IConfiguration configuration)
+        {
+            var amazonS3Credentials = vaultClient.Get(configuration[pathToAmazonS3Credentials]).Result;
+
+            return amazonS3Credentials["regionEndpoint"];
+        }
     }
 }

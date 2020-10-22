@@ -5,6 +5,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.DirectManager.Models.Responses;
 using HappyTravel.Hiroshima.DirectManager.Services;
 using HappyTravel.Hiroshima.WebApi.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,6 +33,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [RequestSizeLimit(50 * 1024 * 1024)]
         [ProducesResponseType(typeof(Image), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AllowAnonymous]
         public async Task<IActionResult> AddImageFile([FromRoute] int accommodationId, [FromForm] IFormFile uploadedFile)
         {
             var image = new Hiroshima.DirectManager.Models.Requests.Image
@@ -56,6 +58,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpDelete("accommodations/{accommodationId}/photo/{imageId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AllowAnonymous]
         public async Task<IActionResult> RemoveImageFile([FromRoute] int accommodationId, [FromRoute] Guid imageId)
         {
             var (_, isFailure, error) = await _imageManagementService.Remove(accommodationId, imageId);
