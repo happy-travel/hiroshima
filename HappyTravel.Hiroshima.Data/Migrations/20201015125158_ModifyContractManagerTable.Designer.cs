@@ -10,6 +10,7 @@ using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Models.Booking;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -17,9 +18,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Hiroshima.Data.Migrations
 {
     [DbContext(typeof(DirectContractsDbContext))]
-    partial class DirectContractsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201015125158_ModifyContractManagerTable")]
+    partial class ModifyContractManagerTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -482,12 +484,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasDefaultValueSql("uuid_generate_v4()");
-
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("uuid");
 
                     b.Property<int>("ContractId")
                         .HasColumnType("integer");
@@ -499,6 +496,10 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("MimeType")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -519,8 +520,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasDefaultValueSql("uuid_generate_v4()");
+                        .HasColumnType("uuid");
 
                     b.Property<int>("AccommodationId")
                         .HasColumnType("integer");
@@ -531,19 +531,15 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("LargeImageKey")
+                    b.Property<string>("Key")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("OriginalContentType")
+                    b.Property<string>("MimeType")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("OriginalName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("SmallImageKey")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 

@@ -15,6 +15,7 @@
       <PackageReference Include="FluentValidation.AspNetCore" Version="9.0.1" />
       <PackageReference Include="HappyTravel.AmazonS3Client" Version="0.8.0" />
       <PackageReference Include="Imageflow.Net" Version="0.7.7" />
+      <PackageReference Include="IdentityModel" Version="4.4.0" />
     </ItemGroup>
 
 </Project>

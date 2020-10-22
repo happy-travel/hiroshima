@@ -8,6 +8,7 @@ using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
+using HappyTravel.Hiroshima.DirectManager.Models.Requests;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,8 +32,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Map(Build);
 
             
+            
             async Task<List<RoomAvailabilityRestriction>> Replace()
             {
+                availabilityRestrictions = availabilityRestrictions
+                    .Where(availabilityRestriction => availabilityRestriction.Restriction != AvailabilityRestrictions.FreeSale).ToList();
                 var groupedRestrictions = availabilityRestrictions.GroupBy(availabilityRestriction => availabilityRestriction.RoomId)
                     .ToDictionary(group => group.Key, group => group.ToList());
                 

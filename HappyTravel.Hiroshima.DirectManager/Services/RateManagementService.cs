@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Infrastructure.Extensions;
@@ -59,22 +61,44 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<List<Models.Responses.Rate>>> Add(int contractId, List<Models.Requests.Rate> rates)
+        public async Task<Result<List<Models.Responses.Rate>>> Add(int contractId, List<Models.Requests.Rate> ratesRequest)
         {
-            return ValidationHelper.Validate(rates, new RateValidator())
+            return await ValidationHelper.Validate(ratesRequest, new RateValidator())
                 .Bind(() => _contractManagerContext.GetContractManager())
+                .Ensure(contractManager => ratesRequest.Any(), "Request is empty")
                 .EnsureContractBelongsToContractManager(_dbContext, contractId)
-                .Bind(async contractManager =>
-                {
-                    var (isSuccess, _, error) = await CheckIfSeasonIdsAndRoomIdsBelongToContract(contractManager.Id);
-                    return isSuccess ? Result.Success() : Result.Failure(error);
-                })
-                .Bind(() => AddRates(rates));
-            
-            
-             async Task<Result> CheckIfSeasonIdsAndRoomIdsBelongToContract(int contractManagerId)
-                => Result.Combine(await _dbContext.CheckIfSeasonsBelongToContract(contractId, rates.Select(rate => rate.SeasonId).ToList()),
-                     await _dbContext.CheckIfRoomsBelongToContract(contractId, contractManagerId, rates.Select(rate => rate.RoomId).ToList()));
+                .Bind(contractManager => CheckIfSeasonIdsAndRoomIdsBelongToContract(contractManager.Id))
+                .Bind(CheckIfAlreadyExists)
+                .Map(() => Create(ratesRequest))
+                .Map(AddRates)
+                .Map(Build);
+
+
+            async Task<Result> CheckIfAlreadyExists()
+            {
+                var seasonIdsFromRequest = ratesRequest.Select(rate => rate.SeasonId).ToList();
+                var roomIdsFromRequest = ratesRequest.Select(rate => rate.RoomId).ToList();
+                var roomTypesFromRequest = ratesRequest.Select(rate => rate.RoomType).ToList();
+                var boardBasisFromRequest = ratesRequest.Select(rate => rate.BoardBasis).ToList();
+
+                var existedRates = await _dbContext.RoomRates.Where(roomRate
+                        => seasonIdsFromRequest.Contains(roomRate.SeasonId) && roomIdsFromRequest.Contains(roomRate.RoomId) &&
+                        roomTypesFromRequest.Contains(roomRate.RoomType) && boardBasisFromRequest.Contains(roomRate.BoardBasis))
+                    .ToListAsync();
+
+                return !existedRates.Any() ? Result.Success() : Result.Failure(CreateError());
+
+
+                string CreateError()
+                    => "Existed rates: " + string.Join("; ",
+                        existedRates.Select(rate
+                            => $"{nameof(rate.RoomId)} '{rate.RoomId}' {nameof(rate.SeasonId)} '{rate.SeasonId}' {nameof(rate.RoomType)} '{rate.RoomType}' {nameof(rate.BoardBasis)} '{rate.BoardBasis}'"));
+            }
+
+
+            async Task<Result> CheckIfSeasonIdsAndRoomIdsBelongToContract(int contractManagerId)
+                => Result.Combine(await _dbContext.CheckIfSeasonsBelongToContract(contractId, ratesRequest.Select(rate => rate.SeasonId).ToList()),
+                    await _dbContext.CheckIfRoomsBelongToContract(contractId, contractManagerId, ratesRequest.Select(rate => rate.RoomId).ToList()));
         }
 
 
@@ -112,14 +136,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private async Task<Result<List<Models.Responses.Rate>>> AddRates(List<Models.Requests.Rate> rates)
+        private async Task<List<RoomRate>> AddRates(List<RoomRate> dbRates)
         {
-            var newRates = Create(rates);
-            _dbContext.RoomRates.AddRange(newRates);
+            _dbContext.RoomRates.AddRange(dbRates);
             await _dbContext.SaveChangesAsync();
-            _dbContext.DetachEntries(newRates);
-            
-            return Build(newRates);
+            _dbContext.DetachEntries(dbRates);
+            return dbRates;
         }
 
 
