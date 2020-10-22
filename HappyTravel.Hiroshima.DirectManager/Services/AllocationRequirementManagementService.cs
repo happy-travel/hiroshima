@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Models;
@@ -28,6 +29,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Bind(() => _contractManagerContextService.GetContractManager())
                 .EnsureContractBelongsToContractManager(_dbContext, contractId)
                 .Bind(CheckRoomAndSeasonRangeIds)
+                .Bind(CheckIfAlreadyExists)
                 .Map(AddAllocationRequirements)
                 .Map(Build);
 
@@ -43,6 +45,25 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             Task<Result> CheckIfRoomsBelongToContract(ContractManager contractManager, List<int> roomIds)
                 => _dbContext.CheckIfRoomsBelongToContract(contractId, contractManager.Id, roomIds);
+            
+            
+            async Task<Result> CheckIfAlreadyExists()
+            {
+                var seasonRangeIdsFromRequest = allocationRequirements.Select(rate => rate.SeasonRangeId).ToList();
+                var roomIdsFromRequest = allocationRequirements.Select(rate => rate.RoomId).ToList();
+
+                var existedAllocationRequirements = await _dbContext.RoomAllocationRequirements.Where(roomAllocationRequirement
+                    => seasonRangeIdsFromRequest.Contains(roomAllocationRequirement.SeasonRangeId) &&
+                    roomIdsFromRequest.Contains(roomAllocationRequirement.RoomId)).ToListAsync();
+
+                return !existedAllocationRequirements.Any() ? Result.Success() : Result.Failure(CreateError());
+
+
+                string CreateError()
+                    => "Existed allocation requirements: " + string.Join("; ",
+                        existedAllocationRequirements.Select(allocationRequirement
+                            => $"{nameof(allocationRequirement.RoomId)} '{allocationRequirement.RoomId}' {nameof(allocationRequirement.SeasonRangeId)} '{allocationRequirement.SeasonRangeId}'"));
+            }
             
             
             async Task<List<RoomAllocationRequirement>> AddAllocationRequirements()

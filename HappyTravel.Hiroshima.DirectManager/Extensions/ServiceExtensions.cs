@@ -1,4 +1,6 @@
-﻿using HappyTravel.Hiroshima.DirectManager.Services;
+﻿using System;
+using HappyTravel.Hiroshima.DirectManager.Infrastructure;
+using HappyTravel.Hiroshima.DirectManager.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HappyTravel.Hiroshima.DirectManager.Extensions
@@ -19,6 +21,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Extensions
             services.AddTransient<IAllocationRequirementManagementService, AllocationRequirementManagementService>();
             services.AddTransient<IAvailabilityRestrictionsManagementService, AvailabilityRestrictionsManagementService>();
             services.AddScoped<IContractManagerContextService, ContractManagerContextService>();
+            services.AddTransient<IContractManagerManagementService, ContractManagerManagementService>();
+            services.AddScoped<ITokenInfoAccessor, TokenInfoAccessor>();
             
             return services;
         }

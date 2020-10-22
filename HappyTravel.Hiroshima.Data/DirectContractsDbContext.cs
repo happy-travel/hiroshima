@@ -63,10 +63,21 @@ namespace HappyTravel.Hiroshima.Data
             {
                 e.ToTable("ContractManagers");
                 e.HasKey(c => c.Id);
-                e.Property(c => c.IdentityHash);
+                e.Property(c => c.IdentityHash).IsRequired();
                 e.Property(c => c.Email).IsRequired();
-                e.Property(c => c.Name).IsRequired();
-                e.Property(c => c.Title);
+                e.Property(c => c.FirstName).IsRequired();
+                e.Property(c => c.LastName).IsRequired();
+                e.Property(c => c.Title).IsRequired();
+                e.Property(c => c.Position).IsRequired();
+                e.Property(c => c.Phone).IsRequired();
+                e.Property(c => c.Fax);
+                
+                e.Property(c => c.Created).IsRequired().HasDefaultValueSql("now() at time zone 'utc'");
+                e.Property(c => c.Updated).IsRequired().HasDefaultValueSql("now() at time zone 'utc'");
+                e.Property(c => c.IsActive).IsRequired().HasDefaultValue(false);
+                
+                e.HasIndex(c => c.IdentityHash).IsUnique();
+                e.HasIndex(c => c.Email).IsUnique();
             });
         }
         
