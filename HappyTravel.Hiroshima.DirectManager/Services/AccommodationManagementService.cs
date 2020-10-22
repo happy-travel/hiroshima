@@ -314,6 +314,16 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private Models.Responses.Accommodation Build(Accommodation accommodation)
         {
+            var accommodationImages = accommodation.Images.Select(image => new Models.Responses.Image
+                (
+                    image.Id,
+                    image.OriginalName,
+                    image.OriginalContentType,
+                    image.LargeImageKey,
+                    image.SmallImageKey,
+                    image.AccommodationId
+                )).ToList();
+
             return new Models.Responses.Accommodation(
                 accommodation.Id,
                 accommodation.Name.GetValue<MultiLanguage<string>>(),
@@ -338,15 +348,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 accommodation.Rooms != null
                     ? accommodation.Rooms.Select(room => room.Id).ToList()
                     : new List<int>(),
-                accommodation.Images.Select(image => new Models.Responses.Image
-                    (
-                        image.Id,
-                        image.OriginalName,
-                        image.OriginalContentType,
-                        image.LargeImageKey,
-                        image.SmallImageKey,
-                        image.AccommodationId
-                    )).ToList());
+                accommodationImages);
         }
 
 
