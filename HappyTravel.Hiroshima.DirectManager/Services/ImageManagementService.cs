@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -56,36 +57,55 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 if (imageSet.LargeImage == null || imageSet.SmallImage == null)
                     return Maybe<Image>.None;
 
-                dbImage.Created = DateTime.UtcNow;
-
                 var entry = _dbContext.Images.Add(dbImage);
 
                 await _dbContext.SaveChangesAsync();
 
                 entry.Entity.LargeImageKey = $"{S3FolderName}/{dbImage.AccommodationId}/{entry.Entity.Id}-large.jpg";
+                /*                await using var largeStream = new MemoryStream(imageSet.LargeImage);
+                                var result = await _amazonS3ClientService.Add(_bucketName, dbImage.LargeImageKey, largeStream);
+                                if (result.IsFailure)
+                                {
+                                    _dbContext.Images.Remove(entry.Entity);
 
-                await using var largeStream = new MemoryStream(imageSet.LargeImage);
-                var result = await _amazonS3ClientService.Add(_bucketName, dbImage.LargeImageKey, largeStream);
-                if (result.IsFailure)
-                {
-                    _dbContext.Images.Remove(entry.Entity);
+                                    await _dbContext.SaveChangesAsync();
 
-                    await _dbContext.SaveChangesAsync();
+                                    return Maybe<Image>.None;
+                                }
 
-                    return Maybe<Image>.None;
-                }
+                                entry.Entity.SmallImageKey = $"{S3FolderName}/{dbImage.AccommodationId}/{entry.Entity.Id}-small.jpg";
 
+                                await using var smallStream = new MemoryStream(imageSet.SmallImage);
+                                result = await _amazonS3ClientService.Add(_bucketName, dbImage.SmallImageKey, smallStream);
+                                if (result.IsFailure)
+                                {
+                                    _dbContext.Images.Remove(entry.Entity);
+
+                                    await _dbContext.SaveChangesAsync();
+
+                                    return Maybe<Image>.None;
+                                }*/
                 entry.Entity.SmallImageKey = $"{S3FolderName}/{dbImage.AccommodationId}/{entry.Entity.Id}-small.jpg";
 
+                await using var largeStream = new MemoryStream(imageSet.LargeImage);
                 await using var smallStream = new MemoryStream(imageSet.SmallImage);
-                result = await _amazonS3ClientService.Add(_bucketName, dbImage.SmallImageKey, smallStream);
-                if (result.IsFailure)
+                var imageList = new List<(string key, Stream stream)>
                 {
-                    _dbContext.Images.Remove(entry.Entity);
+                    ( dbImage.LargeImageKey, largeStream ),
+                    ( dbImage.SmallImageKey, smallStream )
+                };
 
-                    await _dbContext.SaveChangesAsync();
+                var resultList = await _amazonS3ClientService.Add(_bucketName, imageList);
+                foreach (var result in resultList)
+                {
+                    if (result.IsFailure)
+                    {
+                        _dbContext.Images.Remove(entry.Entity);
 
-                    return Maybe<Image>.None;
+                        await _dbContext.SaveChangesAsync();
+
+                        return Maybe<Image>.None;
+                    }
                 }
 
                 await _dbContext.SaveChangesAsync();
@@ -182,7 +202,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             OriginalContentType = image.UploadedFile.ContentType,
             LargeImageKey = string.Empty,
             SmallImageKey = string.Empty,
-            ContractManagerId = contractManagerId
+            ContractManagerId = contractManagerId,
+            Created = DateTime.UtcNow
         };
 
 
