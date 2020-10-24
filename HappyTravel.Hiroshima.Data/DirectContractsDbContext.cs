@@ -191,6 +191,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(i => i.Created).IsRequired();
                 e.Property(i => i.ContractManagerId).IsRequired();
                 e.Property(i => i.AccommodationId).IsRequired();
+                e.Property(i => i.Position).IsRequired();
                 e.HasIndex(i => i.ContractManagerId);
                 e.HasIndex(i => i.AccommodationId);
             });

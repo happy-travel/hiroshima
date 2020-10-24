@@ -3,6 +3,7 @@ using HappyTravel.AmazonS3Client.Services;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
+using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.Models.Internal;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Imageflow.Fluent;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
@@ -25,6 +27,20 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             _dbContext = dbContext;
             _amazonS3ClientService = amazonS3ClientService;
             _bucketName = options.Value.AmazonS3Bucket;
+            _regionEndpoint = options.Value.AmazonS3RegionEndpoint;
+        }
+
+
+        public Task<Result<List<Models.Responses.SlimImage>>> Get(int accommodationId)
+        {
+            return _contractManagerContext.GetContractManager()
+                .EnsureAccommodationBelongsToContractManager(_dbContext, accommodationId)
+                .Map(async contractManager =>
+                {
+                    return await _dbContext.Images
+                        .Where(image => image.ContractManagerId == contractManager.Id && image.AccommodationId == accommodationId).OrderBy(image => image.Position).ToListAsync();
+                })
+                .Map(images => Build(images));
         }
 
 
@@ -57,35 +73,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 if (imageSet.LargeImage == null || imageSet.SmallImage == null)
                     return Maybe<Image>.None;
 
+                dbImage.Position = _dbContext.Images.Count(image => image.AccommodationId == dbImage.AccommodationId);
+
                 var entry = _dbContext.Images.Add(dbImage);
 
                 await _dbContext.SaveChangesAsync();
 
-                entry.Entity.LargeImageKey = $"{S3FolderName}/{dbImage.AccommodationId}/{entry.Entity.Id}-large.jpg";
-                /*                await using var largeStream = new MemoryStream(imageSet.LargeImage);
-                                var result = await _amazonS3ClientService.Add(_bucketName, dbImage.LargeImageKey, largeStream);
-                                if (result.IsFailure)
-                                {
-                                    _dbContext.Images.Remove(entry.Entity);
-
-                                    await _dbContext.SaveChangesAsync();
-
-                                    return Maybe<Image>.None;
-                                }
-
-                                entry.Entity.SmallImageKey = $"{S3FolderName}/{dbImage.AccommodationId}/{entry.Entity.Id}-small.jpg";
-
-                                await using var smallStream = new MemoryStream(imageSet.SmallImage);
-                                result = await _amazonS3ClientService.Add(_bucketName, dbImage.SmallImageKey, smallStream);
-                                if (result.IsFailure)
-                                {
-                                    _dbContext.Images.Remove(entry.Entity);
-
-                                    await _dbContext.SaveChangesAsync();
-
-                                    return Maybe<Image>.None;
-                                }*/
-                entry.Entity.SmallImageKey = $"{S3FolderName}/{dbImage.AccommodationId}/{entry.Entity.Id}-small.jpg";
+                dbImage.LargeImageKey = $"{S3FolderName}/{dbImage.AccommodationId}/{entry.Entity.Id}-large.jpg";
+                dbImage.SmallImageKey = $"{S3FolderName}/{dbImage.AccommodationId}/{entry.Entity.Id}-small.jpg";
 
                 await using var largeStream = new MemoryStream(imageSet.LargeImage);
                 await using var smallStream = new MemoryStream(imageSet.SmallImage);
@@ -162,6 +157,30 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
+        public Task<Result> Update(int accommodationId, List<Models.Requests.SlimImage> images)
+        {
+            return _contractManagerContext.GetContractManager()
+                .EnsureAccommodationBelongsToContractManager(_dbContext, accommodationId)
+                .Bind(async contractManager =>
+                {
+                    var dbImages = await _dbContext.Images
+                        .Where(image => image.ContractManagerId == contractManager.Id && image.AccommodationId == accommodationId).ToListAsync();
+                    for (int i = 0; i < images.Count; i++)
+                    {
+                        var dbImage = dbImages.SingleOrDefault(image => image.Id == images[i].Id);
+                        if (dbImage != null && dbImage.Position != i)
+                        {
+                            dbImage.Position = i;
+                            
+                            _dbContext.Images.Update(dbImage);
+
+                            await _dbContext.SaveChangesAsync();
+                        }
+                    }
+                    return Result.Success();
+                });
+        }
+
         public async Task<Result> Remove(int accommodationId, Guid imageId)
         {
             return await _contractManagerContext.GetContractManager()
@@ -170,28 +189,19 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     var result = await RemoveImage(contractManager.Id, accommodationId, imageId);
                     return result ? Result.Success(contractManager) : Result.Failure<ContractManager>("Image deletion error");
                 });
+        }
 
 
-            async Task<bool> RemoveImage(int contractManagerId, int accommodationId, Guid imageId)
+        public async Task<Result> RemoveAll(int contractManagerId, int accommodationId)
+        {
+            var images = _dbContext.Images.Where(image => image.ContractManagerId == contractManagerId && image.AccommodationId == accommodationId);
+            foreach (var image in images)
             {
-                var image = await _dbContext.Images.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.AccommodationId == accommodationId && c.Id == imageId);
-                if (image is null)
-                    return false;
-
-                var result = await _amazonS3ClientService.Delete(_bucketName, image.LargeImageKey);
-                if (result.IsFailure)
-                    return false;
-
-                result = await _amazonS3ClientService.Delete(_bucketName, image.SmallImageKey);
-                if (result.IsFailure)
-                    return false;
-
-                _dbContext.Images.Remove(image);
-
-                await _dbContext.SaveChangesAsync();
-
-                return true;
+                var result = await RemoveImage(contractManagerId, accommodationId, image.Id);
+                if (!result)
+                    return Result.Failure("Image deletion error");
             }
+            return Result.Success();
         }
 
 
@@ -207,8 +217,48 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         };
 
 
+        private List<Models.Responses.SlimImage> Build(List<Image> images)
+        {
+            var slimImages = new List<Models.Responses.SlimImage>();
+            foreach (Image image in images)
+            { 
+                var slimImage = new Models.Responses.SlimImage
+                    (
+                        image.Id,
+                        $"https://{_bucketName}.s3-{_regionEndpoint}.amazonaws.com/{image.LargeImageKey}",
+                        $"https://{_bucketName}.s3-{_regionEndpoint}.amazonaws.com/{image.SmallImageKey}"
+                    ); 
+                slimImages.Add(slimImage);
+            }
+            return slimImages;
+        }
+
+
         private Models.Responses.Image Build(Maybe<Image> image)
-            => new Models.Responses.Image(image.Value.Id, image.Value.OriginalName, image.Value.OriginalContentType, image.Value.LargeImageKey, image.Value.SmallImageKey, image.Value.AccommodationId);
+            => new Models.Responses.Image(image.Value.Id, image.Value.OriginalName, image.Value.OriginalContentType, 
+                image.Value.LargeImageKey, image.Value.SmallImageKey, image.Value.AccommodationId, image.Value.Position);
+
+
+        async Task<bool> RemoveImage(int contractManagerId, int accommodationId, Guid imageId)
+        {
+            var image = await _dbContext.Images.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.AccommodationId == accommodationId && c.Id == imageId);
+            if (image is null)
+                return false;
+
+            var result = await _amazonS3ClientService.Delete(_bucketName, image.LargeImageKey);
+            if (result.IsFailure)
+                return false;
+
+            result = await _amazonS3ClientService.Delete(_bucketName, image.SmallImageKey);
+            if (result.IsFailure)
+                return false;
+
+            _dbContext.Images.Remove(image);
+
+            await _dbContext.SaveChangesAsync();
+
+            return true;
+        }
 
 
         private const string S3FolderName = "images";
@@ -223,5 +273,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         private readonly DirectContractsDbContext _dbContext;
         private readonly IAmazonS3ClientService _amazonS3ClientService;
         private readonly string _bucketName;
+        private readonly string _regionEndpoint;
     }
 }

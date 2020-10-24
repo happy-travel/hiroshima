@@ -1,5 +1,4 @@
-﻿using HappyTravel.Hiroshima.Common.Models.Accommodations;
-using System;
+﻿using System;
 
 namespace HappyTravel.Hiroshima.Common.Models
 {
@@ -13,5 +12,6 @@ namespace HappyTravel.Hiroshima.Common.Models
         public DateTime Created { get; set; }
         public int ContractManagerId { get; set; }
         public int AccommodationId { get; set; }
+        public int Position { get; set; }
     }
 }

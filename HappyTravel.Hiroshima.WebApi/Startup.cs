@@ -75,11 +75,6 @@ namespace HappyTravel.Hiroshima.WebApi
                     };
                     options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider {Options = options});
                 })
-                .Configure<AccommodationManagementServiceOptions>(options =>
-                {
-                    options.AmazonS3Bucket = amazonS3Bucket;
-                    options.AmazonS3RegionEndpoint = amazonS3RegionEndpoint;
-                })
                 .Configure<DocumentManagementServiceOptions>(options => 
                 {
                     options.AmazonS3Bucket = amazonS3Bucket;
@@ -87,6 +82,7 @@ namespace HappyTravel.Hiroshima.WebApi
                 .Configure<ImageManagementServiceOptions>(options =>
                  {
                      options.AmazonS3Bucket = amazonS3Bucket;
+                     options.AmazonS3RegionEndpoint = amazonS3RegionEndpoint;
                  });
 
             services.AddHealthChecks()

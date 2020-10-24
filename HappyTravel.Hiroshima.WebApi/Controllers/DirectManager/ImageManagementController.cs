@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -20,6 +21,25 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         public ImageManagementController(IImageManagementService imageManagementService)
         {
             _imageManagementService = imageManagementService;
+        }
+
+
+        /// <summary>
+        /// Retrieves ordered list of images by accommodation ID
+        /// </summary>
+        /// <param name="accommodationId">ID of the accommodation</param>
+        /// <returns></returns>
+        [HttpGet("accommodations/{accommodationId}/photo")]
+        [ProducesResponseType(typeof(Hiroshima.DirectManager.Models.Responses.Accommodation), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetImageList([FromRoute] int accommodationId)
+        {
+            var (_, isFailure, response, error) = await _imageManagementService.Get(accommodationId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
         }
 
 
@@ -46,6 +66,26 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return Ok(response);
+        }
+
+
+        /// <summary>
+        /// Updates the list of images for accommodation by Id
+        /// </summary>
+        /// <param name="accommodationId">Accommodation Id</param>
+        /// <param name="images">Ordered list of images</param>
+        /// <returns></returns>
+        [HttpPut("accommodations/{accommodationId}/photo")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AllowAnonymous]
+        public async Task<IActionResult> UpdateAccommodationImages([FromRoute] int accommodationId, [FromBody] List<Hiroshima.DirectManager.Models.Requests.SlimImage> images)
+        {
+            var (_, isFailure, error) = await _imageManagementService.Update(accommodationId, images);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
         }
 
 

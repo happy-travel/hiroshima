@@ -4,7 +4,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
     public readonly struct Image
     {
-        public Image(Guid id, string originalName, string originalContentType, string largeImageKey, string smallImageKey, int accommodationId)
+        public Image(Guid id, string originalName, string originalContentType, string largeImageKey, string smallImageKey, int accommodationId, int position)
         {
             Id = id;
             OriginalName = originalName;
@@ -12,6 +12,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
             LargeImageKey = largeImageKey;
             SmallImageKey = smallImageKey;
             AccommodationId = accommodationId;
+            Position = position;
         }
 
         public Guid Id { get; }
@@ -20,5 +21,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
         public string LargeImageKey { get; }
         public string SmallImageKey { get; }
         public int AccommodationId { get; }
+        public int Position { get; }
     }
 }

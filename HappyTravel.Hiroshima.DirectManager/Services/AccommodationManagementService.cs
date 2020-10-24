@@ -24,13 +24,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     public class AccommodationManagementService : IAccommodationManagementService
     {
         public AccommodationManagementService(
-            IContractManagerContextService contractManagerContext, DirectContractsDbContext dbContext, GeometryFactory geometryFactory, IOptions<AccommodationManagementServiceOptions> options)
+            IContractManagerContextService contractManagerContext, IImageManagementService imageManagementService, DirectContractsDbContext dbContext, GeometryFactory geometryFactory)
         {
             _contractManagerContext = contractManagerContext;
+            _imageManagementService = imageManagementService;
             _geometryFactory = geometryFactory;
             _dbContext = dbContext;
-            _bucketName = options.Value.AmazonS3Bucket;
-            _regionEndpoint = options.Value.AmazonS3RegionEndpoint;
         }
 
 
@@ -64,9 +63,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                         return Result.Failure<Models.Responses.Accommodation>(
                             $"Failed to get an accommodation by {nameof(accommodationId)} '{accommodationId}'");
                     
-                    accommodation.Images = await _dbContext.Images
-                        .Where(image => image.ContractManagerId == contractManager.Id && image.AccommodationId == accommodationId).ToListAsync();
-
                     return Build(accommodation);
                 });
         }
@@ -143,6 +139,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             return await _contractManagerContext.GetContractManager()
                 .Tap(contractManager => RemoveAccommodationWithRooms(contractManager.Id));
 
+            async Task RemoveAccommodationImages(int contractManagerId)
+            {
+                await _imageManagementService.RemoveAll(contractManagerId, accommodationId);
+            }
 
             async Task RemoveAccommodationWithRooms(int contractManagerId)
             {
@@ -317,16 +317,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private Models.Responses.Accommodation Build(Accommodation accommodation)
         {
-            var accommodationImages = accommodation.Images.Select(image => new Models.Responses.Image
-                (
-                    image.Id,
-                    image.OriginalName,
-                    image.OriginalContentType,
-                    $"https://{_bucketName}.s3-{_regionEndpoint}.amazonaws.com/{image.LargeImageKey}",
-                    $"https://{_bucketName}.s3-{_regionEndpoint}.amazonaws.com/{image.SmallImageKey}",
-                    image.AccommodationId
-                )).ToList();
-
             return new Models.Responses.Accommodation(
                 accommodation.Id,
                 accommodation.Name.GetValue<MultiLanguage<string>>(),
@@ -350,8 +340,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 accommodation.BuildYear,
                 accommodation.Rooms != null
                     ? accommodation.Rooms.Select(room => room.Id).ToList()
-                    : new List<int>(),
-                accommodationImages);
+                    : new List<int>());
         }
 
 
@@ -398,9 +387,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         private readonly IContractManagerContextService _contractManagerContext;
+        private readonly IImageManagementService _imageManagementService;
         private readonly GeometryFactory _geometryFactory;
         private readonly DirectContractsDbContext _dbContext;
-        private readonly string _bucketName;
-        private readonly string _regionEndpoint;
     }
 }
