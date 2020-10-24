@@ -32,7 +32,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpGet("accommodations/{accommodationId}/photo")]
         [ProducesResponseType(typeof(Hiroshima.DirectManager.Models.Responses.Accommodation), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AllowAnonymous]
+        //[AllowAnonymous]
         public async Task<IActionResult> GetImageList([FromRoute] int accommodationId)
         {
             var (_, isFailure, response, error) = await _imageManagementService.Get(accommodationId);
@@ -53,7 +53,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [RequestSizeLimit(50 * 1024 * 1024)]
         [ProducesResponseType(typeof(Image), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AllowAnonymous]
+        //[AllowAnonymous]
         public async Task<IActionResult> AddImageFile([FromRoute] int accommodationId, [FromForm] IFormFile uploadedFile)
         {
             var image = new Hiroshima.DirectManager.Models.Requests.Image
@@ -78,7 +78,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpPut("accommodations/{accommodationId}/photo")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AllowAnonymous]
+        //[AllowAnonymous]
         public async Task<IActionResult> UpdateAccommodationImages([FromRoute] int accommodationId, [FromBody] List<Hiroshima.DirectManager.Models.Requests.SlimImage> slimImages)
         {
             var (_, isFailure, error) = await _imageManagementService.Update(accommodationId, slimImages);
@@ -98,7 +98,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpDelete("accommodations/{accommodationId}/photo/{imageId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AllowAnonymous]
+        //[AllowAnonymous]
         public async Task<IActionResult> RemoveImageFile([FromRoute] int accommodationId, [FromRoute] Guid imageId)
         {
             var (_, isFailure, error) = await _imageManagementService.Remove(accommodationId, imageId);
