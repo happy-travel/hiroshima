@@ -92,6 +92,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 {
                     if (result.IsFailure)
                     {
+                        var keysList = new List<string>
+                        {
+                            dbImage.LargeImageKey,
+                            dbImage.SmallImageKey,
+                        };
+                        await _amazonS3ClientService.Delete(_bucketName, dbImage.LargeImageKey);
+
                         _dbContext.Images.Remove(entry.Entity);
 
                         await _dbContext.SaveChangesAsync();
