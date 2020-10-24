@@ -289,7 +289,7 @@
             Updates the list of images for accommodation by Id
             </summary>
             <param name="accommodationId">Accommodation Id</param>
-            <param name="images">Ordered list of images</param>
+            <param name="slimImages">Ordered list of images</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ImageManagementController.RemoveImageFile(System.Int32,System.Guid)">

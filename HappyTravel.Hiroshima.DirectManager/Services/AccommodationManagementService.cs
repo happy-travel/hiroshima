@@ -17,7 +17,6 @@ using Microsoft.EntityFrameworkCore;
 using Accommodation = HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation;
 using NetTopologySuite.Geometries;
 using Room = HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.Room;
-using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {

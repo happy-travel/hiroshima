@@ -192,6 +192,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(i => i.ContractManagerId).IsRequired();
                 e.Property(i => i.AccommodationId).IsRequired();
                 e.Property(i => i.Position).IsRequired();
+                e.Property(i => i.Description).HasColumnType("jsonb").IsRequired(); //.HasDefaultValue(@"{ ""ar"": null, ""en"": null, ""ru"": null }");
                 e.HasIndex(i => i.ContractManagerId);
                 e.HasIndex(i => i.AccommodationId);
             });

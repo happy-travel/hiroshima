@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json;
 
 namespace HappyTravel.Hiroshima.Common.Models
 {
@@ -13,5 +14,6 @@ namespace HappyTravel.Hiroshima.Common.Models
         public int ContractManagerId { get; set; }
         public int AccommodationId { get; set; }
         public int Position { get; set; }
+        public JsonDocument Description { get; set; }
     }
 }

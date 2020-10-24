@@ -1,5 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using HappyTravel.AmazonS3Client.Services;
+using HappyTravel.Hiroshima.Common.Infrastructure.Extensions;
+using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
@@ -165,21 +167,24 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 {
                     var dbImages = await _dbContext.Images
                         .Where(image => image.ContractManagerId == contractManager.Id && image.AccommodationId == accommodationId).ToListAsync();
+
                     for (int i = 0; i < images.Count; i++)
                     {
                         var dbImage = dbImages.SingleOrDefault(image => image.Id == images[i].Id);
-                        if (dbImage != null && dbImage.Position != i)
+                        if (dbImage != null)
                         {
                             dbImage.Position = i;
+                            dbImage.Description = JsonDocumentUtilities.CreateJDocument(images[i].Description);
                             
                             _dbContext.Images.Update(dbImage);
-
-                            await _dbContext.SaveChangesAsync();
                         }
                     }
+                    await _dbContext.SaveChangesAsync();
+
                     return Result.Success();
                 });
         }
+
 
         public async Task<Result> Remove(int accommodationId, Guid imageId)
         {
@@ -213,7 +218,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             LargeImageKey = string.Empty,
             SmallImageKey = string.Empty,
             ContractManagerId = contractManagerId,
-            Created = DateTime.UtcNow
+            Created = DateTime.UtcNow,
+            Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> { Ar = string.Empty, En = string.Empty, Ru = string.Empty } )
         };
 
 
@@ -226,7 +232,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     (
                         image.Id,
                         $"https://{_bucketName}.s3-{_regionEndpoint}.amazonaws.com/{image.LargeImageKey}",
-                        $"https://{_bucketName}.s3-{_regionEndpoint}.amazonaws.com/{image.SmallImageKey}"
+                        $"https://{_bucketName}.s3-{_regionEndpoint}.amazonaws.com/{image.SmallImageKey}",
+                        image.Description.GetValue<MultiLanguage<string>>()
                     ); 
                 slimImages.Add(slimImage);
             }
@@ -239,7 +246,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 image.Value.LargeImageKey, image.Value.SmallImageKey, image.Value.AccommodationId, image.Value.Position);
 
 
-        async Task<bool> RemoveImage(int contractManagerId, int accommodationId, Guid imageId)
+        private async Task<bool> RemoveImage(int contractManagerId, int accommodationId, Guid imageId)
         {
             var image = await _dbContext.Images.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.AccommodationId == accommodationId && c.Id == imageId);
             if (image is null)
