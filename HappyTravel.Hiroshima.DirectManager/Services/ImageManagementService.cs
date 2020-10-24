@@ -79,6 +79,25 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 dbImage.LargeImageKey = $"{S3FolderName}/{dbImage.AccommodationId}/{entry.Entity.Id}-large.jpg";
                 dbImage.SmallImageKey = $"{S3FolderName}/{dbImage.AccommodationId}/{entry.Entity.Id}-small.jpg";
 
+                var addToBucketResult = await AddImagesToBucket(dbImage, imageSet);
+                if (!addToBucketResult)
+                {
+                    _dbContext.Images.Remove(entry.Entity);
+
+                    await _dbContext.SaveChangesAsync();
+
+                    return Maybe<Image>.None;
+                }
+
+                await _dbContext.SaveChangesAsync();
+
+                _dbContext.DetachEntry(entry.Entity);
+
+                return Maybe<Image>.From(entry.Entity);
+            }
+
+            async Task<bool> AddImagesToBucket(Image dbImage, ImageSet imageSet)
+            {
                 await using var largeStream = new MemoryStream(imageSet.LargeImage);
                 await using var smallStream = new MemoryStream(imageSet.SmallImage);
                 var imageList = new List<(string key, Stream stream)>
@@ -92,26 +111,17 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 {
                     if (result.IsFailure)
                     {
-                        var keysList = new List<string>
+                        var keyList = new List<string>
                         {
                             dbImage.LargeImageKey,
                             dbImage.SmallImageKey,
                         };
-                        await _amazonS3ClientService.Delete(_bucketName, dbImage.LargeImageKey);
+                        await _amazonS3ClientService.Delete(_bucketName, keyList);
 
-                        _dbContext.Images.Remove(entry.Entity);
-
-                        await _dbContext.SaveChangesAsync();
-
-                        return Maybe<Image>.None;
+                        return false;
                     }
                 }
-
-                await _dbContext.SaveChangesAsync();
-
-                _dbContext.DetachEntry(entry.Entity);
-
-                return Maybe<Image>.From(entry.Entity);
+                return true;
             }
 
             Result<bool> ValidateImageType(FormFile uploadedFile)
