@@ -136,11 +136,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             //TODO Try to find out why MAP doesn't work here:
             //https://happytravel.atlassian.net/browse/HIR-74
             return await _contractManagerContext.GetContractManager()
+                .Tap(contractManager => RemoveAccommodationImages(contractManager.Id))
                 .Tap(contractManager => RemoveAccommodationWithRooms(contractManager.Id));
 
-            async Task RemoveAccommodationImages(int contractManagerId)
+            async Task<Result> RemoveAccommodationImages(int contractManagerId)
             {
-                await _imageManagementService.RemoveAll(contractManagerId, accommodationId);
+                return await _imageManagementService.RemoveAll(contractManagerId, accommodationId);
             }
 
             async Task RemoveAccommodationWithRooms(int contractManagerId)
