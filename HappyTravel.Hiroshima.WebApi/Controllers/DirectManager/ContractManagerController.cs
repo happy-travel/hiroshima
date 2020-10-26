@@ -1,8 +1,10 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.DirectManager.Services;
 using HappyTravel.Hiroshima.WebApi.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
@@ -70,7 +72,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <summary>
         /// Modifies contract manager's data
         /// </summary>
-        /// <param name="contractManager"></param>
+        /// <param name="contractManager"></param>  
         /// <returns></returns>
         [HttpPut]
         [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ContractManager), (int) HttpStatusCode.OK)]
@@ -83,8 +85,8 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
             return Ok(response);
         }
-
-
+    
+        
         private readonly IdentityHttpClient _identityHttpClient;
         private readonly IContractManagerManagementService _contractManagerManagementService;
     }

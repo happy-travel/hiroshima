@@ -24,6 +24,7 @@ using Microsoft.AspNetCore.Localization.Routing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
@@ -33,7 +34,7 @@ namespace HappyTravel.Hiroshima.WebApi
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration, IWebHostEnvironment hostingEnvironment)
+        public Startup(IConfiguration configuration, IHostEnvironment hostingEnvironment)
         {
             Configuration = configuration;
             HostingEnvironment = hostingEnvironment;
@@ -181,6 +182,6 @@ namespace HappyTravel.Hiroshima.WebApi
         
         
         public IConfiguration Configuration { get; }
-        public IWebHostEnvironment HostingEnvironment { get; }
+        public IHostEnvironment HostingEnvironment { get; }
     }
 }

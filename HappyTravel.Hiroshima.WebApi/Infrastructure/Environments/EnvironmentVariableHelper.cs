@@ -19,7 +19,7 @@ namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Environments
         }
 
 
-        public static bool IsLocal(this IWebHostEnvironment hostingEnvironment) => hostingEnvironment.IsEnvironment(LocalEnvironment);
+        public static bool IsLocal(this IHostEnvironment hostingEnvironment) => hostingEnvironment.IsEnvironment(LocalEnvironment);
 
         
         private const string LocalEnvironment = "Local";

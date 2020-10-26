@@ -16,7 +16,7 @@ namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions
     public static class ServiceCollectionExtensions
     {
         public static IServiceCollection ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration,
-            IWebHostEnvironment environment, IVaultClient vaultClient)
+            IHostEnvironment environment, IVaultClient vaultClient)
         {
             var (apiName, authorityUrl) = GetApiNameAndAuthority(configuration, environment, vaultClient);
 
@@ -33,7 +33,7 @@ namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions
         }
 
 
-        public static IServiceCollection ConfigureHttpClients(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment,
+        public static IServiceCollection ConfigureHttpClients(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment,
             IVaultClient vaultClient)
         {
             var (_, authorityUrl) = GetApiNameAndAuthority(configuration, environment, vaultClient);
@@ -52,7 +52,7 @@ namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions
         }
 
         
-        private static (string apiName, string authorityUrl) GetApiNameAndAuthority(IConfiguration configuration, IWebHostEnvironment environment,
+        private static (string apiName, string authorityUrl) GetApiNameAndAuthority(IConfiguration configuration, IHostEnvironment environment,
             IVaultClient vaultClient)
         {
             var authorityOptions = vaultClient.Get(configuration["Authority:Options"]).GetAwaiter().GetResult();
