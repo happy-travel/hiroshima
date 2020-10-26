@@ -44,7 +44,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 if (stream.Value == null)
                     return Result.Failure<Models.Responses.DocumentFile>("Document file not found in storage");
 
-                using BinaryReader binaryReader = new BinaryReader(stream.Value);
+                using var binaryReader = new BinaryReader(stream.Value);
                 var imageBytes = binaryReader.ReadBytes((int)stream.Value.Length);
                 if (imageBytes == null)
                     return Result.Failure<Models.Responses.DocumentFile>("Error loading file from storage");
