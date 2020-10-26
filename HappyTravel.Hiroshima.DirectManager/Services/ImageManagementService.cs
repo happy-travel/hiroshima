@@ -180,7 +180,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     var dbImages = await _dbContext.Images
                         .Where(image => image.ContractManagerId == contractManager.Id && image.AccommodationId == accommodationId).ToListAsync();
 
-                    for (int i = 0; i < images.Count; i++)
+                    for (var i = 0; i < images.Count; i++)
                     {
                         var dbImage = dbImages.SingleOrDefault(image => image.Id == images[i].Id);
                         if (dbImage != null)
