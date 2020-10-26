@@ -54,7 +54,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Ensure(dbImage => ValidateImageType(image.UploadedFile).Value, "Invalid image file type")
                 .Bind(dbImage => AppendContent(dbImage, image.UploadedFile))
                 .Ensure(maybeImage => maybeImage.HasValue, "Error saving image")
-                .Map(maybeImage => Build(maybeImage));
+                .Map(Build);
 
 
             async Task<Result<Maybe<Image>>> AppendContent(Image dbImage, FormFile uploadedFile)
