@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.DirectManager.Models.Responses;
 using HappyTravel.Hiroshima.DirectManager.Services;
 using HappyTravel.Hiroshima.WebApi.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,7 +14,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/management/images")]
+    [Route("api/{v:apiVersion}/management/contracts")]
     [Produces("application/json")]
     public class ImageManagementController : ControllerBase
     {
@@ -23,12 +25,30 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
 
         /// <summary>
+        /// Retrieves ordered list of images by accommodation ID
+        /// </summary>
+        /// <param name="accommodationId">ID of the accommodation</param>
+        /// <returns></returns>
+        [HttpGet("accommodations/{accommodationId}/photo")]
+        [ProducesResponseType(typeof(Hiroshima.DirectManager.Models.Responses.Accommodation), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetImageList([FromRoute] int accommodationId)
+        {
+            var (_, isFailure, response, error) = await _imageManagementService.Get(accommodationId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
+        }
+
+
+        /// <summary>
         /// Uploads image file
         /// </summary>
         /// <param name="accommodationId">Accommodation Id</param>
         /// <param name="uploadedFile">Adding image file</param>
         /// <returns></returns>
-        [HttpPost("{accommodationId}")]
+        [HttpPost("accommodations/{accommodationId}/photo")]
         [RequestSizeLimit(50 * 1024 * 1024)]
         [ProducesResponseType(typeof(Image), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
@@ -48,12 +68,31 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
 
         /// <summary>
+        /// Updates the list of images for accommodation by Id
+        /// </summary>
+        /// <param name="accommodationId">Accommodation Id</param>
+        /// <param name="slimImages">Ordered list of images</param>
+        /// <returns></returns>
+        [HttpPut("accommodations/{accommodationId}/photo")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> UpdateAccommodationImages([FromRoute] int accommodationId, [FromBody] List<Hiroshima.DirectManager.Models.Requests.SlimImage> slimImages)
+        {
+            var (_, isFailure, error) = await _imageManagementService.Update(accommodationId, slimImages);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+
+
+        /// <summary>
         /// Deletes image file by ID
         /// </summary>
         /// <param name="accommodationId">Accommodation Id</param>
         /// <param name="imageId">Id of the image file to be deleted</param>
         /// <returns></returns>
-        [HttpDelete("{accommodationId}/{imageId}")]
+        [HttpDelete("accommodations/{accommodationId}/photo/{imageId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> RemoveImageFile([FromRoute] int accommodationId, [FromRoute] Guid imageId)

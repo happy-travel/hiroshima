@@ -4,19 +4,19 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
     public readonly struct Document
     {
-        public Document(Guid id, string name, string key, string mimeType, int contractId)
+        public Document(Guid id, string name, string contentType, string key, int contractId)
         {
             Id = id;
             Name = name;
+            ContentType = contentType;
             Key = key;
-            MimeType = mimeType;
             ContractId = contractId;
         }
 
         public Guid Id { get; }
         public string Name { get; }
         public string Key { get; }
-        public string MimeType { get; }
+        public string ContentType { get; }
         public int ContractId { get; }
     }
 }

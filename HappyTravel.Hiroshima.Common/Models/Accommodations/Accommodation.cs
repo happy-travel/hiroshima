@@ -64,6 +64,6 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations
         public DateTime Modified { get; set; }
 
         [NotMapped]
-        public List<Image> Images { get; set; }
+        public List<Image> Images { get; set; } = new List<Image>();
     }
 }

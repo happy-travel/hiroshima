@@ -245,6 +245,14 @@
             <param name="contractManager"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.DocumentManagementController.GetContractFile(System.Int32,System.Guid)">
+            <summary>
+            Returns a direct contract document file by ID
+            </summary>
+            <param name="contractId">ID of the contract</param>
+            <param name="documentId">Uuid of the document</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.DocumentManagementController.AddContractFile(System.Int32,Microsoft.AspNetCore.Http.IFormFile)">
             <summary>
             Uploads a document to a contract
@@ -261,12 +269,27 @@
             <param name="documentId">Document Id</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ImageManagementController.GetImageList(System.Int32)">
+            <summary>
+            Retrieves ordered list of images by accommodation ID
+            </summary>
+            <param name="accommodationId">ID of the accommodation</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ImageManagementController.AddImageFile(System.Int32,Microsoft.AspNetCore.Http.IFormFile)">
             <summary>
             Uploads image file
             </summary>
             <param name="accommodationId">Accommodation Id</param>
             <param name="uploadedFile">Adding image file</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ImageManagementController.UpdateAccommodationImages(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.SlimImage})">
+            <summary>
+            Updates the list of images for accommodation by Id
+            </summary>
+            <param name="accommodationId">Accommodation Id</param>
+            <param name="slimImages">Ordered list of images</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ImageManagementController.RemoveImageFile(System.Int32,System.Guid)">
