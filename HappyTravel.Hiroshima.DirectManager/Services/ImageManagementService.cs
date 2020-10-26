@@ -238,7 +238,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         private List<Models.Responses.SlimImage> Build(List<Image> images)
         {
             var slimImages = new List<Models.Responses.SlimImage>();
-            foreach (Image image in images)
+            foreach (var image in images)
             { 
                 var slimImage = new Models.Responses.SlimImage
                     (
@@ -260,7 +260,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private async Task<bool> RemoveImage(int contractManagerId, int accommodationId, Guid imageId)
         {
-            var image = await _dbContext.Images.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.AccommodationId == accommodationId && c.Id == imageId);
+            var image = await _dbContext.Images.SingleOrDefaultAsync(image => image.ContractManagerId == contractManagerId && image.AccommodationId == accommodationId && image.Id == imageId);
             if (image is null)
                 return false;
 
