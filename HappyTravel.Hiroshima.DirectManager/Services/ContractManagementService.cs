@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Models;
@@ -33,7 +34,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<Result<Models.Responses.Contract>> Get(int contractManagerId)
             {
-                var contract = await _contractManagementRepository.GetContract(contractId, contractManagerId);
+                var contract = await GetContractWithDocuments(contractId, contractManagerId);
 
                 if (contract is null)
                     return Result.Failure<Models.Responses.Contract>($"Failed to get the contract with {nameof(contractId)} '{contractId}'");
@@ -186,7 +187,35 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         
         
         private Models.Responses.Contract Build(Contract contract, int accommodationId)
-            => new Models.Responses.Contract(contract.Id, accommodationId, contract.ValidFrom, contract.ValidTo, contract.Name, contract.Description);
+        {
+            var contractDocuments = contract.Documents.Select(document => new Models.Responses.Document
+                (
+                    document.Id,
+                    document.Name,
+                    document.ContentType,
+                    document.Key,
+                    document.ContractId
+                )).ToList();
+
+            return new Models.Responses.Contract(
+                contract.Id,
+                accommodationId,
+                contract.ValidFrom,
+                contract.ValidTo,
+                contract.Name,
+                contract.Description,
+                contractDocuments);
+        }
+
+
+        private async Task<Contract> GetContractWithDocuments(int contractId, int contractManagerId)
+        {
+            var contract = await _dbContext.Contracts.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.Id == contractId);
+
+            contract.Documents = await _dbContext.Documents.Where(d => d.ContractManagerId == contractManagerId && d.ContractId == contractId).ToListAsync();
+
+            return contract;
+        }
 
 
         private readonly IContractManagerContextService _contractManagerContext;

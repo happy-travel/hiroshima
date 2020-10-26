@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
@@ -10,7 +9,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
     public readonly struct Accommodation
     {
-        public Accommodation(int id, MultiLanguage<string> name, MultiLanguage<string> address, MultiLanguage<TextualDescription> description, GeoPoint coordinates, AccommodationRating rating, string checkInTime, string checkOutTime, MultiLanguage<List<Picture>> pictures, ContactInfo contactInfo, PropertyTypes propertyType, MultiLanguage<List<string>> amenities, MultiLanguage<string> additionalInfo, OccupancyDefinition occupancyDefinition, int locationId, MultiLanguage<List<string>> leisureAndSports, Status status, RateOptions rateOptions, int? floor, int? buildYear, List<int> roomIds)
+        public Accommodation(int id, MultiLanguage<string> name, MultiLanguage<string> address, MultiLanguage<TextualDescription> description, 
+            GeoPoint coordinates, AccommodationRating rating, string checkInTime, string checkOutTime, MultiLanguage<List<Picture>> pictures, 
+            ContactInfo contactInfo, PropertyTypes propertyType, MultiLanguage<List<string>> amenities, MultiLanguage<string> additionalInfo, 
+            OccupancyDefinition occupancyDefinition, int locationId, MultiLanguage<List<string>> leisureAndSports, Status status, 
+            RateOptions rateOptions, int? floor, int? buildYear, List<int> roomIds)
         {
             Id = id;
             Name = name;

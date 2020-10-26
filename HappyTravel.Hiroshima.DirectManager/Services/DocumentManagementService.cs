@@ -9,6 +9,7 @@ using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -25,6 +26,32 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             _bucketName = options.Value.AmazonS3Bucket;
         }
 
+
+        public Task<Result<Models.Responses.DocumentFile>> Get(int contractId, Guid documentId)
+        {
+            return _contractManagerContext.GetContractManager()
+                .EnsureContractBelongsToContractManager(_dbContext, contractId)
+                .Bind(dbDocument => GetDocumentFile(contractId, documentId));
+
+
+            async Task<Result<Models.Responses.DocumentFile>> GetDocumentFile(int contractId, Guid documentId)
+            {
+                var document = await _dbContext.Documents.SingleOrDefaultAsync(document => document.ContractId == contractId && document.Id == documentId);
+                if (document == null)
+                    return Result.Failure<Models.Responses.DocumentFile>("Document not found");
+
+                var stream = await _amazonS3ClientService.Get(_bucketName, document.Key);
+                if (stream.Value == null)
+                    return Result.Failure<Models.Responses.DocumentFile>("Document file not found in storage");
+
+                using var binaryReader = new BinaryReader(stream.Value);
+                var imageBytes = binaryReader.ReadBytes((int)stream.Value.Length);
+                if (imageBytes == null)
+                    return Result.Failure<Models.Responses.DocumentFile>("Error loading file from storage");
+
+                return new Models.Responses.DocumentFile(document.Name, document.ContentType, imageBytes);
+            }
+        }
 
         public Task<Result<Models.Responses.Document>> Add(Models.Requests.Document document)
         {
@@ -45,19 +72,27 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             async Task<Document> AddDocument(Document dbDocument, FormFile uploadedFile)
             {
                 var extension = Path.GetExtension(uploadedFile.FileName);
-                dbDocument.Id = Guid.NewGuid();
-                dbDocument.Key = $"{S3FolderName}/{dbDocument.ContractId}/{dbDocument.Id}{extension}";
+                dbDocument.Key = string.Empty;
                 dbDocument.Created = DateTime.UtcNow;
-
-                // Add document to Amazon S3
-                var result = await _amazonS3ClientService.Add(_bucketName, dbDocument.Key, uploadedFile.OpenReadStream());
-                if (result.IsFailure)
-                    return null;
 
                 var entry = _dbContext.Documents.Add(dbDocument);
 
                 await _dbContext.SaveChangesAsync();
 
+                entry.Entity.Key = $"{S3FolderName}/{dbDocument.ContractId}/{entry.Entity.Id}{extension}";
+
+                var result = await _amazonS3ClientService.Add(_bucketName, dbDocument.Key, uploadedFile.OpenReadStream());
+                if (result.IsFailure)
+                {
+                    _dbContext.Documents.Remove(entry.Entity);
+
+                    await _dbContext.SaveChangesAsync();
+
+                    return null;
+                }
+
+                await _dbContext.SaveChangesAsync();
+                
                 _dbContext.DetachEntry(entry.Entity);
 
                 return entry.Entity;
@@ -70,14 +105,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             return await _contractManagerContext.GetContractManager()
                 .Tap(async contractManager => 
                 {
-                    bool result = await RemoveDocument(contractManager.Id, contractId, documentId);
+                    var result = await RemoveDocument(contractManager.Id, contractId, documentId);
                     return result ? Result.Success(contractManager) : Result.Failure<ContractManager>("Document deletion error"); 
                 });
 
 
             async Task<bool> RemoveDocument(int contractManagerId, int contractId, Guid documentId)
             {
-                var document = await _dbContext.Documents.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.ContractId == contractId && c.Id == documentId);
+                var document = await _dbContext.Documents.SingleOrDefaultAsync(document => document.ContractManagerId == contractManagerId && 
+                    document.ContractId == contractId && document.Id == documentId);
                 if (document is null)
                     return false;
 
@@ -99,13 +135,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             ContractId = document.ContractId,
             Name = document.UploadedFile.FileName,
-            MimeType = document.UploadedFile.ContentType,
+            ContentType = document.UploadedFile.ContentType,
             ContractManagerId = contractManagerId
         };
 
 
         private Models.Responses.Document Build(Document document)
-            => new Models.Responses.Document(document.Id, document.Name, document.Key, document.MimeType, document.ContractId);
+            => new Models.Responses.Document(document.Id, document.Name, document.ContentType, document.Key, document.ContractId);
 
 
         private const string S3FolderName = "contracts";
