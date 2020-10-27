@@ -2,7 +2,6 @@
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.DirectContracts.Services;
 using HappyTravel.Hiroshima.DirectContracts.Services.Availability;
-using HappyTravel.Hiroshima.DirectContracts.Services.Management;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -35,7 +34,6 @@ namespace HappyTravel.Hiroshima.DirectContracts.Extensions
             services.AddSingleton<IPaymentDetailsService, PaymentDetailsService>();
             services.AddSingleton<ICancellationPolicyService, CancellationPolicyService>();
             services.AddTransient<ILocationService, LocationService>();
-            services.AddTransient<IContractManagementRepository, ContractManagementRepository>();
             return services;
         }
     }
