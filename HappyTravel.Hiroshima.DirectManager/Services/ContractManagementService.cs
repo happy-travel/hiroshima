@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Models;
+using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.Data.Models;
@@ -17,11 +17,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     public class ContractManagementService : IContractManagementService
     {
         public ContractManagementService(IContractManagerContextService contractManagerContextService,
-            DirectContracts.Services.Management.IContractManagementRepository contractManagementRepository,
             DirectContractsDbContext dbContext)
         {
             _contractManagerContext = contractManagerContextService;
-            _contractManagementRepository = contractManagementRepository;
             _dbContext = dbContext;
         }
 
@@ -39,7 +37,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 if (contract is null)
                     return Result.Failure<Models.Responses.Contract>($"Failed to get the contract with {nameof(contractId)} '{contractId}'");
 
-                var accommodationId = (await _contractManagementRepository.GetRelatedAccommodations(contractId, contractManagerId)).Single().Id;
+                var accommodationId = (await GetRelatedAccommodations(contractId, contractManagerId)).Single().Id;
 
                 return Build(contract, accommodationId);
             }
@@ -65,7 +63,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                     var contractIds = contracts.Select(contract => contract.Id).ToList();
                     var contractsAccommodationRelations =
-                        (await _contractManagementRepository.GetContractRelations(contractManager.Id, contractIds)).ToDictionary(relation => relation.ContractId);
+                        (await GetContractRelations(contractManager.Id, contractIds)).ToDictionary(relation => relation.ContractId);
 
                     return contracts.Select(contract =>
                     {
@@ -218,8 +216,44 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
+        private async Task<List<Accommodation>> GetRelatedAccommodations(int contractId, int contractManagerId) =>
+            (await JoinContractAccommodationRelationAndAccommodation()
+                .Where(contractAccommodationRelationAndAccommodation =>
+                    contractAccommodationRelationAndAccommodation.Accommodation!.ContractManagerId == contractManagerId &&
+                    contractAccommodationRelationAndAccommodation.ContractAccommodationRelation!.ContractId ==
+                    contractId)
+                .Select(contractAccommodationRelationAndAccommodation => contractAccommodationRelationAndAccommodation.Accommodation)
+                .ToListAsync())!;
+
+
+        private async Task<List<ContractAccommodationRelation>> GetContractRelations(int contractManagerId, List<int> contractIds)
+            => (await JoinContractAccommodationRelationAndAccommodation()
+                .Where(contractAccommodationRelationAndAccommodation =>
+                    contractAccommodationRelationAndAccommodation.Accommodation!.ContractManagerId == contractManagerId &&
+                    contractIds.Contains(contractAccommodationRelationAndAccommodation.ContractAccommodationRelation!.ContractId))
+                .Select(contractAccommodationRelationAndAccommodation =>
+                    contractAccommodationRelationAndAccommodation.ContractAccommodationRelation).ToListAsync())!;
+        
+        
+        private IQueryable<ContractAccommodationRelationAndAccommodation> JoinContractAccommodationRelationAndAccommodation()
+            => _dbContext.ContractAccommodationRelations.Join(_dbContext.Accommodations,
+                contractAccommodationRelation => contractAccommodationRelation.AccommodationId,
+                accommodation => accommodation.Id,
+                (contractAccommodationRelation, accommodation) => new ContractAccommodationRelationAndAccommodation
+                    {
+                        ContractAccommodationRelation = contractAccommodationRelation,
+                        Accommodation = accommodation
+                    });
+
+
         private readonly IContractManagerContextService _contractManagerContext;
-        private readonly DirectContracts.Services.Management.IContractManagementRepository _contractManagementRepository;
         private readonly DirectContractsDbContext _dbContext;
+
+
+        private class ContractAccommodationRelationAndAccommodation
+        {
+            public ContractAccommodationRelation? ContractAccommodationRelation { get; set; }
+            public Accommodation? Accommodation { get; set; }
+        }
     }
 }
