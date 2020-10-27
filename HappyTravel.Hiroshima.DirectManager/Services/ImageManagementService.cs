@@ -50,6 +50,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return _contractManagerContext.GetContractManager()
                 .Tap(contractManager => ValidationHelper.Validate(image, new ImageValidator()))
+                .Tap(contractManager => ResortImages(contractManager.Id, image.AccommodationId))
                 .Map(contractManager => Create(contractManager.Id, image))
                 .Ensure(dbImage => ValidateImageType(image.UploadedFile).Value, "Invalid image file type")
                 .Bind(dbImage => AppendContent(dbImage, image.UploadedFile))
@@ -277,6 +278,23 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             await _dbContext.SaveChangesAsync();
 
             return true;
+        }
+
+
+        private async Task ResortImages(int contractManagerId, int accommodationId)
+        {
+            var images = await _dbContext.Images
+                .Where(image => image.ContractManagerId == contractManagerId && image.AccommodationId == accommodationId)
+                .OrderBy(image => image.Position)
+                .ToListAsync();
+
+            for (var i = 0; i < images.Count; i++)
+            {
+                var image = images[i];
+                image.Position = i;
+                _dbContext.Images.Update(image);
+            }
+            await _dbContext.SaveChangesAsync();
         }
 
 
