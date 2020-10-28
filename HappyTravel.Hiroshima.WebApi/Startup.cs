@@ -46,9 +46,10 @@ namespace HappyTravel.Hiroshima.WebApi
             vaultClient.Login(Configuration[Configuration["Vault:Token"]]).GetAwaiter().GetResult();
             var dbConnectionString = VaultHelper.GetDbConnectionString(vaultClient, "DirectContracts:Database:ConnectionOptions", "DirectContracts:Database:ConnectionString", Configuration);
             var redisEndpoint = Configuration[Configuration["Redis:Endpoint"]];
-            var amazonS3ClientOptions = VaultHelper.GetAmazonS3Credentials(vaultClient, "DirectContracts:AmazonS3:Contracts", Configuration);
-            var amazonS3Bucket = VaultHelper.GetAmazonS3BucketName(vaultClient, "DirectContracts:AmazonS3:Contracts", Configuration);
-            var amazonS3RegionEndpoint = VaultHelper.GetAmazonS3RegionEndpoint(vaultClient, "DirectContracts:AmazonS3:Contracts", Configuration);
+            var amazonS3ClientOptions = VaultHelper.GetAmazonS3Credentials(vaultClient, "DirectContracts:AmazonS3:Documents", Configuration);
+            var amazonS3DocumentsBucket = VaultHelper.GetAmazonS3BucketName(vaultClient, "DirectContracts:AmazonS3:Documents", Configuration);
+            var amazonS3ImagesBucket = VaultHelper.GetAmazonS3BucketName(vaultClient, "DirectContracts:AmazonS3:Images", Configuration);
+            var amazonS3RegionEndpoint = VaultHelper.GetAmazonS3RegionEndpoint(vaultClient, "DirectContracts:AmazonS3:Images", Configuration);
 
             services.AddDirectContractsServices(dbConnectionString);
             services.AddDirectManagerServices();
@@ -77,11 +78,11 @@ namespace HappyTravel.Hiroshima.WebApi
                 })
                 .Configure<DocumentManagementServiceOptions>(options => 
                 {
-                    options.AmazonS3Bucket = amazonS3Bucket;
+                    options.AmazonS3Bucket = amazonS3DocumentsBucket;
                 })
                 .Configure<ImageManagementServiceOptions>(options =>
                  {
-                     options.AmazonS3Bucket = amazonS3Bucket;
+                     options.AmazonS3Bucket = amazonS3ImagesBucket;
                      options.AmazonS3RegionEndpoint = amazonS3RegionEndpoint;
                  });
 
