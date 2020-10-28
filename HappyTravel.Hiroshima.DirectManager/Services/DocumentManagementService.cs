@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using Amazon.S3;
 using CSharpFunctionalExtensions;
 using HappyTravel.AmazonS3Client.Services;
 using HappyTravel.Hiroshima.Common.Models;
@@ -9,7 +10,6 @@ using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -72,8 +72,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             async Task<Document> AddDocument(Document dbDocument, FormFile uploadedFile)
             {
                 var extension = Path.GetExtension(uploadedFile.FileName);
-                dbDocument.Key = string.Empty;
-                dbDocument.Created = DateTime.UtcNow;
 
                 var entry = _dbContext.Documents.Add(dbDocument);
 
@@ -81,7 +79,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                 entry.Entity.Key = $"{S3FolderName}/{dbDocument.ContractId}/{entry.Entity.Id}{extension}";
 
-                var result = await _amazonS3ClientService.Add(_bucketName, dbDocument.Key, uploadedFile.OpenReadStream());
+                var result = await _amazonS3ClientService.Add(_bucketName, dbDocument.Key, uploadedFile.OpenReadStream(), S3CannedACL.Private);
                 if (result.IsFailure)
                 {
                     _dbContext.Documents.Remove(entry.Entity);
@@ -133,10 +131,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     
         private Document Create(int contractManagerId, Models.Requests.Document document) => new Document
         {
-            ContractId = document.ContractId,
             Name = document.UploadedFile.FileName,
             ContentType = document.UploadedFile.ContentType,
-            ContractManagerId = contractManagerId
+            Key = string.Empty,
+            Created = DateTime.UtcNow,
+            ContractManagerId = contractManagerId,
+            ContractId = document.ContractId
         };
 
 
