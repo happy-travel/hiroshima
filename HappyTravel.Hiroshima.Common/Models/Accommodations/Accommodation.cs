@@ -65,5 +65,20 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations
 
         [NotMapped]
         public List<Image> Images { get; set; } = new List<Image>();
+        
+        
+        public override bool Equals(object? obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            
+            return obj.GetType() == GetType() && Equals((Accommodation) obj);
+        }
+
+        
+        public override int GetHashCode() => HashCode.Combine(Id, Coordinates, Name.RootElement.ToString());
+
+
+        public bool Equals(Accommodation other) => Id == other.Id && Coordinates.Equals(other.Coordinates) && Name.RootElement.ToString().Equals(other.Name.RootElement.ToString());
     }
 }

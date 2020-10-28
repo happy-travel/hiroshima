@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.Hiroshima.WebApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
@@ -25,6 +26,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
+        [AllowAnonymous]
         [HttpPost("availabilities")]
         [ProducesResponseType(typeof(Availability), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]

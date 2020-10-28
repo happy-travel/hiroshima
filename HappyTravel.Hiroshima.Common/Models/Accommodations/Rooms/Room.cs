@@ -50,20 +50,11 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms
             return Equals((Room) obj);
         }
 
-        
+
         public override int GetHashCode()
-        {
-            var hash = 17;
-            foreach (var occupancyConfiguration in OccupancyConfigurations) 
-                hash = Hash.GetAggregate(occupancyConfiguration, hash);
-
-            hash = Hash.GetAggregate(
-                HashCode.Combine(Id, AccommodationId, Name.RootElement.ToString(), Description.RootElement.ToString(),
-                    Amenities.RootElement.ToString()), hash);
+            => Hash.Aggregate(HashCode.Combine(Id, AccommodationId, Name.RootElement.ToString(), Description.RootElement.ToString(), Amenities.RootElement.ToString()),
+                Hash.Get(OccupancyConfigurations));
             
-            return hash;
-        }
-
         
         public bool Equals(Room other)
         {

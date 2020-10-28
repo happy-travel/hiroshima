@@ -8,6 +8,6 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
     public interface IPaymentDetailsService
     {
         PaymentDetails Create(DateTime checkInDate, DateTime checkOutDate,
-            List<RoomRate> rateDetails, List<RoomPromotionalOffer> roomPromotionalOffers);
+            List<RoomRate> rateDetails, List<RoomPromotionalOffer> roomPromotionalOffers, string languageCode);
     }
 }

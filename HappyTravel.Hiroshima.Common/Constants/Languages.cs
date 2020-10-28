@@ -34,8 +34,8 @@ namespace HappyTravel.Hiroshima.Common.Constants
         
         public const DcLanguages DefaultLanguage = DcLanguages.English; 
         
-        private const string ArabicLanguageCode = "ar";
-        private const string EnglishLanguageCode = "en";
-        private const string RussianLanguageCode = "ru";
+        private const string ArabicLanguageCode = "AR";
+        private const string EnglishLanguageCode = "EN";
+        private const string RussianLanguageCode = "RU";
     }
 }

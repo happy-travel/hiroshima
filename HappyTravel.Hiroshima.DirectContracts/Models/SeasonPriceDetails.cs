@@ -1,20 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using HappyTravel.EdoContracts.Accommodations.Internals;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Models
 {
     public readonly struct SeasonPriceDetails
     {
-        public SeasonPriceDetails(DateTime startDate, DateTime endDate, decimal ratePrice, int numberOfNights, decimal totalPrice, List<double> appliedDiscounts, List<string> remarks)
+        public SeasonPriceDetails(DateTime startDate, DateTime endDate, decimal ratePrice, int numberOfNights, decimal priceTotal, decimal priceWithDiscountTotal, double discountPercentTotal, List<SeasonDailyPrice> dailyPrices)
         {
             StartDate = startDate;
             EndDate = endDate;
             RatePrice = ratePrice;
             NumberOfNights = numberOfNights;
-            TotalPrice = totalPrice;
-            AppliedDiscounts = appliedDiscounts ?? new List<double>();
-            Remarks = remarks ?? new List<string>();
+            PriceTotal = priceTotal;
+            PriceWithDiscountTotal = priceWithDiscountTotal;
+            DiscountPercentTotal = discountPercentTotal;
+            DailyPrices = dailyPrices;
         }
 
 
@@ -41,17 +41,22 @@ namespace HappyTravel.Hiroshima.DirectContracts.Models
         /// <summary>
         /// TotalPrice = NumberOfNights * RatePrice
         /// </summary>
-        public decimal TotalPrice { get; }
-        
-        /// <summary>
-        /// Remarks
-        /// </summary>
-        public List<string> Remarks { get; }
+        public decimal PriceTotal { get; }
         
         
         /// <summary>
-        /// Discount percent applied to a rate price 
+        /// Total price with discount 
         /// </summary>
-        public List<double> AppliedDiscounts { get; }
+        public decimal PriceWithDiscountTotal { get; }
+        
+        /// <summary>
+        /// Total discount percent 
+        /// </summary>
+        public double DiscountPercentTotal { get; }
+        
+        /// <summary>
+        /// Daily prices
+        /// </summary>
+        public List<SeasonDailyPrice> DailyPrices { get; }
     }
 }
