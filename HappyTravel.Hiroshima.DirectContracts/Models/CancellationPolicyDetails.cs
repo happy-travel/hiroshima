@@ -27,6 +27,5 @@ namespace HappyTravel.Hiroshima.DirectContracts.Models
         public decimal PricePenalty { get; }
         public double Percent { get; }
         public string Details { get; }
-        
     }
 }

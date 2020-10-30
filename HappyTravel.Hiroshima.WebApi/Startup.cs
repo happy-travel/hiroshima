@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using Amazon;
 using Amazon.S3;
 using CacheFlow.Json.Extensions;
 using FloxDc.CacheFlow.Extensions;
 using FluentValidation.AspNetCore;
 using HappyTravel.AmazonS3Client.Extensions;
+using HappyTravel.AmazonS3Client.Options;
 using HappyTravel.Hiroshima.Common.Infrastructure;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.DirectContracts.Extensions;
@@ -47,19 +49,18 @@ namespace HappyTravel.Hiroshima.WebApi
             vaultClient.Login(Configuration[Configuration["Vault:Token"]]).GetAwaiter().GetResult();
             var dbConnectionString = VaultHelper.GetDbConnectionString(vaultClient, "DirectContracts:Database:ConnectionOptions", "DirectContracts:Database:ConnectionString", Configuration);
             var redisEndpoint = Configuration[Configuration["Redis:Endpoint"]];
-            var amazonS3ClientOptions = VaultHelper.GetAmazonS3Credentials(vaultClient, "DirectContracts:AmazonS3:Contracts", Configuration);
-            var amazonS3Bucket = VaultHelper.GetAmazonS3BucketName(vaultClient, "DirectContracts:AmazonS3:Contracts", Configuration);
-            var amazonS3RegionEndpoint = VaultHelper.GetAmazonS3RegionEndpoint(vaultClient, "DirectContracts:AmazonS3:Contracts", Configuration);
+            var amazonS3DocumentsOptions = VaultHelper.GetOptions(vaultClient, "DirectContracts:AmazonS3:Documents", Configuration);
+            var amazonS3ImagesOptions = VaultHelper.GetOptions(vaultClient, "DirectContracts:AmazonS3:Images", Configuration);
 
             services.AddDirectContractsServices(dbConnectionString);
             services.AddDirectManagerServices();
             services.AddAmazonS3Client(options => 
-            { 
-                options.AccessKey = amazonS3ClientOptions.AccessKey;
-                options.AccessKeyId = amazonS3ClientOptions.AccessKeyId;
+            {
+                options.AccessKeyId = amazonS3DocumentsOptions["accessKeyId"];
+                options.AccessKey = amazonS3DocumentsOptions["accessKey"];
                 options.AmazonS3Config = new AmazonS3Config
-                { 
-                    RegionEndpoint = amazonS3ClientOptions.AmazonS3Config.RegionEndpoint 
+                {
+                    RegionEndpoint = RegionEndpoint.GetBySystemName(amazonS3DocumentsOptions["regionEndpoint"])
                 };
             });
           
@@ -78,12 +79,12 @@ namespace HappyTravel.Hiroshima.WebApi
                 })
                 .Configure<DocumentManagementServiceOptions>(options => 
                 {
-                    options.AmazonS3Bucket = amazonS3Bucket;
+                    options.AmazonS3Bucket = amazonS3DocumentsOptions["bucket"];
                 })
                 .Configure<ImageManagementServiceOptions>(options =>
                  {
-                     options.AmazonS3Bucket = amazonS3Bucket;
-                     options.AmazonS3RegionEndpoint = amazonS3RegionEndpoint;
+                     options.AmazonS3Bucket = amazonS3ImagesOptions["bucket"];
+                     options.AmazonS3RegionEndpoint = amazonS3ImagesOptions["regionEndpoint"];
                  });
 
             services.AddHealthChecks()

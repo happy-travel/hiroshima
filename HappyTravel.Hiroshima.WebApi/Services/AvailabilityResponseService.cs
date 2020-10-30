@@ -45,7 +45,6 @@ namespace HappyTravel.Hiroshima.WebApi.Services
                 var availabilityId = CreateAvailabilityId();
                 
                 return new EdoContracts.Accommodations.Internals.SlimAccommodationAvailability(slimAccommodation, roomContractSets, availabilityId);
-                throw new NotImplementedException();
             }
         }
 
@@ -57,6 +56,5 @@ namespace HappyTravel.Hiroshima.WebApi.Services
         
         private readonly IAccommodationResponseService _accommodationResponseService;
         private readonly IRateResponseService _rateResponseService;
-        
     }
 }

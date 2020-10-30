@@ -115,6 +115,5 @@ namespace HappyTravel.Hiroshima.WebApi.Services
                     return new DailyPrice(dailyPrice.FromDate, dailyPrice.ToDate, moneyAmount, moneyAmount, PriceTypes.Room, dailyPrice.Description);
                 }).ToList();
         }
-
     }
 }
