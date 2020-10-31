@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
+﻿namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
     public readonly struct DocumentFile
     {
@@ -12,6 +9,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
             FileBytes = fileBytes;
         }
 
+        
         public string Name { get; }
         public string ContentType { get; }
         public byte[] FileBytes { get; }

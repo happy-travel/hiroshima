@@ -102,7 +102,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                 if (promotionalOffer.ValidFromDate <= day && day <= promotionalOffer.ValidToDate)
                 {
                     var remarks = string.Empty;
-                    promotionalOffer.Remarks?.GetValue<MultiLanguage<string>>().TryGetValueOrDefault(languageCode, out remarks);
+                    promotionalOffer.Description?.GetValue<MultiLanguage<string>>().TryGetValueOrDefault(languageCode, out remarks);
 
                     return (promotionalOffer.DiscountPercent, remarks);
                 }
@@ -113,7 +113,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 
 
         private List<string> RetrievePaymentRemarks(List<RoomRate> rates)
-            => rates.Where(rate => rate.Remarks.IsNotEmpty()).Select(rateDetails => rateDetails.Remarks.GetFirstValue()).ToList();
+            => rates.Where(rate => rate.Description.IsNotEmpty()).Select(rateDetails => rateDetails.Description.GetFirstValue()).ToList();
 
 
         private static decimal GetDiscountAmount(decimal price, double discountPercent, Currencies currency)

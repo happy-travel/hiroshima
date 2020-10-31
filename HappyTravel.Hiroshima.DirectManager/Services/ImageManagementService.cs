@@ -42,7 +42,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     return await _dbContext.Images
                         .Where(image => image.ContractManagerId == contractManager.Id && image.AccommodationId == accommodationId).OrderBy(image => image.Position).ToListAsync();
                 })
-                .Map(images => Build(images));
+                .Map(Build);
         }
 
 
@@ -79,6 +79,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                 dbImage.LargeImageKey = $"{S3FolderName}/{dbImage.AccommodationId}/{entry.Entity.Id}-large.jpg";
                 dbImage.SmallImageKey = $"{S3FolderName}/{dbImage.AccommodationId}/{entry.Entity.Id}-small.jpg";
+                
+                dbImage.LargeImageUri = $"https://{_bucketName}.s3-{_regionEndpoint}.amazonaws.com/{dbImage.LargeImageKey}";
+                dbImage.SmallImageUri = $"https://{_bucketName}.s3-{_regionEndpoint}.amazonaws.com/{dbImage.SmallImageKey}";
 
                 var addToBucketResult = await AddImagesToBucket(dbImage, imageSet);
                 if (!addToBucketResult)
@@ -161,10 +164,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     .Finish().InProcessAsync();
 
                 imagesSet.SmallImage = (jobResult?.TryGet(1) != null && jobResult?.TryGet(1).TryGetBytes() != null && jobResult?.TryGet(1).TryGetBytes().HasValue == true) 
-                    ? jobResult.TryGet(1).TryGetBytes().Value.ToArray() 
+                    ? jobResult.TryGet(1).TryGetBytes()?.ToArray() 
                     : null;
                 imagesSet.LargeImage = (jobResult?.TryGet(2) != null && jobResult?.TryGet(2).TryGetBytes() != null && jobResult?.TryGet(2).TryGetBytes().HasValue == true) 
-                    ?jobResult.TryGet(2).TryGetBytes().Value.ToArray()
+                    ?jobResult.TryGet(2).TryGetBytes()?.ToArray()
                     : null;
 
                 return imagesSet;
@@ -230,6 +233,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             OriginalContentType = image.UploadedFile.ContentType,
             LargeImageKey = string.Empty,
             SmallImageKey = string.Empty,
+            LargeImageUri = string.Empty,
+            SmallImageUri = string.Empty,
             ContractManagerId = contractManagerId,
             Created = DateTime.UtcNow,
             Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> { Ar = string.Empty, En = string.Empty, Ru = string.Empty } )
@@ -244,8 +249,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 var slimImage = new Models.Responses.SlimImage
                     (
                         image.Id,
-                        $"https://{_bucketName}.s3-{_regionEndpoint}.amazonaws.com/{image.LargeImageKey}",
-                        $"https://{_bucketName}.s3-{_regionEndpoint}.amazonaws.com/{image.SmallImageKey}",
+                        image.LargeImageUri,
+                        image.SmallImageUri,
                         image.Description.GetValue<MultiLanguage<string>>()
                     ); 
                 slimImages.Add(slimImage);

@@ -17,6 +17,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
         
         public string BookingCode { get; set; }
         
-        public MultiLanguage<string> Remarks { get; set; }
+        public MultiLanguage<string> Description { get; set; }
     }
 }

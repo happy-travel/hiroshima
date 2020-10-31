@@ -1,4 +1,5 @@
-﻿using HappyTravel.EdoContracts.Accommodations.Internals;
+﻿using System.Linq;
+using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.Common.Models;
@@ -15,7 +16,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services
             var id = accommodation.Id.ToString();
             var location = GetSlimLocation(accommodation, languageCode);
             var name = GetName(accommodation, languageCode);
-            var firstImage = GetFirstImage(accommodation);
+            var firstImage = GetFirstImage(accommodation, languageCode);
             var rating = AccommodationRatingMapper.GetRating((int)accommodation.Rating);
             var propertyType = (PropertyTypes) accommodation.PropertyType;
             
@@ -43,10 +44,15 @@ namespace HappyTravel.Hiroshima.WebApi.Services
         }
 
 
-        private ImageInfo GetFirstImage(Accommodation accommodation)
+        private ImageInfo GetFirstImage(Accommodation accommodation, string languageCode)
         {
-            //TODO DB accommodation model must contain images  
-            return new ImageInfo();
+           if (!accommodation.Images.Any()) 
+               return new ImageInfo();
+
+           var firstImage = accommodation.Images.First();
+           firstImage.Description.GetValue<MultiLanguage<string>>().TryGetValueOrDefault(languageCode,out var caption);
+           
+           return new ImageInfo(firstImage.LargeImageUri, caption); 
         }
     }
 }

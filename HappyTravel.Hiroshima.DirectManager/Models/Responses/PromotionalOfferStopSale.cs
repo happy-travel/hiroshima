@@ -13,6 +13,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
             ContractId = contractId;
         }
         
+        
         public int Id { get; }
         
         public int RoomId { get; }
