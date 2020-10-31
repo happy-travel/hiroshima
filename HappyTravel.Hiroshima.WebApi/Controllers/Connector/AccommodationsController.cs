@@ -26,7 +26,6 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        [AllowAnonymous]
         [HttpPost("availabilities")]
         [ProducesResponseType(typeof(Availability), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]

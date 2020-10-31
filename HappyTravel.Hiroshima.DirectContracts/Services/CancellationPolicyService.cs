@@ -40,7 +40,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
         
 
         private decimal CalculatePercentPenaltyPrice(double percentToCharge, PaymentDetails paymentDetails)
-        => MoneyRounder.Ceil(paymentDetails.PriceTotal * Convert.ToDecimal(percentToCharge) / 100, paymentDetails.Currency);
+        => MoneyRounder.Ceil(paymentDetails.TotalPrice * Convert.ToDecimal(percentToCharge) / 100, paymentDetails.Currency);
 
 
         private decimal CalculateNightsPenaltyPrice(int nightsToCharge, PaymentDetails paymentDetails)

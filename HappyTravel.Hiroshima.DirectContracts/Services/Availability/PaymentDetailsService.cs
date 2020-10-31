@@ -22,8 +22,8 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 
             var seasonPrices = CalculatePrices(checkInDate, checkOutDate, seasonRangesWithPrice, currency, promotionalOffers, languageCode);
 
-            var priceTotal = seasonPrices.Sum(priceDetails => priceDetails.PriceTotal);
-            var discountAmount = seasonPrices.Sum(seasonPrice => GetDiscountAmount(seasonPrice.PriceTotal, seasonPrice.DiscountPercentTotal, currency));
+            var priceTotal = seasonPrices.Sum(priceDetails => priceDetails.TotalPrice);
+            var discountAmount = seasonPrices.Sum(seasonPrice => GetDiscountAmount(seasonPrice.TotalPrice, seasonPrice.TotalDiscountPercent, currency));
             var discountPercent = GetDiscountPercent(priceTotal, discountAmount);
 
             var remarks = RetrievePaymentRemarks(rates);

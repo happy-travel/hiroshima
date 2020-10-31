@@ -5,15 +5,15 @@ namespace HappyTravel.Hiroshima.DirectContracts.Models
 {
     public readonly struct SeasonPriceDetails
     {
-        public SeasonPriceDetails(DateTime startDate, DateTime endDate, decimal ratePrice, int numberOfNights, decimal priceTotal, decimal priceWithDiscountTotal, double discountPercentTotal, List<SeasonDailyPrice> dailyPrices)
+        public SeasonPriceDetails(DateTime startDate, DateTime endDate, decimal ratePrice, int numberOfNights, decimal totalPrice, decimal totalPriceWithDiscount, double totalDiscountPercent, List<SeasonDailyPrice> dailyPrices)
         {
             StartDate = startDate;
             EndDate = endDate;
             RatePrice = ratePrice;
             NumberOfNights = numberOfNights;
-            PriceTotal = priceTotal;
-            PriceWithDiscountTotal = priceWithDiscountTotal;
-            DiscountPercentTotal = discountPercentTotal;
+            TotalPrice = totalPrice;
+            TotalPriceWithDiscount = totalPriceWithDiscount;
+            TotalDiscountPercent = totalDiscountPercent;
             DailyPrices = dailyPrices;
         }
 
@@ -41,18 +41,18 @@ namespace HappyTravel.Hiroshima.DirectContracts.Models
         /// <summary>
         /// TotalPrice = NumberOfNights * RatePrice
         /// </summary>
-        public decimal PriceTotal { get; }
+        public decimal TotalPrice { get; }
         
         
         /// <summary>
         /// Total price with discount 
         /// </summary>
-        public decimal PriceWithDiscountTotal { get; }
+        public decimal TotalPriceWithDiscount { get; }
         
         /// <summary>
         /// Total discount percent 
         /// </summary>
-        public double DiscountPercentTotal { get; }
+        public double TotalDiscountPercent { get; }
         
         /// <summary>
         /// Daily prices

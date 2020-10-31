@@ -55,7 +55,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services
                 new KeyValuePair<string,string>($"{nameof(rateDetails.Amenities)}", string.Join(", ", rateDetails.Amenities))
             };
             var dailyPrices = CalculateDailyPrices(rateDetails.PaymentDetails);
-            var priceTotal = CalculatePrice(rateDetails.PaymentDetails, PriceTypes.Room);
+            var totalPrice = CalculatePrice(rateDetails.PaymentDetails, PriceTypes.Room);
             var adultsNumber = rateDetails.OccupationRequest.AdultsNumber;
             var childrenAges = rateDetails.OccupationRequest.ChildrenAges;
             var isExtraBedNeeded = rateDetails.OccupationRequest.IsExtraBedNeeded;
@@ -63,7 +63,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services
             var deadline = CalculateDeadline(rateDetails.CancellationPolicies);
             var isAdvancePurchaseRate = false;
             
-            return new RoomContract(boardBasis, mealPlan, contractTypeCode, isAvailableImmediately, idDynamic, contractDescription, remarks, dailyPrices, priceTotal, adultsNumber, childrenAges, roomType, isExtraBedNeeded, deadline, isAdvancePurchaseRate);
+            return new RoomContract(boardBasis, mealPlan, contractTypeCode, isAvailableImmediately, idDynamic, contractDescription, remarks, dailyPrices, totalPrice, adultsNumber, childrenAges, roomType, isExtraBedNeeded, deadline, isAdvancePurchaseRate);
         }
 
 
@@ -85,7 +85,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services
         
         private Price CalculatePrice(PaymentDetails paymentDetails, PriceTypes priceType)
         {
-            var moneyAmount = new MoneyAmount(paymentDetails.PriceTotal, paymentDetails.Currency);
+            var moneyAmount = new MoneyAmount(paymentDetails.TotalPrice, paymentDetails.Currency);
             var discounts = new List<Discount> {new Discount(Convert.ToDecimal(paymentDetails.DiscountPercent))};
             
             return new Price(moneyAmount, moneyAmount, discounts, priceType);           
@@ -95,9 +95,9 @@ namespace HappyTravel.Hiroshima.WebApi.Services
         {
             var firstRateDetails = rateDetails.First();
             var currency = firstRateDetails.PaymentDetails.Currency;
-            var priceTotal = rateDetails.Sum(rateDetailsItem => rateDetailsItem.PaymentDetails.PriceTotal);
+            var totalPrice = rateDetails.Sum(rateDetailsItem => rateDetailsItem.PaymentDetails.TotalPrice);
             var discounts = rateDetails.Select(rateDetailsItem => new Discount(Convert.ToDecimal(rateDetailsItem.PaymentDetails.DiscountPercent))).ToList();
-            var moneyAmount = new MoneyAmount(priceTotal, currency);
+            var moneyAmount = new MoneyAmount(totalPrice, currency);
             
             return new Price(moneyAmount, moneyAmount, discounts, PriceTypes.RoomContractSet);           
         }
