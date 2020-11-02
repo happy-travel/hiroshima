@@ -5,7 +5,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Models
 {
     public readonly struct PaymentDetails
     {
-        public PaymentDetails(decimal totalPrice, double discountPercent, List<SeasonPriceDetails> seasonPrices, Currencies currency, List<string> remarks)
+        public PaymentDetails(decimal totalPrice, decimal discountPercent, List<SeasonPriceDetails> seasonPrices, Currencies currency, List<string> remarks)
         {
             TotalPrice = totalPrice;
             DiscountPercent = discountPercent;
@@ -16,7 +16,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Models
 
 
         public decimal TotalPrice { get; }
-        public double DiscountPercent { get; }
+        public decimal DiscountPercent { get; }
         public List<SeasonPriceDetails> SeasonPrices { get; }
         public Currencies Currency { get; }
         public List<string> Remarks { get; }

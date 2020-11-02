@@ -49,7 +49,6 @@ namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions
             services.AddTransient<IAvailabilityService, AvailabilityService>();
             services.AddTransient<IAvailabilityResponseService, AvailabilityResponseService>();
             services.AddSingleton<IAccommodationResponseService, AccommodationResponseService>();
-            services.AddSingleton<IRateResponseService, RateResponseService>();
             
             return services;
         }

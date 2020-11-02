@@ -64,7 +64,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         }
 
 
-        private (decimal seasonPriceTotal, decimal seasonPriceWithDiscountTotal, double discountPercent, List<SeasonDailyPrice> dailyPrices)
+        private (decimal seasonPriceTotal, decimal seasonPriceWithDiscountTotal, decimal discountPercent, List<SeasonDailyPrice> dailyPrices)
             CalculateSeasonPrice(DateTime seasonStartDate, DateTime seasonEndDate, decimal dailyPrice, Currencies currency, List<RoomPromotionalOffer> promotionalOffers, string languageCode)
         {
             var fromDate = seasonStartDate;
@@ -95,7 +95,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         }
 
 
-        private (double discountPercent, string details) GetDiscountForDay(DateTime day, List<RoomPromotionalOffer> promotionalOffers, string languageCode)
+        private (decimal discountPercent, string details) GetDiscountForDay(DateTime day, List<RoomPromotionalOffer> promotionalOffers, string languageCode)
         {
             foreach (var promotionalOffer in promotionalOffers)
             {
@@ -116,11 +116,11 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             => rates.Where(rate => rate.Description.IsNotEmpty()).Select(rateDetails => rateDetails.Description.GetFirstValue()).ToList();
 
 
-        private static decimal GetDiscountAmount(decimal price, double discountPercent, Currencies currency)
+        private static decimal GetDiscountAmount(decimal price, decimal discountPercent, Currencies currency)
             => MoneyRounder.Truncate(price / 100 * Convert.ToDecimal(discountPercent), currency);
 
 
-        private static double GetDiscountPercent(decimal priceTotal, decimal priceWithDiscount)
-            => Math.Truncate(Convert.ToDouble(priceWithDiscount * 100 / priceTotal));
+        private static decimal GetDiscountPercent(decimal priceTotal, decimal priceWithDiscount)
+            => Math.Truncate(priceWithDiscount * 100 / priceTotal);
     }
 }

@@ -13,7 +13,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
         
         public DateTime ValidTo { get; set; }
         
-        public double DiscountPercent { get; set; }
+        public decimal DiscountPercent { get; set; }
         
         public string BookingCode { get; set; }
         

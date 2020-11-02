@@ -5,7 +5,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Models
 {
     public readonly struct SeasonPriceDetails
     {
-        public SeasonPriceDetails(DateTime startDate, DateTime endDate, decimal ratePrice, int numberOfNights, decimal totalPrice, decimal totalPriceWithDiscount, double totalDiscountPercent, List<SeasonDailyPrice> dailyPrices)
+        public SeasonPriceDetails(DateTime startDate, DateTime endDate, decimal ratePrice, int numberOfNights, decimal totalPrice, decimal totalPriceWithDiscount, decimal totalDiscountPercent, List<SeasonDailyPrice> dailyPrices)
         {
             StartDate = startDate;
             EndDate = endDate;
@@ -52,7 +52,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Models
         /// <summary>
         /// Total discount percent 
         /// </summary>
-        public double TotalDiscountPercent { get; }
+        public decimal TotalDiscountPercent { get; }
         
         /// <summary>
         /// Daily prices
