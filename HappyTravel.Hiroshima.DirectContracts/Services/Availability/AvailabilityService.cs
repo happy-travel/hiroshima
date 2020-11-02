@@ -8,6 +8,7 @@ using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.GeoData.Enums;
 using HappyTravel.Hiroshima.Common.Constants;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
+using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.DirectContracts.Models;
@@ -131,7 +132,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                         => checkInDate <= promotionalOffer.ValidToDate && promotionalOffer.ValidFromDate <= checkOutDate))
                 .Include(accommodation => accommodation.Location)
                     .ThenInclude(location => location.Country)
-                .Include(accommodation => accommodation.Images.Where(image => image.Position == 0))
+                .Include(accommodation => accommodation.Images)
                 .Where(expression)
                 .ToListAsync();
         }

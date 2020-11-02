@@ -113,7 +113,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<List<Models.Responses.PromotionalOfferStopSale>>> AddStopSalePeriods(int contractId, List<Models.Requests.PromotionalOfferStopSale> stopSalePeriods)
+        public Task<Result<List<Models.Responses.PromotionalOfferStopSalePeriod>>> AddStopSalePeriods(int contractId, List<Models.Requests.PromotionalOfferStopSale> stopSalePeriods)
         {
             return ValidationHelper.Validate(stopSalePeriods, new PromotionalOfferStopSaleValidator())
                 .Bind(() => _contractManagerContext.GetContractManager())
@@ -147,7 +147,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<List<Models.Responses.PromotionalOfferStopSale>>> GetStopSalePeriods(int contractId, int skip, int top, List<int> roomIds,
+        public Task<Result<List<Models.Responses.PromotionalOfferStopSalePeriod>>> GetStopSalePeriods(int contractId, int skip, int top, List<int> roomIds,
             DateTime? fromDate, DateTime? toDate)
         {
             return _contractManagerContext.GetContractManager()
@@ -238,11 +238,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             => promotionalOffers.Select(Build).ToList();
 
 
-        private Models.Responses.PromotionalOfferStopSale Build(PromotionalOfferStopSale stopSalePeriod)
-            => new Models.Responses.PromotionalOfferStopSale(stopSalePeriod.Id, stopSalePeriod.RoomId, stopSalePeriod.FromDate, stopSalePeriod.ToDate, stopSalePeriod.ContractId);
+        private Models.Responses.PromotionalOfferStopSalePeriod Build(PromotionalOfferStopSale stopSalePeriod)
+            => new Models.Responses.PromotionalOfferStopSalePeriod(stopSalePeriod.Id, stopSalePeriod.RoomId, stopSalePeriod.FromDate, stopSalePeriod.ToDate, stopSalePeriod.ContractId);
 
 
-        private List<Models.Responses.PromotionalOfferStopSale> Build(List<PromotionalOfferStopSale> stopSalePeriods)
+        private List<Models.Responses.PromotionalOfferStopSalePeriod> Build(List<PromotionalOfferStopSale> stopSalePeriods)
             => stopSalePeriods.Select(Build).ToList();
         
         

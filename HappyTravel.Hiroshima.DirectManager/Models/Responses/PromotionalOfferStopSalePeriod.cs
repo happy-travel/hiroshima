@@ -2,9 +2,9 @@
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
-    public readonly struct PromotionalOfferStopSale
+    public readonly struct PromotionalOfferStopSalePeriod
     {
-        public PromotionalOfferStopSale(int id, int roomId, DateTime fromDate, DateTime toDate, int contractId)
+        public PromotionalOfferStopSalePeriod(int id, int roomId, DateTime fromDate, DateTime toDate, int contractId)
         {
             Id = id;
             RoomId = roomId;

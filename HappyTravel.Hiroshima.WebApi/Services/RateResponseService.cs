@@ -30,8 +30,8 @@ namespace HappyTravel.Hiroshima.WebApi.Services
         {
             var id = Guid.NewGuid();
             var roomContracts = CreateRoomContracts(rateDetails);
-            var price = CalculatePrice(rateDetails);
-            var deadline = CalculateDeadline(roomContracts);
+            var price = CreatePrice(rateDetails);
+            var deadline = CreateDeadline(roomContracts);
             var advancePurchaseRate = false;
             
             return new RoomContractSet(id, price, deadline, roomContracts, advancePurchaseRate);
@@ -54,20 +54,20 @@ namespace HappyTravel.Hiroshima.WebApi.Services
             {
                 new KeyValuePair<string,string>($"{nameof(rateDetails.Amenities)}", string.Join(", ", rateDetails.Amenities))
             };
-            var dailyPrices = CalculateDailyPrices(rateDetails.PaymentDetails);
-            var totalPrice = CalculatePrice(rateDetails.PaymentDetails, PriceTypes.Room);
+            var dailyPrices = CreateDailyPrices(rateDetails.PaymentDetails);
+            var totalPrice = CreatePrice(rateDetails.PaymentDetails, PriceTypes.Room);
             var adultsNumber = rateDetails.OccupationRequest.AdultsNumber;
             var childrenAges = rateDetails.OccupationRequest.ChildrenAges;
             var isExtraBedNeeded = rateDetails.OccupationRequest.IsExtraBedNeeded;
             var roomType = rateDetails.RoomType;
-            var deadline = CalculateDeadline(rateDetails.CancellationPolicies);
+            var deadline = CreateDeadline(rateDetails.CancellationPolicies);
             var isAdvancePurchaseRate = false;
             
             return new RoomContract(boardBasis, mealPlan, contractTypeCode, isAvailableImmediately, idDynamic, contractDescription, remarks, dailyPrices, totalPrice, adultsNumber, childrenAges, roomType, isExtraBedNeeded, deadline, isAdvancePurchaseRate);
         }
 
 
-        private Deadline CalculateDeadline(List<CancellationPolicyDetails> cancellationPolicies)
+        private Deadline CreateDeadline(List<CancellationPolicyDetails> cancellationPolicies)
         {
             if (!cancellationPolicies.Any())
                 return new Deadline();
@@ -79,11 +79,11 @@ namespace HappyTravel.Hiroshima.WebApi.Services
         }
         
         
-        private Deadline CalculateDeadline(List<RoomContract> roomContracts)
+        private Deadline CreateDeadline(List<RoomContract> roomContracts)
             => roomContracts.Select(roomContract => roomContract.Deadline).OrderBy(roomContract => roomContract.Date).FirstOrDefault();
         
         
-        private Price CalculatePrice(PaymentDetails paymentDetails, PriceTypes priceType)
+        private Price CreatePrice(PaymentDetails paymentDetails, PriceTypes priceType)
         {
             var moneyAmount = new MoneyAmount(paymentDetails.TotalPrice, paymentDetails.Currency);
             var discounts = new List<Discount> {new Discount(Convert.ToDecimal(paymentDetails.DiscountPercent))};
@@ -91,7 +91,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services
             return new Price(moneyAmount, moneyAmount, discounts, priceType);           
         }
         
-        private Price CalculatePrice(List<RateDetails> rateDetails)
+        private Price CreatePrice(List<RateDetails> rateDetails)
         {
             var firstRateDetails = rateDetails.First();
             var currency = firstRateDetails.PaymentDetails.Currency;
@@ -103,7 +103,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services
         }
         
         
-        private List<DailyPrice> CalculateDailyPrices(in PaymentDetails paymentDetails)
+        private List<DailyPrice> CreateDailyPrices(in PaymentDetails paymentDetails)
         {
             var currency = paymentDetails.Currency;
             
