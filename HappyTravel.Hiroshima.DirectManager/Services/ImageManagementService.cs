@@ -71,7 +71,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 if (imageSet.LargeImage == null || imageSet.SmallImage == null)
                     return Maybe<Image>.None;
 
-                dbImage.Position = _dbContext.Images.Count(image => image.AccommodationId == dbImage.AccommodationId);
+                dbImage.Position = _dbContext.Images.Count(i => i.AccommodationId == dbImage.AccommodationId);
 
                 var entry = _dbContext.Images.Add(dbImage);
 
@@ -266,7 +266,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private async Task<bool> RemoveImage(int contractManagerId, int accommodationId, Guid imageId)
         {
-            var image = await _dbContext.Images.SingleOrDefaultAsync(image => image.ContractManagerId == contractManagerId && image.AccommodationId == accommodationId && image.Id == imageId);
+            var image = await _dbContext.Images.SingleOrDefaultAsync(i => i.ContractManagerId == contractManagerId && i.AccommodationId == accommodationId && i.Id == imageId);
             if (image is null)
                 return false;
 

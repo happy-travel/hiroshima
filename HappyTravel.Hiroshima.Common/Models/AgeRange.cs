@@ -1,6 +1,4 @@
-﻿using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
-
-namespace HappyTravel.Hiroshima.Common.Models
+﻿namespace HappyTravel.Hiroshima.Common.Models
 {
     /// <summary>
     /// Represents an age range of a person. Bounds are included

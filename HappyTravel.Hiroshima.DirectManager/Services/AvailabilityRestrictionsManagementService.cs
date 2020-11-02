@@ -8,7 +8,6 @@ using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
-using HappyTravel.Hiroshima.DirectManager.Models.Requests;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.EntityFrameworkCore;
 
@@ -150,7 +149,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     
         private async Task<Result> Validate(int contractManagerId, int contractId, List<Models.Requests.AvailabilityRestriction> availabilityRestrictions)
         {
-            var contract = await _dbContext.Contracts.SingleOrDefaultAsync(contract => contract.Id == contractId && contract.ContractManagerId == contractManagerId);
+            var contract = await _dbContext.Contracts.SingleOrDefaultAsync(c => c.Id == contractId && c.ContractManagerId == contractManagerId);
             if (contract == null)
                 return Result.Failure($"Contract '{contractId}' doesn't belong to the contract manager");
             

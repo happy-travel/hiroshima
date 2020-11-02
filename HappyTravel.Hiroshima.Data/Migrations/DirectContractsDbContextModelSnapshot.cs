@@ -6,13 +6,10 @@ using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefinitions;
-using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Models.Booking;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Hiroshima.Data.Migrations
 {

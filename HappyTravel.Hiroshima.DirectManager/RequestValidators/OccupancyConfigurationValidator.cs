@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefinitions;
 
 namespace HappyTravel.Hiroshima.DirectManager.RequestValidators

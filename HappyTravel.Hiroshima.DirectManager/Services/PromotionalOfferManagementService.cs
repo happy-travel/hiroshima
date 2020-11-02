@@ -31,11 +31,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .EnsureContractBelongsToContractManager(_dbContext, contractId)
                 .Bind(contractManager
                     => _dbContext.CheckIfRoomsBelongToContract(contractId, contractManager.Id, promotionalOffers.Select(offer => offer.RoomId).ToList()))
-                .Map(() => AddPromotionalOffers(promotionalOffers))
+                .Map(AddPromotionalOffers)
                 .Map(Build);
             
             
-            async Task<List<RoomPromotionalOffer>> AddPromotionalOffers(List<Models.Requests.PromotionalOffer> promotionalOffers)
+            async Task<List<RoomPromotionalOffer>> AddPromotionalOffers()
             {
                 var newPromotionalOffers = Create(contractId, promotionalOffers);
                 _dbContext.PromotionalOffers.AddRange(newPromotionalOffers);
@@ -113,22 +113,22 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<List<Models.Responses.PromotionalOfferStopSalePeriod>>> AddStopSalePeriods(int contractId, List<Models.Requests.PromotionalOfferStopSale> stopSalePeriods)
+        public Task<Result<List<Models.Responses.PromotionalOfferStopSalePeriod>>> AddStopSalePeriods(int contractId, List<Models.Requests.PromotionalOfferStopSale> stopSalePeriodsRequest)
         {
-            return ValidationHelper.Validate(stopSalePeriods, new PromotionalOfferStopSaleValidator())
+            return ValidationHelper.Validate(stopSalePeriodsRequest, new PromotionalOfferStopSaleValidator())
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .EnsureContractBelongsToContractManager(_dbContext, contractId)
                 .Map(contractManager
-                    => _dbContext.CheckIfRoomsBelongToContract(contractId, contractManager.Id, stopSalePeriods.Select(offer => offer.RoomId).ToList()))
+                    => _dbContext.CheckIfRoomsBelongToContract(contractId, contractManager.Id, stopSalePeriodsRequest.Select(offer => offer.RoomId).ToList()))
                 .Tap(_ => RemovePrevious())
-                .Map(_ => Create(contractId, stopSalePeriods))
+                .Map(_ => Create(contractId, stopSalePeriodsRequest))
                 .Map(Add)
                 .Map(Build);
 
 
             async Task RemovePrevious()
             {
-                var roomIds = stopSalePeriods.Select(stopSale => stopSale.RoomId).ToList();
+                var roomIds = stopSalePeriodsRequest.Select(stopSale => stopSale.RoomId).ToList();
                 var previousStopSales = await _dbContext.PromotionalOfferStopSales.Where(stopSale => stopSale.ContractId == contractId && roomIds.Contains(stopSale.RoomId)).ToListAsync();
                 
                 _dbContext.PromotionalOfferStopSales.RemoveRange(previousStopSales);

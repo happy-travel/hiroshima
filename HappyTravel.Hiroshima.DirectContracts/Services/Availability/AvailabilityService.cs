@@ -8,7 +8,6 @@ using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.GeoData.Enums;
 using HappyTravel.Hiroshima.Common.Constants;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
-using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.DirectContracts.Models;

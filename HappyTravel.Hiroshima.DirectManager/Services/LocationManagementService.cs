@@ -55,9 +55,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private async Task<(Location location, Country country)> AddLocation(Country country, string localityName, string zoneName)
         {
-            Expression<Func<Location, bool>> countryAndLocalityExistExpression = location 
-                => location.CountryCode == country.Code &&
-                location.Locality.RootElement
+            Expression<Func<Location, bool>> countryAndLocalityExistExpression = l 
+                => l.CountryCode == country.Code && l.Locality.RootElement
                     .GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage))
                     .GetString().ToUpper() == localityName.ToUpper();
             
@@ -66,8 +65,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             if (!string.IsNullOrEmpty(zoneName))
             {
-                Expression<Func<Location, bool>> zoneExistsExpression = location 
-                    => location.Zone.RootElement
+                Expression<Func<Location, bool>> zoneExistsExpression = l 
+                    => l.Zone.RootElement
                         .GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage))
                         .GetString().ToUpper() == zoneName.ToUpper();
                     location = location.Where(zoneExistsExpression);

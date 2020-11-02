@@ -13,10 +13,11 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure.Utilities
         /// <returns></returns>
         public static int Aggregate<T>(T obj, int hash)
         {
-            unchecked
-            {
-                hash = hash * 31 + obj.GetHashCode();
-            }
+            if (obj != null)
+                unchecked
+                {
+                    hash = hash * 31 + obj.GetHashCode();
+                }
 
             return hash;
         }

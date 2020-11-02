@@ -41,14 +41,7 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms
         public List<RoomCancellationPolicy> RoomCancellationPolicies { get; set; } = new List<RoomCancellationPolicy>();
         
         
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-
-            return Equals((Room) obj);
-        }
+        public override bool Equals(object? obj) => obj is Room other && Equals(other);
 
 
         public override int GetHashCode()

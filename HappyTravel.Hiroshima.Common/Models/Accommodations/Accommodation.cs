@@ -11,7 +11,7 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations
     public class Accommodation
     {
         public int Id { get; set; }
-        
+
         public JsonDocument Name { get; set; }
         
         public JsonDocument Address { get; set; }

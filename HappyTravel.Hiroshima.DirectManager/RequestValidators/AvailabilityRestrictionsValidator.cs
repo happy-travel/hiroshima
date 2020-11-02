@@ -2,7 +2,6 @@
 using System.Linq;
 using FluentValidation;
 using HappyTravel.Hiroshima.Common.Models;
-using HappyTravel.Hiroshima.Data.Models;
 
 namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
 {

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using HappyTravel.Hiroshima.Common.Models;
-using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefinitions;
 using Picture = HappyTravel.Hiroshima.Common.Models.Picture;
 
