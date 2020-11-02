@@ -1,22 +1,25 @@
 ﻿using System;
+using HappyTravel.EdoContracts.General;
+using HappyTravel.Money.Models;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Models
 {
     public readonly struct SeasonDailyPrice
     {
-        public SeasonDailyPrice(DateTime fromDate, DateTime toDate, decimal price, decimal priceWithDiscount, string description)
+        public SeasonDailyPrice(DateTime fromDate, DateTime toDate, MoneyAmount dailyAmount, MoneyAmount dailyAmountWithDiscount, Discount discount)
         {
-            Price = price;
-            PriceWithDiscount = priceWithDiscount;
+            DailyAmount = dailyAmount;
+            DailyAmountWithDiscount = dailyAmountWithDiscount;
             FromDate = fromDate;
             ToDate = toDate;
-            Description = description;
+            Discount = discount;
         }
+        
         
         public DateTime FromDate { get; }
         public DateTime ToDate { get; }
-        public decimal Price { get; }
-        public decimal PriceWithDiscount { get; }
-        public string Description { get; }
+        public MoneyAmount DailyAmount { get; }
+        public MoneyAmount DailyAmountWithDiscount { get; }
+        public Discount Discount { get; }
     }
 }

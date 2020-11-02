@@ -1,5 +1,4 @@
-﻿using System;
-using HappyTravel.Hiroshima.DirectManager.Infrastructure;
+﻿using HappyTravel.Hiroshima.DirectManager.Infrastructure;
 using HappyTravel.Hiroshima.DirectManager.Services;
 using Microsoft.Extensions.DependencyInjection;
 

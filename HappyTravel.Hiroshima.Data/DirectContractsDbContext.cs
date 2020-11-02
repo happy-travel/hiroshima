@@ -83,7 +83,7 @@ namespace HappyTravel.Hiroshima.Data
         
         private void AddDocuments(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Common.Models.Document>(e =>
+            modelBuilder.Entity<Document>(e =>
             {
                 e.ToTable("Documents");
                 e.HasKey(c => c.Id);
@@ -179,7 +179,7 @@ namespace HappyTravel.Hiroshima.Data
 
         private void AddImages(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Common.Models.Image>(e =>
+            modelBuilder.Entity<Image>(e =>
             {
                 e.ToTable("Images");
                 e.HasKey(i => i.Id);
@@ -206,7 +206,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.ToTable("Rooms");
                 e.HasKey(r=> r.Id);
                 e.Property(r=> r.Amenities).HasColumnType("jsonb").IsRequired();
-                e.Property(r => r.Description).HasColumnType("jsonb").IsRequired();;
+                e.Property(r => r.Description).HasColumnType("jsonb").IsRequired();
                 e.Property(r => r.Name).HasColumnType("jsonb").IsRequired();
                 e.Property(r => r.OccupancyConfigurations).HasColumnType("jsonb").IsRequired();
                 e.Property(r => r.AccommodationId).IsRequired();
@@ -225,8 +225,8 @@ namespace HappyTravel.Hiroshima.Data
                 e.HasKey(rr=> rr.Id);
                 e.Property(rr => rr.Price).IsRequired();
                 e.Property(rr => rr.Currency).IsRequired();
-                e.Property(rr => rr.MealPlan).IsRequired();;
-                e.Property(rr => rr.BoardBasis).IsRequired();;
+                e.Property(rr => rr.MealPlan).IsRequired();
+                e.Property(rr => rr.BoardBasis).IsRequired();
                 e.Property(rr=> rr.SeasonId).IsRequired();
                 e.Property(rr => rr.RoomId).IsRequired();
                 e.Property(rr => rr.RoomType).IsRequired();
@@ -315,7 +315,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.HasKey(rcp => rcp.Id);
                 e.Property(rcp => rcp.Policies).HasColumnType("jsonb").IsRequired();
                 e.Property(rcp => rcp.RoomId).IsRequired();
-                e.Property(rcp => rcp.SeasonId).IsRequired();;
+                e.Property(rcp => rcp.SeasonId).IsRequired();
                 e.HasIndex(rcp => rcp.RoomId);
                 e.HasIndex(rcp => rcp.SeasonId);
             });
@@ -392,7 +392,7 @@ namespace HappyTravel.Hiroshima.Data
         public virtual DbSet<RoomCancellationPolicy> RoomCancellationPolicies { get; set; }
         public virtual DbSet<ContractManager> ContractManagers { get; set; }
         public virtual DbSet<Contract> Contracts { get; set; }
-        public virtual DbSet<Common.Models.Document> Documents { get; set; }
+        public virtual DbSet<Document> Documents { get; set; }
         public virtual DbSet<ContractAccommodationRelation> ContractAccommodationRelations { get; set; }
         public virtual DbSet<Season> Seasons { get; set; }
         public virtual DbSet<SeasonRange> SeasonRanges { get; set; }

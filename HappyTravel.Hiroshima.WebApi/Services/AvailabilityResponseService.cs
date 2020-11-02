@@ -19,20 +19,20 @@ namespace HappyTravel.Hiroshima.WebApi.Services
         }
 
 
-        public EdoContracts.Accommodations.Availability Create(EdoContracts.Accommodations.AvailabilityRequest availabilityRequest, Dictionary<Accommodation, List<AvailableRates>> accommodationAvailableRatesStore, string languageCode)
+        public Availability Create(AvailabilityRequest availabilityRequest, Dictionary<Accommodation, List<AvailableRates>> accommodationAvailableRatesStore, string languageCode)
         {
             var availabilityId = CreateAvailabilityId();
             var numberOfNights = GetNumberOfNights(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate);
             var numberOfProcessedAccommodations = accommodationAvailableRatesStore.Count;
             var slimAccommodationAvailabilities = CreateSlimAccommodationAvailabilities(accommodationAvailableRatesStore, languageCode); 
             
-            return new EdoContracts.Accommodations.Availability(availabilityId, numberOfNights, availabilityRequest.CheckInDate.Date, availabilityRequest.CheckOutDate.Date, slimAccommodationAvailabilities, numberOfProcessedAccommodations);
+            return new Availability(availabilityId, numberOfNights, availabilityRequest.CheckInDate.Date, availabilityRequest.CheckOutDate.Date, slimAccommodationAvailabilities, numberOfProcessedAccommodations);
         }
 
 
-        private List<EdoContracts.Accommodations.Internals.SlimAccommodationAvailability> CreateSlimAccommodationAvailabilities(Dictionary<Accommodation, List<AvailableRates>> accommodationAvailableRatesStore, string languageCode)
+        private List<SlimAccommodationAvailability> CreateSlimAccommodationAvailabilities(Dictionary<Accommodation, List<AvailableRates>> accommodationAvailableRatesStore, string languageCode)
         {
-            var slimAccommodationAvailabilities = new List<EdoContracts.Accommodations.Internals.SlimAccommodationAvailability>();
+            var slimAccommodationAvailabilities = new List<SlimAccommodationAvailability>();
                 
             foreach (var accommodationAvailableRate in accommodationAvailableRatesStore)
             {
@@ -43,13 +43,13 @@ namespace HappyTravel.Hiroshima.WebApi.Services
             return slimAccommodationAvailabilities;
 
 
-            EdoContracts.Accommodations.Internals.SlimAccommodationAvailability CreateSlimAccommodationAvailability(Accommodation accommodation, List<AvailableRates> availableRates)
+            SlimAccommodationAvailability CreateSlimAccommodationAvailability(Accommodation accommodation, List<AvailableRates> availableRates)
             {
                 var slimAccommodation = _accommodationResponseService.Create(accommodation, languageCode);
                 var roomContractSets = Create(availableRates);
                 var availabilityId = CreateAvailabilityId();
                 
-                return new EdoContracts.Accommodations.Internals.SlimAccommodationAvailability(slimAccommodation, roomContractSets, availabilityId);
+                return new SlimAccommodationAvailability(slimAccommodation, roomContractSets, availabilityId);
             }
         }
 
@@ -115,7 +115,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services
                 return new Deadline();
             
             var policies = cancellationPolicies
-                .Select(cancellationPolicyDetail => new CancellationPolicy(cancellationPolicyDetail.StartDate, cancellationPolicyDetail.Percent)).ToList();
+                .Select(cancellationPolicyDetail => new CancellationPolicy(cancellationPolicyDetail.StartDate, Convert.ToDouble(cancellationPolicyDetail.Percent))).ToList();
             
             return new Deadline(policies.First().FromDate, policies);
         }
@@ -127,39 +127,31 @@ namespace HappyTravel.Hiroshima.WebApi.Services
         
         private Price CreatePrice(PaymentDetails paymentDetails, PriceTypes priceType)
         {
-            var moneyAmount = new MoneyAmount(paymentDetails.TotalPrice, paymentDetails.Currency);
-            var discounts = new List<Discount> {new Discount(Convert.ToDecimal(paymentDetails.DiscountPercent))};
+            var discounts = new List<Discount> {paymentDetails.Discount};
             
-            return new Price(moneyAmount, moneyAmount, discounts, priceType);           
+            return new Price(paymentDetails.TotalAmount, paymentDetails.TotalAmount, discounts, priceType);           
         }
+        
         
         private Price CreatePrice(List<RateDetails> rateDetails)
         {
             var firstRateDetails = rateDetails.First();
-            var currency = firstRateDetails.PaymentDetails.Currency;
-            var totalPrice = rateDetails.Sum(rateDetailsItem => rateDetailsItem.PaymentDetails.TotalPrice);
-            var discounts = rateDetails.Select(rateDetailsItem => new Discount(rateDetailsItem.PaymentDetails.DiscountPercent)).ToList();
+            var currency = firstRateDetails.PaymentDetails.TotalAmount.Currency;
+            var totalPrice = rateDetails.Sum(rateDetailsItem => rateDetailsItem.PaymentDetails.TotalAmount.Amount);
+            var discounts = rateDetails.Select(rateDetailsItem => rateDetailsItem.PaymentDetails.Discount).ToList();
             var moneyAmount = new MoneyAmount(totalPrice, currency);
             
             return new Price(moneyAmount, moneyAmount, discounts, PriceTypes.RoomContractSet);           
         }
         
         
-        private List<DailyPrice> CreateDailyPrices(in PaymentDetails paymentDetails)
-        {
-            var currency = paymentDetails.Currency;
-            
-            return paymentDetails.SeasonPrices.SelectMany(seasonPriceDetails => seasonPriceDetails.DailyPrices)
-                .OrderBy(dailyPrice => dailyPrice.FromDate).Select(dailyPrice =>
-                {
-                    var moneyAmount = new MoneyAmount(dailyPrice.Price, currency);
-                    
-                    return new DailyPrice(dailyPrice.FromDate, dailyPrice.ToDate, moneyAmount, moneyAmount, PriceTypes.Room, dailyPrice.Description);
-                }).ToList();
-        }
-        
-        
-        
+        private List<DailyPrice> CreateDailyPrices(in PaymentDetails paymentDetails) 
+            => paymentDetails.SeasonPrices.SelectMany(seasonPriceDetails => seasonPriceDetails.DailyPrices)
+            .OrderBy(dailyPrice => dailyPrice.FromDate)
+            .Select(dailyPrice => new DailyPrice(dailyPrice.FromDate, dailyPrice.ToDate, dailyPrice.DailyAmount, dailyPrice.DailyAmount))
+            .ToList();
+
+
         private string CreateAvailabilityId() => Guid.NewGuid().ToString("N");
 
 

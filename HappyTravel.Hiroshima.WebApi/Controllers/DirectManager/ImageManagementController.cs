@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Hiroshima.DirectManager.Models.Responses;
 using HappyTravel.Hiroshima.DirectManager.Services;
 using HappyTravel.Hiroshima.WebApi.Infrastructure;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -50,7 +48,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <returns></returns>
         [HttpPost("accommodations/{accommodationId}/photo")]
         [RequestSizeLimit(50 * 1024 * 1024)]
-        [ProducesResponseType(typeof(Image), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Hiroshima.DirectManager.Models.Responses.Image), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> AddImageFile([FromRoute] int accommodationId, [FromForm] IFormFile uploadedFile)
         {
