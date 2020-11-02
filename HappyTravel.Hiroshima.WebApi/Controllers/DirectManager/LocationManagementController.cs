@@ -19,7 +19,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
             _locationManagementService = locationManagementService;
         }
 
-        
+
         /// <summary>
         /// Retrieves a location by country name and locality name (city name). If the locality doesn't exist adds a new one 
         /// </summary>
@@ -29,7 +29,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [ProducesResponseType(typeof(Hiroshima.DirectManager.Models.Responses.Location), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> AddLocation([FromBody] Hiroshima.DirectManager.Models.Requests.Location location)
-        { 
+        {
             var (_, isFailure, response, error) = await _locationManagementService.Add(location);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));

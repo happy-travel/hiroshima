@@ -55,42 +55,51 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private async Task<(Location location, Country country)> AddLocation(Country country, string localityName, string zoneName)
         {
-            Expression<Func<Location, bool>> countryAndLocalityExistExpression = location 
-                => location.CountryCode == country.Code &&
-                location.Locality.RootElement
-                    .GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage))
-                    .GetString().ToUpper() == localityName.ToUpper();
+            var location = await GetLocation();
             
-            var location = _dbContext.Locations
-                .Where(countryAndLocalityExistExpression);
+            if (location != null)
+                return (location, country);
 
-            if (!string.IsNullOrEmpty(zoneName))
-            {
-                Expression<Func<Location, bool>> zoneExistsExpression = location 
-                    => location.Zone.RootElement
-                        .GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage))
-                        .GetString().ToUpper() == zoneName.ToUpper();
-                    location = location.Where(zoneExistsExpression);
-            }
-
-            var locationResult = await location.SingleOrDefaultAsync();
-                    
-            if (locationResult != null)
-                return (locationResult, country);
-
-            locationResult = new Location
+            location = new Location
             {
                 CountryCode = country.Code,
                 Locality = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = localityName}),
-                Zone = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = zoneName})
             };
             
-            _dbContext.Locations.Add(locationResult);
+            if (!string.IsNullOrEmpty(zoneName))
+                location.Zone = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = zoneName});
+            
+            _dbContext.Locations.Add(location);
             await _dbContext.SaveChangesAsync();
 
-            _dbContext.DetachEntry(locationResult);
+            _dbContext.DetachEntry(location);
             
-            return (locationResult, country);
+            return (location, country);
+            
+            
+            async Task<Location> GetLocation()
+            {
+                Expression<Func<Location, bool>> countryAndLocalityExistExpression = l 
+                    => l.CountryCode == country.Code &&
+                    l.Locality.RootElement
+                        .GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage))
+                        .GetString().ToUpper() == localityName.ToUpper();
+            
+                var location = _dbContext.Locations
+                    .Where(countryAndLocalityExistExpression);
+                
+                if (!string.IsNullOrEmpty(zoneName))
+                {
+                    return await location.Where(l 
+                        => l.Zone.RootElement
+                            .GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage))
+                            .GetString().ToUpper() == zoneName.ToUpper()).SingleOrDefaultAsync();
+                }
+
+                var locations = await location.ToListAsync();
+                
+                return locations.FirstOrDefault(loc => !loc.Zone.IsNotEmpty());
+            }
         }
 
 
