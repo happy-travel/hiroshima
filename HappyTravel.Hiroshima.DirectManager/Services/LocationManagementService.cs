@@ -12,15 +12,18 @@ using HappyTravel.Hiroshima.Common.Models.Locations;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
+using LocationNameNormalizer;
+using LocationNameNormalizer.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class LocationManagementService : ILocationManagementService
     {
-        public LocationManagementService(DirectContractsDbContext dbContext)
+        public LocationManagementService(DirectContractsDbContext dbContext, ILocationNameNormalizer locationNameNormalizer)
         {
             _dbContext = dbContext;
+            _locationNameNormalizer = locationNameNormalizer;
         }
 
 
@@ -29,7 +32,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             return ValidationHelper.Validate(location, new LocationValidator())
                 .Bind(async () => await GetCountry(location.Country))
                 .Map(country => AddLocation(country, location.Locality, location.Zone))
-                .Map(locationAndCountry => CreateResponse(locationAndCountry.location, locationAndCountry.country));
+                .Map(locationAndCountry => Build(locationAndCountry.location, locationAndCountry.country));
         }
 
         
@@ -40,7 +43,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                   .Skip(skip).Take(top)
                   .ToListAsync();
 
-              return locations.Select(location => CreateResponse(location.location, location.country)).ToList();
+              return locations.Select(location => Build(location.location, location.country)).ToList();
         }
 
 
@@ -55,15 +58,17 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private async Task<(Location location, Country country)> AddLocation(Country country, string localityName, string zoneName)
         {
+            var normalizedLocality = _locationNameNormalizer.GetNormalizedLocalityName(country.Name.GetValue<MultiLanguage<string>>().En, localityName);
+            
             var location = await GetLocation();
             
             if (location != null)
                 return (location, country);
-
+            
             location = new Location
             {
                 CountryCode = country.Code,
-                Locality = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = localityName}),
+                Locality = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = normalizedLocality}),
             };
             
             if (!string.IsNullOrEmpty(zoneName))
@@ -83,7 +88,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     => l.CountryCode == country.Code &&
                     l.Locality.RootElement
                         .GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage))
-                        .GetString().ToUpper() == localityName.ToUpper();
+                        .GetString() == normalizedLocality;
             
                 var location = _dbContext.Locations
                     .Where(countryAndLocalityExistExpression);
@@ -114,9 +119,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Models.Responses.Location CreateResponse(Location location, Country country) => new Models.Responses.Location(location.Id, location.CountryCode, country.Name.GetValue<MultiLanguage<string>>().En, location.Locality.GetValue<MultiLanguage<string>>().En, location.Zone.GetValue<MultiLanguage<string>>().En);
+        private Models.Responses.Location Build(Location location, Country country) => new Models.Responses.Location(location.Id, location.CountryCode, country.Name.GetValue<MultiLanguage<string>>().En, location.Locality.GetValue<MultiLanguage<string>>().En, location.Zone.GetValue<MultiLanguage<string>>().En);
 
         
         private readonly DirectContractsDbContext _dbContext;
+        private readonly ILocationNameNormalizer _locationNameNormalizer;
     }
 }

@@ -21,7 +21,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
 
         /// <summary>
-        /// Retrieves a location by country name and locality name (city name). If the locality doesn't exist adds a new one 
+        /// Retrieves location data. If the locality doesn't exist adds a new one
         /// </summary>
         /// <param name="location"></param>
         /// <returns></returns>

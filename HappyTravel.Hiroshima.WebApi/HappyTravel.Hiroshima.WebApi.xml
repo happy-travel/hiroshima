@@ -300,6 +300,13 @@
             <param name="imageId">Id of the image file to be deleted</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.LocationManagementController.AddLocation(HappyTravel.Hiroshima.DirectManager.Models.Requests.Location)">
+            <summary>
+            Retrieves location data. If the locality doesn't exist adds a new one
+            </summary>
+            <param name="location"></param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.LocationManagementController.GetLocations(System.Int32,System.Int32)">
             <summary>
             Retrieves all locations with paging
