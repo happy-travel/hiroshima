@@ -36,11 +36,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return _contractManagerContext.GetContractManager()
                 .EnsureContractBelongsToContractManager(_dbContext, contractId)
-                .Map(contractManager => GetContractAccommodations(contractManager.Id))
+                .Map(contractManager => GetContractAccommodations())
                 .Map(Build);
 
 
-            Task<List<Accommodation>> GetContractAccommodations(int contractManagerId)
+            Task<List<Accommodation>> GetContractAccommodations()
             {
                 return _dbContext.Accommodations.Include(accommodation => accommodation.Rooms)
                     .Join(_dbContext.ContractAccommodationRelations, accommodation => accommodation.Id, relation => relation.AccommodationId,
@@ -188,7 +188,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 var room = await _dbContext.GetAccommodations()
                     .Where(accommodation => accommodation.Id == accommodationId &&
                         accommodation.ContractManagerId == contractManagerId)
-                    .Select(accommodation => accommodation.Rooms.SingleOrDefault(room => room.Id == roomId))
+                    .Select(accommodation => accommodation.Rooms.SingleOrDefault(r => r.Id == roomId))
                     .SingleOrDefaultAsync();
 
                 return room == null

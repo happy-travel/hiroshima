@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
@@ -19,7 +18,7 @@ namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Environments
         }
 
 
-        public static bool IsLocal(this IWebHostEnvironment hostingEnvironment) => hostingEnvironment.IsEnvironment(LocalEnvironment);
+        public static bool IsLocal(this IHostEnvironment hostingEnvironment) => hostingEnvironment.IsEnvironment(LocalEnvironment);
 
         
         private const string LocalEnvironment = "Local";

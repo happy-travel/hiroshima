@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using HappyTravel.Hiroshima.Common.Models;
-using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefinitions;
 using HappyTravel.Hiroshima.Data.Models.Booking;

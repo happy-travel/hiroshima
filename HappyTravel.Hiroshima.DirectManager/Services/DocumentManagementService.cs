@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Amazon.S3;
 using CSharpFunctionalExtensions;
@@ -31,12 +32,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return _contractManagerContext.GetContractManager()
                 .EnsureContractBelongsToContractManager(_dbContext, contractId)
-                .Bind(dbDocument => GetDocumentFile(contractId, documentId));
+                .Bind(dbDocument => GetDocumentFile());
 
 
-            async Task<Result<Models.Responses.DocumentFile>> GetDocumentFile(int contractId, Guid documentId)
+            async Task<Result<Models.Responses.DocumentFile>> GetDocumentFile()
             {
-                var document = await _dbContext.Documents.SingleOrDefaultAsync(document => document.ContractId == contractId && document.Id == documentId);
+                var document = await _dbContext.Documents.SingleOrDefaultAsync(d => d.ContractId == contractId && d.Id == documentId);
                 if (document == null)
                     return Result.Failure<Models.Responses.DocumentFile>("Document not found");
 
@@ -46,7 +47,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                 using var binaryReader = new BinaryReader(stream.Value);
                 var imageBytes = binaryReader.ReadBytes((int)stream.Value.Length);
-                if (imageBytes == null)
+                if (!imageBytes.Any())
                     return Result.Failure<Models.Responses.DocumentFile>("Error loading file from storage");
 
                 return new Models.Responses.DocumentFile(document.Name, document.ContentType, imageBytes);
@@ -103,15 +104,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             return await _contractManagerContext.GetContractManager()
                 .Tap(async contractManager => 
                 {
-                    var result = await RemoveDocument(contractManager.Id, contractId, documentId);
+                    var result = await RemoveDocument(contractManager.Id);
                     return result ? Result.Success(contractManager) : Result.Failure<ContractManager>("Document deletion error"); 
                 });
 
 
-            async Task<bool> RemoveDocument(int contractManagerId, int contractId, Guid documentId)
+            async Task<bool> RemoveDocument(int contractManagerId)
             {
-                var document = await _dbContext.Documents.SingleOrDefaultAsync(document => document.ContractManagerId == contractManagerId && 
-                    document.ContractId == contractId && document.Id == documentId);
+                var document = await _dbContext.Documents.SingleOrDefaultAsync(d => d.ContractManagerId == contractManagerId && 
+                    d.ContractId == contractId && d.Id == documentId);
                 if (document is null)
                     return false;
 

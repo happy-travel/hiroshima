@@ -15,13 +15,13 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms
         
         public DateTime ValidToDate { get; set; }
         
-        public double DiscountPercent { get; set; }
+        public decimal DiscountPercent { get; set; }
         
         public string? BookingCode { get; set; }
         
         public int ContractId { get; set; }
         
-        public JsonDocument Remarks { get; set; }
+        public JsonDocument Description { get; set; }
         
         public Room Room { get; set; }
         

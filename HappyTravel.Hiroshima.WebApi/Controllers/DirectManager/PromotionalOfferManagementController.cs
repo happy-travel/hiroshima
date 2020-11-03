@@ -89,7 +89,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="stopSalePeriods"></param>
         /// <returns>List of promotional offers</returns>
         [HttpPost("contracts/{contractId}/promotional-offers/stop-sale-periods")]
-        [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.PromotionalOfferStopSale>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.PromotionalOfferStopSalePeriod>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> AddStopSalePeriods([FromRoute] int contractId, [FromBody] List<Hiroshima.DirectManager.Models.Requests.PromotionalOfferStopSale> stopSalePeriods)
         {
@@ -112,7 +112,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="toDate"></param>
         /// <returns>List of promotional offers</returns>
         [HttpGet("contracts/{contractId}/promotional-offers/stop-sale-periods")]
-        [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.PromotionalOfferStopSale>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.PromotionalOfferStopSalePeriod>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetStopSalePeriods([FromRoute] int contractId, [FromQuery] int skip = 0, [FromQuery] int top = 100, [FromQuery(Name = "roomId")] List<int> roomIds = null, [FromQuery] DateTime? fromDate = null, [FromQuery] DateTime? toDate = null)
         {

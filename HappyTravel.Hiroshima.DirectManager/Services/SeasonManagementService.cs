@@ -76,7 +76,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<Result<Season>> GetSeason()
             {
-                var season = await _dbContext.Seasons.SingleOrDefaultAsync(season => season.Id == seasonId && season.ContractId == contractId);
+                var season = await _dbContext.Seasons.SingleOrDefaultAsync(s => s.Id == seasonId && s.ContractId == contractId);
 
                 return season != null
                     ? Result.Success(season)
@@ -135,14 +135,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             
             List<SeasonRange> AddSeasonRanges()
             {
-                var newSeasonRanges = Create(seasonRanges);
+                var newSeasonRanges = Create();
                 _dbContext.SeasonRanges.AddRange(newSeasonRanges);
                 
                 return newSeasonRanges;
             }
 
 
-            List<SeasonRange> Create(List<Models.Requests.SeasonRange> seasonRanges) => seasonRanges.Select(CreateSeasonRange).ToList();
+            List<SeasonRange> Create() => seasonRanges.Select(CreateSeasonRange).ToList();
             
             
             SeasonRange CreateSeasonRange(Models.Requests.SeasonRange seasonRange) 

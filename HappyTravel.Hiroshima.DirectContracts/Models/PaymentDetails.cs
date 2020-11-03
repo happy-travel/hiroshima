@@ -1,22 +1,23 @@
 ﻿using System.Collections.Generic;
-using HappyTravel.Money.Enums;
+using HappyTravel.EdoContracts.General;
+using HappyTravel.Money.Models;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Models
 {
     public readonly struct PaymentDetails
     {
-        public PaymentDetails(decimal totalPrice, List<SeasonPriceDetails> seasonPrices, Currencies currency, List<string> remarks)
+        public PaymentDetails(MoneyAmount totalAmount, Discount discount, List<SeasonPriceDetails> seasonPrices, List<string> remarks)
         {
-            TotalPrice = totalPrice;
+            TotalAmount = totalAmount;
+            Discount = discount;
             SeasonPrices = seasonPrices;
-            Currency = currency;
             Remarks = remarks ?? new List<string>();
         }
 
 
-        public decimal TotalPrice { get; }
+        public MoneyAmount TotalAmount { get; }
+        public Discount Discount { get; }
         public List<SeasonPriceDetails> SeasonPrices { get; }
-        public Currencies Currency { get; }
         public List<string> Remarks { get; }
     }
 }

@@ -31,11 +31,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .EnsureContractBelongsToContractManager(_dbContext, contractId)
                 .Bind(contractManager
                     => _dbContext.CheckIfRoomsBelongToContract(contractId, contractManager.Id, promotionalOffers.Select(offer => offer.RoomId).ToList()))
-                .Map(() => AddPromotionalOffers(promotionalOffers))
+                .Map(AddPromotionalOffers)
                 .Map(Build);
             
             
-            async Task<List<RoomPromotionalOffer>> AddPromotionalOffers(List<Models.Requests.PromotionalOffer> promotionalOffers)
+            async Task<List<RoomPromotionalOffer>> AddPromotionalOffers()
             {
                 var newPromotionalOffers = Create(contractId, promotionalOffers);
                 _dbContext.PromotionalOffers.AddRange(newPromotionalOffers);
@@ -113,22 +113,22 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<List<Models.Responses.PromotionalOfferStopSale>>> AddStopSalePeriods(int contractId, List<Models.Requests.PromotionalOfferStopSale> stopSalePeriods)
+        public Task<Result<List<Models.Responses.PromotionalOfferStopSalePeriod>>> AddStopSalePeriods(int contractId, List<Models.Requests.PromotionalOfferStopSale> stopSalePeriodsRequest)
         {
-            return ValidationHelper.Validate(stopSalePeriods, new PromotionalOfferStopSaleValidator())
+            return ValidationHelper.Validate(stopSalePeriodsRequest, new PromotionalOfferStopSaleValidator())
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .EnsureContractBelongsToContractManager(_dbContext, contractId)
                 .Map(contractManager
-                    => _dbContext.CheckIfRoomsBelongToContract(contractId, contractManager.Id, stopSalePeriods.Select(offer => offer.RoomId).ToList()))
+                    => _dbContext.CheckIfRoomsBelongToContract(contractId, contractManager.Id, stopSalePeriodsRequest.Select(offer => offer.RoomId).ToList()))
                 .Tap(_ => RemovePrevious())
-                .Map(_ => Create(contractId, stopSalePeriods))
+                .Map(_ => Create(contractId, stopSalePeriodsRequest))
                 .Map(Add)
                 .Map(Build);
 
 
             async Task RemovePrevious()
             {
-                var roomIds = stopSalePeriods.Select(stopSale => stopSale.RoomId).ToList();
+                var roomIds = stopSalePeriodsRequest.Select(stopSale => stopSale.RoomId).ToList();
                 var previousStopSales = await _dbContext.PromotionalOfferStopSales.Where(stopSale => stopSale.ContractId == contractId && roomIds.Contains(stopSale.RoomId)).ToListAsync();
                 
                 _dbContext.PromotionalOfferStopSales.RemoveRange(previousStopSales);
@@ -147,7 +147,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<List<Models.Responses.PromotionalOfferStopSale>>> GetStopSalePeriods(int contractId, int skip, int top, List<int> roomIds,
+        public Task<Result<List<Models.Responses.PromotionalOfferStopSalePeriod>>> GetStopSalePeriods(int contractId, int skip, int top, List<int> roomIds,
             DateTime? fromDate, DateTime? toDate)
         {
             return _contractManagerContext.GetContractManager()
@@ -222,7 +222,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 ValidFromDate = offer.ValidFrom,
                 ValidToDate = offer.ValidTo,
                 DiscountPercent = offer.DiscountPercent,
-                Remarks = JsonDocumentUtilities.CreateJDocument(offer.Remarks),
+                Description = JsonDocumentUtilities.CreateJDocument(offer.Description),
                 BookingCode = offer.BookingCode
             }).ToList();
 
@@ -231,18 +231,18 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             => new Models.Responses.PromotionalOffer(promotionalOffer.Id, promotionalOffer.ContractId, promotionalOffer.RoomId, promotionalOffer.BookByDate,
                 promotionalOffer.ValidFromDate,
                 promotionalOffer.ValidToDate, promotionalOffer.DiscountPercent, promotionalOffer.BookingCode,
-                promotionalOffer.Remarks.GetValue<MultiLanguage<string>>());
+                promotionalOffer.Description.GetValue<MultiLanguage<string>>());
         
         
         private List<Models.Responses.PromotionalOffer> Build(List<RoomPromotionalOffer> promotionalOffers)
             => promotionalOffers.Select(Build).ToList();
 
 
-        private Models.Responses.PromotionalOfferStopSale Build(PromotionalOfferStopSale stopSalePeriod)
-            => new Models.Responses.PromotionalOfferStopSale(stopSalePeriod.Id, stopSalePeriod.RoomId, stopSalePeriod.FromDate, stopSalePeriod.ToDate, stopSalePeriod.ContractId);
+        private Models.Responses.PromotionalOfferStopSalePeriod Build(PromotionalOfferStopSale stopSalePeriod)
+            => new Models.Responses.PromotionalOfferStopSalePeriod(stopSalePeriod.Id, stopSalePeriod.RoomId, stopSalePeriod.FromDate, stopSalePeriod.ToDate, stopSalePeriod.ContractId);
 
 
-        private List<Models.Responses.PromotionalOfferStopSale> Build(List<PromotionalOfferStopSale> stopSalePeriods)
+        private List<Models.Responses.PromotionalOfferStopSalePeriod> Build(List<PromotionalOfferStopSale> stopSalePeriods)
             => stopSalePeriods.Select(Build).ToList();
         
         

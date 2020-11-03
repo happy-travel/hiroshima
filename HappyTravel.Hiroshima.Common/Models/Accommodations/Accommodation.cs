@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefinitions;
@@ -12,7 +11,7 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations
     public class Accommodation
     {
         public int Id { get; set; }
-        
+
         public JsonDocument Name { get; set; }
         
         public JsonDocument Address { get; set; }
@@ -63,7 +62,15 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations
         
         public DateTime Modified { get; set; }
 
-        [NotMapped]
         public List<Image> Images { get; set; } = new List<Image>();
+        
+        
+        public override bool Equals(object? obj) => obj is Accommodation other && Equals(other);
+
+        
+        public override int GetHashCode() => HashCode.Combine(Id, Coordinates, Name.RootElement.ToString());
+
+
+        public bool Equals(Accommodation other) => Id == other.Id && Coordinates.Equals(other.Coordinates) && Name.RootElement.ToString().Equals(other.Name.RootElement.ToString());
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace HappyTravel.Hiroshima.Common.Infrastructure.Utilities
+﻿using System.Collections.Generic;
+
+namespace HappyTravel.Hiroshima.Common.Infrastructure.Utilities
 {
     public static class Hash
     {
@@ -9,11 +11,24 @@
         /// <param name="hash"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static int GetAggregate<T>(T obj, int hash)
+        public static int Aggregate<T>(T obj, int hash)
         {
-            unchecked
+            if (obj != null)
+                unchecked
+                {
+                    hash = hash * 31 + obj.GetHashCode();
+                }
+
+            return hash;
+        }
+
+
+        public static int Get<T>(IEnumerable<T> objects)
+        {
+            var hash = 17;
+            foreach (var obj in objects)
             {
-                hash = hash * 31 + obj.GetHashCode();
+                hash = Aggregate(obj, hash);
             }
 
             return hash;

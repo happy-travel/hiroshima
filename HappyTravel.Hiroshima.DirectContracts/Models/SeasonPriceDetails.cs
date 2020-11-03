@@ -1,20 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.EdoContracts.General;
+using HappyTravel.Money.Models;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Models
 {
     public readonly struct SeasonPriceDetails
     {
-        public SeasonPriceDetails(DateTime startDate, DateTime endDate, decimal ratePrice, int numberOfNights, decimal totalPrice, List<double> appliedDiscounts, List<string> remarks)
+        public SeasonPriceDetails(DateTime startDate, DateTime endDate, MoneyAmount rateAmount, int numberOfNights, MoneyAmount totalAmount, MoneyAmount totalAmountWithDiscount, Discount discount, List<SeasonDailyPrice> dailyPrices)
         {
             StartDate = startDate;
             EndDate = endDate;
-            RatePrice = ratePrice;
+            RateAmount = rateAmount;
             NumberOfNights = numberOfNights;
-            TotalPrice = totalPrice;
-            AppliedDiscounts = appliedDiscounts ?? new List<double>();
-            Remarks = remarks ?? new List<string>();
+            TotalAmount = totalAmount;
+            TotalAmountWithDiscount = totalAmountWithDiscount;
+            Discount = discount;
+            DailyPrices = dailyPrices;
         }
 
 
@@ -29,9 +31,9 @@ namespace HappyTravel.Hiroshima.DirectContracts.Models
         public DateTime EndDate { get; }
         
         /// <summary>
-        /// Base rate price per night
+        /// Base rate money amount per night
         /// </summary>
-        public decimal RatePrice { get; }
+        public MoneyAmount RateAmount { get; }
         
         /// <summary>
         /// Number of nights in the season
@@ -39,19 +41,24 @@ namespace HappyTravel.Hiroshima.DirectContracts.Models
         public int NumberOfNights { get; }
         
         /// <summary>
-        /// TotalPrice = NumberOfNights * RatePrice
+        /// TotalAmount = NumberOfNights * RateAmount
         /// </summary>
-        public decimal TotalPrice { get; }
-        
-        /// <summary>
-        /// Remarks
-        /// </summary>
-        public List<string> Remarks { get; }
+        public MoneyAmount TotalAmount { get; }
         
         
         /// <summary>
-        /// Discount percent applied to a rate price 
+        /// Total money amount with the discount 
         /// </summary>
-        public List<double> AppliedDiscounts { get; }
+        public MoneyAmount TotalAmountWithDiscount { get; }
+        
+        /// <summary>
+        /// Total discount 
+        /// </summary>
+        public Discount Discount { get; }
+        
+        /// <summary>
+        /// Daily prices
+        /// </summary>
+        public List<SeasonDailyPrice> DailyPrices { get; }
     }
 }

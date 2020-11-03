@@ -6,7 +6,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
     public readonly struct Rate
     {
-        public Rate(int id, int roomId, int seasonId, decimal price, Currencies currency, BoardBasisTypes boardBasisType, string mealPlan, RoomTypes roomType, MultiLanguage<string> details)
+        public Rate(int id, int roomId, int seasonId, decimal price, Currencies currency, BoardBasisTypes boardBasisType, string mealPlan, RoomTypes roomType, MultiLanguage<string> description)
         {
             Id = id;
             RoomId = roomId;
@@ -16,7 +16,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
             BoardBasisType = boardBasisType;
             MealPlan = mealPlan;
             RoomType = roomType;
-            Details = details;
+            Description = description;
         }
 
 
@@ -27,7 +27,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
         public Currencies Currency { get; }
         public BoardBasisTypes BoardBasisType { get; }
         public string MealPlan { get; }
-        public MultiLanguage<string> Details { get; }
+        public MultiLanguage<string> Description { get; }
         public RoomTypes RoomType { get; }
     }
 }

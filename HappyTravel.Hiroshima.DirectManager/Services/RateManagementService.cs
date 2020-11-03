@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Infrastructure.Extensions;
@@ -155,7 +153,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     Currency = rate.Currency,
                     Price = rate.Price,
                     RoomType = rate.RoomType,
-                    Remarks = JsonDocumentUtilities.CreateJDocument(rate.Details)
+                    Description = JsonDocumentUtilities.CreateJDocument(rate.Description)
                 })
                 .ToList();
 
@@ -170,7 +168,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     rate.BoardBasis,
                     rate.MealPlan,
                     rate.RoomType,
-                    rate.Remarks.GetValue<MultiLanguage<string>>()))
+                    rate.Description.GetValue<MultiLanguage<string>>()))
                 .ToList();
 
 

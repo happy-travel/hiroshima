@@ -15,7 +15,7 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
             RuleFor(rate => rate.BoardBasis).IsInEnum();
             RuleFor(rate => rate.MealPlan).NotEmpty();
             RuleFor(rate => rate.RoomType).IsInEnum();
-            RuleFor(rate => rate.Details).AnyLanguage().When(rate => rate.Details != null);
+            RuleFor(rate => rate.Description).AnyLanguage().When(rate => rate.Description != null);
         }
     }
 }

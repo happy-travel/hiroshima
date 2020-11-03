@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
+﻿namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
     public readonly struct Season
     {

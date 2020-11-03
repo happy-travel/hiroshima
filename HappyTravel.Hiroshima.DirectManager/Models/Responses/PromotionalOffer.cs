@@ -5,7 +5,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
     public readonly struct PromotionalOffer
     {
-        public PromotionalOffer(int id, int contractId, int roomId, DateTime bookBy, DateTime validFrom, DateTime validTo, double discountPercent, string bookingCode, MultiLanguage<string> remarks)
+        public PromotionalOffer(int id, int contractId, int roomId, DateTime bookBy, DateTime validFrom, DateTime validTo, decimal discountPercent, string bookingCode, MultiLanguage<string> description)
         {
             Id = id;
             ContractId = contractId;
@@ -15,7 +15,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
             BookBy = bookBy;
             DiscountPercent = discountPercent;
             BookingCode = bookingCode;
-            Remarks = remarks;
+            Description = description;
         }
 
 
@@ -25,8 +25,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
         public DateTime BookBy { get; }
         public DateTime ValidFrom { get; }
         public DateTime ValidTo { get; }
-        public double DiscountPercent { get; }
+        public decimal DiscountPercent { get; }
         public string BookingCode { get; }
-        public MultiLanguage<string> Remarks { get; }
+        public MultiLanguage<string> Description { get; }
     }
 }

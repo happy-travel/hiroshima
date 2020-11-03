@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using FluentValidation;
 using HappyTravel.Hiroshima.DirectManager.Models.Requests;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators.Extensions;

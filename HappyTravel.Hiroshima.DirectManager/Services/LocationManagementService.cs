@@ -13,7 +13,6 @@ using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using LocationNameNormalizer;
-using LocationNameNormalizer.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services

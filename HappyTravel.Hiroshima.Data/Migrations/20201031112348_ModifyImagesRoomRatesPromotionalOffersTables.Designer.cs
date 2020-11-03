@@ -6,17 +6,22 @@ using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefinitions;
+using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Models.Booking;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Hiroshima.Data.Migrations
 {
     [DbContext(typeof(DirectContractsDbContext))]
-    partial class DirectContractsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201031112348_ModifyImagesRoomRatesPromotionalOffersTables")]
+    partial class ModifyImagesRoomRatesPromotionalOffersTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -307,8 +312,8 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
-                    b.Property<decimal>("DiscountPercent")
-                        .HasColumnType("numeric");
+                    b.Property<double>("DiscountPercent")
+                        .HasColumnType("double precision");
 
                     b.Property<int>("RoomId")
                         .HasColumnType("integer");
@@ -856,17 +861,6 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.Navigation("ContractManager");
                 });
 
-            modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.Image", b =>
-                {
-                    b.HasOne("HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation", "Accommodation")
-                        .WithMany("Images")
-                        .HasForeignKey("AccommodationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Accommodation");
-                });
-
             modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.Locations.Location", b =>
                 {
                     b.HasOne("HappyTravel.Hiroshima.Common.Models.Locations.Country", "Country")
@@ -902,8 +896,6 @@ namespace HappyTravel.Hiroshima.Data.Migrations
 
             modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation", b =>
                 {
-                    b.Navigation("Images");
-
                     b.Navigation("Rooms");
                 });
 

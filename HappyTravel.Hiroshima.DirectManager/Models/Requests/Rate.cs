@@ -20,6 +20,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
         
         public RoomTypes RoomType { get; set; }
         
-        public MultiLanguage<string> Details { get; set; } = new MultiLanguage<string> {En = string.Empty};
+        public MultiLanguage<string> Description { get; set; } = new MultiLanguage<string> {En = string.Empty};
     }
 }

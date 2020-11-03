@@ -70,7 +70,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <summary>
         /// Modifies contract manager's data
         /// </summary>
-        /// <param name="contractManager"></param>
+        /// <param name="contractManager"></param>  
         /// <returns></returns>
         [HttpPut]
         [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ContractManager), (int) HttpStatusCode.OK)]
@@ -83,8 +83,8 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
             return Ok(response);
         }
-
-
+    
+        
         private readonly IdentityHttpClient _identityHttpClient;
         private readonly IContractManagerManagementService _contractManagerManagementService;
     }
