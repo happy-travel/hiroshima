@@ -90,8 +90,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                         .GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage))
                         .GetString() == normalizedLocality;
             
-                var location = _dbContext.Locations
-                    .Where(countryAndLocalityExistExpression);
+                var location = _dbContext.Locations.Where(countryAndLocalityExistExpression);
                 
                 if (!string.IsNullOrEmpty(zoneName))
                 {
