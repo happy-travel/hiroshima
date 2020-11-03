@@ -209,6 +209,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         private async Task<Contract> GetContractWithDocuments(int contractId, int contractManagerId)
         {
             var contract = await _dbContext.Contracts.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.Id == contractId);
+            if (contract == null)
+                return contract;
 
             contract.Documents = await _dbContext.Documents.Where(d => d.ContractManagerId == contractManagerId && d.ContractId == contractId).ToListAsync();
 
