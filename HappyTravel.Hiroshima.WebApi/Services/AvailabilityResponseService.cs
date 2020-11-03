@@ -28,7 +28,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services
             
             return new Availability(availabilityId, numberOfNights, availabilityRequest.CheckInDate.Date, availabilityRequest.CheckOutDate.Date, slimAccommodationAvailabilities, numberOfProcessedAccommodations);
         }
-
+        
 
         private List<SlimAccommodationAvailability> CreateSlimAccommodationAvailabilities(Dictionary<Accommodation, List<AvailableRates>> accommodationAvailableRatesStore, string languageCode)
         {
@@ -46,15 +46,15 @@ namespace HappyTravel.Hiroshima.WebApi.Services
             SlimAccommodationAvailability CreateSlimAccommodationAvailability(Accommodation accommodation, List<AvailableRates> availableRates)
             {
                 var slimAccommodation = _accommodationResponseService.Create(accommodation, languageCode);
-                var roomContractSets = Create(availableRates);
+                var roomContractSets = CreateRoomContractSets(availableRates);
                 var availabilityId = CreateAvailabilityId();
                 
                 return new SlimAccommodationAvailability(slimAccommodation, roomContractSets, availabilityId);
             }
         }
 
-        
-        public List<RoomContractSet> Create(List<AvailableRates> availableRates)
+
+        private List<RoomContractSet> CreateRoomContractSets(List<AvailableRates> availableRates)
         {
             var roomContractSets = new List<RoomContractSet>();
 
@@ -66,7 +66,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services
 
             return roomContractSets;
         }
-
+        
 
         private RoomContractSet CreateRoomContractSet(List<RateDetails> rateDetails)
         {
