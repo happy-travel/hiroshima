@@ -11,7 +11,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
     {
         public Accommodation(int id, MultiLanguage<string> name, MultiLanguage<string> address, MultiLanguage<TextualDescription> description, 
             GeoPoint coordinates, AccommodationRating rating, string checkInTime, string checkOutTime, MultiLanguage<List<Picture>> pictures, 
-            ContactInfo contactInfo, PropertyTypes propertyType, MultiLanguage<List<string>> amenities, MultiLanguage<string> additionalInfo, 
+            ContactInfo contactInfo, PropertyTypes type, MultiLanguage<List<string>> amenities, MultiLanguage<string> additionalInfo, 
             OccupancyDefinition occupancyDefinition, int locationId, MultiLanguage<List<string>> leisureAndSports, Status status, 
             RateOptions rateOptions, int? floor, int? buildYear, List<int> roomIds)
         {
@@ -25,7 +25,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
             CheckOutTime = checkOutTime;
             Pictures = pictures;
             ContactInfo = contactInfo;
-            PropertyType = propertyType;
+            Type = type;
             Amenities = amenities;
             AdditionalInfo = additionalInfo;
             OccupancyDefinition = occupancyDefinition;
@@ -59,7 +59,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
         
         public ContactInfo ContactInfo { get; }
         
-        public PropertyTypes PropertyType { get; }
+        public PropertyTypes Type { get; }
         
         public MultiLanguage<List<string>> Amenities { get; }
         

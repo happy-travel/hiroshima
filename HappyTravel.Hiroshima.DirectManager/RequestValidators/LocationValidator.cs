@@ -8,6 +8,7 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
         {
             RuleFor(location => location.Country).NotEmpty();
             RuleFor(location => location.Locality).NotEmpty();
+            RuleFor(location => location.Zone).NotEmpty().When(location => location.Zone != null);
         }
     }
 }
