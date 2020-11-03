@@ -1,5 +1,6 @@
 ﻿using HappyTravel.Hiroshima.DirectManager.Infrastructure;
 using HappyTravel.Hiroshima.DirectManager.Services;
+using LocationNameNormalizer.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HappyTravel.Hiroshima.DirectManager.Extensions
@@ -22,6 +23,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Extensions
             services.AddScoped<IContractManagerContextService, ContractManagerContextService>();
             services.AddTransient<IContractManagerManagementService, ContractManagerManagementService>();
             services.AddScoped<ITokenInfoAccessor, TokenInfoAccessor>();
+            services.AddNameNormalizationServices();
             
             return services;
         }
