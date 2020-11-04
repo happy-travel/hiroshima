@@ -52,7 +52,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services
            var firstImage = accommodation.Images.OrderBy(image => image.Position).First();
            firstImage.Description.GetValue<MultiLanguage<string>>().TryGetValueOrDefault(languageCode,out var caption);
            
-           return new ImageInfo(firstImage.LargeImageUri, caption); 
+           return new ImageInfo(firstImage.MainImage.Url, caption); 
         }
     }
 }
