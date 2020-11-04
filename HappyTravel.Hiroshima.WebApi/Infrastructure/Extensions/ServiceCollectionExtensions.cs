@@ -5,10 +5,14 @@ using HappyTravel.Hiroshima.WebApi.Services;
 using HappyTravel.VaultClient;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NetTopologySuite;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using StackExchange.Redis;
 
 namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions
 {
@@ -52,7 +56,44 @@ namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions
             return services;
         }
 
-        
+
+        public static IServiceCollection AddTracing(this IServiceCollection services, IWebHostEnvironment environment, IConfiguration configuration)
+        {
+            string agentHost;
+            int agentPort;
+            if (environment.IsLocal())
+            {
+                agentHost = configuration["Jaeger:AgentHost"];
+                agentPort = int.Parse(configuration["Jaeger:AgentPort"]);
+            }
+            else
+            {
+                agentHost = EnvironmentVariableHelper.Get("Jaeger:AgentHost", configuration);
+                agentPort = int.Parse(EnvironmentVariableHelper.Get("Jaeger:AgentPort", configuration));
+            }
+
+            var connection = ConnectionMultiplexer.Connect(EnvironmentVariableHelper.Get("Redis:Endpoint", configuration));
+            var serviceName = $"{environment.ApplicationName}-{environment.EnvironmentName}";
+
+            services.AddOpenTelemetryTracing(builder =>
+            {
+                builder.AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
+                    .AddRedisInstrumentation(connection)
+                    .AddJaegerExporter(options =>
+                    {
+                        options.ServiceName = serviceName;
+                        options.AgentHost = agentHost;
+                        options.AgentPort = agentPort;
+                    })
+                    .SetResource(Resources.CreateServiceResource(serviceName))
+                    .SetSampler(new AlwaysOnSampler());
+            });
+
+            return services;
+        }
+
+
         private static (string apiName, string authorityUrl) GetApiNameAndAuthority(IConfiguration configuration, IHostEnvironment environment,
             IVaultClient vaultClient)
         {

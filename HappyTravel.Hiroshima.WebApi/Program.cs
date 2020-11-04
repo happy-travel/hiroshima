@@ -20,10 +20,6 @@ namespace HappyTravel.Hiroshima.WebApi
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                    //webBuilder.ConfigureLogging(logging =>
-                    //{
-                    //    logging.AddConsole();
-                    //});
                 })
                 .ConfigureLogging((hostingContext, logging) =>
                 {

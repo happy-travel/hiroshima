@@ -25,7 +25,6 @@ using Microsoft.AspNetCore.Localization.Routing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
@@ -36,7 +35,7 @@ namespace HappyTravel.Hiroshima.WebApi
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration, IHostEnvironment hostingEnvironment)
+        public Startup(IConfiguration configuration, IWebHostEnvironment hostingEnvironment)
         {
             Configuration = configuration;
             HostingEnvironment = hostingEnvironment;
@@ -65,6 +64,8 @@ namespace HappyTravel.Hiroshima.WebApi
             });
           
             services.AddLocalization();
+            services.AddTracing(HostingEnvironment, Configuration);
+
             services.AddOptions()
                 .Configure<RequestLocalizationOptions>(options =>
                 {
@@ -156,6 +157,8 @@ namespace HappyTravel.Hiroshima.WebApi
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory,
             IOptions<RequestLocalizationOptions> localizationOptions)
         {
+            Infrastructure.Logging.AppLogging.LoggerFactory = loggerFactory;
+
             app.UseHsts();
             app.UseHttpsRedirection();
             app.UseRequestLocalization(localizationOptions.Value);
@@ -185,6 +188,6 @@ namespace HappyTravel.Hiroshima.WebApi
         
         
         public IConfiguration Configuration { get; }
-        public IHostEnvironment HostingEnvironment { get; }
+        public IWebHostEnvironment HostingEnvironment { get; }
     }
 }
