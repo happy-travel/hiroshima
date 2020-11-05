@@ -9,7 +9,7 @@ using HappyTravel.Hiroshima.DirectContracts.Models;
 using HappyTravel.Money.Models;
 using Accommodation = HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation;
 
-namespace HappyTravel.Hiroshima.WebApi.Services
+namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
 {
     public class AvailabilityResponseService : IAvailabilityResponseService
     {
@@ -19,7 +19,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services
         }
 
 
-        public Availability Create(AvailabilityRequest availabilityRequest, Dictionary<Accommodation, List<AvailableRates>> accommodationAvailableRatesStore, string languageCode)
+        public Availability Create(in AvailabilityRequest availabilityRequest, Dictionary<Accommodation, List<AvailableRates>> accommodationAvailableRatesStore, string languageCode)
         {
             var availabilityId = CreateAvailabilityId();
             var numberOfNights = GetNumberOfNights(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate);
@@ -28,7 +28,25 @@ namespace HappyTravel.Hiroshima.WebApi.Services
             
             return new Availability(availabilityId, numberOfNights, availabilityRequest.CheckInDate.Date, availabilityRequest.CheckOutDate.Date, slimAccommodationAvailabilities, numberOfProcessedAccommodations);
         }
-        
+
+
+        public AccommodationAvailability Create(string accommodationId, in Availability availabilitySearchData)
+        {
+            var availabilityId = CreateAvailabilityId();
+            var checkInDate = availabilitySearchData.CheckInDate;
+            var checkOutDate = availabilitySearchData.CheckOutDate;
+            var numberOfNights = availabilitySearchData.NumberOfNights;
+            var accommodationAvailability = GetAccommodationAvailability(accommodationId, availabilitySearchData);
+            var accommodation = accommodationAvailability.Accommodation;
+            var roomContractSets = accommodationAvailability.RoomContractSets;
+
+            return new AccommodationAvailability(availabilityId, checkInDate, checkOutDate, numberOfNights, accommodation, roomContractSets);
+        }
+
+
+        private SlimAccommodationAvailability GetAccommodationAvailability(string accommodationId, in Availability availabilitySearchData)
+            => availabilitySearchData.Results.SingleOrDefault(a => a.Accommodation.Id.Equals(accommodationId));
+
 
         private List<SlimAccommodationAvailability> CreateSlimAccommodationAvailabilities(Dictionary<Accommodation, List<AvailableRates>> accommodationAvailableRatesStore, string languageCode)
         {

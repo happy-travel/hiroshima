@@ -7,7 +7,7 @@ using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.WebApi.Controllers.DirectManager;
 using PropertyTypes = HappyTravel.EdoContracts.Accommodations.Enums.PropertyTypes;
 
-namespace HappyTravel.Hiroshima.WebApi.Services
+namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
 {
     public class AccommodationResponseService : IAccommodationResponseService
     {
