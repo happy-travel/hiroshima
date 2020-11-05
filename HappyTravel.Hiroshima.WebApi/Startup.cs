@@ -154,11 +154,9 @@ namespace HappyTravel.Hiroshima.WebApi
         }
 
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory,
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, 
             IOptions<RequestLocalizationOptions> localizationOptions)
         {
-            Infrastructure.Logging.AppLogging.LoggerFactory = loggerFactory;
-
             app.UseHsts();
             app.UseHttpsRedirection();
             app.UseRequestLocalization(localizationOptions.Value);
