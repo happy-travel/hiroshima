@@ -2,17 +2,14 @@
 using System.Text.Json;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
 
-namespace HappyTravel.Hiroshima.Common.Models
+namespace HappyTravel.Hiroshima.Common.Models.Images
 {
     public class Image
     {
         public Guid Id { get; set; }
-        public string OriginalName { get; set; }
-        public string OriginalContentType { get; set; }
-        public string LargeImageKey { get; set; }
-        public string SmallImageKey { get; set; }
-        public string LargeImageUri { get; set; }
-        public string SmallImageUri { get; set; }
+        public OriginalImageDetails OriginalImageDetails { get; set; } = new OriginalImageDetails();
+        public ImageDetails SmallImage { get; set; } = new ImageDetails();
+        public ImageDetails MainImage { get; set; } = new ImageDetails();
         public DateTime Created { get; set; }
         public int ContractManagerId { get; set; }
         public int AccommodationId { get; set; }

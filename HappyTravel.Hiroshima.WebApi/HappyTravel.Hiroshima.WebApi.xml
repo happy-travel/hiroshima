@@ -290,7 +290,7 @@
             </summary>
             <param name="accommodationId">Accommodation Id</param>
             <param name="uploadedFile">Adding image file</param>
-            <returns></returns>
+            <returns>Image id</returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ImageManagementController.UpdateAccommodationImages(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.SlimImage})">
             <summary>
