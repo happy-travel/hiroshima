@@ -48,7 +48,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <returns>Image id</returns>
         [HttpPost("accommodations/{accommodationId}/photo")]
         [RequestSizeLimit(50 * 1024 * 1024)]
-        [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> AddImageFile([FromRoute] int accommodationId, [FromForm] IFormFile uploadedFile)
         {

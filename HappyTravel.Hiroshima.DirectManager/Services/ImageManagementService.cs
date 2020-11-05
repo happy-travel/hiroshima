@@ -29,9 +29,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             _contractManagerContext = contractManagerContextService;
             _dbContext = dbContext;
             _amazonS3ClientService = amazonS3ClientService;
-            _bucketName = options.Value.AmazonS3Bucket;
-            
-            _basePathToAmazon = $"https://{_bucketName}.s3-{options.Value.AmazonS3RegionEndpoint}.amazonaws.com";
+            _bucketName = options.Value.AmazonS3Bucket; 
+            var amazonS3RegionEndpoint = options.Value.AmazonS3RegionEndpoint;
+            _basePathToAmazon = $"https://{_bucketName}.s3-{amazonS3RegionEndpoint}.amazonaws.com";
         }
 
 
