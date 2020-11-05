@@ -18,6 +18,7 @@ using HappyTravel.Hiroshima.WebApi.Conventions;
 using HappyTravel.Hiroshima.WebApi.Filters;
 using HappyTravel.Hiroshima.WebApi.Infrastructure;
 using HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions;
+using HappyTravel.StdOutLogger.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Localization;
@@ -160,7 +161,11 @@ namespace HappyTravel.Hiroshima.WebApi
             app.UseHsts();
             app.UseHttpsRedirection();
             app.UseRequestLocalization(localizationOptions.Value);
-            
+
+            app.UseHttpContextLogging(
+                options => options.IgnoredPaths = new HashSet<string> { "/health" }
+            );
+
             app.UseResponseCompression();
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
