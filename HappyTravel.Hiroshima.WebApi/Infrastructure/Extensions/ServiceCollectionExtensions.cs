@@ -57,7 +57,7 @@ namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions
         }
 
 
-        public static IServiceCollection AddTracing(this IServiceCollection services, IWebHostEnvironment environment, IConfiguration configuration)
+        public static IServiceCollection AddTracing(this IServiceCollection services, IHostEnvironment environment, IConfiguration configuration)
         {
             string agentHost;
             int agentPort;
