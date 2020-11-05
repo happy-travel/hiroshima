@@ -60,36 +60,28 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             Task<Result<Guid>> ConvertAndUpload(Image dbImage, FormFile uploadedFile)
             {
-                return Result.Success()
-                    .Map(GetBytes)
-                    .Tap(ValidateDimension)
+                return GetBytes()
+                    .Ensure(AreDimensionsValid,
+                        $"Uploading image size must be at least {MinimumImageWidth}×{MinimumImageHeight} pixels and the width mustn't exceed two heights and vice versa")
                     .Bind(Convert)
                     .Bind(Upload);
                 
 
-                byte[] GetBytes()
+                Result<byte[]> GetBytes()
                 {
                     using var binaryReader = new BinaryReader(uploadedFile.OpenReadStream());
-                    return binaryReader.ReadBytes((int)uploadedFile.Length);
+                    return Result.Success(binaryReader.ReadBytes((int)uploadedFile.Length));
                 }
                 
 
-                async Task<Result> ValidateDimension(byte[] imageBytes)
+                async Task<bool> AreDimensionsValid(byte[] imageBytes)
                 {
                     var info = await ImageJob.GetImageInfo(new BytesSource(imageBytes));
 
-                    // Validation image size
-                    if ((info.ImageWidth < MinimumImageWidth) || (info.ImageHeight < MinimumImageHeight))
-                        return Result.Failure($"Uploading picture size must be at least {MinimumImageWidth}×{MinimumImageHeight} pixels");
-
-                    // Validation image dimension difference
-                    if (info.ImageWidth / info.ImageHeight > 2)
-                        return Result.Failure("Uploading picture width is more than 2 times the height");
-
-                    if (info.ImageHeight / info.ImageWidth > 2)
-                        return Result.Failure("Uploading picture height is more than 2 times the width");
-
-                    return Result.Success();
+                    return MinimumImageWidth <= info.ImageWidth && 
+                        MinimumImageHeight <= info.ImageHeight &&
+                        info.ImageWidth / info.ImageHeight < 2 && 
+                        info.ImageHeight / info.ImageWidth < 2;
                 }
 
                 async Task<Result<ImageSet>> Convert(byte[] imageBytes)
