@@ -51,6 +51,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Guid>> Add(Models.Requests.Image image)
         {
             return _contractManagerContext.GetContractManager()
+                .EnsureAccommodationBelongsToContractManager(_dbContext, image.AccommodationId)
                 .Tap(contractManager => ValidationHelper.Validate(image, new ImageValidator()))
                 .Tap(contractManager => ResortImages(contractManager.Id, image.AccommodationId))
                 .Map(contractManager => Create(contractManager.Id, image))
