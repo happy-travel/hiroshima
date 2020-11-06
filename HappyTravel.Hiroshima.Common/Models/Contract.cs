@@ -32,7 +32,7 @@ namespace HappyTravel.Hiroshima.Common.Models
         
         public List<RoomPromotionalOffer> PromotionalOffers { get; set; }
         
-        public List<RoomAvailabilityRestriction> RoomAvailabilityRestriction { get; set; }
+        public List<RoomAvailabilityRestriction> RoomAvailabilityRestrictions { get; set; }
 
         [NotMapped]
         public List<Document> Documents { get; set; } = new List<Document>();
