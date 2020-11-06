@@ -89,6 +89,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.HasIndex(a => a.LocationId);
                 e.HasIndex(a => a.ContractManagerId);
                 e.HasOne(a => a.ContractManager).WithMany(cm => cm.Accommodations).OnDelete(DeleteBehavior.SetNull);
+                e.HasOne(a => a.Location).WithMany().OnDelete(DeleteBehavior.SetNull);
             });
         }
 
@@ -124,6 +125,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.HasIndex(rcp => rcp.RoomId);
                 e.HasIndex(rcp => rcp.SeasonId);
                 e.HasOne(rcp => rcp.Room).WithMany(r => r.RoomCancellationPolicies).OnDelete(DeleteBehavior.SetNull);
+                e.HasOne(rcp => rcp.Season).WithMany().OnDelete(DeleteBehavior.SetNull);
             });
         }
 
@@ -250,7 +252,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(l => l.Zone).HasColumnType("jsonb").HasDefaultValueSql("'{}'::json");
                 e.Property(l => l.CountryCode).IsRequired();
                 e.HasIndex(l => l.CountryCode);
-                //e.HasOne(l => l.Country).WithMany(c => c.Countries).OnDelete(DeleteBehavior.SetNull);
+                e.HasOne(l => l.Country).WithMany(c => c.Locations).OnDelete(DeleteBehavior.SetNull);
             });
         }
 
@@ -306,6 +308,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.HasIndex(rr => rr.SeasonId);
                 e.HasIndex(rr => rr.RoomId);
                 e.HasOne(rr => rr.Room).WithMany(r => r.RoomRates).OnDelete(DeleteBehavior.SetNull);
+                e.HasOne(rr => rr.Season).WithMany().OnDelete(DeleteBehavior.SetNull);
             });
         }
 
@@ -323,6 +326,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(rar => rar.RoomId).IsRequired();
                 e.HasIndex(rar => rar.RoomId);
                 e.HasOne(rar => rar.Room).WithMany(r => r.RoomAllocationRequirements).OnDelete(DeleteBehavior.SetNull);
+                e.HasOne(rar => rar.SeasonRange).WithMany().OnDelete(DeleteBehavior.SetNull);
             });
         }
 
