@@ -4,6 +4,7 @@ using System.Text.Json;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefinitions;
 using HappyTravel.Hiroshima.Common.Models.Enums;
+using HappyTravel.Hiroshima.Common.Models.Images;
 using NetTopologySuite.Geometries;
 
 namespace HappyTravel.Hiroshima.Common.Models.Accommodations
