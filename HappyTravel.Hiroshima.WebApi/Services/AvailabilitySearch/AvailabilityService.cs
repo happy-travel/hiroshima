@@ -20,7 +20,6 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
         public async Task<Result<Availability, ProblemDetails>> Get(AvailabilityRequest availabilityRequest, string languageCode)
         {
             var availableRates = await _availabilityService.Get(availabilityRequest, languageCode);
-            
             var availabilityResult = _availabilityResponseService.Create(availabilityRequest, availableRates, languageCode);
             await _availabilitySearchStore.Add(availabilityResult);
 
@@ -34,6 +33,8 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
             if (availabilitySearchResult.Equals(default))
                 return Result.Failure<AccommodationAvailability, ProblemDetails>(ProblemDetailsBuilder.Build($"Failed to receive availability data with {nameof(availabilityId)} '{availabilityId}'"));
 
+            await _availabilitySearchStore.Remove(availabilityId);
+            
             return _availabilityResponseService.Create(accommodationId, availabilitySearchResult);
         }
         

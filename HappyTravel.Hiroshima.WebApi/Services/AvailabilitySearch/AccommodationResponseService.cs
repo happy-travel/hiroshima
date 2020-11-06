@@ -2,6 +2,7 @@
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Infrastructure.Extensions;
+using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.WebApi.Controllers.DirectManager;

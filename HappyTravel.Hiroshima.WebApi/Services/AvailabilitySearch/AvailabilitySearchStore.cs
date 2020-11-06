@@ -14,11 +14,14 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
         }
 
 
-        public Task Add(Availability availability)
+        public Task Add(in Availability availability)
             => _distributedFlow.SetAsync(BuildKey(availability.AvailabilityId), availability, CacheExpirationTime);
 
 
         public Task<Availability> Get(string availabilityId) => _distributedFlow.GetAsync<Availability>(BuildKey(availabilityId));
+
+
+        public Task Remove(string availabilityId) => _distributedFlow.RemoveAsync(BuildKey(availabilityId));
         
         
         private string BuildKey(string availabilityId)

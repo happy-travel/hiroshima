@@ -9,6 +9,7 @@ using HappyTravel.EdoContracts.GeoData.Enums;
 using HappyTravel.Hiroshima.Common.Constants;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
+using HappyTravel.Hiroshima.Common.Models.Enums;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.DirectContracts.Models;
 using Microsoft.EntityFrameworkCore;
@@ -73,28 +74,25 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             {
                 var location = availabilityRequest.Location;
                 var roomTypes = availabilityRequest.Rooms.Select(room => room.Type).ToList();
+                var ratings = AccommodationRatingMapper.GetStars(availabilityRequest.Ratings);
+                Expression<Func<Accommodation, bool>> locationExpression;
                 
                 switch (availabilityRequest.Location.Type)
                 {
                     case LocationTypes.Location:
                     {
-                        Expression<Func<Accommodation, bool>> expression = accommodation =>
-                            accommodation.Location.Country.Name.RootElement.GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage))
-                                .GetString() == location.Country &&
-                            accommodation.Location.Locality.RootElement
-                                .GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage))
-                                .GetString() == location.Locality;
-
-                        return GetAccommodationsWithAvailableRooms(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate, roomTypes, expression);
+                        locationExpression = accommodation
+                            => accommodation.Location.Country.Name.RootElement.GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage)).GetString() ==
+                            location.Country &&
+                            accommodation.Location.Locality.RootElement.GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage)).GetString() ==
+                            location.Locality;
+                        break;
                     }
                     case LocationTypes.Accommodation:
                     {
-                        Expression<Func<Accommodation, bool>> expression = accommodation =>
-                            accommodation.Name.RootElement
-                                .GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage))
-                                .GetString() == location.Name;
-
-                        return GetAccommodationsWithAvailableRooms(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate, roomTypes, expression);
+                        locationExpression = accommodation
+                            => accommodation.Name.RootElement.GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage)).GetString() == location.Name;
+                        break;
                     }
                     case LocationTypes.Unknown:
                     case LocationTypes.Destination:
@@ -103,11 +101,13 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
+                
+                return GetAccommodationsWithAvailableRooms(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate, roomTypes, ratings, locationExpression);
             }
         }
 
 
-        private async Task<List<Accommodation>> GetAccommodationsWithAvailableRooms(DateTime checkInDate, DateTime checkOutDate, List<RoomTypes> roomTypes, Expression<Func<Accommodation, bool>> expression)
+        private async Task<List<Accommodation>> GetAccommodationsWithAvailableRooms(DateTime checkInDate, DateTime checkOutDate, List<RoomTypes> roomTypes, IEnumerable<AccommodationRating> ratings, Expression<Func<Accommodation, bool>> locationExpression)
         {
             return await _dbContext.Accommodations
                 .Include(accommodation => accommodation.Rooms.Where(room => !room.RoomAvailabilityRestrictions.Any(availabilityRestrictions
@@ -132,7 +132,8 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                 .Include(accommodation => accommodation.Location)
                     .ThenInclude(location => location.Country)
                 .Include(accommodation => accommodation.Images)
-                .Where(expression)
+                .Where(accommodation => ratings.Contains(accommodation.Rating))
+                .Where(locationExpression)
                 .ToListAsync();
         }
 

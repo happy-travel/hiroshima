@@ -156,10 +156,14 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
             var firstRateDetails = rateDetails.First();
             var currency = firstRateDetails.PaymentDetails.TotalAmount.Currency;
             var totalPrice = rateDetails.Sum(rateDetailsItem => rateDetailsItem.PaymentDetails.TotalAmount.Amount);
-            var discounts = rateDetails.Select(rateDetailsItem => rateDetailsItem.PaymentDetails.Discount).ToList();
+
+            var totalPriceWithDiscount = rateDetails.Sum(rateDetailsItem
+                => rateDetailsItem.PaymentDetails.TotalAmount.Amount - rateDetailsItem.PaymentDetails.TotalAmount.Amount * rateDetailsItem.PaymentDetails.Discount.Percent / 100);
+            var totalDiscount = new Discount(100 - totalPriceWithDiscount * 100 / totalPrice);
+            
             var moneyAmount = new MoneyAmount(totalPrice, currency);
             
-            return new Price(moneyAmount, moneyAmount, discounts, PriceTypes.RoomContractSet);           
+            return new Price(moneyAmount, moneyAmount, new List<Discount>{totalDiscount}, PriceTypes.RoomContractSet);           
         }
         
         
