@@ -6,6 +6,7 @@ using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Hiroshima.DirectContracts.Models;
+using HappyTravel.Money.Helpers;
 using HappyTravel.Money.Models;
 using Accommodation = HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation;
 
@@ -159,7 +160,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
 
             var totalPriceWithDiscount = rateDetails.Sum(rateDetailsItem
                 => rateDetailsItem.PaymentDetails.TotalAmount.Amount - rateDetailsItem.PaymentDetails.TotalAmount.Amount * rateDetailsItem.PaymentDetails.Discount.Percent / 100);
-            var totalDiscount = new Discount(100 - totalPriceWithDiscount * 100 / totalPrice);
+            var totalDiscount = new Discount(MoneyRounder.Truncate(100 - totalPriceWithDiscount * 100 / totalPrice, currency));
             
             var moneyAmount = new MoneyAmount(totalPrice, currency);
             
