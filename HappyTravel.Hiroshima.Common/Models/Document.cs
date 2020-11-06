@@ -11,5 +11,7 @@ namespace HappyTravel.Hiroshima.Common.Models
         public DateTime Created { get; set; }
         public int ContractManagerId { get; set; }
         public int ContractId { get; set; }
+
+        public Contract Contract { get; set; }
     }
 }
