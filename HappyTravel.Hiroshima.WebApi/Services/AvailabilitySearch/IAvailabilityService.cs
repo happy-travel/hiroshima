@@ -9,6 +9,6 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
     {
        Task<Result<Availability, ProblemDetails>> Get(AvailabilityRequest request, string languageCode);
 
-       Task<Result<AccommodationAvailability, ProblemDetails>> Get(string availabilityId, string accommodationId);
+       Task<Result<AccommodationAvailability, ProblemDetails>> Get(string availabilityId, string accommodationId, string languageCode);
     }
 }

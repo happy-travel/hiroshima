@@ -3,7 +3,6 @@ using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.Hiroshima.WebApi.Services;
 using HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch;
 using Microsoft.AspNetCore.Mvc;
 
@@ -50,7 +49,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Get([FromRoute] string accommodationId, [FromRoute] string availabilityId)
         {
-            var (_, isFailure, result, error) = await _availabilityService.Get(availabilityId, accommodationId);
+            var (_, isFailure, result, error) = await _availabilityService.Get(availabilityId, accommodationId, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 

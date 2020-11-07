@@ -14,18 +14,16 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
         }
 
 
-        public Task Add(in Availability availability)
-            => _distributedFlow.SetAsync(BuildKey(availability.AvailabilityId), availability, CacheExpirationTime);
+        public Task AddAvailabilityRequest(string availabilityId, in AvailabilityRequest availabilityRequest) => _distributedFlow.SetAsync(BuildKey(availabilityId), availabilityRequest, CacheExpirationTime);
 
 
-        public Task<Availability> Get(string availabilityId) => _distributedFlow.GetAsync<Availability>(BuildKey(availabilityId));
+        public Task<AvailabilityRequest> GetAvailabilityRequest(string availabilityId) => _distributedFlow.GetAsync<AvailabilityRequest>(BuildKey(availabilityId));
 
 
-        public Task Remove(string availabilityId) => _distributedFlow.RemoveAsync(BuildKey(availabilityId));
+        public Task RemoveAvailabilityRequest(string availabilityId) => _distributedFlow.RemoveAsync(BuildKey(availabilityId));
         
         
-        private string BuildKey(string availabilityId)
-            => _distributedFlow.BuildKey(nameof(AvailabilitySearchStore), availabilityId);
+        private string BuildKey(string availabilityId) => _distributedFlow.BuildKey(nameof(AvailabilitySearchStore), availabilityId);
         
         
         private static readonly TimeSpan CacheExpirationTime = TimeSpan.FromMinutes(15);
