@@ -6,7 +6,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
+            /*migrationBuilder.DropForeignKey(
                 name: "FK_Accommodations_ContractManagers_ContractManagerId",
                 table: "Accommodations");
 
@@ -24,13 +24,13 @@ namespace HappyTravel.Hiroshima.Data.Migrations
 
             migrationBuilder.DropForeignKey(
                 name: "FK_Contracts_ContractManagers_ContractManagerId",
-                table: "Contracts");
+                table: "Contracts");*/
 
             migrationBuilder.DropForeignKey(
                 name: "FK_Images_Accommodations_AccommodationId",
                 table: "Images");
 
-            migrationBuilder.DropForeignKey(
+            /*migrationBuilder.DropForeignKey(
                 name: "FK_Locations_Countries_CountryCode",
                 table: "Locations");
 
@@ -40,21 +40,21 @@ namespace HappyTravel.Hiroshima.Data.Migrations
 
             migrationBuilder.DropForeignKey(
                 name: "FK_RoomAllocationRequirements_SeasonRanges_SeasonRangeId",
-                table: "RoomAllocationRequirements");
+                table: "RoomAllocationRequirements");*/
 
             migrationBuilder.DropForeignKey(
                 name: "FK_RoomAvailabilityRestrictions_Contracts_ContractId",
                 table: "RoomAvailabilityRestrictions");
 
-            migrationBuilder.DropForeignKey(
+            /*migrationBuilder.DropForeignKey(
                 name: "FK_RoomAvailabilityRestrictions_Rooms_RoomId",
-                table: "RoomAvailabilityRestrictions");
+                table: "RoomAvailabilityRestrictions");*/
 
             migrationBuilder.DropForeignKey(
                 name: "FK_RoomPromotionalOffers_Contracts_ContractId",
                 table: "RoomPromotionalOffers");
 
-            migrationBuilder.DropForeignKey(
+            /*migrationBuilder.DropForeignKey(
                 name: "FK_RoomPromotionalOffers_Rooms_RoomId",
                 table: "RoomPromotionalOffers");
 
@@ -72,11 +72,16 @@ namespace HappyTravel.Hiroshima.Data.Migrations
 
             migrationBuilder.DropForeignKey(
                 name: "FK_SeasonRanges_Seasons_SeasonId",
-                table: "SeasonRanges");
+                table: "SeasonRanges");*/
 
             migrationBuilder.DropForeignKey(
                 name: "FK_Seasons_Contracts_ContractId",
                 table: "Seasons");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PromotionalOffersStopSale_ContractId",
+                table: "PromotionalOffersStopSale",
+                column: "ContractId");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Accommodations_ContractManagers_ContractManagerId",
@@ -111,6 +116,22 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                 onDelete: ReferentialAction.SetNull);
 
             migrationBuilder.AddForeignKey(
+                name: "FK_ContractAccommodationRelations_Accommodations_Accommodation~",
+                table: "ContractAccommodationRelations",
+                column: "AccommodationId",
+                principalTable: "Accommodations",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.SetNull);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_ContractAccommodationRelations_Contracts_ContractId",
+                table: "ContractAccommodationRelations",
+                column: "ContractId",
+                principalTable: "Contracts",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.SetNull);
+
+            migrationBuilder.AddForeignKey(
                 name: "FK_Contracts_ContractManagers_ContractManagerId",
                 table: "Contracts",
                 column: "ContractManagerId",
@@ -140,6 +161,22 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                 column: "CountryCode",
                 principalTable: "Countries",
                 principalColumn: "Code",
+                onDelete: ReferentialAction.SetNull);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_PromotionalOffersStopSale_Contracts_ContractId",
+                table: "PromotionalOffersStopSale",
+                column: "ContractId",
+                principalTable: "Contracts",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.SetNull);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_PromotionalOffersStopSale_Rooms_RoomId",
+                table: "PromotionalOffersStopSale",
+                column: "RoomId",
+                principalTable: "Rooms",
+                principalColumn: "Id",
                 onDelete: ReferentialAction.SetNull);
 
             migrationBuilder.AddForeignKey(
@@ -250,6 +287,14 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                 table: "CancellationPolicies");
 
             migrationBuilder.DropForeignKey(
+                name: "FK_ContractAccommodationRelations_Accommodations_Accommodation~",
+                table: "ContractAccommodationRelations");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_ContractAccommodationRelations_Contracts_ContractId",
+                table: "ContractAccommodationRelations");
+
+            migrationBuilder.DropForeignKey(
                 name: "FK_Contracts_ContractManagers_ContractManagerId",
                 table: "Contracts");
 
@@ -264,6 +309,14 @@ namespace HappyTravel.Hiroshima.Data.Migrations
             migrationBuilder.DropForeignKey(
                 name: "FK_Locations_Countries_CountryCode",
                 table: "Locations");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_PromotionalOffersStopSale_Contracts_ContractId",
+                table: "PromotionalOffersStopSale");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_PromotionalOffersStopSale_Rooms_RoomId",
+                table: "PromotionalOffersStopSale");
 
             migrationBuilder.DropForeignKey(
                 name: "FK_RoomAllocationRequirements_Rooms_RoomId",
@@ -308,6 +361,10 @@ namespace HappyTravel.Hiroshima.Data.Migrations
             migrationBuilder.DropForeignKey(
                 name: "FK_Seasons_Contracts_ContractId",
                 table: "Seasons");
+
+            migrationBuilder.DropIndex(
+                name: "IX_PromotionalOffersStopSale_ContractId",
+                table: "PromotionalOffersStopSale");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Accommodations_ContractManagers_ContractManagerId",

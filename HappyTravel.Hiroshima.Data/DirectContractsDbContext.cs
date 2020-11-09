@@ -140,6 +140,8 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(car => car.ContractId).IsRequired();
                 e.HasIndex(car => car.AccommodationId);
                 e.HasIndex(car => car.ContractId);
+                e.HasOne(car => car.Accommodation).WithMany().OnDelete(DeleteBehavior.SetNull);
+                e.HasOne(car => car.Contract).WithMany().OnDelete(DeleteBehavior.SetNull);
             });
         }
 
@@ -282,12 +284,14 @@ namespace HappyTravel.Hiroshima.Data
             modelBuilder.Entity<PromotionalOfferStopSale>(e =>
             {
                 e.ToTable("PromotionalOffersStopSale");
-                e.HasKey(pofs => pofs.Id);
-                e.Property(pofs => pofs.RoomId).IsRequired();
-                e.Property(pofs => pofs.FromDate).IsRequired();
-                e.Property(pofs => pofs.ToDate).IsRequired();
-                e.Property(pofs => pofs.ContractId).IsRequired();
-                e.HasIndex(pofs => pofs.RoomId);
+                e.HasKey(poss => poss.Id);
+                e.Property(poss => poss.RoomId).IsRequired();
+                e.Property(poss => poss.FromDate).IsRequired();
+                e.Property(poss => poss.ToDate).IsRequired();
+                e.Property(poss => poss.ContractId).IsRequired();
+                e.HasIndex(poss => poss.RoomId);
+                e.HasOne(poss => poss.Contract).WithMany(c => c.PromotionalOffersStopSale).OnDelete(DeleteBehavior.SetNull);
+                e.HasOne(poss => poss.Room).WithMany(r => r.PromotionalOffersStopSale).OnDelete(DeleteBehavior.SetNull);
             });
         }
 

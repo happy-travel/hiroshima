@@ -13,5 +13,10 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms
         public DateTime ToDate { get; set; }
         
         public int ContractId { get; set; }
+
+        public Room Room { get; set; }
+
+        public Contract Contract { get; set; }
+
     }
 }

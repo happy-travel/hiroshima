@@ -177,6 +177,8 @@ namespace HappyTravel.Hiroshima.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ContractId");
+
                     b.HasIndex("RoomId");
 
                     b.ToTable("PromotionalOffersStopSale");
@@ -750,6 +752,25 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.Navigation("Season");
                 });
 
+            modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.PromotionalOfferStopSale", b =>
+                {
+                    b.HasOne("HappyTravel.Hiroshima.Common.Models.Contract", "Contract")
+                        .WithMany("PromotionalOffersStopSale")
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired();
+
+                    b.HasOne("HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.Room", "Room")
+                        .WithMany("PromotionalOffersStopSale")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired();
+
+                    b.Navigation("Contract");
+
+                    b.Navigation("Room");
+                });
+
             modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.Room", b =>
                 {
                     b.HasOne("HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation", "Accommodation")
@@ -903,6 +924,25 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.Navigation("Season");
                 });
 
+            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.ContractAccommodationRelation", b =>
+                {
+                    b.HasOne("HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation", "Accommodation")
+                        .WithMany()
+                        .HasForeignKey("AccommodationId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired();
+
+                    b.HasOne("HappyTravel.Hiroshima.Common.Models.Contract", "Contract")
+                        .WithMany()
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired();
+
+                    b.Navigation("Accommodation");
+
+                    b.Navigation("Contract");
+                });
+
             modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation", b =>
                 {
                     b.Navigation("Images");
@@ -912,6 +952,8 @@ namespace HappyTravel.Hiroshima.Data.Migrations
 
             modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.Room", b =>
                 {
+                    b.Navigation("PromotionalOffersStopSale");
+
                     b.Navigation("RoomAllocationRequirements");
 
                     b.Navigation("RoomAvailabilityRestrictions");
@@ -928,6 +970,8 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.Navigation("Documents");
 
                     b.Navigation("PromotionalOffers");
+
+                    b.Navigation("PromotionalOffersStopSale");
 
                     b.Navigation("RoomAvailabilityRestrictions");
 
