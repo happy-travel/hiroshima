@@ -1,6 +1,6 @@
 ﻿namespace HappyTravel.Hiroshima.Common.Models.Enums
 {
-    public enum AccommodationRating
+    public enum AccommodationStars
     {
         NotRated = 0,
         OneStar = 1,
