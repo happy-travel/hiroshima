@@ -40,6 +40,19 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
             return new AccommodationAvailability(availabilityId, availabilityRequest.CheckInDate.Date, availabilityRequest.CheckOutDate.Date, numberOfNights, accommodation.Accommodation, accommodation.RoomContractSets);
         }
 
+
+        public RoomContractSetAvailability Create(in AccommodationAvailability accommodationAvailability, Guid roomContractSetId)
+        {
+            var availabilityId = GenerateAvailabilityId();
+            var checkInDate = accommodationAvailability.CheckInDate;
+            var checkOutDate = accommodationAvailability.CheckOutDate;
+            var numberOfNights = CalculateNumberOfNights(checkInDate, checkOutDate);
+            var accommodation = accommodationAvailability.Accommodation;
+            var requiredRoomContractSet = accommodationAvailability.RoomContractSets.SingleOrDefault(roomContractSet => roomContractSet.Id.Equals(roomContractSetId));
+            
+            return new RoomContractSetAvailability(availabilityId, checkInDate, checkOutDate, numberOfNights, accommodation, requiredRoomContractSet);
+        }
+        
         
         public Availability CreateEmptyAvailability(in AvailabilityRequest availabilityRequest)
             => new Availability(string.Empty, CalculateNumberOfNights(availabilityRequest.CheckInDate.Date, availabilityRequest.CheckOutDate.Date), availabilityRequest.CheckInDate.Date, availabilityRequest.CheckOutDate.Date, new List<SlimAccommodationAvailability>(), 0);

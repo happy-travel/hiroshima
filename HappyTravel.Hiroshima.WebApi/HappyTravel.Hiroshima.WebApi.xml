@@ -19,6 +19,14 @@
             <param name="availabilityId"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.Connector.AccommodationsController.Get(System.String,System.Guid)">
+            <summary>
+            Retrieves the room contract set.
+            </summary>
+            <param name="availabilityId"></param>
+            <param name="roomContractSetId"></param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.Connector.LocationsController.GetLocations(System.DateTime,HappyTravel.EdoContracts.GeoData.Enums.LocationTypes,System.Int32,System.Int32)">
             <summary>
             Returns available locations

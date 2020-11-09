@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -50,6 +51,25 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
         public async Task<IActionResult> Get([FromRoute] string accommodationId, [FromRoute] string availabilityId)
         {
             var (_, isFailure, result, error) = await _availabilityService.Get(availabilityId, accommodationId, LanguageCode);
+            if (isFailure)
+                return BadRequest(error);
+
+            return Ok(result);
+        }
+        
+        
+        /// <summary>
+        /// Retrieves the room contract set.
+        /// </summary>
+        /// <param name="availabilityId"></param>
+        /// <param name="roomContractSetId"></param>
+        /// <returns></returns>
+        [HttpPost("availabilities/{availabilityId}/room-contract-sets/{roomContractSetId}")]
+        [ProducesResponseType(typeof(RoomContractSetAvailability), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> Get([FromRoute] string availabilityId, [FromRoute] Guid roomContractSetId)
+        {
+            var (_, isFailure, result, error) = await _availabilityService.Get(availabilityId, roomContractSetId);
             if (isFailure)
                 return BadRequest(error);
 

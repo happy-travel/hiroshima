@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.EdoContracts.Accommodations;
@@ -50,7 +51,19 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
             
             var availabilityResult = _availabilityResponseService.Create(availabilityRequest, accommodationsWithAvailableRate, languageCode);
 
+            await _availabilitySearchStore.AddAccommodationAvailability(availabilityResult);
+            
             return availabilityResult;
+        }
+
+
+        public async Task<Result<RoomContractSetAvailability, ProblemDetails>> Get(string availabilityId, Guid roomContractSetId)
+        {
+            var accommodationAvailability = await _availabilitySearchStore.GetAccommodationAvailability(availabilityId);
+            if (accommodationAvailability.AvailabilityId is null)
+                return Result.Failure<RoomContractSetAvailability, ProblemDetails>(ProblemDetailsBuilder.Build($"Failed to retrieve availability data with {nameof(availabilityId)} '{availabilityId}'"));
+
+            return _availabilityResponseService.Create(accommodationAvailability, roomContractSetId);
         }
         
         
