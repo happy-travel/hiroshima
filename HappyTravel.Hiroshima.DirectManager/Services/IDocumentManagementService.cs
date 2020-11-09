@@ -10,5 +10,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<DocumentFile>> Get(int contractId, Guid documentId);
         public Task<Result<Document>> Add(Models.Requests.Document document);
         public Task<Result> Remove(int contractId, Guid documentId);
+        public Task<Result> RemoveAll(int contractManagerId, int contractId);
     }
 }

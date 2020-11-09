@@ -16,10 +16,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class ContractManagementService : IContractManagementService
     {
-        public ContractManagementService(IContractManagerContextService contractManagerContextService,
+        public ContractManagementService(IContractManagerContextService contractManagerContextService, IDocumentManagementService documentManagementService,
             DirectContractsDbContext dbContext)
         {
             _contractManagerContext = contractManagerContextService;
+            _documentManagementService = documentManagementService;
             _dbContext = dbContext;
         }
 
@@ -143,18 +144,23 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public async Task<Result> Remove(int contractId)
         {
             return await _contractManagerContext.GetContractManager()
+                .Tap(contractManager => RemoveContractDocuments(contractManager.Id))
                 .Tap(async contractManager => await RemoveContract(contractManager.Id));
-               
-            
+
+            async Task<Result> RemoveContractDocuments(int contractManagerId)
+            {
+                return await _documentManagementService.RemoveAll(contractManagerId, contractId);
+            }
+
             async Task RemoveContract(int contractManagerId)
             {
                 var contract = await _dbContext.Contracts.SingleOrDefaultAsync(c => c.Id == contractId && c.ContractManagerId == contractManagerId);
                 if (contract is null)
                     return;
 
-                _dbContext.Contracts.Remove(contract);
-
                 DeleteContractAccommodationRelations();
+
+                _dbContext.Contracts.Remove(contract);
                 
                 await _dbContext.SaveChangesAsync();
             }
@@ -171,7 +177,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
         }
 
-        
+
         private Contract Create(int contractManagerId, Models.Requests.Contract contract)
             => new Contract
             {
@@ -249,6 +255,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         private readonly IContractManagerContextService _contractManagerContext;
+        private readonly IDocumentManagementService _documentManagementService;
         private readonly DirectContractsDbContext _dbContext;
 
 
