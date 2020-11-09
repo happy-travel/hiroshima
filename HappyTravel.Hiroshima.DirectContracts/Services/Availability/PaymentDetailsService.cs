@@ -24,13 +24,13 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 
             var seasonPrices = CalculatePrices(checkInDate, checkOutDate, seasonRangesWithPrice, currency, promotionalOffers, languageCode);
 
-            var totalPrice = new MoneyAmount(seasonPrices.Sum(priceDetails => priceDetails.TotalAmount.Amount), currency);
-            var discountAmount = new MoneyAmount(seasonPrices.Sum(seasonPrice => GetDiscountAmount(seasonPrice.TotalAmount, seasonPrice.Discount, currency).Amount), currency);
-            var discountPercent = GetDiscountPercent(totalPrice, discountAmount);
+            var totalAmount = new MoneyAmount(seasonPrices.Sum(priceDetails => priceDetails.TotalAmount.Amount), currency);
+            var totalAmountWithDiscount = new MoneyAmount(seasonPrices.Sum(seasonPrice => seasonPrice.TotalAmountWithDiscount.Amount), currency);
+            var discountPercent = GetDiscount(totalAmount, totalAmountWithDiscount);
 
             var remarks = RetrievePaymentRemarks(rates);
 
-            return new PaymentDetails(totalPrice, discountPercent, seasonPrices, remarks);
+            return new PaymentDetails(totalAmount, discountPercent, seasonPrices, remarks);
         }
 
 
@@ -52,12 +52,12 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                 var nextSeasonIndex = i + 1;
                 var endDate = nextSeasonIndex < seasonRangesWithPrice.Count ? seasonRangesWithPrice[nextSeasonIndex].StartDate : checkOutDate;
                 var nights = (endDate - startDate).Days;
-                var (seasonPriceTotal, seasonPriceWithDiscountTotal, discountPercentTotal, dailyPrices) =
+                var (totalSeasonAmount, totalSeasonAmountWithDiscount, discount, dailyPrices) =
                     CalculateSeasonPrice(startDate, endDate, currentSeason.rateAmount, currency, promotionalOffers, languageCode);
 
                 if (nights != 0)
-                    seasonPrices.Add(new SeasonPriceDetails(startDate, endDate, currentSeason.rateAmount, nights, seasonPriceTotal, seasonPriceWithDiscountTotal,
-                        discountPercentTotal, dailyPrices));
+                    seasonPrices.Add(new SeasonPriceDetails(startDate, endDate, currentSeason.rateAmount, nights, totalSeasonAmount, totalSeasonAmountWithDiscount,
+                        discount, dailyPrices));
 
                 startDate = endDate;
             }
@@ -71,8 +71,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         {
             var fromDate = seasonStartDate;
             var seasonAmountWithDiscountTotal = new MoneyAmount(0, currency);
-            var discountAmountTotal = new MoneyAmount(0, currency);
-
+            
             var dailyPrices = new List<SeasonDailyPrice>();
             while (fromDate < seasonEndDate)
             {
@@ -84,16 +83,15 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 
                 dailyPrices.Add(new SeasonDailyPrice(fromDate, toDate, dailyAmount, dailyAmountWithDiscount, discount));
 
-                discountAmountTotal += discountAmount;
                 seasonAmountWithDiscountTotal += dailyAmountWithDiscount;
 
                 fromDate = toDate;
             }
 
-            var seasonPriceTotal = new MoneyAmount(dailyAmount.Amount * (seasonEndDate.Date - seasonStartDate.Date).Days, currency);
-            var discountPercentTotal = GetDiscountPercent(seasonPriceTotal, discountAmountTotal);
+            var totalSeasonAmount = new MoneyAmount(dailyAmount.Amount * (seasonEndDate.Date - seasonStartDate.Date).Days, currency);
+            var discountPercentTotal = GetDiscount(totalSeasonAmount, seasonAmountWithDiscountTotal);
 
-            return (seasonPriceTotal, seasonAmountWithDiscountTotal, discountPercentTotal, dailyPrices);
+            return (totalSeasonAmount, seasonAmountWithDiscountTotal, discountPercentTotal, dailyPrices);
         }
 
 
@@ -122,7 +120,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             => new MoneyAmount(MoneyRounder.Truncate(moneyAmount.Amount / 100 * discount.Percent, currency), currency);
 
 
-        private static Discount GetDiscountPercent(MoneyAmount totalMoneyAmount, MoneyAmount moneyAmountWithDiscount, string description = null)
-            => new Discount(Math.Truncate(moneyAmountWithDiscount.Amount * 100 / totalMoneyAmount.Amount), description);
+        private static Discount GetDiscount(MoneyAmount totalMoneyAmount, MoneyAmount moneyAmountWithDiscount, string description = null)
+            => new Discount(100 - Math.Truncate(moneyAmountWithDiscount.Amount * 100 / totalMoneyAmount.Amount), description);
     }
 }
