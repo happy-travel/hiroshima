@@ -86,7 +86,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         private IQueryable<Accommodation> GetAvailableAccommodations(AvailabilityRequest availabilityRequest)
         {
             var roomTypes = availabilityRequest.Rooms.Select(room => room.Type).ToList();
-            var ratings = AccommodationRatingMapper.GetStars(availabilityRequest.Ratings);
+            var ratings = AccommodationRatingConverter.Convert(availabilityRequest.Ratings);
             var checkInDate = availabilityRequest.CheckInDate.Date;
             var checkOutDate = availabilityRequest.CheckOutDate.Date;
 
@@ -151,7 +151,6 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         }
         
         
-        private readonly Dictionary<Accommodation,List<AvailableRates>> _emptyAvailableRates = new Dictionary<Accommodation, List<AvailableRates>>();
         private readonly IRateAvailabilityService _rateAvailabilityService;
         private readonly IRoomAvailabilityService _roomAvailabilityService;
         private readonly DirectContractsDbContext _dbContext;

@@ -18,7 +18,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
             var location = GetSlimLocation(accommodation, languageCode);
             var name = GetName(accommodation, languageCode);
             var firstImage = GetFirstImage(accommodation, languageCode);
-            var rating = AccommodationRatingMapper.GetRating((int)accommodation.Rating);
+            var rating = AccommodationRatingConverter.Convert(accommodation.Rating);
             var propertyType = (PropertyTypes) accommodation.PropertyType;
             
             return new SlimAccommodation(id, location, name, firstImage, rating, propertyType);

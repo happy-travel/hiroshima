@@ -22,7 +22,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
 
         public Availability Create(in AvailabilityRequest availabilityRequest, Dictionary<Accommodation, List<AvailableRates>> accommodationAvailableRatesStore, string languageCode)
         {
-            var availabilityId = CreateAvailabilityId();
+            var availabilityId = GenerateAvailabilityId();
             var numberOfNights = CalculateNumberOfNights(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate);
             var numberOfProcessedAccommodations = accommodationAvailableRatesStore.Count;
             var slimAccommodationAvailabilities = CreateSlimAccommodationAvailabilities(accommodationAvailableRatesStore, languageCode); 
@@ -33,7 +33,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
         
         public AccommodationAvailability Create(in AvailabilityRequest availabilityRequest, KeyValuePair<Accommodation, List<AvailableRates>> accommodationWithAvailableRates, string languageCode)
         {
-            var availabilityId = CreateAvailabilityId();
+            var availabilityId = GenerateAvailabilityId();
             var numberOfNights = CalculateNumberOfNights(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate);
             var accommodation = CreateSlimAccommodationAvailability(accommodationWithAvailableRates.Key, accommodationWithAvailableRates.Value, languageCode);
             
@@ -67,7 +67,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
         {
             var slimAccommodation = _accommodationResponseService.Create(accommodation, languageCode);
             var roomContractSets = CreateRoomContractSets(availableRates);
-            var availabilityId = CreateAvailabilityId();
+            var availabilityId = GenerateAvailabilityId();
                 
             return new SlimAccommodationAvailability(slimAccommodation, roomContractSets, availabilityId);
         }
@@ -175,7 +175,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
             .ToList();
 
 
-        private string CreateAvailabilityId() => Guid.NewGuid().ToString("N");
+        private string GenerateAvailabilityId() => Guid.NewGuid().ToString("N");
 
 
         private int CalculateNumberOfNights(DateTime checkInDate, DateTime checkOutDate) => (checkOutDate.Date - checkInDate.Date).Days;
