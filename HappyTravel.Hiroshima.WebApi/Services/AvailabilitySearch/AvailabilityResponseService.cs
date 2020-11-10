@@ -6,10 +6,11 @@ using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Hiroshima.DirectContracts.Models;
+using HappyTravel.Money.Helpers;
 using HappyTravel.Money.Models;
 using Accommodation = HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation;
 
-namespace HappyTravel.Hiroshima.WebApi.Services
+namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
 {
     public class AvailabilityResponseService : IAvailabilityResponseService
     {
@@ -19,15 +20,33 @@ namespace HappyTravel.Hiroshima.WebApi.Services
         }
 
 
-        public Availability Create(AvailabilityRequest availabilityRequest, Dictionary<Accommodation, List<AvailableRates>> accommodationAvailableRatesStore, string languageCode)
+        public Availability Create(in AvailabilityRequest availabilityRequest, Dictionary<Accommodation, List<AvailableRates>> accommodationAvailableRatesStore, string languageCode)
         {
-            var availabilityId = CreateAvailabilityId();
-            var numberOfNights = GetNumberOfNights(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate);
+            var availabilityId = GenerateAvailabilityId();
+            var numberOfNights = CalculateNumberOfNights(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate);
             var numberOfProcessedAccommodations = accommodationAvailableRatesStore.Count;
             var slimAccommodationAvailabilities = CreateSlimAccommodationAvailabilities(accommodationAvailableRatesStore, languageCode); 
             
             return new Availability(availabilityId, numberOfNights, availabilityRequest.CheckInDate.Date, availabilityRequest.CheckOutDate.Date, slimAccommodationAvailabilities, numberOfProcessedAccommodations);
         }
+
+        
+        public AccommodationAvailability Create(in AvailabilityRequest availabilityRequest, KeyValuePair<Accommodation, List<AvailableRates>> accommodationWithAvailableRates, string languageCode)
+        {
+            var availabilityId = GenerateAvailabilityId();
+            var numberOfNights = CalculateNumberOfNights(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate);
+            var accommodation = CreateSlimAccommodationAvailability(accommodationWithAvailableRates.Key, accommodationWithAvailableRates.Value, languageCode);
+            
+            return new AccommodationAvailability(availabilityId, availabilityRequest.CheckInDate.Date, availabilityRequest.CheckOutDate.Date, numberOfNights, accommodation.Accommodation, accommodation.RoomContractSets);
+        }
+
+        
+        public Availability CreateEmptyAvailability(in AvailabilityRequest availabilityRequest)
+            => new Availability(string.Empty, CalculateNumberOfNights(availabilityRequest.CheckInDate.Date, availabilityRequest.CheckOutDate.Date), availabilityRequest.CheckInDate.Date, availabilityRequest.CheckOutDate.Date, new List<SlimAccommodationAvailability>(), 0);
+        
+        
+        public AccommodationAvailability CreateEmptyAccommodationAvailability(in AvailabilityRequest availabilityRequest) 
+            => new AccommodationAvailability(string.Empty, availabilityRequest.CheckInDate.Date, availabilityRequest.CheckOutDate.Date, CalculateNumberOfNights(availabilityRequest.CheckInDate.Date, availabilityRequest.CheckOutDate.Date), new SlimAccommodation(), new List<RoomContractSet>());
         
 
         private List<SlimAccommodationAvailability> CreateSlimAccommodationAvailabilities(Dictionary<Accommodation, List<AvailableRates>> accommodationAvailableRatesStore, string languageCode)
@@ -36,23 +55,23 @@ namespace HappyTravel.Hiroshima.WebApi.Services
                 
             foreach (var accommodationAvailableRate in accommodationAvailableRatesStore)
             {
-                var slimAccommodationAvailability = CreateSlimAccommodationAvailability(accommodationAvailableRate.Key, accommodationAvailableRate.Value); 
+                var slimAccommodationAvailability = CreateSlimAccommodationAvailability(accommodationAvailableRate.Key, accommodationAvailableRate.Value, languageCode); 
                 slimAccommodationAvailabilities.Add(slimAccommodationAvailability);
             }
 
             return slimAccommodationAvailabilities;
-
-
-            SlimAccommodationAvailability CreateSlimAccommodationAvailability(Accommodation accommodation, List<AvailableRates> availableRates)
-            {
-                var slimAccommodation = _accommodationResponseService.Create(accommodation, languageCode);
-                var roomContractSets = CreateRoomContractSets(availableRates);
-                var availabilityId = CreateAvailabilityId();
-                
-                return new SlimAccommodationAvailability(slimAccommodation, roomContractSets, availabilityId);
-            }
         }
 
+        
+        private SlimAccommodationAvailability CreateSlimAccommodationAvailability(Accommodation accommodation, List<AvailableRates> availableRates, string languageCode)
+        {
+            var slimAccommodation = _accommodationResponseService.Create(accommodation, languageCode);
+            var roomContractSets = CreateRoomContractSets(availableRates);
+            var availabilityId = GenerateAvailabilityId();
+                
+            return new SlimAccommodationAvailability(slimAccommodation, roomContractSets, availabilityId);
+        }
+        
 
         private List<RoomContractSet> CreateRoomContractSets(List<AvailableRates> availableRates)
         {
@@ -138,10 +157,14 @@ namespace HappyTravel.Hiroshima.WebApi.Services
             var firstRateDetails = rateDetails.First();
             var currency = firstRateDetails.PaymentDetails.TotalAmount.Currency;
             var totalPrice = rateDetails.Sum(rateDetailsItem => rateDetailsItem.PaymentDetails.TotalAmount.Amount);
-            var discounts = rateDetails.Select(rateDetailsItem => rateDetailsItem.PaymentDetails.Discount).ToList();
+
+            var totalPriceWithDiscount = rateDetails.Sum(rateDetailsItem
+                => rateDetailsItem.PaymentDetails.TotalAmount.Amount - rateDetailsItem.PaymentDetails.TotalAmount.Amount * rateDetailsItem.PaymentDetails.Discount.Percent / 100);
+            var totalDiscount = new Discount(MoneyRounder.Truncate(100 - totalPriceWithDiscount * 100 / totalPrice, currency));
+            
             var moneyAmount = new MoneyAmount(totalPrice, currency);
             
-            return new Price(moneyAmount, moneyAmount, discounts, PriceTypes.RoomContractSet);           
+            return new Price(moneyAmount, moneyAmount, new List<Discount>{totalDiscount}, PriceTypes.RoomContractSet);           
         }
         
         
@@ -152,10 +175,10 @@ namespace HappyTravel.Hiroshima.WebApi.Services
             .ToList();
 
 
-        private string CreateAvailabilityId() => Guid.NewGuid().ToString("N");
+        private string GenerateAvailabilityId() => Guid.NewGuid().ToString("N");
 
 
-        private int GetNumberOfNights(DateTime checkInDate, DateTime checkOutDate) => (checkOutDate.Date - checkInDate.Date).Days;
+        private int CalculateNumberOfNights(DateTime checkInDate, DateTime checkOutDate) => (checkOutDate.Date - checkInDate.Date).Days;
 
         
         private readonly IAccommodationResponseService _accommodationResponseService;

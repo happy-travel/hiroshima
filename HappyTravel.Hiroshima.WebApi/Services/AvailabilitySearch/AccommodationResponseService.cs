@@ -2,12 +2,13 @@
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Infrastructure.Extensions;
+using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.WebApi.Controllers.DirectManager;
 using PropertyTypes = HappyTravel.EdoContracts.Accommodations.Enums.PropertyTypes;
 
-namespace HappyTravel.Hiroshima.WebApi.Services
+namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
 {
     public class AccommodationResponseService : IAccommodationResponseService
     {
@@ -17,7 +18,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services
             var location = GetSlimLocation(accommodation, languageCode);
             var name = GetName(accommodation, languageCode);
             var firstImage = GetFirstImage(accommodation, languageCode);
-            var rating = AccommodationRatingMapper.GetRating((int)accommodation.Rating);
+            var rating = AccommodationRatingConverter.Convert(accommodation.Rating);
             var propertyType = (PropertyTypes) accommodation.PropertyType;
             
             return new SlimAccommodation(id, location, name, firstImage, rating, propertyType);

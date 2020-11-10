@@ -2,6 +2,7 @@
 using HappyTravel.Geography;
 using HappyTravel.Hiroshima.WebApi.Infrastructure.Environments;
 using HappyTravel.Hiroshima.WebApi.Services;
+using HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch;
 using HappyTravel.VaultClient;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
@@ -51,7 +52,8 @@ namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(GeoConstants.SpatialReferenceId));
             services.AddTransient<IAvailabilityService, AvailabilityService>();
             services.AddTransient<IAvailabilityResponseService, AvailabilityResponseService>();
-            services.AddSingleton<IAccommodationResponseService, AccommodationResponseService>();
+            services.AddTransient<IAccommodationResponseService, AccommodationResponseService>();
+            services.AddTransient<IAvailabilitySearchStore, AvailabilitySearchStore>();
             
             return services;
         }

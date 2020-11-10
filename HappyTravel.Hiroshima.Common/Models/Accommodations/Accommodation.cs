@@ -23,7 +23,7 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations
         
         public Point Coordinates { get; set; }
         
-        public AccommodationRating Rating { get; set; }
+        public AccommodationStars Rating { get; set; }
         
         public string CheckInTime { get; set; }
         

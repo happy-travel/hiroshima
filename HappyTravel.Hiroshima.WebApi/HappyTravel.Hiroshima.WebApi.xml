@@ -6,9 +6,17 @@
     <members>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.Connector.AccommodationsController.Get(HappyTravel.EdoContracts.Accommodations.AvailabilityRequest)">
             <summary>
-            Returns available accommodations with room contracts
+            Retrieves available accommodations with room contract sets.
             </summary>
             <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.Connector.AccommodationsController.Get(System.String,System.String)">
+            <summary>
+            Retrieves the accommodation with available room contract sets. 
+            </summary>
+            <param name="accommodationId"></param>
+            <param name="availabilityId"></param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.Connector.LocationsController.GetLocations(System.DateTime,HappyTravel.EdoContracts.GeoData.Enums.LocationTypes,System.Int32,System.Int32)">
