@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
+using HappyTravel.Hiroshima.Common.Models.Seasons;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.Data.Models;
@@ -158,8 +159,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 if (contract is null)
                     return;
 
-                await DeleteContractAccommodationRelations();
-
                 await DeletePromotionalOffers();
 
                 await DeletePromotionalOfferStopSales();
@@ -167,6 +166,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 await DeleteRoomAvailabilityRestrictions();
 
                 await DeleteSeasons();
+
+                await DeleteContractAccommodationRelations();
 
                 _dbContext.Contracts.Remove(contract);
                 
@@ -220,7 +221,23 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     .ToListAsync();
 
                 if (seasons.Any())
+                {
+                    foreach (Season season in seasons)
+                    {
+                        await DeleteSeasonRanges(season.Id);
+                    }
                     _dbContext.Seasons.RemoveRange(seasons);
+                }
+            }
+
+            async Task DeleteSeasonRanges(int seasonId)
+            {
+                var seasonRanges = await _dbContext.SeasonRanges
+                    .Where(seasonRange => seasonRange.SeasonId == seasonId)
+                    .ToListAsync();
+
+                if (seasonRanges.Any())
+                    _dbContext.SeasonRanges.RemoveRange(seasonRanges);
             }
         }
 
