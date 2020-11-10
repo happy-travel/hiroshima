@@ -217,6 +217,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(d => d.ContractId).IsRequired();
                 e.HasIndex(d => d.ContractManagerId);
                 e.HasIndex(d => d.ContractId);
+                e.HasOne(d => d.ContractManager).WithMany().OnDelete(DeleteBehavior.SetNull);
                 e.HasOne(d => d.Contract).WithMany(c => c.Documents).OnDelete(DeleteBehavior.SetNull);
             });
         }
@@ -239,6 +240,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(i => i.Description).HasColumnType("jsonb").IsRequired();
                 e.HasIndex(i => i.ContractManagerId);
                 e.HasIndex(i => i.AccommodationId);
+                e.HasOne(i => i.ContractManager).WithMany().OnDelete(DeleteBehavior.SetNull);
                 e.HasOne(i => i.Accommodation).WithMany(a => a.Images).OnDelete(DeleteBehavior.SetNull);
             });
         }

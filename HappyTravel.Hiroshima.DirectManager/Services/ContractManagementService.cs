@@ -165,7 +165,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                 await DeleteRoomAvailabilityRestrictions();
 
-                await DeleteSeasons();
+                await DeleteSeasonsAndDependentEntities();
 
                 await DeleteContractAccommodationRelations();
 
@@ -214,7 +214,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     _dbContext.RoomAvailabilityRestrictions.RemoveRange(restrictions);
             }
 
-            async Task DeleteSeasons()
+            async Task DeleteSeasonsAndDependentEntities()
             {
                 var seasons = await _dbContext.Seasons
                     .Where(season => season.ContractId == contractId)
