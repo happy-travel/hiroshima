@@ -104,32 +104,25 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             return await _contractManagerContext.GetContractManager()
                 .Tap(async contractManager => 
                 {
-                    var result = await RemoveDocument(contractManager.Id);
+                    var result = await RemoveDocument(contractManager.Id, contractId, documentId);
                     return result ? Result.Success(contractManager) : Result.Failure<ContractManager>("Document deletion error"); 
                 });
-
-
-            async Task<bool> RemoveDocument(int contractManagerId)
-            {
-                var document = await _dbContext.Documents.SingleOrDefaultAsync(d => d.ContractManagerId == contractManagerId && 
-                    d.ContractId == contractId && d.Id == documentId);
-                if (document is null)
-                    return false;
-
-                // Remove file from Amazon S3
-                var result = await _amazonS3ClientService.Delete(_bucketName, document.Key);
-                if (result.IsFailure)
-                    return false;
-
-                _dbContext.Documents.Remove(document);
-
-                await _dbContext.SaveChangesAsync();
-                
-                return true;
-            }
         }
 
-    
+
+        public async Task<Result> RemoveAll(int contractManagerId, int contractId)
+        {
+            var documents = _dbContext.Documents.Where(document => document.ContractManagerId == contractManagerId && document.ContractId == contractId);
+            foreach (var document in documents)
+            {
+                var result = await RemoveDocument(contractManagerId, contractId, document.Id);
+                if (!result)
+                    return Result.Failure("Document deletion error");
+            }
+            return Result.Success();
+        }
+
+
         private Document Create(int contractManagerId, Models.Requests.Document document) => new Document
         {
             Name = document.UploadedFile.FileName,
@@ -143,6 +136,26 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private Models.Responses.Document Build(Document document)
             => new Models.Responses.Document(document.Id, document.Name, document.ContentType, document.Key, document.ContractId);
+
+
+        private async Task<bool> RemoveDocument(int contractManagerId, int contractId, Guid documentId)
+        {
+            var document = await _dbContext.Documents.SingleOrDefaultAsync(d => d.ContractManagerId == contractManagerId &&
+                d.ContractId == contractId && d.Id == documentId);
+            if (document is null)
+                return false;
+
+            // Remove file from Amazon S3
+            var result = await _amazonS3ClientService.Delete(_bucketName, document.Key);
+            if (result.IsFailure)
+                return false;
+
+            _dbContext.Documents.Remove(document);
+
+            await _dbContext.SaveChangesAsync();
+
+            return true;
+        }
 
 
         private const string S3FolderName = "contracts";

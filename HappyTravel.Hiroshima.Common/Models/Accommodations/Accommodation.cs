@@ -51,7 +51,7 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations
         
         public ContractManager ContractManager { get; set; }
         
-        public HappyTravel.Hiroshima.Common.Models.Locations.Location Location { get; set; }
+        public Locations.Location Location { get; set; }
         
         public List<Room> Rooms { get; set; } = new List<Room>();
 
