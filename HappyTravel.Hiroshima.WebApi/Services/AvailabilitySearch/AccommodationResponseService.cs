@@ -28,6 +28,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
         private string GetName(Accommodation accommodation, string languageCode)
         {
             accommodation.Name.GetValue<MultiLanguage<string>>().TryGetValueOrDefault(languageCode, out var name);
+            
             return name;
         }
 
