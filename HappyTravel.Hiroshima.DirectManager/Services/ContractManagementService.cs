@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
+using HappyTravel.Hiroshima.Common.Models.Seasons;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.Data.Models;
@@ -16,10 +17,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class ContractManagementService : IContractManagementService
     {
-        public ContractManagementService(IContractManagerContextService contractManagerContextService,
+        public ContractManagementService(IContractManagerContextService contractManagerContextService, IDocumentManagementService documentManagementService,
             DirectContractsDbContext dbContext)
         {
             _contractManagerContext = contractManagerContextService;
+            _documentManagementService = documentManagementService;
             _dbContext = dbContext;
         }
 
@@ -143,24 +145,36 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public async Task<Result> Remove(int contractId)
         {
             return await _contractManagerContext.GetContractManager()
+                .Tap(contractManager => RemoveContractDocuments(contractManager.Id))
                 .Tap(async contractManager => await RemoveContract(contractManager.Id));
-               
-            
+
+            async Task<Result> RemoveContractDocuments(int contractManagerId)
+            {
+                return await _documentManagementService.RemoveAll(contractManagerId, contractId);
+            }
+
             async Task RemoveContract(int contractManagerId)
             {
                 var contract = await _dbContext.Contracts.SingleOrDefaultAsync(c => c.Id == contractId && c.ContractManagerId == contractManagerId);
                 if (contract is null)
                     return;
 
-                _dbContext.Contracts.Remove(contract);
+                await DeletePromotionalOffers();
 
-                DeleteContractAccommodationRelations();
+                await DeletePromotionalOfferStopSales();
+
+                await DeleteRoomAvailabilityRestrictions();
+
+                await DeleteSeasonsAndDependentEntities();
+
+                await DeleteContractAccommodationRelations();
+
+                _dbContext.Contracts.Remove(contract);
                 
                 await _dbContext.SaveChangesAsync();
             }
             
-            
-            async void DeleteContractAccommodationRelations()
+            async Task DeleteContractAccommodationRelations()
             {
                 var relations = await _dbContext.ContractAccommodationRelations
                     .Where(relation => relation.ContractId == contractId)
@@ -169,9 +183,107 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 if (relations.Any())
                     _dbContext.ContractAccommodationRelations.RemoveRange(relations);
             }
+
+            async Task DeletePromotionalOffers()
+            {
+                var offers = await _dbContext.PromotionalOffers
+                    .Where(promotionalOffer => promotionalOffer.ContractId == contractId)
+                    .ToListAsync();
+
+                if (offers.Any())
+                    _dbContext.PromotionalOffers.RemoveRange(offers);
+            }
+
+            async Task DeletePromotionalOfferStopSales()
+            {
+                var offers = await _dbContext.PromotionalOfferStopSales
+                    .Where(promotionalOfferStopSale => promotionalOfferStopSale.ContractId == contractId)
+                    .ToListAsync();
+
+                if (offers.Any())
+                    _dbContext.PromotionalOfferStopSales.RemoveRange(offers);
+            }
+
+            async Task DeleteRoomAvailabilityRestrictions()
+            {
+                var restrictions = await _dbContext.RoomAvailabilityRestrictions
+                    .Where(roomAvailabilityRestriction => roomAvailabilityRestriction.ContractId == contractId)
+                    .ToListAsync();
+
+                if (restrictions.Any())
+                    _dbContext.RoomAvailabilityRestrictions.RemoveRange(restrictions);
+            }
+
+            async Task DeleteSeasonsAndDependentEntities()
+            {
+                var seasons = await _dbContext.Seasons
+                    .Where(season => season.ContractId == contractId)
+                    .ToListAsync();
+
+                if (seasons.Any())
+                {
+                    foreach (Season season in seasons)
+                    {
+                        await DeleteRoomRates(season.Id);
+
+                        await DeleteRoomCancellationPolicies(season.Id);
+
+                        await DeleteSeasonRanges(season.Id);
+                    }
+
+                    _dbContext.Seasons.RemoveRange(seasons);
+                }
+            }
+
+            async Task DeleteRoomRates(int seasonId)
+            {
+                var roomRates = await _dbContext.RoomRates
+                    .Where(roomRate => roomRate.SeasonId == seasonId)
+                    .ToListAsync();
+
+                if (roomRates.Any())
+                    _dbContext.RoomRates.RemoveRange(roomRates);
+            }
+
+            async Task DeleteRoomCancellationPolicies(int seasonId)
+            {
+                var cancellationPolicies = await _dbContext.RoomCancellationPolicies
+                    .Where(cancellationPolicy => cancellationPolicy.SeasonId == seasonId)
+                    .ToListAsync();
+
+                if (cancellationPolicies.Any())
+                    _dbContext.RoomCancellationPolicies.RemoveRange(cancellationPolicies);
+            }
+
+            async Task DeleteSeasonRanges(int seasonId)
+            {
+                var seasonRanges = await _dbContext.SeasonRanges
+                    .Where(seasonRange => seasonRange.SeasonId == seasonId)
+                    .ToListAsync();
+
+                if (seasonRanges.Any())
+                {
+                    foreach (SeasonRange seasonRange in seasonRanges)
+                    {
+                        await DeleteRoomAllocationRequirements(seasonRange.Id);
+                    }
+
+                    _dbContext.SeasonRanges.RemoveRange(seasonRanges);
+                }
+            }
+
+            async Task DeleteRoomAllocationRequirements(int seasonRangeId)
+            {
+                var allocationRequirements = await _dbContext.RoomAllocationRequirements
+                    .Where(allocationRequirement => allocationRequirement.SeasonRangeId == seasonRangeId)
+                    .ToListAsync();
+
+                if (allocationRequirements.Any())
+                    _dbContext.RoomAllocationRequirements.RemoveRange(allocationRequirements);
+            }
         }
 
-        
+
         private Contract Create(int contractManagerId, Models.Requests.Contract contract)
             => new Contract
             {
@@ -249,6 +361,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         private readonly IContractManagerContextService _contractManagerContext;
+        private readonly IDocumentManagementService _documentManagementService;
         private readonly DirectContractsDbContext _dbContext;
 
 

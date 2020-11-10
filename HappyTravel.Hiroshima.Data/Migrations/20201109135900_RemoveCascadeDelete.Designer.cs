@@ -11,6 +11,7 @@ using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Models.Booking;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -18,9 +19,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Hiroshima.Data.Migrations
 {
     [DbContext(typeof(DirectContractsDbContext))]
-    partial class DirectContractsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201109135900_RemoveCascadeDelete")]
+    partial class RemoveCascadeDelete
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -877,15 +879,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
-                    b.HasOne("HappyTravel.Hiroshima.Common.Models.ContractManager", "ContractManager")
-                        .WithMany()
-                        .HasForeignKey("ContractManagerId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
-
                     b.Navigation("Contract");
-
-                    b.Navigation("ContractManager");
                 });
 
             modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.Images.Image", b =>
@@ -896,15 +890,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
-                    b.HasOne("HappyTravel.Hiroshima.Common.Models.ContractManager", "ContractManager")
-                        .WithMany()
-                        .HasForeignKey("ContractManagerId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
-
                     b.Navigation("Accommodation");
-
-                    b.Navigation("ContractManager");
                 });
 
             modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.Locations.Location", b =>

@@ -37,24 +37,112 @@ namespace HappyTravel.Hiroshima.Data
             modelBuilder.HasPostgresExtension("postgis")
                 .HasPostgresExtension("uuid-ossp");
 
-            AddContractManagers(modelBuilder);
-            AddDocuments(modelBuilder);
-            AddContracts(modelBuilder);
-            AddLocations(modelBuilder);
             AddAccommodations(modelBuilder);
-            AddImages(modelBuilder);
-            AddRooms(modelBuilder);
-            AddRates(modelBuilder);
-            AddRoomAvailabilityRestrictions(modelBuilder);
-            AddPromotionalOffers(modelBuilder);
-            AddRoomAllocationRequirements(modelBuilder);
             AddBooking(modelBuilder);
-            AddCountries(modelBuilder);
             AddCancellationPolicies(modelBuilder);
             AddContractAccommodationRelation(modelBuilder);
-            AddSeasons(modelBuilder);
-            AddSeasonRanges(modelBuilder);
+            AddContractManagers(modelBuilder);
+            AddContracts(modelBuilder);
+            AddCountries(modelBuilder);
+            AddDocuments(modelBuilder);
+            AddImages(modelBuilder);
+            AddLocations(modelBuilder);
+            AddPromotionalOffers(modelBuilder);
             AddPromotionalOffersStopSale(modelBuilder);
+            AddRates(modelBuilder);
+            AddRoomAllocationRequirements(modelBuilder);
+            AddRoomAvailabilityRestrictions(modelBuilder);
+            AddRooms(modelBuilder);
+            AddSeasonRanges(modelBuilder);
+            AddSeasons(modelBuilder);
+        }
+
+
+        private void AddAccommodations(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Accommodation>(e =>
+            {
+                e.ToTable("Accommodations");
+                e.HasKey(a => a.Id);
+                e.Property(a => a.Address).HasColumnType("jsonb").IsRequired();
+                e.Property(a => a.ContactInfo).HasColumnType("jsonb").IsRequired();
+                e.Property(a => a.Coordinates).HasColumnType("geometry (point)").IsRequired();
+                e.Property(a => a.Name).HasColumnType("jsonb").IsRequired();
+                e.Property(a => a.Pictures).HasColumnType("jsonb").IsRequired();
+                e.Property(a => a.Rating).IsRequired();
+                e.Property(a => a.AccommodationAmenities).HasColumnType("jsonb").IsRequired();
+                e.Property(a => a.AdditionalInfo).HasColumnType("jsonb").HasDefaultValueSql("'{}'::json");
+                e.Property(a => a.PropertyType).IsRequired();
+                e.Property(a => a.TextualDescription).HasColumnType("jsonb").IsRequired();
+                e.Property(a => a.CheckInTime).IsRequired();
+                e.Property(a => a.CheckOutTime).IsRequired();
+                e.Property(a => a.OccupancyDefinition).HasColumnType("jsonb");
+                e.Property(a => a.ContractManagerId).IsRequired();
+                e.Property(a => a.LeisureAndSports).HasColumnType("jsonb").IsRequired();
+                e.Property(a => a.Status).IsRequired();
+                e.Property(a => a.RateOptions).HasColumnType("jsonb").IsRequired();
+                e.Property(a => a.Created).IsRequired();
+                e.Property(a => a.Modified).IsRequired();
+                e.Property(a => a.Floors);
+                e.Property(a => a.BuildYear);
+                e.HasIndex(a => a.Coordinates).HasMethod("GIST");
+                e.HasIndex(a => a.LocationId);
+                e.HasIndex(a => a.ContractManagerId);
+                e.HasOne(a => a.ContractManager).WithMany(cm => cm.Accommodations).OnDelete(DeleteBehavior.SetNull);
+                e.HasOne(a => a.Location).WithMany().OnDelete(DeleteBehavior.SetNull);
+            });
+        }
+
+
+        private void AddBooking(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Booking>(e =>
+            {
+                e.ToTable("BookingOrders");
+                e.HasKey(bo => bo.Id);
+                e.Property(bo => bo.ReferenceCode).IsRequired();
+                e.Property(bo => bo.StatusCode).IsRequired();
+                e.Property(bo => bo.BookingDate).IsRequired();
+                e.Property(bo => bo.CheckInDate).IsRequired();
+                e.Property(bo => bo.CheckOutDate).IsRequired();
+                e.Property(bo => bo.Rooms).HasColumnType("jsonb").IsRequired();
+                e.Property(bo => bo.Nationality).IsRequired();
+                e.Property(bo => bo.Residency).IsRequired();
+                e.Property(bo => bo.LanguageCode).IsRequired();
+            });
+        }
+
+
+        private void AddCancellationPolicies(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<RoomCancellationPolicy>(e =>
+            {
+                e.ToTable("CancellationPolicies");
+                e.HasKey(rcp => rcp.Id);
+                e.Property(rcp => rcp.Policies).HasColumnType("jsonb").IsRequired();
+                e.Property(rcp => rcp.RoomId).IsRequired();
+                e.Property(rcp => rcp.SeasonId).IsRequired();
+                e.HasIndex(rcp => rcp.RoomId);
+                e.HasIndex(rcp => rcp.SeasonId);
+                e.HasOne(rcp => rcp.Room).WithMany(r => r.RoomCancellationPolicies).OnDelete(DeleteBehavior.SetNull);
+                e.HasOne(rcp => rcp.Season).WithMany().OnDelete(DeleteBehavior.SetNull);
+            });
+        }
+
+
+        private void AddContractAccommodationRelation(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ContractAccommodationRelation>(e =>
+            {
+                e.ToTable("ContractAccommodationRelations");
+                e.HasKey(car => car.Id);
+                e.Property(car => car.AccommodationId).IsRequired();
+                e.Property(car => car.ContractId).IsRequired();
+                e.HasIndex(car => car.AccommodationId);
+                e.HasIndex(car => car.ContractId);
+                e.HasOne(car => car.Accommodation).WithMany().OnDelete(DeleteBehavior.SetNull);
+                e.HasOne(car => car.Contract).WithMany().OnDelete(DeleteBehavior.SetNull);
+            });
         }
 
 
@@ -63,42 +151,25 @@ namespace HappyTravel.Hiroshima.Data
             modelBuilder.Entity<ContractManager>(e =>
             {
                 e.ToTable("ContractManagers");
-                e.HasKey(c => c.Id);
-                e.Property(c => c.IdentityHash).IsRequired();
-                e.Property(c => c.Email).IsRequired();
-                e.Property(c => c.FirstName).IsRequired();
-                e.Property(c => c.LastName).IsRequired();
-                e.Property(c => c.Title).IsRequired();
-                e.Property(c => c.Position).IsRequired();
-                e.Property(c => c.Phone).IsRequired();
-                e.Property(c => c.Fax);
+                e.HasKey(cm => cm.Id);
+                e.Property(cm => cm.IdentityHash).IsRequired();
+                e.Property(cm => cm.Email).IsRequired();
+                e.Property(cm => cm.FirstName).IsRequired();
+                e.Property(cm => cm.LastName).IsRequired();
+                e.Property(cm => cm.Title).IsRequired();
+                e.Property(cm => cm.Position).IsRequired();
+                e.Property(cm => cm.Phone).IsRequired();
+                e.Property(cm => cm.Fax);
                 
-                e.Property(c => c.Created).IsRequired().HasDefaultValueSql("now() at time zone 'utc'");
-                e.Property(c => c.Updated).IsRequired().HasDefaultValueSql("now() at time zone 'utc'");
-                e.Property(c => c.IsActive).IsRequired().HasDefaultValue(false);
+                e.Property(cm => cm.Created).IsRequired().HasDefaultValueSql("now() at time zone 'utc'");
+                e.Property(cm => cm.Updated).IsRequired().HasDefaultValueSql("now() at time zone 'utc'");
+                e.Property(cm => cm.IsActive).IsRequired().HasDefaultValue(false);
                 
-                e.HasIndex(c => c.IdentityHash).IsUnique();
-                e.HasIndex(c => c.Email).IsUnique();
+                e.HasIndex(cm => cm.IdentityHash).IsUnique();
+                e.HasIndex(cm => cm.Email).IsUnique();
             });
         }
-        
-        private void AddDocuments(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Document>(e =>
-            {
-                e.ToTable("Documents");
-                e.HasKey(c => c.Id);
-                e.Property(c => c.Id).HasColumnType("uuid").HasDefaultValueSql("uuid_generate_v4()");
-                e.Property(c => c.Name).IsRequired();
-                e.Property(c => c.ContentType).IsRequired();
-                e.Property(c => c.Key).IsRequired();
-                e.Property(c => c.Created).IsRequired();
-                e.Property(c => c.ContractManagerId).IsRequired();
-                e.Property(c => c.ContractId).IsRequired();
-                e.HasIndex(c => c.ContractManagerId);
-                e.HasIndex(c => c.ContractId);
-            });
-        }
+
 
         private void AddContracts(ModelBuilder modelBuilder)
         {
@@ -115,20 +186,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(c => c.Modified).IsRequired();
                 e.Property(c => c.Verified).IsRequired();
                 e.HasIndex(c => c.ContractManagerId);
-            });
-        }
-        
-        
-        private void AddLocations(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Location>(e =>
-            {
-                e.ToTable("Locations");
-                e.HasKey(l => l.Id);
-                e.Property(l => l.Locality ).HasColumnType("jsonb").IsRequired();
-                e.Property(l => l.Zone).HasColumnType("jsonb").HasDefaultValueSql("'{}'::json");
-                e.Property(l => l.CountryCode).IsRequired();
-                e.HasIndex(l => l.CountryCode);
+                e.HasOne(c => c.ContractManager).WithMany(cm => cm.Contracts).OnDelete(DeleteBehavior.SetNull);
             });
         }
 
@@ -142,38 +200,25 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(c => c.Name).HasColumnType("jsonb");
             });
         }
-        
 
-        private void AddAccommodations(ModelBuilder modelBuilder)
+
+        private void AddDocuments(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Accommodation>(e =>
+            modelBuilder.Entity<Document>(e =>
             {
-                e.ToTable("Accommodations");
-                e.HasKey(a => a.Id);
-                e.Property(a => a.Address).HasColumnType("jsonb").IsRequired();
-                e.Property(a=> a.ContactInfo).HasColumnType("jsonb").IsRequired();
-                e.Property(a => a.Coordinates).HasColumnType("geometry (point)").IsRequired();
-                e.Property(a=> a.Name).HasColumnType("jsonb").IsRequired();
-                e.Property(a => a.Pictures).HasColumnType("jsonb").IsRequired();
-                e.Property(a => a.Rating).IsRequired();
-                e.Property(a=> a.AccommodationAmenities).HasColumnType("jsonb").IsRequired();
-                e.Property(a=> a.AdditionalInfo).HasColumnType("jsonb").HasDefaultValueSql("'{}'::json");
-                e.Property(a => a.PropertyType).IsRequired();
-                e.Property(a => a.TextualDescription).HasColumnType("jsonb").IsRequired();
-                e.Property(a => a.CheckInTime).IsRequired();
-                e.Property(a => a.CheckOutTime).IsRequired();
-                e.Property(a => a.OccupancyDefinition).HasColumnType("jsonb");
-                e.Property(a => a.ContractManagerId).IsRequired();
-                e.Property(a => a.LeisureAndSports).HasColumnType("jsonb").IsRequired();
-                e.Property(a => a.Status).IsRequired();
-                e.Property(a => a.RateOptions).HasColumnType("jsonb").IsRequired();
-                e.Property(a => a.Created).IsRequired();
-                e.Property(a => a.Modified).IsRequired();
-                e.Property(a => a.Floors);
-                e.Property(a => a.BuildYear);
-                e.HasIndex(a=> a.Coordinates).HasMethod("GIST");
-                e.HasIndex(a => a.LocationId);
-                e.HasIndex(a => a.ContractManagerId);
+                e.ToTable("Documents");
+                e.HasKey(d => d.Id);
+                e.Property(d => d.Id).HasColumnType("uuid").HasDefaultValueSql("uuid_generate_v4()");
+                e.Property(d => d.Name).IsRequired();
+                e.Property(d => d.ContentType).IsRequired();
+                e.Property(d => d.Key).IsRequired();
+                e.Property(d => d.Created).IsRequired();
+                e.Property(d => d.ContractManagerId).IsRequired();
+                e.Property(d => d.ContractId).IsRequired();
+                e.HasIndex(d => d.ContractManagerId);
+                e.HasIndex(d => d.ContractId);
+                e.HasOne(d => d.ContractManager).WithMany().OnDelete(DeleteBehavior.SetNull);
+                e.HasOne(d => d.Contract).WithMany(c => c.Documents).OnDelete(DeleteBehavior.SetNull);
             });
         }
 
@@ -195,6 +240,119 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(i => i.Description).HasColumnType("jsonb").IsRequired();
                 e.HasIndex(i => i.ContractManagerId);
                 e.HasIndex(i => i.AccommodationId);
+                e.HasOne(i => i.ContractManager).WithMany().OnDelete(DeleteBehavior.SetNull);
+                e.HasOne(i => i.Accommodation).WithMany(a => a.Images).OnDelete(DeleteBehavior.SetNull);
+            });
+        }
+
+
+        private void AddLocations(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Location>(e =>
+            {
+                e.ToTable("Locations");
+                e.HasKey(l => l.Id);
+                e.Property(l => l.Locality ).HasColumnType("jsonb").IsRequired();
+                e.Property(l => l.Zone).HasColumnType("jsonb").HasDefaultValueSql("'{}'::json");
+                e.Property(l => l.CountryCode).IsRequired();
+                e.HasIndex(l => l.CountryCode);
+                e.HasOne(l => l.Country).WithMany(c => c.Locations).OnDelete(DeleteBehavior.SetNull);
+            });
+        }
+
+
+        private void AddPromotionalOffers(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<RoomPromotionalOffer>(e =>
+            {
+                e.ToTable("RoomPromotionalOffers");
+                e.HasKey(rpo => rpo.Id);
+                e.Property(rpo => rpo.DiscountPercent).IsRequired();
+                e.Property(rpo => rpo.Description).HasColumnType("jsonb");
+                e.Property(rpo => rpo.BookByDate).IsRequired();
+                e.Property(rpo => rpo.ValidFromDate).IsRequired();
+                e.Property(rpo => rpo.ValidToDate).IsRequired();
+                e.Property(rpo => rpo.BookingCode);
+                e.Property(rpo => rpo.RoomId).IsRequired();
+                e.HasIndex(rpo => rpo.RoomId);
+                e.HasOne(rpo => rpo.Contract).WithMany(c => c.PromotionalOffers).OnDelete(DeleteBehavior.SetNull);
+                e.HasOne(rpo => rpo.Room).WithMany(r => r.RoomPromotionalOffers).OnDelete(DeleteBehavior.SetNull);
+            });
+        }
+
+
+        private void AddPromotionalOffersStopSale(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<PromotionalOfferStopSale>(e =>
+            {
+                e.ToTable("PromotionalOffersStopSale");
+                e.HasKey(poss => poss.Id);
+                e.Property(poss => poss.RoomId).IsRequired();
+                e.Property(poss => poss.FromDate).IsRequired();
+                e.Property(poss => poss.ToDate).IsRequired();
+                e.Property(poss => poss.ContractId).IsRequired();
+                e.HasIndex(poss => poss.RoomId);
+                e.HasOne(poss => poss.Contract).WithMany(c => c.PromotionalOffersStopSale).OnDelete(DeleteBehavior.SetNull);
+                e.HasOne(poss => poss.Room).WithMany(r => r.PromotionalOffersStopSale).OnDelete(DeleteBehavior.SetNull);
+            });
+        }
+
+
+        private void AddRates(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<RoomRate>(e =>
+            {
+                e.ToTable("RoomRates");
+                e.HasKey(rr => rr.Id);
+                e.Property(rr => rr.Price).IsRequired();
+                e.Property(rr => rr.Currency).IsRequired();
+                e.Property(rr => rr.MealPlan).IsRequired();
+                e.Property(rr => rr.BoardBasis).IsRequired();
+                e.Property(rr => rr.SeasonId).IsRequired();
+                e.Property(rr => rr.RoomId).IsRequired();
+                e.Property(rr => rr.RoomType).IsRequired();
+                e.HasIndex(rr => rr.SeasonId);
+                e.HasIndex(rr => rr.RoomId);
+                e.HasOne(rr => rr.Room).WithMany(r => r.RoomRates).OnDelete(DeleteBehavior.SetNull);
+                e.HasOne(rr => rr.Season).WithMany().OnDelete(DeleteBehavior.SetNull);
+            });
+        }
+
+
+        private void AddRoomAllocationRequirements(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<RoomAllocationRequirement>(e =>
+            {
+                e.ToTable("RoomAllocationRequirements");
+                e.HasKey(rar => rar.Id);
+                e.Property(rar => rar.SeasonRangeId).IsRequired();
+                e.Property(rar => rar.ReleaseDays).IsRequired();
+                e.Property(rar => rar.MinimumLengthOfStay);
+                e.Property(rar => rar.Allotment);
+                e.Property(rar => rar.RoomId).IsRequired();
+                e.HasIndex(rar => rar.RoomId);
+                e.HasOne(rar => rar.Room).WithMany(r => r.RoomAllocationRequirements).OnDelete(DeleteBehavior.SetNull);
+                e.HasOne(rar => rar.SeasonRange).WithMany().OnDelete(DeleteBehavior.SetNull);
+            });
+        }
+
+
+        private void AddRoomAvailabilityRestrictions(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<RoomAvailabilityRestriction>(e =>
+            {
+                e.ToTable("RoomAvailabilityRestrictions");
+                e.HasKey(rar => rar.Id);
+                e.Property(rar => rar.Restriction).IsRequired().HasDefaultValue(AvailabilityRestrictions.FreeSale);
+                e.Property(rar => rar.FromDate).IsRequired();
+                e.Property(rar => rar.ToDate).IsRequired();
+                e.Property(rar => rar.RoomId).IsRequired();
+                e.Property(rar => rar.ContractId).IsRequired();
+                e.HasIndex(rar => rar.RoomId);
+                e.HasIndex(rar => rar.ContractId);
+                e.HasIndex(rar => rar.Restriction);
+                e.HasOne(rar => rar.Contract).WithMany(c => c.RoomAvailabilityRestrictions).OnDelete(DeleteBehavior.SetNull);
+                e.HasOne(rar => rar.Room).WithMany(r => r.RoomAvailabilityRestrictions).OnDelete(DeleteBehavior.SetNull);
             });
         }
 
@@ -213,138 +371,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(r => r.Created).IsRequired();
                 e.Property(r => r.Modified).IsRequired();
                 e.HasIndex(r => r.AccommodationId);
-            });
-        }
-
-        
-        private void AddRates(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<RoomRate>(e =>
-            {
-                e.ToTable("RoomRates");
-                e.HasKey(rr=> rr.Id);
-                e.Property(rr => rr.Price).IsRequired();
-                e.Property(rr => rr.Currency).IsRequired();
-                e.Property(rr => rr.MealPlan).IsRequired();
-                e.Property(rr => rr.BoardBasis).IsRequired();
-                e.Property(rr=> rr.SeasonId).IsRequired();
-                e.Property(rr => rr.RoomId).IsRequired();
-                e.Property(rr => rr.RoomType).IsRequired();
-                e.HasIndex(rr => rr.SeasonId);
-                e.HasIndex(rr => rr.RoomId);
-            });
-        }
-
-        
-        private void AddRoomAvailabilityRestrictions(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<RoomAvailabilityRestriction>(e =>
-            {
-                e.ToTable("RoomAvailabilityRestrictions");
-                e.HasKey(rr => rr.Id);
-                e.Property(rr => rr.Restriction).IsRequired().HasDefaultValue(AvailabilityRestrictions.FreeSale);
-                e.Property(rr => rr.FromDate).IsRequired();
-                e.Property(rr => rr.ToDate).IsRequired();
-                e.Property(rr => rr.RoomId).IsRequired();
-                e.Property(rr => rr.ContractId).IsRequired();
-                e.HasIndex(rr => rr.RoomId);
-                e.HasIndex(rr => rr.ContractId);
-                e.HasIndex(rr => rr.Restriction);
-            });
-        }
-
-
-        private void AddPromotionalOffers(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<RoomPromotionalOffer>(e =>
-            {
-                e.ToTable("RoomPromotionalOffers");
-                e.HasKey(po => po.Id);
-                e.Property(po => po.DiscountPercent).IsRequired();
-                e.Property(po => po.Description).HasColumnType("jsonb");
-                e.Property(po => po.BookByDate).IsRequired();
-                e.Property(po => po.ValidFromDate).IsRequired();
-                e.Property(po => po.ValidToDate).IsRequired();
-                e.Property(po => po.BookingCode);
-                e.Property(rr => rr.RoomId).IsRequired();
-                e.HasIndex(rr => rr.RoomId);
-            });
-        }
-
-
-        private void AddRoomAllocationRequirements(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<RoomAllocationRequirement>(e =>
-            {
-                e.ToTable("RoomAllocationRequirements");
-                e.HasKey(rar => rar.Id);
-                e.Property(rar => rar.SeasonRangeId).IsRequired();
-                e.Property(rar => rar.ReleaseDays).IsRequired();
-                e.Property(rar => rar.MinimumLengthOfStay);
-                e.Property(rar => rar.Allotment);
-                e.Property(rar => rar.RoomId).IsRequired();
-                e.HasIndex(rar => rar.RoomId);
-            });
-        }
-        
-        
-        private void AddBooking(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Booking>(e =>
-            {
-                e.ToTable("BookingOrders");
-                e.HasKey(bo => bo.Id);
-                e.Property(bo => bo.ReferenceCode).IsRequired();
-                e.Property(bo => bo.StatusCode).IsRequired();
-                e.Property(bo => bo.BookingDate).IsRequired();
-                e.Property(bo => bo.CheckInDate).IsRequired();
-                e.Property(bo => bo.CheckOutDate).IsRequired();
-                e.Property(bo => bo.Rooms).HasColumnType("jsonb").IsRequired();
-                e.Property(bo => bo.Nationality).IsRequired();
-                e.Property(bo => bo.Residency).IsRequired();
-                e.Property(bo => bo.LanguageCode).IsRequired();
-            });
-        }
-
-        
-        private void AddCancellationPolicies(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<RoomCancellationPolicy>(e =>
-            {
-                e.ToTable("CancellationPolicies");
-                e.HasKey(rcp => rcp.Id);
-                e.Property(rcp => rcp.Policies).HasColumnType("jsonb").IsRequired();
-                e.Property(rcp => rcp.RoomId).IsRequired();
-                e.Property(rcp => rcp.SeasonId).IsRequired();
-                e.HasIndex(rcp => rcp.RoomId);
-                e.HasIndex(rcp => rcp.SeasonId);
-            });
-        }
-
-
-        private void AddContractAccommodationRelation(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<ContractAccommodationRelation>(e =>
-            {
-                e.ToTable("ContractAccommodationRelations");
-                e.HasKey(car => car.Id);
-                e.Property(car => car.AccommodationId).IsRequired();
-                e.Property(car => car.ContractId).IsRequired();
-                e.HasIndex(car => car.AccommodationId);
-                e.HasIndex(car => car.ContractId);
-            });
-        }
-        
-        
-        private void AddSeasons(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Season>(e =>
-            {
-                e.ToTable("Seasons");
-                e.HasKey(s  => s.Id);
-                e.Property(s => s.Name).IsRequired();
-                e.Property(s => s.ContractId).IsRequired();
-                e.HasIndex(s => s.ContractId);
+                e.HasOne(r => r.Accommodation).WithMany(a => a.Rooms).OnDelete(DeleteBehavior.SetNull); 
             });
         }
 
@@ -354,47 +381,47 @@ namespace HappyTravel.Hiroshima.Data
             modelBuilder.Entity<SeasonRange>(e =>
             {
                 e.ToTable("SeasonRanges");
-                e.HasKey(s => s.Id);
-                e.Property(s => s.StartDate).IsRequired();
-                e.Property(s => s.EndDate).IsRequired();
-                e.Property(s => s.SeasonId).IsRequired();
-                e.HasIndex(s => s.SeasonId);
+                e.HasKey(sr => sr.Id);
+                e.Property(sr => sr.StartDate).IsRequired();
+                e.Property(sr => sr.EndDate).IsRequired();
+                e.Property(sr => sr.SeasonId).IsRequired();
+                e.HasIndex(sr => sr.SeasonId);
+                e.HasOne(sr => sr.Season).WithMany(s => s.SeasonRanges).OnDelete(DeleteBehavior.SetNull);
             });
         }
-        
 
-        private void AddPromotionalOffersStopSale(ModelBuilder modelBuilder)
+
+        private void AddSeasons(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<PromotionalOfferStopSale>(e =>
+            modelBuilder.Entity<Season>(e =>
             {
-                e.ToTable("PromotionalOffersStopSale");
-                e.HasKey(pofs => pofs.Id);
-                e.Property(pofs => pofs.RoomId).IsRequired();
-                e.Property(pofs => pofs.FromDate).IsRequired();
-                e.Property(pofs => pofs.ToDate).IsRequired();
-                e.Property(pofs => pofs.ContractId).IsRequired();
-                e.HasIndex(pofs => pofs.RoomId);
+                e.ToTable("Seasons");
+                e.HasKey(s  => s.Id);
+                e.Property(s => s.Name).IsRequired();
+                e.Property(s => s.ContractId).IsRequired();
+                e.HasIndex(s => s.ContractId);
+                e.HasOne(s => s.Contract).WithMany(c => c.Seasons).OnDelete(DeleteBehavior.SetNull);
             });
         }
 
-        
-        public virtual DbSet<Location> Locations { get; set; }
+
         public virtual DbSet<Accommodation> Accommodations { get; set; }
-        public virtual DbSet<Image> Images { get; set; }
-        public virtual DbSet<Country> Countries { get; set; }
-        public virtual DbSet<Room> Rooms { get; set; }
-        public virtual DbSet<RoomAvailabilityRestriction> RoomAvailabilityRestrictions { get; set; }
-        public virtual DbSet<RoomRate> RoomRates { get; set; }
-        public virtual DbSet<RoomAllocationRequirement> RoomAllocationRequirements { get; set; }
-        public virtual DbSet<RoomPromotionalOffer> PromotionalOffers { get; set; }
-        public virtual DbSet<PromotionalOfferStopSale> PromotionalOfferStopSales { get; set; }
         public virtual DbSet<Booking> Booking { get; set; }
         public virtual DbSet<RoomCancellationPolicy> RoomCancellationPolicies { get; set; }
+        public virtual DbSet<ContractAccommodationRelation> ContractAccommodationRelations { get; set; }
         public virtual DbSet<ContractManager> ContractManagers { get; set; }
         public virtual DbSet<Contract> Contracts { get; set; }
+        public virtual DbSet<Country> Countries { get; set; }
         public virtual DbSet<Document> Documents { get; set; }
-        public virtual DbSet<ContractAccommodationRelation> ContractAccommodationRelations { get; set; }
-        public virtual DbSet<Season> Seasons { get; set; }
+        public virtual DbSet<Image> Images { get; set; }
+        public virtual DbSet<Location> Locations { get; set; }
+        public virtual DbSet<RoomPromotionalOffer> PromotionalOffers { get; set; }
+        public virtual DbSet<PromotionalOfferStopSale> PromotionalOfferStopSales { get; set; }
+        public virtual DbSet<RoomRate> RoomRates { get; set; }
+        public virtual DbSet<RoomAllocationRequirement> RoomAllocationRequirements { get; set; }
+        public virtual DbSet<RoomAvailabilityRestriction> RoomAvailabilityRestrictions { get; set; }
+        public virtual DbSet<Room> Rooms { get; set; }
         public virtual DbSet<SeasonRange> SeasonRanges { get; set; }
+        public virtual DbSet<Season> Seasons { get; set; }
     }
 }

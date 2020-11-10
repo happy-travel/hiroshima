@@ -9,6 +9,6 @@ namespace HappyTravel.Hiroshima.Common.Models.Locations
         
         public JsonDocument Name { get; set; }
         
-        public List<Location> Countries { get; set; }
+        public List<Location> Locations { get; set; }
     }
 }

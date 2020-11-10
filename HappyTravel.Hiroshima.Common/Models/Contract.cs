@@ -29,12 +29,13 @@ namespace HappyTravel.Hiroshima.Common.Models
         public ContractManager ContractManager { get; set; }
         
         public List<Season> Seasons { get; set; }
-        
-        public List<RoomPromotionalOffer> PromotionalOffers { get; set; }
-        
-        public List<RoomAvailabilityRestriction> RoomAvailabilityRestriction { get; set; }
 
-        [NotMapped]
+        public List<RoomPromotionalOffer> PromotionalOffers { get; set; } = new List<RoomPromotionalOffer>();
+
+        public List<PromotionalOfferStopSale> PromotionalOffersStopSale { get; set; } = new List<PromotionalOfferStopSale>();
+
+        public List<RoomAvailabilityRestriction> RoomAvailabilityRestrictions { get; set; }
+
         public List<Document> Documents { get; set; } = new List<Document>();
     }
 }
