@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <LangVersion>8</LangVersion>
+    <LangVersion>9</LangVersion>
     <Nullable>enable</Nullable>
+    <TargetFramework>netcoreapp5.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,44 +24,43 @@
   
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="3.1.2" />
-    <PackageReference Include="CSharpFunctionalExtensions" Version="2.11.8" />
     <PackageReference Include="FloxDc.CacheFlow" Version="1.7.0" />
     <PackageReference Include="FloxDc.CacheFlow.Json" Version="1.7.0" />
-    <PackageReference Include="HappyTravel.EdoContracts" Version="1.4.0" />
+    <PackageReference Include="HappyTravel.EdoContracts" Version="1.4.4" />
     <PackageReference Include="HappyTravel.ErrorHandling" Version="1.0.0" />
     <PackageReference Include="HappyTravel.Geography" Version="1.1.1" />
     <PackageReference Include="HappyTravel.StdOutLogger" Version="1.0.15" />
     <PackageReference Include="HappyTravel.VaultClient" Version="1.0.5" />
     <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="3.0.1" />
-    <PackageReference Include="Imageflow.NativeRuntime.ubuntu_16_04-x86_64" Version="1.4.11-rc51" />
-    <PackageReference Include="Imageflow.NativeRuntime.win-x86_64" Version="1.4.11-rc51" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.8" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="4.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="4.1.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.0-rc.1.20451.13">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="3.1.8" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0-rc.1.20451.14" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="5.0.0-rc.1.20451.14" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="5.0.0-rc.1.20451.14" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0-rc.1.20451.14" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0-rc.1.20451.14" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="5.0.0-rc.1.20451.17" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="5.0.0-rc.1.20451.17" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0-rc.1.20451.14" />
-    <PackageReference Include="OpenTelemetry" Version="0.7.0-beta.1" />
-    <PackageReference Include="OpenTelemetry.Exporter.Jaeger" Version="0.7.0-beta.1" />
-    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="0.7.0-beta.1" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="0.7.0-beta.1" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="0.7.0-beta.1" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="0.7.0-beta.1" />
-    <PackageReference Include="Sentry.AspNetCore" Version="2.1.6" />
+    <PackageReference Include="Imageflow.NativeRuntime.ubuntu_16_04-x86_64" Version="1.5.0-rc54" />
+    <PackageReference Include="Imageflow.NativeRuntime.win-x86_64" Version="1.5.0-rc54" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0-preview.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.0.0-preview.2" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
+    <PackageReference Include="OpenTelemetry" Version="0.8.0-beta.1" />
+    <PackageReference Include="OpenTelemetry.Exporter.Jaeger" Version="0.8.0-beta.1" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="0.8.0-beta.1" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="0.8.0-beta.1" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="0.8.0-beta.1" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="0.8.0-beta.1" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" Version="0.8.0-beta.1" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="0.8.0-beta.1" />
+    <PackageReference Include="Sentry.AspNetCore" Version="3.0.0-alpha.4" />
     <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="5.6.3" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.6.3" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.6.3" />
-    <PackageReference Include="System.Text.Json" Version="5.0.0-rc.1.20451.14" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="5.0.0" />
+    <PackageReference Include="System.Text.Json" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -75,7 +74,7 @@
     <ProjectReference Include="..\HappyTravel.Hiroshima.DirectContracts\HappyTravel.Hiroshima.DirectContracts.csproj" />
     <ProjectReference Include="..\HappyTravel.Hiroshima.DirectManager\HappyTravel.Hiroshima.DirectManager.csproj" />
   </ItemGroup>
-
+  
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 
 </Project>
