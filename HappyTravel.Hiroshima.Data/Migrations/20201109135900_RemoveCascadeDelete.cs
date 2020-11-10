@@ -6,73 +6,17 @@ namespace HappyTravel.Hiroshima.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            /*migrationBuilder.DropForeignKey(
-                name: "FK_Accommodations_ContractManagers_ContractManagerId",
-                table: "Accommodations");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Accommodations_Locations_LocationId",
-                table: "Accommodations");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_CancellationPolicies_Rooms_RoomId",
-                table: "CancellationPolicies");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_CancellationPolicies_Seasons_SeasonId",
-                table: "CancellationPolicies");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Contracts_ContractManagers_ContractManagerId",
-                table: "Contracts");*/
-
             migrationBuilder.DropForeignKey(
                 name: "FK_Images_Accommodations_AccommodationId",
                 table: "Images");
-
-            /*migrationBuilder.DropForeignKey(
-                name: "FK_Locations_Countries_CountryCode",
-                table: "Locations");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_RoomAllocationRequirements_Rooms_RoomId",
-                table: "RoomAllocationRequirements");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_RoomAllocationRequirements_SeasonRanges_SeasonRangeId",
-                table: "RoomAllocationRequirements");*/
 
             migrationBuilder.DropForeignKey(
                 name: "FK_RoomAvailabilityRestrictions_Contracts_ContractId",
                 table: "RoomAvailabilityRestrictions");
 
-            /*migrationBuilder.DropForeignKey(
-                name: "FK_RoomAvailabilityRestrictions_Rooms_RoomId",
-                table: "RoomAvailabilityRestrictions");*/
-
             migrationBuilder.DropForeignKey(
                 name: "FK_RoomPromotionalOffers_Contracts_ContractId",
                 table: "RoomPromotionalOffers");
-
-            /*migrationBuilder.DropForeignKey(
-                name: "FK_RoomPromotionalOffers_Rooms_RoomId",
-                table: "RoomPromotionalOffers");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_RoomRates_Rooms_RoomId",
-                table: "RoomRates");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_RoomRates_Seasons_SeasonId",
-                table: "RoomRates");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Rooms_Accommodations_AccommodationId",
-                table: "Rooms");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_SeasonRanges_Seasons_SeasonId",
-                table: "SeasonRanges");*/
 
             migrationBuilder.DropForeignKey(
                 name: "FK_Seasons_Contracts_ContractId",
