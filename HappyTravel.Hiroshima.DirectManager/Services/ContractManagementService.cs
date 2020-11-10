@@ -224,10 +224,35 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 {
                     foreach (Season season in seasons)
                     {
+                        await DeleteRoomRates(season.Id);
+
+                        await DeleteRoomCancellationPolicies(season.Id);
+
                         await DeleteSeasonRanges(season.Id);
                     }
+
                     _dbContext.Seasons.RemoveRange(seasons);
                 }
+            }
+
+            async Task DeleteRoomRates(int seasonId)
+            {
+                var roomRates = await _dbContext.RoomRates
+                    .Where(roomRate => roomRate.SeasonId == seasonId)
+                    .ToListAsync();
+
+                if (roomRates.Any())
+                    _dbContext.RoomRates.RemoveRange(roomRates);
+            }
+
+            async Task DeleteRoomCancellationPolicies(int seasonId)
+            {
+                var cancellationPolicies = await _dbContext.RoomCancellationPolicies
+                    .Where(cancellationPolicy => cancellationPolicy.SeasonId == seasonId)
+                    .ToListAsync();
+
+                if (cancellationPolicies.Any())
+                    _dbContext.RoomCancellationPolicies.RemoveRange(cancellationPolicies);
             }
 
             async Task DeleteSeasonRanges(int seasonId)
@@ -237,7 +262,24 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     .ToListAsync();
 
                 if (seasonRanges.Any())
+                {
+                    foreach (SeasonRange seasonRange in seasonRanges)
+                    {
+                        await DeleteRoomAllocationRequirements(seasonRange.Id);
+                    }
+
                     _dbContext.SeasonRanges.RemoveRange(seasonRanges);
+                }
+            }
+
+            async Task DeleteRoomAllocationRequirements(int seasonRangeId)
+            {
+                var allocationRequirements = await _dbContext.RoomAllocationRequirements
+                    .Where(allocationRequirement => allocationRequirement.SeasonRangeId == seasonRangeId)
+                    .ToListAsync();
+
+                if (allocationRequirements.Any())
+                    _dbContext.RoomAllocationRequirements.RemoveRange(allocationRequirements);
             }
         }
 
