@@ -20,8 +20,14 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
         public Task<AvailabilityRequest> GetAvailabilityRequest(string availabilityId) => _distributedFlow.GetAsync<AvailabilityRequest>(BuildKey(availabilityId));
 
 
-        public Task RemoveAvailabilityRequest(string availabilityId) => _distributedFlow.RemoveAsync(BuildKey(availabilityId));
+        public Task AddAccommodationAvailability(AccommodationAvailability accommodationAvailability) => _distributedFlow.SetAsync(BuildKey(accommodationAvailability.AvailabilityId), accommodationAvailability, CacheExpirationTime);
+
+
+        public Task<AccommodationAvailability> GetAccommodationAvailability(string availabilityId) => _distributedFlow.GetAsync<AccommodationAvailability>(BuildKey(availabilityId));
         
+        
+        public Task RemoveAvailability(string availabilityId) => _distributedFlow.RemoveAsync(BuildKey(availabilityId));
+
         
         private string BuildKey(string availabilityId) => _distributedFlow.BuildKey(nameof(AvailabilitySearchStore), availabilityId);
         
