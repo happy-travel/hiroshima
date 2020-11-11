@@ -69,8 +69,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             return await _contractManagerContext.GetContractManager()
                 .EnsureContractBelongsToContractManager(_dbContext, contractId)
                 .Bind(contractManager => GetSeason())
-                .Ensure(CheckIfSeasonDoesntHaveAnySeasonRanges,
-                    $"Season with {nameof(seasonId)} '{seasonId}' have an associated date range")
                 .Tap(Remove);
             
 
@@ -83,21 +81,69 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     : Result.Failure<Season>($"Failed to get the {nameof(season)} '{seasonId}'");
             }
             
-            
-           async Task<bool> CheckIfSeasonDoesntHaveAnySeasonRanges(Season season)
-           {
-                var seasonRanges = await _dbContext.SeasonRanges
-                    .Where(seasonRange => seasonRange.SeasonId == season.Id)
-                    .ToListAsync();
 
-                return !seasonRanges.Any();
-           }
-            
-            
             async Task Remove(Season season)
             {
+                await DeleteRoomRates(season.Id);
+
+                await DeleteRoomCancellationPolicies(season.Id);
+
+                await DeleteSeasonRanges(season.Id);
+
                 _dbContext.Seasons.Remove(season);
+
                 await _dbContext.SaveChangesAsync();
+            }
+
+
+            async Task DeleteRoomRates(int seasonId)
+            {
+                var roomRates = await _dbContext.RoomRates
+                    .Where(roomRate => roomRate.SeasonId == seasonId)
+                    .ToListAsync();
+
+                if (roomRates.Any())
+                    _dbContext.RoomRates.RemoveRange(roomRates);
+            }
+
+
+            async Task DeleteRoomCancellationPolicies(int seasonId)
+            {
+                var cancellationPolicies = await _dbContext.RoomCancellationPolicies
+                    .Where(cancellationPolicy => cancellationPolicy.SeasonId == seasonId)
+                    .ToListAsync();
+
+                if (cancellationPolicies.Any())
+                    _dbContext.RoomCancellationPolicies.RemoveRange(cancellationPolicies);
+            }
+
+
+            async Task DeleteSeasonRanges(int seasonId)
+            {
+                var seasonRanges = await _dbContext.SeasonRanges
+                    .Where(seasonRange => seasonRange.SeasonId == seasonId)
+                    .ToListAsync();
+
+                if (seasonRanges.Any())
+                {
+                    foreach (SeasonRange seasonRange in seasonRanges)
+                    {
+                        await DeleteRoomAllocationRequirements(seasonRange.Id);
+                    }
+
+                    _dbContext.SeasonRanges.RemoveRange(seasonRanges);
+                }
+            }
+
+
+            async Task DeleteRoomAllocationRequirements(int seasonRangeId)
+            {
+                var allocationRequirements = await _dbContext.RoomAllocationRequirements
+                    .Where(allocationRequirement => allocationRequirement.SeasonRangeId == seasonRangeId)
+                    .ToListAsync();
+
+                if (allocationRequirements.Any())
+                    _dbContext.RoomAllocationRequirements.RemoveRange(allocationRequirements);
             }
         }
 
