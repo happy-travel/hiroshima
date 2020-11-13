@@ -27,6 +27,5 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         Task<Result> RemoveRooms(int accommodationId, List<int> roomIds);
         
         Task<Result<List<Models.Responses.Room>>> AddRooms(int accommodationId, List<Models.Requests.Room> rooms);
-        
     }
 }
