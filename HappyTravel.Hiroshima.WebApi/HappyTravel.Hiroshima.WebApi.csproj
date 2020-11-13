@@ -32,8 +32,8 @@
     <PackageReference Include="HappyTravel.StdOutLogger" Version="1.0.18" />
     <PackageReference Include="HappyTravel.VaultClient" Version="1.0.5" />
     <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="3.0.1" />
-    <PackageReference Include="Imageflow.NativeRuntime.ubuntu_16_04-x86_64" Version="1.5.0-rc54" />
-    <PackageReference Include="Imageflow.NativeRuntime.win-x86_64" Version="1.5.0-rc54" />
+    <PackageReference Include="Imageflow.NativeRuntime.ubuntu_16_04-x86_64" Version="1.5.2-rc56" />
+    <PackageReference Include="Imageflow.NativeRuntime.win-x86_64" Version="1.5.2-rc56" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0-preview.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.0.0-preview.2" />
