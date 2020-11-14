@@ -42,6 +42,23 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         }
 
 
+        /// <summary>
+        /// Updates the list of all amenities and normalizes amenities in accommodations and rooms
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("amenities/update")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> UpdateAmenities()
+        {
+            var (_, isFailure, error) = await _amenitiesService.NormalizeAndUpdateAllAmenities();
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok();
+        }
+
+
         private readonly IAmenityService _amenitiesService;
     }
 }

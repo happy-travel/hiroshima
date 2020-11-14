@@ -158,6 +158,12 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AmenitiesController.UpdateAmenities">
+            <summary>
+            Updates the list of all amenities and normalizes amenities in accommodations and rooms
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AvailabilityRestrictionsManagementController.SetAvailabilityRestrictions(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.AvailabilityRestriction})">
             <summary>
             Replaces availability restrictions for the specific rooms. Removes previous, adds the new.

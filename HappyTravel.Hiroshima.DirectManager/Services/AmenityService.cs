@@ -36,6 +36,38 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
+        public async Task<Result> NormalizeAndUpdateAllAmenities()
+        {
+            var accommodations = await _dbContext.Accommodations.ToListAsync();
+            foreach (var accommodation in accommodations)
+            {
+                accommodation.AccommodationAmenities = await Normalize(accommodation.AccommodationAmenities);
+                _dbContext.Accommodations.Update(accommodation);
+            }
+            await _dbContext.SaveChangesAsync();
+
+            foreach (var accommodation in accommodations)
+            {
+                await Update(accommodation.AccommodationAmenities);
+            }
+            
+            var rooms = await _dbContext.Rooms.ToListAsync();
+            foreach (var room in rooms)
+            {
+                room.Amenities = await Normalize(room.Amenities);
+                _dbContext.Rooms.Update(room);
+            }
+            await _dbContext.SaveChangesAsync();
+
+            foreach (var room in rooms)
+            {
+                await Update(room.Amenities);
+            }
+
+            return Result.Success();
+        }
+
+
         public async Task<JsonDocument> Normalize(JsonDocument amenities)
         {
             amenities.GetValue<MultiLanguage<List<string>>>().TryGetValue("ar", out List<string> amenityArNames);
@@ -43,22 +75,22 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             amenities.GetValue<MultiLanguage<List<string>>>().TryGetValue("ru", out List<string> amenityRuNames);
 
             var normalizedAmenityEnNames = new List<string>();
-            if (amenityEnNames.Any())
+            if (amenityEnNames != null)
             {
+                var textInfo = new CultureInfo("en", false).TextInfo;
                 foreach (var amenity in amenityEnNames)
                 {
-                    var textInfo = new CultureInfo("en", false).TextInfo;
                     var normalizedAmenity = textInfo.ToTitleCase(amenity);
                     normalizedAmenityEnNames.Add(normalizedAmenity);
                 }
             }
 
             var normalizedAmenityRuNames = new List<string>();
-            if (amenityRuNames.Any())
+            if (amenityRuNames != null)
             {
+                var textInfo = new CultureInfo("ru", false).TextInfo;
                 foreach (var amenity in amenityRuNames)
                 {
-                    var textInfo = new CultureInfo("ru", false).TextInfo;
                     var normalizedAmenity = textInfo.ToTitleCase(amenity);
                     normalizedAmenityRuNames.Add(normalizedAmenity);
                 }
