@@ -94,7 +94,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             return ValidationHelper.Validate(accommodation, new AccommodationValidator())
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .Map(contractManager => AddAccommodation(contractManager.Id))
-                .Tap(UpdateAmenities)
+                .Tap(UpdateAccommodationAmenities)
                 .Map(Build);
 
 
@@ -120,7 +120,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .EnsureAccommodationBelongsToContractManager(_dbContext, accommodationId)
                 .Map(Update)
-                .Tap(UpdateAmenities)
+                .Tap(UpdateAccommodationAmenities)
                 .Map(Build);
 
 
@@ -226,6 +226,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             {
                 var dbRoom = CreateRoom(accommodationId, room);
                 dbRoom.Id = roomId;
+
+                dbRoom.Amenities = await _amenityService.Normalize(dbRoom.Amenities);
+                await _amenityService.Update(dbRoom.Amenities);
+
                 _dbContext.Rooms.Update(dbRoom);
                 await _dbContext.SaveChangesAsync();
 
@@ -244,6 +248,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     var newRooms = CreateRooms(accommodationId, rooms);
                     var utcNow = DateTime.UtcNow;
                     newRooms.ForEach(room => room.Created = utcNow);
+
+                    foreach (var room in newRooms)
+                    {
+                        room.Amenities = await _amenityService.Normalize(room.Amenities);
+                        await _amenityService.Update(room.Amenities);
+                    }
+
                     _dbContext.Rooms.AddRange(newRooms);
                     await _dbContext.SaveChangesAsync();
                     _dbContext.DetachEntries(newRooms);
@@ -291,10 +302,17 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Select(roomAndAccommodation => roomAndAccommodation.room);
 
 
-        private async Task<Accommodation> UpdateAmenities(Accommodation accommodation)
+        private async Task<Accommodation> UpdateAccommodationAmenities(Accommodation accommodation)
         {
             await _amenityService.Update(accommodation.AccommodationAmenities);
             return accommodation;
+        }
+
+
+        private async Task<Room> UpdateRoomAmenities(Room room)
+        {
+            await _amenityService.Update(room.Amenities);
+            return room;
         }
 
 
