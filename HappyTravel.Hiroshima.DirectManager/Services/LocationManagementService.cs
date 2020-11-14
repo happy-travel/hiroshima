@@ -4,10 +4,13 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.EdoContracts.GeoData.Enums;
+using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Constants;
 using HappyTravel.Hiroshima.Common.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models;
+using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Locations;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
@@ -46,6 +49,34 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
+        public async Task<List<EdoContracts.GeoData.Location>> Get(DateTime modified, LocationTypes locationType, int skip = 0, int take = 10000) => locationType switch
+        {
+            LocationTypes.Accommodation => (await _dbContext.Accommodations.Include(accommodation => accommodation.Location).ThenInclude(location => location.Country)
+                    .Where(accommodation => accommodation.Modified > modified)
+                    .OrderBy(accommodation => accommodation.Id)
+                    .Skip(skip)
+                    .Take(take)
+                    .ToListAsync())
+                .Select(accommodation => new EdoContracts.GeoData.Location(accommodation.Name.RootElement.ToString() ?? string.Empty,
+                    accommodation.Location.Locality.RootElement.ToString() ?? string.Empty, accommodation.Location.Country.Name.RootElement.ToString() ?? string.Empty,
+                    new GeoPoint(accommodation.Coordinates), default, PredictionSources.Interior, LocationTypes.Accommodation))
+                .ToList(),
+            LocationTypes.Location => (await _dbContext.Accommodations.Include(accommodation => accommodation.Location).ThenInclude(location => location.Country)
+                    .Where(accommodation => accommodation.Modified > modified)
+                    .OrderBy(accommodation => accommodation.Id)
+                    .Skip(skip)
+                    .Take(take)
+                    .ToListAsync())
+                .Select(accommodation => new EdoContracts.GeoData.Location(string.Empty, accommodation.Location.Locality.RootElement.ToString() ?? string.Empty,
+                    accommodation.Location.Country.Name.RootElement.ToString() ?? string.Empty, default, default, PredictionSources.Interior, LocationTypes.Location))
+                .ToList(),
+            LocationTypes.Unknown => new List<EdoContracts.GeoData.Location>(0),
+            LocationTypes.Destination => new List<EdoContracts.GeoData.Location>(0),
+            LocationTypes.Landmark => new List<EdoContracts.GeoData.Location>(0),
+            _ => throw new ArgumentOutOfRangeException(nameof(locationType), locationType, null)
+        };
+        
+        
         public Task<List<string>> GetCountryNames(int top = 100, int skip = 0)
             => _dbContext.Countries.OrderBy(country => country.Code)
                 .Skip(skip)

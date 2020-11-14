@@ -74,14 +74,15 @@ namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions
                 agentPort = int.Parse(EnvironmentVariableHelper.Get("Jaeger:AgentPort", configuration));
             }
 
-            //var connection = ConnectionMultiplexer.Connect(EnvironmentVariableHelper.Get("Redis:Endpoint", configuration));
+            var connection = ConnectionMultiplexer.Connect(EnvironmentVariableHelper.Get("Redis:Endpoint", configuration));
             var serviceName = $"{environment.ApplicationName}-{environment.EnvironmentName}";
 
             services.AddOpenTelemetryTracing(builder =>
             {
                 builder.AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
-                    //.AddRedisInstrumentation(connection)
+                    .AddRedisInstrumentation(connection)
+                    .AddSqlClientInstrumentation()
                     .AddJaegerExporter(options =>
                     {
                         options.ServiceName = serviceName;
