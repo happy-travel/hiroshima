@@ -22,11 +22,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class AccommodationManagementService : IAccommodationManagementService
     {
-        public AccommodationManagementService(
-            IContractManagerContextService contractManagerContext, IImageManagementService imageManagementService, DirectContractsDbContext dbContext, GeometryFactory geometryFactory)
+        public AccommodationManagementService(IContractManagerContextService contractManagerContext, 
+            IImageManagementService imageManagementService, IAmenityService amenityService,
+            DirectContractsDbContext dbContext, GeometryFactory geometryFactory)
         {
             _contractManagerContext = contractManagerContext;
             _imageManagementService = imageManagementService;
+            _amenityService = amenityService;
             _geometryFactory = geometryFactory;
             _dbContext = dbContext;
         }
@@ -92,6 +94,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             return ValidationHelper.Validate(accommodation, new AccommodationValidator())
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .Map(contractManager => AddAccommodation(contractManager.Id))
+                .Tap(UpdateAmenities)
                 .Map(Build);
 
 
@@ -99,6 +102,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             {
                 var newAccommodation = CreateAccommodation(contractManagerId, accommodation);
                 newAccommodation.Created = DateTime.UtcNow;
+
+                newAccommodation.AccommodationAmenities = await _amenityService.Normalize(newAccommodation.AccommodationAmenities);
+
                 var entry = _dbContext.Accommodations.Add(newAccommodation);
                 await _dbContext.SaveChangesAsync();
                 entry.State = EntityState.Detached;
@@ -114,6 +120,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .EnsureAccommodationBelongsToContractManager(_dbContext, accommodationId)
                 .Map(Update)
+                .Tap(UpdateAmenities)
                 .Map(Build);
 
 
@@ -121,6 +128,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             {
                 var accommodationRecord = CreateAccommodation(contractManager.Id, accommodation);
                 accommodationRecord.Id = accommodationId;
+
+                accommodationRecord.AccommodationAmenities = await _amenityService.Normalize(accommodationRecord.AccommodationAmenities);
+
                 var entry = _dbContext.Accommodations.Update(accommodationRecord);
                 await _dbContext.SaveChangesAsync();
 
@@ -281,6 +291,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Select(roomAndAccommodation => roomAndAccommodation.room);
 
 
+        private async Task<Accommodation> UpdateAmenities(Accommodation accommodation)
+        {
+            await _amenityService.Update(accommodation.AccommodationAmenities);
+            return accommodation;
+        }
+
+
         private Accommodation CreateAccommodation(int contractManagerId, Models.Requests.Accommodation accommodation)
         {
             return new Accommodation
@@ -388,6 +405,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private readonly IContractManagerContextService _contractManagerContext;
         private readonly IImageManagementService _imageManagementService;
+        private readonly IAmenityService _amenityService;
         private readonly GeometryFactory _geometryFactory;
         private readonly DirectContractsDbContext _dbContext;
     }

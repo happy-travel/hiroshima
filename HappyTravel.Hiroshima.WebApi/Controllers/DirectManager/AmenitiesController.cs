@@ -5,6 +5,7 @@ using HappyTravel.Hiroshima.WebApi.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -24,7 +25,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
 
         /// <summary>
-        /// Retrieves a list of all amenities
+        /// Retrieves a list of all amenities for selected language
         /// </summary>
         /// <returns></returns>
         [HttpGet("amenities")]
@@ -32,7 +33,8 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetAmenities()
         {
-            var (_, isFailure, response, error) = await _amenitiesService.Get();
+            var languageCode = CultureInfo.CurrentCulture.Name;
+            var (_, isFailure, response, error) = await _amenitiesService.Get(languageCode);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

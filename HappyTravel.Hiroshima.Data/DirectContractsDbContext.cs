@@ -101,7 +101,8 @@ namespace HappyTravel.Hiroshima.Data
             {
                 e.ToTable("Amenities");
                 e.HasKey(a => a.Id);
-                e.Property(a => a.Name).HasColumnType("jsonb").IsRequired();
+                e.Property(a => a.LanguageCode).IsRequired();
+                e.Property(a => a.Name).IsRequired();
             });
         }
 

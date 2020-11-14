@@ -19,7 +19,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Hiroshima.Data.Migrations
 {
     [DbContext(typeof(DirectContractsDbContext))]
-    [Migration("20201112162834_AddTableAmenities")]
+    [Migration("20201114095751_AddTableAmenities")]
     partial class AddTableAmenities
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -139,9 +139,13 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .HasColumnType("integer")
                         .UseIdentityByDefaultColumn();
 
-                    b.Property<JsonDocument>("Name")
+                    b.Property<string>("LanguageCode")
                         .IsRequired()
-                        .HasColumnType("jsonb");
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
