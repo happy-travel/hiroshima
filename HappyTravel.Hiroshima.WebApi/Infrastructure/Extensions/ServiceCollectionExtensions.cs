@@ -1,12 +1,10 @@
 ﻿using System;
 using HappyTravel.Geography;
 using HappyTravel.Hiroshima.WebApi.Infrastructure.Environments;
-using HappyTravel.Hiroshima.WebApi.Services;
 using HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch;
 using HappyTravel.VaultClient;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
