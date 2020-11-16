@@ -78,41 +78,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             amenities.GetValue<MultiLanguage<List<string>>>().TryGetValue("en", out List<string> amenityEnNames);
             amenities.GetValue<MultiLanguage<List<string>>>().TryGetValue("ru", out List<string> amenityRuNames);
 
-            var normalizedAmenityEnNames = new List<string>();
-            if (amenityEnNames != null)
-            {
-                var textInfo = new CultureInfo("en", false).TextInfo;
-                foreach (var amenity in amenityEnNames)
-                {
-                    var normalizedAmenity = textInfo.ToTitleCase(amenity);
-                    var normalizedAmenities = normalizedAmenity.Split(',');
-                    foreach (var singleAmenity in normalizedAmenities)
-                    {
-                        normalizedAmenityEnNames.Add(singleAmenity.Trim());
-                    }
-                }
-            }
-
-            var normalizedAmenityRuNames = new List<string>();
-            if (amenityRuNames != null)
-            {
-                var textInfo = new CultureInfo("ru", false).TextInfo;
-                foreach (var amenity in amenityRuNames)
-                {
-                    var normalizedAmenity = textInfo.ToTitleCase(amenity);
-                    var normalizedAmenities = normalizedAmenity.Split(',');
-                    foreach (var singleAmenity in normalizedAmenities)
-                    {
-                        normalizedAmenityRuNames.Add(singleAmenity.Trim());
-                    }
-                }
-            }
-
             amenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>> 
             { 
                 Ar = amenityArNames, 
-                En = normalizedAmenityEnNames, 
-                Ru = normalizedAmenityRuNames
+                En = NormalizeAndSplitAmenities(amenityEnNames, "en"),
+                Ru = NormalizeAndSplitAmenities(amenityRuNames, "ru"),
             });
             return amenities;
         }
@@ -151,6 +121,26 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     await _dbContext.SaveChangesAsync();
                 }
             }
+        }
+
+
+        private List<string> NormalizeAndSplitAmenities(List<string> amenities, string language)
+        {
+            var normalizedAmenityNames = new List<string>();
+            if (amenities != null)
+            {
+                var textInfo = new CultureInfo(language, false).TextInfo;
+                foreach (var amenity in amenities)
+                {
+                    var normalizedAmenityList = textInfo.ToTitleCase(amenity);
+                    var normalizedAmenities = normalizedAmenityList.Split(',');
+                    foreach (var singleAmenity in normalizedAmenities)
+                    {
+                        normalizedAmenityNames.Add(singleAmenity.Trim());
+                    }
+                }
+            }
+            return normalizedAmenityNames;
         }
 
 
