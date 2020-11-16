@@ -82,6 +82,7 @@ namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions
                 builder.AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddRedisInstrumentation(connection)
+                    .AddSqlClientInstrumentation()
                     .AddJaegerExporter(options =>
                     {
                         options.ServiceName = serviceName;
