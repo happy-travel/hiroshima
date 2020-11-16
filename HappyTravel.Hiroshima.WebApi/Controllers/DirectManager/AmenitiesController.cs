@@ -33,8 +33,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetAmenities()
         {
-            var languageCode = CultureInfo.CurrentCulture.Name;
-            var (_, isFailure, response, error) = await _amenitiesService.Get(languageCode);
+            var (_, isFailure, response, error) = await _amenitiesService.Get(LanguageCode);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -51,12 +50,15 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> UpdateAmenities()
         {
-            var (_, isFailure, error) = await _amenitiesService.NormalizeAndUpdateAllAmenities();
+            var (_, isFailure, error) = await _amenitiesService.NormalizeAllAmenitiesAndUpdateAmenitiesStore();
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return Ok();
         }
+
+
+        private static string LanguageCode => CultureInfo.CurrentCulture.Name;
 
 
         private readonly IAmenityService _amenitiesService;

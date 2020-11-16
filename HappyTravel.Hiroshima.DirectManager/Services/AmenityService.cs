@@ -36,7 +36,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public async Task<Result> NormalizeAndUpdateAllAmenities()
+        public async Task<Result> NormalizeAllAmenitiesAndUpdateAmenitiesStore()
         {
             var amenities = await _dbContext.Amenities.ToListAsync();
             _dbContext.Amenities.RemoveRange(amenities);
@@ -101,35 +101,18 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 amenities.GetValue<MultiLanguage<List<string>>>().TryGetValue(languageCode, out List<string> amenityNames);
                 if (amenityNames != null)
                 {
-                    var localAmenities = await _dbContext.Amenities
-                        .Where(amenity => amenity.LanguageCode == languageCode)
-                        .ToListAsync();
-                    foreach (var amenityName in amenityNames)
-                    {
-                        if (localAmenities.FirstOrDefault(a => a.Name == amenityName) == null)
-                        {
-                            var amenity = new Amenity
-                            {
-                                Id = 0,
-                                LanguageCode = languageCode,
-                                Name = amenityName
-                            };
-                            _dbContext.Amenities.Add(amenity);
-                            localAmenities.Add(amenity);
-                        }
-                    }
-                    await _dbContext.SaveChangesAsync();
+                    await AddNewAmenitiesToStore(amenityNames, languageCode);
                 }
             }
         }
 
 
-        private List<string> NormalizeAndSplitAmenities(List<string> amenities, string language)
+        private List<string> NormalizeAndSplitAmenities(List<string> amenities, string languageCode)
         {
             var normalizedAmenityNames = new List<string>();
             if (amenities != null)
             {
-                var textInfo = new CultureInfo(language, false).TextInfo;
+                var textInfo = new CultureInfo(languageCode, false).TextInfo;
                 foreach (var amenity in amenities)
                 {
                     var normalizedAmenityList = textInfo.ToTitleCase(amenity);
@@ -141,6 +124,29 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 }
             }
             return normalizedAmenityNames;
+        }
+
+
+        private async Task AddNewAmenitiesToStore(List<string> amenityNames, string languageCode)
+        {
+            var localAmenities = await _dbContext.Amenities
+                .Where(amenity => amenity.LanguageCode == languageCode)
+                .ToListAsync();
+            foreach (var amenityName in amenityNames)
+            {
+                if (localAmenities.FirstOrDefault(a => a.Name == amenityName) == null)
+                {
+                    var amenity = new Amenity
+                    {
+                        Id = 0,
+                        LanguageCode = languageCode,
+                        Name = amenityName
+                    };
+                    _dbContext.Amenities.Add(amenity);
+                    localAmenities.Add(amenity);
+                }
+            }
+            await _dbContext.SaveChangesAsync();
         }
 
 
