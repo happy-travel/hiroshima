@@ -4,12 +4,14 @@ using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.EdoContracts.Accommodations;
+using HappyTravel.Hiroshima.WebApi.Infrastructure.Attributes;
 using HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
 {
     [ApiController]
+    [IgnoreLocalizationConvention]
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/accommodations")]
     [Produces("application/json")]

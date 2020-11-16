@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using HappyTravel.Hiroshima.WebApi.Infrastructure.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 
@@ -10,7 +11,7 @@ namespace HappyTravel.Hiroshima.WebApi.Conventions
         {
             var culturePrefix = new AttributeRouteModel(new RouteAttribute("{culture}"));
 
-            foreach (var controller in application.Controllers)
+            foreach (var controller in application.Controllers.Where(c => !c.Attributes.Any(o => o is IgnoreLocalizationConventionAttribute)))
             {
                 var matchedSelectors = controller.Selectors.Where(x => x.AttributeRouteModel != null).ToList();
                 if (matchedSelectors.Any())

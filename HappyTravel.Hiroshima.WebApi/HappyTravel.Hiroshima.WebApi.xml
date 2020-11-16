@@ -27,6 +27,16 @@
             <param name="roomContractSetId"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.Connector.LocationsController.GetLocations(System.DateTime,HappyTravel.EdoContracts.GeoData.Enums.LocationTypes,System.Int32,System.Int32)">
+            <summary>
+            Retrieves locations for the Edo's updater
+            </summary>
+            <param name="modified"></param>
+            <param name="locationType"></param>
+            <param name="skip"></param>
+            <param name="take"></param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AccommodationManagementController.GetAccommodation(System.Int32)">
             <summary>
             Retrieves an accommodation by ID
@@ -331,16 +341,6 @@
             <param name="top"></param>
             <param name="skip"></param>
             <returns>Retrieves country names</returns>
-        </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.LocationManagementController.GetLocations(System.DateTime,HappyTravel.EdoContracts.GeoData.Enums.LocationTypes,System.Int32,System.Int32)">
-            <summary>
-            Retrieves locations for the Edo's updater
-            </summary>
-            <param name="modified"></param>
-            <param name="locationType"></param>
-            <param name="skip"></param>
-            <param name="take"></param>
-            <returns></returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.PromotionalOfferManagementController.GetPromotionalOffers(System.Int32,System.Int32,System.Int32,System.Collections.Generic.List{System.Int32},System.Nullable{System.DateTime},System.Nullable{System.DateTime})">
             <summary>

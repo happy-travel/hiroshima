@@ -14,7 +14,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Extensions
             if (string.IsNullOrEmpty(dbConnectionString))
                 throw new ArgumentNullException($"{nameof(dbConnectionString)} is null or empty");
             
-            services.AddEntityFrameworkNpgsql().AddDbContextPool<DirectContractsDbContext>(options =>
+            services.AddDbContextPool<DirectContractsDbContext>(options =>
             {
                 options.UseNpgsql(dbConnectionString, npgsqlOptions =>
                     {
