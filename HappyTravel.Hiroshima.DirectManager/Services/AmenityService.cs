@@ -38,6 +38,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result> NormalizeAndUpdateAllAmenities()
         {
+            var amenities = await _dbContext.Amenities.ToListAsync();
+            _dbContext.Amenities.RemoveRange(amenities);
+            await _dbContext.SaveChangesAsync();
+
             var accommodations = await _dbContext.Accommodations.ToListAsync();
             foreach (var accommodation in accommodations)
             {
@@ -81,7 +85,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 foreach (var amenity in amenityEnNames)
                 {
                     var normalizedAmenity = textInfo.ToTitleCase(amenity);
-                    normalizedAmenityEnNames.Add(normalizedAmenity);
+                    var normalizedAmenities = normalizedAmenity.Split(',');
+                    foreach (var singleAmenity in normalizedAmenities)
+                    {
+                        normalizedAmenityEnNames.Add(singleAmenity.Trim());
+                    }
                 }
             }
 
@@ -92,7 +100,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 foreach (var amenity in amenityRuNames)
                 {
                     var normalizedAmenity = textInfo.ToTitleCase(amenity);
-                    normalizedAmenityRuNames.Add(normalizedAmenity);
+                    var normalizedAmenities = normalizedAmenity.Split(',');
+                    foreach (var singleAmenity in normalizedAmenities)
+                    {
+                        normalizedAmenityRuNames.Add(singleAmenity.Trim());
+                    }
                 }
             }
 
