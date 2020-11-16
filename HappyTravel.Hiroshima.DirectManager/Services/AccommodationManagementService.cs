@@ -94,7 +94,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             return ValidationHelper.Validate(accommodation, new AccommodationValidator())
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .Map(contractManager => AddAccommodation(contractManager.Id))
-                .Tap(UpdateAccommodationAmenities)
+                .Tap(AddAmenititesToStoreIfNeeded)
                 .Map(Build);
 
 
@@ -120,7 +120,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .EnsureAccommodationBelongsToContractManager(_dbContext, accommodationId)
                 .Map(Update)
-                .Tap(UpdateAccommodationAmenities)
+                .Tap(AddAmenititesToStoreIfNeeded)
                 .Map(Build);
 
 
@@ -302,7 +302,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Select(roomAndAccommodation => roomAndAccommodation.room);
 
 
-        private async Task<Accommodation> UpdateAccommodationAmenities(Accommodation accommodation)
+        private async Task<Accommodation> AddAmenititesToStoreIfNeeded(Accommodation accommodation)
         {
             await _amenityService.Update(accommodation.AccommodationAmenities);
             return accommodation;

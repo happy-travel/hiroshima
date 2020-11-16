@@ -103,6 +103,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.HasKey(a => a.Id);
                 e.Property(a => a.LanguageCode).IsRequired();
                 e.Property(a => a.Name).IsRequired();
+                e.HasIndex(a => a.LanguageCode);
             });
         }
 
