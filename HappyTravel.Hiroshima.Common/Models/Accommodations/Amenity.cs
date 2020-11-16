@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace HappyTravel.Hiroshima.Common.Models.Accommodations
+﻿namespace HappyTravel.Hiroshima.Common.Models.Accommodations
 {
     public class Amenity
     {

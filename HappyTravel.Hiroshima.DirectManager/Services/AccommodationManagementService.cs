@@ -309,13 +309,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private async Task<Room> UpdateRoomAmenities(Room room)
-        {
-            await _amenityService.Update(room.Amenities);
-            return room;
-        }
-
-
         private Accommodation CreateAccommodation(int contractManagerId, Models.Requests.Accommodation accommodation)
         {
             return new Accommodation
