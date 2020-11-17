@@ -38,82 +38,90 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result> NormalizeAllAmenitiesAndUpdateAmenitiesStore()
         {
-            var amenities = await _dbContext.Amenities.ToListAsync();
-            _dbContext.Amenities.RemoveRange(amenities);
-            await _dbContext.SaveChangesAsync();
+            return await Result.Success()
+                .Tap(RemoveAllAmenities)
+                .Tap(AddAccommodationAmenities)
+                .Tap(AddRoomAmenities);
 
-            var accommodations = await _dbContext.Accommodations.ToListAsync();
-            foreach (var accommodation in accommodations)
-            {
-                accommodation.AccommodationAmenities = await Normalize(accommodation.AccommodationAmenities);
-                _dbContext.Accommodations.Update(accommodation);
-            }
-            await _dbContext.SaveChangesAsync();
 
-            foreach (var accommodation in accommodations)
+            async Task RemoveAllAmenities()
             {
-                await Update(accommodation.AccommodationAmenities);
-            }
-            
-            var rooms = await _dbContext.Rooms.ToListAsync();
-            foreach (var room in rooms)
-            {
-                room.Amenities = await Normalize(room.Amenities);
-                _dbContext.Rooms.Update(room);
-            }
-            await _dbContext.SaveChangesAsync();
-
-            foreach (var room in rooms)
-            {
-                await Update(room.Amenities);
+                var amenities = await _dbContext.Amenities.ToListAsync();
+                _dbContext.Amenities.RemoveRange(amenities);
+                await _dbContext.SaveChangesAsync();
             }
 
-            return Result.Success();
-        }
 
-
-        public async Task<JsonDocument> Normalize(JsonDocument amenities)
-        {
-            amenities.GetValue<MultiLanguage<List<string>>>().TryGetValue("ar", out List<string> amenityArNames);
-            amenities.GetValue<MultiLanguage<List<string>>>().TryGetValue("en", out List<string> amenityEnNames);
-            amenities.GetValue<MultiLanguage<List<string>>>().TryGetValue("ru", out List<string> amenityRuNames);
-
-            amenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>> 
-            { 
-                Ar = amenityArNames, 
-                En = NormalizeAndSplitAmenities(amenityEnNames, "en"),
-                Ru = NormalizeAndSplitAmenities(amenityRuNames, "ru"),
-            });
-            return amenities;
-        }
-
-
-        public async Task Update(JsonDocument amenities)
-        {
-            var languageCodes = new List<string>
+            async Task AddAccommodationAmenities()
             {
-                "ar",
-                "en",
-                "ru"
-            };
-            foreach (var languageCode in languageCodes)
-            {
-                amenities.GetValue<MultiLanguage<List<string>>>().TryGetValue(languageCode, out List<string> amenityNames);
-                if (amenityNames != null)
+                var accommodations = await _dbContext.Accommodations.ToListAsync();
+                foreach (var accommodation in accommodations)
                 {
-                    await AddNewAmenitiesToStore(amenityNames, languageCode);
+                    accommodation.AccommodationAmenities = await Normalize(accommodation.AccommodationAmenities);
+                    _dbContext.Accommodations.Update(accommodation);
+                }
+                await _dbContext.SaveChangesAsync();
+
+                foreach (var accommodation in accommodations)
+                {
+                    await Update(accommodation.AccommodationAmenities);
+                }
+            }
+
+
+            async Task AddRoomAmenities()
+            {
+                var rooms = await _dbContext.Rooms.ToListAsync();
+                foreach (var room in rooms)
+                {
+                    room.Amenities = await Normalize(room.Amenities);
+                    _dbContext.Rooms.Update(room);
+                }
+                await _dbContext.SaveChangesAsync();
+
+                foreach (var room in rooms)
+                {
+                    await Update(room.Amenities);
                 }
             }
         }
 
 
-        private List<string> NormalizeAndSplitAmenities(List<string> amenities, string languageCode)
+        public async Task<JsonDocument> Normalize(JsonDocument amenitiesJson)
+        {
+            var amenities = amenitiesJson.GetValue<MultiLanguage<List<string>>>().GetAll();
+
+            var normalizedAmenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>>
+            {
+                Ar = amenities.SingleOrDefault(a => a.languageCode == "ar").value,
+                En = NormalizeAndSplitAmenities(amenities.SingleOrDefault(a => a.languageCode == "en")),
+                Ru = NormalizeAndSplitAmenities(amenities.SingleOrDefault(a => a.languageCode == "ru")),
+            });
+            return normalizedAmenities;
+        }
+
+
+        public async Task Update(JsonDocument amenitiesJson)
+        {
+            var amenities = amenitiesJson.GetValue<MultiLanguage<List<string>>>().GetAll();
+
+            foreach (var amenity in amenities)
+            {
+                if (amenity.value != null)
+                {
+                    await AddNewAmenitiesToStore(amenity);
+                }
+            }
+        }
+
+
+        private List<string> NormalizeAndSplitAmenities((string languageCode, List<string> value) amenityItem)
         {
             var normalizedAmenityNames = new List<string>();
-            if (amenities != null)
+            if (amenityItem.value != null)
             {
-                var textInfo = new CultureInfo(languageCode, false).TextInfo;
-                foreach (var amenity in amenities)
+                var textInfo = new CultureInfo(amenityItem.languageCode, false).TextInfo;
+                foreach (var amenity in amenityItem.value)
                 {
                     var normalizedAmenityList = textInfo.ToTitleCase(amenity);
                     var normalizedAmenities = normalizedAmenityList.Split(',');
@@ -127,25 +135,26 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private async Task AddNewAmenitiesToStore(List<string> amenityNames, string languageCode)
+        private async Task AddNewAmenitiesToStore((string languageCode, List<string> value) amenityItem)
         {
-            var localAmenities = await _dbContext.Amenities
-                .Where(amenity => amenity.LanguageCode == languageCode)
+            var dbAmenities = await _dbContext.Amenities
+                .Where(a => a.LanguageCode == amenityItem.languageCode)
                 .ToListAsync();
-            foreach (var amenityName in amenityNames)
+            var addedAmenities = new List<Amenity>();
+
+            foreach (var amenityName in amenityItem.value)
             {
-                if (localAmenities.FirstOrDefault(a => a.Name == amenityName) == null)
+                if (dbAmenities.FirstOrDefault(a => a.Name == amenityName) == null && addedAmenities.FirstOrDefault(a => a.Name == amenityName) == null)
                 {
                     var amenity = new Amenity
                     {
                         Id = 0,
-                        LanguageCode = languageCode,
+                        LanguageCode = amenityItem.languageCode,
                         Name = amenityName
                     };
-                    _dbContext.Amenities.Add(amenity);
-                    localAmenities.Add(amenity);
                 }
             }
+            dbAmenities.AddRange(addedAmenities);
             await _dbContext.SaveChangesAsync();
         }
 

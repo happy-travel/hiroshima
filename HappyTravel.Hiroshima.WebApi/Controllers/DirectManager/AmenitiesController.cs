@@ -58,7 +58,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         }
 
 
-        private static string LanguageCode => CultureInfo.CurrentCulture.Name;
+        private string LanguageCode => CultureInfo.CurrentCulture.Name;
 
 
         private readonly IAmenityService _amenitiesService;
