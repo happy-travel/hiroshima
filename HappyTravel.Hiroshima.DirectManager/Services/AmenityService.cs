@@ -57,7 +57,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 var accommodations = await _dbContext.Accommodations.ToListAsync();
                 foreach (var accommodation in accommodations)
                 {
-                    accommodation.AccommodationAmenities = await Normalize(accommodation.AccommodationAmenities);
+                    accommodation.AccommodationAmenities = Normalize(accommodation.AccommodationAmenities);
                     _dbContext.Accommodations.Update(accommodation);
                 }
                 await _dbContext.SaveChangesAsync();
@@ -74,7 +74,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 var rooms = await _dbContext.Rooms.ToListAsync();
                 foreach (var room in rooms)
                 {
-                    room.Amenities = await Normalize(room.Amenities);
+                    room.Amenities = Normalize(room.Amenities);
                     _dbContext.Rooms.Update(room);
                 }
                 await _dbContext.SaveChangesAsync();
@@ -87,17 +87,20 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public async Task<JsonDocument> Normalize(JsonDocument amenitiesJson)
+        public JsonDocument Normalize(JsonDocument amenitiesJson)
         {
-            var amenities = amenitiesJson.GetValue<MultiLanguage<List<string>>>().GetAll();
+            var allAmenities = amenitiesJson.GetValue<MultiLanguage<List<string>>>().GetAll();
+            var normalizedAmenities = new MultiLanguage<List<string>>();
 
-            var normalizedAmenities = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<List<string>>
+            foreach (var amenity in allAmenities.Where(amenity => !string.IsNullOrEmpty(amenity.languageCode)))
             {
-                Ar = amenities.SingleOrDefault(a => a.languageCode == "ar").value,
-                En = NormalizeAndSplitAmenities(amenities.SingleOrDefault(a => a.languageCode == "en")),
-                Ru = NormalizeAndSplitAmenities(amenities.SingleOrDefault(a => a.languageCode == "ru")),
-            });
-            return normalizedAmenities;
+                if (amenity.languageCode != Languages.GetLanguageCode(DcLanguages.Arabic))
+                    normalizedAmenities.TrySetValue(amenity.languageCode, NormalizeAndSplitAmenities(amenity));
+                else
+                    normalizedAmenities.TrySetValue(amenity.languageCode, amenity.value);
+            }
+
+            return JsonDocumentUtilities.CreateJDocument(normalizedAmenities);
         }
 
 

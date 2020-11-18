@@ -103,7 +103,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 var newAccommodation = CreateAccommodation(contractManagerId, accommodation);
                 newAccommodation.Created = DateTime.UtcNow;
 
-                newAccommodation.AccommodationAmenities = await _amenityService.Normalize(newAccommodation.AccommodationAmenities);
+                newAccommodation.AccommodationAmenities = _amenityService.Normalize(newAccommodation.AccommodationAmenities);
 
                 var entry = _dbContext.Accommodations.Add(newAccommodation);
                 await _dbContext.SaveChangesAsync();
@@ -129,7 +129,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 var accommodationRecord = CreateAccommodation(contractManager.Id, accommodation);
                 accommodationRecord.Id = accommodationId;
 
-                accommodationRecord.AccommodationAmenities = await _amenityService.Normalize(accommodationRecord.AccommodationAmenities);
+                accommodationRecord.AccommodationAmenities = _amenityService.Normalize(accommodationRecord.AccommodationAmenities);
 
                 var entry = _dbContext.Accommodations.Update(accommodationRecord);
                 await _dbContext.SaveChangesAsync();
@@ -227,7 +227,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 var dbRoom = CreateRoom(accommodationId, room);
                 dbRoom.Id = roomId;
 
-                dbRoom.Amenities = await _amenityService.Normalize(dbRoom.Amenities);
+                dbRoom.Amenities = _amenityService.Normalize(dbRoom.Amenities);
                 await _amenityService.Update(dbRoom.Amenities);
 
                 _dbContext.Rooms.Update(dbRoom);
@@ -251,7 +251,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                     foreach (var room in newRooms)
                     {
-                        room.Amenities = await _amenityService.Normalize(room.Amenities);
+                        room.Amenities = _amenityService.Normalize(room.Amenities);
                         await _amenityService.Update(room.Amenities);
                     }
 

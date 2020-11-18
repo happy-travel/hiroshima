@@ -7,9 +7,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public interface IAmenityService
     {
-        public Task<Result<List<Models.Responses.Amenity>>> Get(string languageCode);
-        public Task<Result> NormalizeAllAmenitiesAndUpdateAmenitiesStore();
-        public Task Update(JsonDocument amenities);
-        public Task<JsonDocument> Normalize(JsonDocument amenities);
+        Task<Result<List<Models.Responses.Amenity>>> Get(string languageCode);
+        Task<Result> NormalizeAllAmenitiesAndUpdateAmenitiesStore();
+        Task Update(JsonDocument amenities);
+        JsonDocument Normalize(JsonDocument amenities);
     }
 }
