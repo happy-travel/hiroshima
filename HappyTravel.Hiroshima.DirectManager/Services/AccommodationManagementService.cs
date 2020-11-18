@@ -236,29 +236,29 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<List<Models.Responses.Room>>> AddRooms(int accommodationId, List<Models.Requests.Room> rooms)
+        public Task<Result<List<Models.Responses.Room>>> AddRooms(int accommodationId, List<Models.Requests.Room> roomsRequest)
         {
-            return ValidationHelper.Validate(rooms, new RoomValidator())
+            return ValidationHelper.Validate(roomsRequest, new RoomValidator())
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .EnsureAccommodationBelongsToContractManager(_dbContext, accommodationId)
-                .Map(async contractManager =>
-                {
-                    var newRooms = CreateRooms(accommodationId, rooms);
-                    var utcNow = DateTime.UtcNow;
-                    newRooms.ForEach(room => room.Created = utcNow);
+                .Map(contractManager => CreateRooms(accommodationId, roomsRequest))
+                .Map(NormalizeRoomsAmenities)
+                .Map(AddRooms)
+                .Tap(AddRoomsAmenitiesToStoreIfNeeded)
+                .Map(Build);
 
-                    foreach (var room in newRooms)
-                    {
-                        room.Amenities = _amenityService.Normalize(room.Amenities);
-                        await _amenityService.Update(room.Amenities);
-                    }
+                
+            async Task<List<Room>> AddRooms(List<Room> rooms)
+            {
+                var utcNow = DateTime.UtcNow;
+                rooms.ForEach(room => room.Created = utcNow);
 
-                    _dbContext.Rooms.AddRange(newRooms);
-                    await _dbContext.SaveChangesAsync();
-                    _dbContext.DetachEntries(newRooms);
+                _dbContext.Rooms.AddRange(rooms);
+                await _dbContext.SaveChangesAsync();
+                _dbContext.DetachEntries(rooms);
 
-                    return Build(newRooms);
-                });
+                return rooms;
+            }
         }
 
 
@@ -399,6 +399,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         };
 
 
+        private List<Room> NormalizeRoomsAmenities(List<Room> rooms) =>
+            rooms.Select(NormalizeRoomAmenities).ToList();
+        
+        
         private Room NormalizeRoomAmenities(Room room)
         {
             room.Amenities = _amenityService.Normalize(room.Amenities);
@@ -407,9 +411,18 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
+        private async Task<List<Room>> AddRoomsAmenitiesToStoreIfNeeded(List<Room> rooms)
+        {
+            foreach (var room in rooms)
+                await AddRoomAmenitiesToStoreIfNeeded(room);
+
+            return rooms;
+        }
+
         private async Task<Room> AddRoomAmenitiesToStoreIfNeeded(Room room)
         {
             await _amenityService.Update(room.Amenities);
+            
             return room;
         }
 
