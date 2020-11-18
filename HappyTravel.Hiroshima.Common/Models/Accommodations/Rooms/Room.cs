@@ -29,8 +29,8 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms
         public List<OccupancyConfiguration> OccupancyConfigurations { get; set; } = new List<OccupancyConfiguration>();
         
         public Accommodation Accommodation { get; set; }
-        
-        public List<RoomRate> RoomRates { get; set; }
+
+        public List<RoomRate> RoomRates { get; set; } = new List<RoomRate>();
         
         public List<RoomPromotionalOffer> RoomPromotionalOffers { get; set; } = new List<RoomPromotionalOffer>();
 

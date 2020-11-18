@@ -10,8 +10,8 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationP
         public int RoomId { get; set; }
         
         public int SeasonId { get; set; }
-        
-        public List<Policy> Policies { get; set; }
+
+        public List<Policy> Policies { get; set; } = new List<Policy>();
         
         public Room Room { get; set; }
         
