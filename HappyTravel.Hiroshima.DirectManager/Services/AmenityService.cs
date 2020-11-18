@@ -38,17 +38,17 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result> NormalizeAllAmenitiesAndUpdateAmenitiesStore()
         {
-            return await Result.Success()
-                .Tap(RemoveAllAmenities)
+            return await RemoveAllAmenities()
                 .Tap(AddAccommodationAmenities)
                 .Tap(AddRoomAmenities);
 
 
-            async Task RemoveAllAmenities()
+            async Task<Result> RemoveAllAmenities()
             {
                 var amenities = await _dbContext.Amenities.ToListAsync();
                 _dbContext.Amenities.RemoveRange(amenities);
                 await _dbContext.SaveChangesAsync();
+                return Result.Success();
             }
 
 

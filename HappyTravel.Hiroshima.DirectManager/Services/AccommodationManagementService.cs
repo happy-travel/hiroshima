@@ -89,14 +89,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<Models.Responses.Accommodation>> Add(Models.Requests.Accommodation accommodation)
+        public Task<Result<Models.Responses.Accommodation>> Add(Models.Requests.Accommodation accommodationRequest)
         {
-            return ValidationHelper.Validate(accommodation, new AccommodationValidator())
+            return ValidationHelper.Validate(accommodationRequest, new AccommodationValidator())
                 .Bind(() => _contractManagerContext.GetContractManager())
-                .Map(contractManager => CreateAccommodation(contractManager.Id, accommodation))
-                .Map(NormalizeAmenities)
-                .Map(accommodation => AddAccommodation(accommodation))
-                .Tap(AddAmenititesToStoreIfNeeded)
+                .Map(contractManager => CreateAccommodation(contractManager.Id, accommodationRequest))
+                .Map(NormalizeAccommodationAmenities)
+                .Map(AddAccommodation)
+                .Tap(AddAccommodationAmenitiesToStoreIfNeeded)
                 .Map(Build);
 
 
@@ -113,15 +113,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<Models.Responses.Accommodation>> Update(int accommodationId, Models.Requests.Accommodation accommodation)
+        public Task<Result<Models.Responses.Accommodation>> Update(int accommodationId, Models.Requests.Accommodation accommodationRequest)
         {
-            return ValidationHelper.Validate(accommodation, new AccommodationValidator())
+            return ValidationHelper.Validate(accommodationRequest, new AccommodationValidator())
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .EnsureAccommodationBelongsToContractManager(_dbContext, accommodationId)
-                .Map(contractManager => CreateAccommodation(contractManager.Id, accommodation))
-                .Map(NormalizeAmenities)
-                .Map(accommodation => UpdateAccommodation(accommodation))
-                .Tap(AddAmenititesToStoreIfNeeded)
+                .Map(contractManager => CreateAccommodation(contractManager.Id, accommodationRequest))
+                .Map(NormalizeAccommodationAmenities)
+                .Map(UpdateAccommodation)
+                .Tap(AddAccommodationAmenitiesToStoreIfNeeded)
                 .Map(Build);
 
 
@@ -206,32 +206,32 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<Models.Responses.Room>> UpdateRoom(int accommodationId, int roomId, Models.Requests.Room room)
+        public Task<Result<Models.Responses.Room>> UpdateRoom(int accommodationId, int roomId, Models.Requests.Room roomRequest)
         {
             return ValidateRoom()
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .EnsureAccommodationBelongsToContractManager(_dbContext, accommodationId)
                 .Ensure(contractManager => DoesRoomBelongToAccommodation(accommodationId, roomId), $"The room with {nameof(roomId)} '{roomId}' doesn't belong to the accommodation with {nameof(accommodationId)} '{accommodationId}'")
-                .Map(manager => UpdateRoom());
+                .Map(contractManager => CreateRoom(accommodationId, roomRequest))
+                .Map(NormalizeRoomAmenities)
+                .Map(UpdateRoom)
+                .Tap(AddRoomAmenitiesToStoreIfNeeded)
+                .Map(Build);
 
 
             Result ValidateRoom()
             => GenericValidator<Models.Requests.Room>.Validate(configureAction => configureAction.RuleFor(exp => exp)
-                .SetValidator(new RoomValidator()), room);
+                .SetValidator(new RoomValidator()), roomRequest);
 
 
-            async Task<Models.Responses.Room> UpdateRoom()
+            async Task<Room> UpdateRoom(Room room)
             {
-                var dbRoom = CreateRoom(accommodationId, room);
-                dbRoom.Id = roomId;
+                room.Id = roomId;
 
-                dbRoom.Amenities = _amenityService.Normalize(dbRoom.Amenities);
-                await _amenityService.Update(dbRoom.Amenities);
-
-                _dbContext.Rooms.Update(dbRoom);
+                _dbContext.Rooms.Update(room);
                 await _dbContext.SaveChangesAsync();
 
-                return Build(dbRoom);
+                return room;
             }
         }
 
@@ -300,13 +300,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Select(roomAndAccommodation => roomAndAccommodation.room);
 
 
-        private async Task<Accommodation> AddAmenititesToStoreIfNeeded(Accommodation accommodation)
-        {
-            await _amenityService.Update(accommodation.AccommodationAmenities);
-            return accommodation;
-        }
-
-
         private Accommodation CreateAccommodation(int contractManagerId, Models.Requests.Accommodation accommodation)
         {
             return new Accommodation
@@ -341,10 +334,17 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Accommodation NormalizeAmenities(Accommodation accommodation)
+        private Accommodation NormalizeAccommodationAmenities(Accommodation accommodation)
         {
             accommodation.AccommodationAmenities = _amenityService.Normalize(accommodation.AccommodationAmenities);
 
+            return accommodation;
+        }
+
+
+        private async Task<Accommodation> AddAccommodationAmenitiesToStoreIfNeeded(Accommodation accommodation)
+        {
+            await _amenityService.Update(accommodation.AccommodationAmenities);
             return accommodation;
         }
 
@@ -399,10 +399,29 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         };
 
 
+        private Room NormalizeRoomAmenities(Room room)
+        {
+            room.Amenities = _amenityService.Normalize(room.Amenities);
+
+            return room;
+        }
+
+
+        private async Task<Room> AddRoomAmenitiesToStoreIfNeeded(Room room)
+        {
+            await _amenityService.Update(room.Amenities);
+            return room;
+        }
+
+
         private static Models.Responses.Room Build(Room room)
-            => new Models.Responses.Room(room.Id, room.Name.GetValue<MultiLanguage<string>>(),
-                room.Description.GetValue<MultiLanguage<string>>(), room.Amenities.GetValue<MultiLanguage<List<string>>>(),
-                room.Pictures.GetValue<MultiLanguage<List<Picture>>>(), room.OccupancyConfigurations);
+            => new Models.Responses.Room(
+                room.Id, 
+                room.Name.GetValue<MultiLanguage<string>>(),
+                room.Description.GetValue<MultiLanguage<string>>(), 
+                room.Amenities.GetValue<MultiLanguage<List<string>>>(),
+                room.Pictures.GetValue<MultiLanguage<List<Picture>>>(), 
+                room.OccupancyConfigurations);
 
 
         private static List<Models.Responses.Room> Build(List<Room> rooms)
