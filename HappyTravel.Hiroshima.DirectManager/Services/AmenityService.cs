@@ -155,6 +155,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                         LanguageCode = amenityItem.languageCode,
                         Name = amenityName
                     };
+                    addedAmenities.Add(amenity);
                 }
             }
             dbAmenities.AddRange(addedAmenities);
