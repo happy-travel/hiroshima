@@ -29,8 +29,8 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms
         public List<OccupancyConfiguration> OccupancyConfigurations { get; set; } = new List<OccupancyConfiguration>();
         
         public Accommodation Accommodation { get; set; }
-        
-        public List<RoomRate> RoomRates { get; set; }
+
+        public List<RoomRate> RoomRates { get; set; } = new List<RoomRate>();
         
         public List<RoomPromotionalOffer> RoomPromotionalOffers { get; set; } = new List<RoomPromotionalOffer>();
 
@@ -41,15 +41,15 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms
         public List<RoomAvailabilityRestriction> RoomAvailabilityRestrictions { get; set; } = new List<RoomAvailabilityRestriction>();
         
         public List<RoomCancellationPolicy> RoomCancellationPolicies { get; set; } = new List<RoomCancellationPolicy>();
-        
-        
+
+
         public override bool Equals(object? obj) => obj is Room other && Equals(other);
 
 
         public override int GetHashCode()
             => Hash.Aggregate(HashCode.Combine(Id, AccommodationId, Name.RootElement.ToString(), Description.RootElement.ToString(), Amenities.RootElement.ToString()),
                 Hash.Get(OccupancyConfigurations));
-            
+        
         
         public bool Equals(Room other)
         {

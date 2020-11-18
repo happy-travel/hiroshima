@@ -45,7 +45,11 @@ namespace HappyTravel.Hiroshima.Common.Models
             if (!_languageStore.TryAdd(dcLanguage, value))
                 _languageStore[dcLanguage] = value;
         }
-        
+
+
+        public List<(string languageCode, T value)> GetAll()
+            => _languageStore.Select(kv => (Languages.GetLanguageCode(kv.Key), kv.Value)).ToList();
+
 
         private T GetValue(DcLanguages language)
         {
