@@ -14,16 +14,16 @@ using HappyTravel.Hiroshima.DirectContracts.Models;
 using Microsoft.EntityFrameworkCore;
 using Accommodation = HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation;
 
-
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 {
     public class AvailabilityService : IAvailabilityService
     {
-        public AvailabilityService(IRoomAvailabilityService roomAvailabilityService, IRateAvailabilityService rateAvailabilityService, DirectContractsDbContext dbContext)
+        public AvailabilityService(IRoomAvailabilityService roomAvailabilityService, IRateAvailabilityService rateAvailabilityService, IAvailableRatesStorage availableRatesStorage, DirectContractsDbContext dbContext)
         {
             _roomAvailabilityService = roomAvailabilityService;
             _rateAvailabilityService = rateAvailabilityService;
             _dbContext = dbContext;
+            _availableRatesStorage = availableRatesStorage;
         }
 
 
@@ -73,13 +73,19 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         }
 
 
-        public async Task<Dictionary<Accommodation, List<AvailableRates>>> Get(AvailabilityRequest availabilityRequest, int accommodationId, string languageCode)
+        public async Task<Dictionary<Accommodation, List<AvailableRates>>> Get(AvailabilityRequest availabilityRequest, int accommodationId,
+            string languageCode)
         {
             var accommodations = await GetAvailableAccommodations(availabilityRequest)
-                .Where(accommodation => accommodation.Id.Equals(accommodationId)).ToListAsync();
+                .Where(accommodation => accommodation.Id.Equals(accommodationId))
+                .ToListAsync();
             var groupedAvailableRooms = _roomAvailabilityService.GetGroupedAvailableRooms(accommodations, availabilityRequest.Rooms);
-            
-            return GetAvailableRates(availabilityRequest, groupedAvailableRooms, languageCode);
+
+            var availableRates = GetAvailableRates(availabilityRequest, groupedAvailableRooms, languageCode);
+
+            await _availableRatesStorage.Add(availableRates.Values.SelectMany(ar => ar).ToList());
+
+            return availableRates;
         }
         
         
@@ -139,7 +145,11 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                     continue;
 
                 var accommodation = accommodationGroupedRooms.First().Value.First().Accommodation;
-                accommodationAvailableRatesStore.Add(accommodation, rateDetailsCombinations.Select(rateDetails => new AvailableRates {Rates = rateDetails}).ToList());
+                accommodationAvailableRatesStore.Add(accommodation, rateDetailsCombinations.Select(rateDetails => new AvailableRates
+                {
+                    Id = CreateAvailabilityId(),
+                    Rates = rateDetails
+                }).ToList());
             }
                 
             return accommodationAvailableRatesStore;
@@ -148,11 +158,15 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             Dictionary<RoomOccupationRequest, List<RateDetails>> GetAvailableRateDetails(Dictionary<RoomOccupationRequest, List<Room>> occupationRequestRoomsStore)
                 => occupationRequestRoomsStore
                     .ToDictionary(occupationRequestRooms => occupationRequestRooms.Key, occupationRequestRooms => _rateAvailabilityService.GetAvailableRates(occupationRequestRooms.Key, occupationRequestRooms.Value.ToList(), availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate, languageCode));
+
+
+            Guid CreateAvailabilityId() => Guid.NewGuid();
         }
         
         
         private readonly IRateAvailabilityService _rateAvailabilityService;
         private readonly IRoomAvailabilityService _roomAvailabilityService;
         private readonly DirectContractsDbContext _dbContext;
+        private readonly IAvailableRatesStorage _availableRatesStorage;
     }
 }

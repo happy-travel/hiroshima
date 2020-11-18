@@ -27,11 +27,13 @@ namespace HappyTravel.Hiroshima.DirectContracts.Extensions
             }, 16);
 
             services.AddTransient<IAvailabilityService, AvailabilityService>();
+            services.AddTransient<IBookingService, BookingService>();
             services.AddTransient<IRoomAvailabilityService, RoomAvailabilityService>();
             services.AddTransient<IRateAvailabilityService, RateAvailabilityService>();
             services.AddTransient<ICancellationPolicyService, CancellationPolicyService>();
             services.AddTransient<IPaymentDetailsService, PaymentDetailsService>();
             services.AddTransient<ICancellationPolicyService, CancellationPolicyService>();
+            services.AddTransient<IAvailableRatesStorage, AvailableRatesStorage>();
             
             return services;
         }

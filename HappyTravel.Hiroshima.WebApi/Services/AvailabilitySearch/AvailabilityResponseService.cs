@@ -92,7 +92,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
 
             foreach (var availableRate in availableRates)
             {
-                var roomContractSet = CreateRoomContractSet(availableRate.Rates);
+                var roomContractSet = CreateRoomContractSet(availableRate);
                 roomContractSets.Add(roomContractSet);
             }
 
@@ -100,11 +100,11 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
         }
         
 
-        private RoomContractSet CreateRoomContractSet(List<RateDetails> rateDetails)
+        private RoomContractSet CreateRoomContractSet(AvailableRates availableRates)
         {
-            var id = Guid.NewGuid();
-            var roomContracts = CreateRoomContracts(rateDetails);
-            var price = CreatePrice(rateDetails);
+            var id = availableRates.Id;
+            var roomContracts = CreateRoomContracts(availableRates.Rates);
+            var price = CreatePrice(availableRates.Rates);
             var deadline = CreateDeadline(roomContracts);
             var advancePurchaseRate = false;
             

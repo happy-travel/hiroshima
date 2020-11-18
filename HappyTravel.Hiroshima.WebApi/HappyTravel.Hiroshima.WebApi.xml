@@ -27,6 +27,13 @@
             <param name="roomContractSetId"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.Connector.BookingController.Book(HappyTravel.EdoContracts.Accommodations.BookingRequest)">
+            <summary>
+            Makes an asynchronous booking request to the Etg api.
+            </summary>
+            <param name="bookingRequest"></param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.Connector.LocationsController.GetLocations(System.DateTime,HappyTravel.EdoContracts.GeoData.Enums.LocationTypes,System.Int32,System.Int32)">
             <summary>
             Retrieves locations for the Edo's updater

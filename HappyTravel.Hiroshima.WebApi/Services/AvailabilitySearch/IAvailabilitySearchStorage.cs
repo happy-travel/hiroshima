@@ -3,11 +3,13 @@ using HappyTravel.EdoContracts.Accommodations;
 
 namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
 {
-    public interface IAvailabilitySearchStore
+    public interface IAvailabilitySearchStorage
     {
         Task AddAvailabilityRequest(string availabilityId, in AvailabilityRequest availabilityRequest);
 
-        Task AddAccommodationAvailability(AccommodationAvailability accommodationAvailability);
+        Task AddAccommodationAvailability(in AccommodationAvailability accommodationAvailability);
+
+        Task RemoveAvailabilityRequest(string availabilityId);
         
         Task<AvailabilityRequest> GetAvailabilityRequest(string availabilityId);
 
