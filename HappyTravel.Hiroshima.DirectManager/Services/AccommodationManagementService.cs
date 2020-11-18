@@ -93,19 +93,18 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return ValidationHelper.Validate(accommodation, new AccommodationValidator())
                 .Bind(() => _contractManagerContext.GetContractManager())
-                .Map(contractManager => AddAccommodation(contractManager.Id))
+                .Map(contractManager => CreateAccommodation(contractManager.Id, accommodation))
+                .Map(NormalizeAmenities)
+                .Map(accommodation => AddAccommodation(accommodation))
                 .Tap(AddAmenititesToStoreIfNeeded)
                 .Map(Build);
 
 
-            async Task<Accommodation> AddAccommodation(int contractManagerId)
+            async Task<Accommodation> AddAccommodation(Accommodation accommodation)
             {
-                var newAccommodation = CreateAccommodation(contractManagerId, accommodation);
-                newAccommodation.Created = DateTime.UtcNow;
+                accommodation.Created = DateTime.UtcNow;
 
-                newAccommodation.AccommodationAmenities = _amenityService.Normalize(newAccommodation.AccommodationAmenities);
-
-                var entry = _dbContext.Accommodations.Add(newAccommodation);
+                var entry = _dbContext.Accommodations.Add(accommodation);
                 await _dbContext.SaveChangesAsync();
                 entry.State = EntityState.Detached;
 
@@ -119,19 +118,18 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             return ValidationHelper.Validate(accommodation, new AccommodationValidator())
                 .Bind(() => _contractManagerContext.GetContractManager())
                 .EnsureAccommodationBelongsToContractManager(_dbContext, accommodationId)
-                .Map(Update)
+                .Map(contractManager => CreateAccommodation(contractManager.Id, accommodation))
+                .Map(NormalizeAmenities)
+                .Map(accommodation => UpdateAccommodation(accommodation))
                 .Tap(AddAmenititesToStoreIfNeeded)
                 .Map(Build);
 
 
-            async Task<Accommodation> Update(ContractManager contractManager)
+            async Task<Accommodation> UpdateAccommodation(Accommodation accommodation)
             {
-                var accommodationRecord = CreateAccommodation(contractManager.Id, accommodation);
-                accommodationRecord.Id = accommodationId;
+                accommodation.Id = accommodationId;
 
-                accommodationRecord.AccommodationAmenities = _amenityService.Normalize(accommodationRecord.AccommodationAmenities);
-
-                var entry = _dbContext.Accommodations.Update(accommodationRecord);
+                var entry = _dbContext.Accommodations.Update(accommodation);
                 await _dbContext.SaveChangesAsync();
 
                 _dbContext.DetachEntry(entry.Entity);
@@ -340,6 +338,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 Floors = accommodation.Floors,
                 BuildYear = accommodation.BuildYear
             };
+        }
+
+
+        private Accommodation NormalizeAmenities(Accommodation accommodation)
+        {
+            accommodation.AccommodationAmenities = _amenityService.Normalize(accommodation.AccommodationAmenities);
+
+            return accommodation;
         }
 
 

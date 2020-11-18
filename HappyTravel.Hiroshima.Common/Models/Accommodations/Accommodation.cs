@@ -30,8 +30,8 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations
         public string CheckOutTime { get; set; } = string.Empty;
         
         public JsonDocument Pictures { get; set; }
-        
-        public ContactInfo ContactInfo { get; set; }
+
+        public ContactInfo ContactInfo { get; set; } = new ContactInfo();
         
         public PropertyTypes PropertyType { get; set; }
         
