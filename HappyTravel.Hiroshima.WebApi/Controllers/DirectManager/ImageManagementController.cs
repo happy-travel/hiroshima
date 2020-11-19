@@ -103,6 +103,92 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         }
 
 
+        /// <summary>
+        /// Retrieves ordered list of images by accommodation ID and room ID
+        /// </summary>
+        /// <param name="accommodationId">ID of the accommodation</param>
+        /// <param name="roomId">ID of the room</param>
+        /// <returns></returns>
+        [HttpGet("accommodations/{accommodationId}/rooms/{roomId}/photo")]
+        [ProducesResponseType(typeof(Hiroshima.DirectManager.Models.Responses.Room), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetImageList([FromRoute] int accommodationId, [FromRoute] int roomId)
+        {
+            var (_, isFailure, response, error) = await _imageManagementService.Get(accommodationId, roomId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
+        }
+
+
+        /// <summary>
+        /// Uploads image file for room
+        /// </summary>
+        /// <param name="accommodationId">Accommodation Id</param>
+        /// <param name="roomId">Room Id</param>
+        /// <param name="uploadedFile">Adding image file</param>
+        /// <returns>Image id</returns>
+        [HttpPost("accommodations/{accommodationId}/rooms/{roomId}/photo")]
+        [RequestSizeLimit(50 * 1024 * 1024)]
+        [ProducesResponseType(typeof(Guid), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> AddImageFile([FromRoute] int accommodationId, [FromRoute] int roomId, [FromForm] IFormFile uploadedFile)
+        {
+            var image = new Hiroshima.DirectManager.Models.Requests.Image
+            {
+                AccommodationId = accommodationId,
+                RoomId = roomId,
+                UploadedFile = (FormFile)uploadedFile
+            };
+            var (_, isFailure, response, error) = await _imageManagementService.Add(image);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
+        }
+
+
+        /// <summary>
+        /// Updates the list of images for room by Ids
+        /// </summary>
+        /// <param name="accommodationId">Accommodation Id</param>
+        /// <param name="roomId">Room Id</param>
+        /// <param name="slimImages">Ordered list of images</param>
+        /// <returns></returns>
+        [HttpPut("accommodations/{accommodationId}/roooms/{roomId}/photo")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> UpdateRoomImages([FromRoute] int accommodationId, [FromRoute] int roomId, [FromBody] List<Hiroshima.DirectManager.Models.Requests.SlimImage> slimImages)
+        {
+            var (_, isFailure, error) = await _imageManagementService.Update(accommodationId, roomId, slimImages);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+
+
+        /// <summary>
+        /// Deletes image file by ID
+        /// </summary>
+        /// <param name="accommodationId">Accommodation Id</param>
+        /// <param name="roomId">Room Id</param>
+        /// <param name="imageId">Id of the image file to be deleted</param>
+        /// <returns></returns>
+        [HttpDelete("accommodations/{accommodationId}/rooms/{roomId}/photo/{imageId}")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> RemoveImageFile([FromRoute] int accommodationId, [FromRoute] int roomId, [FromRoute] Guid imageId)
+        {
+            var (_, isFailure, error) = await _imageManagementService.Remove(accommodationId, roomId, imageId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+
+
         private readonly IImageManagementService _imageManagementService;
     }
 }

@@ -48,6 +48,21 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
+        public Task<Result<List<Models.Responses.SlimImage>>> Get(int accommodationId, int roomId)
+        {
+            return _contractManagerContext.GetContractManager()
+                .EnsureRoomBelongsToContractManager(_dbContext, accommodationId, roomId)
+                .Map(async contractManager =>
+                {
+                    return await _dbContext.Images
+                        .Where(image => image.ContractManagerId == contractManager.Id && image.AccommodationId == accommodationId && image.RoomId == roomId)
+                        .OrderBy(image => image.Position)
+                        .ToListAsync();
+                })
+                .Map(Build);
+        }
+
+
         public Task<Result<Guid>> Add(Models.Requests.Image image)
         {
             return _contractManagerContext.GetContractManager()
