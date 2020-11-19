@@ -66,12 +66,151 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<Guid>> Add(Models.Requests.Image image)
+        public Task<Result<Guid>> Add(Models.Requests.AccommodationImage image)
         {
             return _contractManagerContext.GetContractManager()
                 .EnsureAccommodationBelongsToContractManager(_dbContext, image.AccommodationId)
-                .Tap(contractManager => ValidationHelper.Validate(image, new ImageValidator()))
-                .Tap(contractManager => ResortImages(contractManager.Id, image.AccommodationId))
+                .Tap(contractManager => ValidationHelper.Validate(image, new AccommodationImageValidator()))
+                .Tap(contractManager => ResortImages(contractManager.Id, image.AccommodationId, ImageTypes.AccommodationImage))
+                .Map(contractManager => Create(contractManager.Id, image))
+                .Ensure(dbImage => ValidateImageType(image.UploadedFile).Value, "Invalid image file type")
+                .Bind(dbImage => ConvertAndUpload(dbImage, image.UploadedFile));
+        }
+
+
+        private Task<Result<Guid>> ConvertAndUpload(Image dbImage, FormFile uploadedFile)
+        {
+            return GetBytes()
+                .Ensure(AreDimensionsValid,
+                    $"Uploading image size must be at least {MinimumImageWidth}×{MinimumImageHeight} pixels and the width mustn't exceed two heights and vice versa")
+                .Bind(Convert)
+                .Bind(Upload);
+
+
+            Result<byte[]> GetBytes()
+            {
+                using var binaryReader = new BinaryReader(uploadedFile.OpenReadStream());
+                return Result.Success(binaryReader.ReadBytes((int)uploadedFile.Length));
+            }
+
+
+            async Task<bool> AreDimensionsValid(byte[] imageBytes)
+            {
+                var info = await ImageJob.GetImageInfo(new BytesSource(imageBytes));
+
+                return MinimumImageWidth <= info.ImageWidth &&
+                    MinimumImageHeight <= info.ImageHeight &&
+                    info.ImageWidth / info.ImageHeight < 2 &&
+                    info.ImageHeight / info.ImageWidth < 2;
+            }
+
+
+            async Task<Result<ImageSet>> Convert(byte[] imageBytes)
+            {
+                var imagesSet = new ImageSet();
+
+                using var imageJob = new ImageJob();
+                var jobResult = await imageJob.Decode(imageBytes)
+                    .Constrain(new Constraint(ConstraintMode.Within, ResizedLargeImageMaximumSideSize, ResizedLargeImageMaximumSideSize))
+                    .Branch(f => f.ConstrainWithin(ResizedSmallImageMaximumSideSize, ResizedSmallImageMaximumSideSize).EncodeToBytes(new MozJpegEncoder(TargetJpegQuality, true)))
+                    .EncodeToBytes(new MozJpegEncoder(TargetJpegQuality, true))
+                    .Finish().InProcessAsync();
+
+                imagesSet.SmallImage = GetImage(1);
+                imagesSet.MainImage = GetImage(2);
+
+                return imagesSet.MainImage.Any() && imagesSet.SmallImage.Any()
+                    ? Result.Success(imagesSet)
+                    : Result.Failure<ImageSet>("Processing of the images failed");
+
+
+                byte[] GetImage(int index)
+                {
+                    var encodeResult = jobResult?.TryGet(index);
+                    var bytes = encodeResult?.TryGetBytes();
+
+                    return bytes != null ? bytes.Value.ToArray() : new byte[] { };
+                }
+            }
+
+
+            async Task<Result<Guid>> Upload(ImageSet imageSet)
+            {
+                dbImage.Position = _dbContext.Images.Count(i => i.ReferenceId == dbImage.ReferenceId && i.ImageType == dbImage.ImageType);
+                var entry = _dbContext.Images.Add(dbImage);
+                await _dbContext.SaveChangesAsync();
+                var imageId = entry.Entity.Id;
+
+                SetImageDetails();
+
+                var addToBucketResult = await AddImagesToBucket();
+                if (!addToBucketResult)
+                {
+                    _dbContext.Images.Remove(entry.Entity);
+
+                    await _dbContext.SaveChangesAsync();
+
+                    return Result.Failure<Guid>("Uploading of the image failed");
+                }
+
+                _dbContext.Images.Update(entry.Entity);
+
+                await _dbContext.SaveChangesAsync();
+
+                _dbContext.DetachEntry(entry.Entity);
+
+                return Result.Success(imageId);
+
+
+                void SetImageDetails()
+                {
+                    var basePartOfKey = $"{S3FolderName}/{dbImage.AccommodationId}/{imageId}";
+                    dbImage.MainImage.Key = $"{basePartOfKey}-main.jpg";
+                    dbImage.SmallImage.Key = $"{basePartOfKey}-small.jpg";
+
+                    dbImage.MainImage.Url = $"{_basePathToAmazon}/{dbImage.MainImage.Key}";
+                    dbImage.SmallImage.Url = $"{_basePathToAmazon}/{dbImage.SmallImage.Key}";
+                }
+
+
+                async Task<bool> AddImagesToBucket()
+                {
+                    await using var largeStream = new MemoryStream(imageSet.MainImage);
+                    await using var smallStream = new MemoryStream(imageSet.SmallImage);
+                    var imageList = new List<(string key, Stream stream)>
+                        {
+                            (dbImage.MainImage.Key, largeStream),
+                            (dbImage.SmallImage.Key, smallStream)
+                        };
+
+                    var resultList = await _amazonS3ClientService.Add(_bucketName, imageList);
+                    foreach (var result in resultList)
+                    {
+                        if (result.IsFailure)
+                        {
+                            var keyList = new List<string>
+                                {
+                                    dbImage.MainImage.Key,
+                                    dbImage.SmallImage.Key,
+                                };
+                            await _amazonS3ClientService.Delete(_bucketName, keyList);
+
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+            }
+        }
+
+
+        public Task<Result<Guid>> Add(Models.Requests.RoomImage image)
+        {
+            return _contractManagerContext.GetContractManager()
+                .EnsureRoomBelongsToContractManager(_dbContext, image.AccommodationId, image.RoomId)
+                .Tap(contractManager => ValidationHelper.Validate(image, new RoomImageValidator()))
+                .Tap(contractManager => ResortImages(contractManager.Id, image.RoomId, ImageTypes.RoomImage))
                 .Map(contractManager => Create(contractManager.Id, image))
                 .Ensure(dbImage => ValidateImageType(image.UploadedFile).Value, "Invalid image file type")
                 .Bind(dbImage => ConvertAndUpload(dbImage, image.UploadedFile));
@@ -84,22 +223,22 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                         $"Uploading image size must be at least {MinimumImageWidth}×{MinimumImageHeight} pixels and the width mustn't exceed two heights and vice versa")
                     .Bind(Convert)
                     .Bind(Upload);
-                
+
 
                 Result<byte[]> GetBytes()
                 {
                     using var binaryReader = new BinaryReader(uploadedFile.OpenReadStream());
                     return Result.Success(binaryReader.ReadBytes((int)uploadedFile.Length));
                 }
-                
+
 
                 async Task<bool> AreDimensionsValid(byte[] imageBytes)
                 {
                     var info = await ImageJob.GetImageInfo(new BytesSource(imageBytes));
 
-                    return MinimumImageWidth <= info.ImageWidth && 
+                    return MinimumImageWidth <= info.ImageWidth &&
                         MinimumImageHeight <= info.ImageHeight &&
-                        info.ImageWidth / info.ImageHeight < 2 && 
+                        info.ImageWidth / info.ImageHeight < 2 &&
                         info.ImageHeight / info.ImageWidth < 2;
                 }
 
@@ -126,8 +265,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     {
                         var encodeResult = jobResult?.TryGet(index);
                         var bytes = encodeResult?.TryGetBytes();
-                        
-                        return bytes != null ? bytes.Value.ToArray() : new byte[]{} ;
+
+                        return bytes != null ? bytes.Value.ToArray() : new byte[] { };
                     }
                 }
 
@@ -152,7 +291,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     }
 
                     _dbContext.Images.Update(entry.Entity);
-                    
+
                     await _dbContext.SaveChangesAsync();
 
                     _dbContext.DetachEntry(entry.Entity);
@@ -200,12 +339,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                         return true;
                     }
                 }
-            }
-            
-            Result<bool> ValidateImageType(FormFile uploadedFile)
-            {
-                var extension = Path.GetExtension(uploadedFile?.FileName)?.ToLower() ?? string.Empty;
-                return extension == ".jpg" || extension == ".jpeg" || extension == ".png";
             }
         }
 
@@ -290,9 +423,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Image Create(int contractManagerId, Models.Requests.Image image) => new Image
+        private Image Create(int contractManagerId, Models.Requests.AccommodationImage image) => new Image
         {
-            AccommodationId = image.AccommodationId,
+            ReferenceId = image.AccommodationId,
+            ImageType = ImageTypes.AccommodationImage,
             OriginalImageDetails = new OriginalImageDetails
             {
                 OriginalName = image.UploadedFile.FileName,
@@ -304,21 +438,25 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         };
 
 
-        private List<Models.Responses.SlimImage> Build(List<Image> images)
+        private Image Create(int contractManagerId, Models.Requests.RoomImage image) => new Image
         {
-            var slimImages = new List<Models.Responses.SlimImage>();
-            foreach (var image in images)
-            { 
-                var slimImage = new Models.Responses.SlimImage
-                    (
-                        image.Id,
-                        image.MainImage.Url,
-                        image.SmallImage.Url,
-                        image.Description.GetValue<MultiLanguage<string>>()
-                    ); 
-                slimImages.Add(slimImage);
-            }
-            return slimImages;
+            ReferenceId = image.RoomId,
+            ImageType = ImageTypes.RoomImage,
+            OriginalImageDetails = new OriginalImageDetails
+            {
+                OriginalName = image.UploadedFile.FileName,
+                OriginalContentType = image.UploadedFile.ContentType
+            },
+            ContractManagerId = contractManagerId,
+            Created = DateTime.UtcNow,
+            Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> { Ar = string.Empty, En = string.Empty, Ru = string.Empty })
+        };
+
+
+        private Result<bool> ValidateImageType(FormFile uploadedFile)
+        {
+            var extension = Path.GetExtension(uploadedFile?.FileName)?.ToLower() ?? string.Empty;
+            return extension == ".jpg" || extension == ".jpeg" || extension == ".png";
         }
 
 
@@ -364,10 +502,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private async Task ResortImages(int contractManagerId, int accommodationId)
+        private async Task ResortImages(int contractManagerId, int referenceId, ImageTypes imageType)
         {
             var images = await _dbContext.Images
-                .Where(image => image.ContractManagerId == contractManagerId && image.AccommodationId == accommodationId)
+                .Where(image => image.ContractManagerId == contractManagerId && image.ReferenceId == referenceId && image.ImageType == imageType)
                 .OrderBy(image => image.Position)
                 .ToListAsync();
 
@@ -378,6 +516,24 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 _dbContext.Images.Update(image);
             }
             await _dbContext.SaveChangesAsync();
+        }
+
+
+        private List<Models.Responses.SlimImage> Build(List<Image> images)
+        {
+            var slimImages = new List<Models.Responses.SlimImage>();
+            foreach (var image in images)
+            {
+                var slimImage = new Models.Responses.SlimImage
+                    (
+                        image.Id,
+                        image.MainImage.Url,
+                        image.SmallImage.Url,
+                        image.Description.GetValue<MultiLanguage<string>>()
+                    );
+                slimImages.Add(slimImage);
+            }
+            return slimImages;
         }
 
 

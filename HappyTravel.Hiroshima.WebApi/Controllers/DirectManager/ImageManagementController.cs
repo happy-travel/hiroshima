@@ -52,7 +52,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> AddImageFile([FromRoute] int accommodationId, [FromForm] IFormFile uploadedFile)
         {
-            var image = new Hiroshima.DirectManager.Models.Requests.Image
+            var image = new Hiroshima.DirectManager.Models.Requests.AccommodationImage
             {
                 AccommodationId = accommodationId,
                 UploadedFile = (FormFile)uploadedFile
@@ -135,7 +135,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> AddImageFile([FromRoute] int accommodationId, [FromRoute] int roomId, [FromForm] IFormFile uploadedFile)
         {
-            var image = new Hiroshima.DirectManager.Models.Requests.Image
+            var image = new Hiroshima.DirectManager.Models.Requests.RoomImage
             {
                 AccommodationId = accommodationId,
                 RoomId = roomId,

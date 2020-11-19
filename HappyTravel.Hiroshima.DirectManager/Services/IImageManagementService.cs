@@ -10,8 +10,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     {
         Task<Result<List<SlimImage>>> Get(int accommodationId);
         Task<Result<List<SlimImage>>> Get(int accommodationId, int roomId);
-        Task<Result<Guid>> Add(Models.Requests.Image image);
+        Task<Result<Guid>> Add(Models.Requests.AccommodationImage image);
+        Task<Result<Guid>> Add(Models.Requests.RoomImage image);
         Task<Result> Update(int accommodationId, List<Models.Requests.SlimImage> images);
+        Task<Result> Update(int accommodationId, int roomId, List<Models.Requests.SlimImage> images);
         Task<Result> Remove(int accommodationId, Guid imageId);
         Task<Result> Remove(int accommodationId, int roomId, Guid imageId);
         Task<Result> RemoveAll(int contractManagerId, int accommodationId);
