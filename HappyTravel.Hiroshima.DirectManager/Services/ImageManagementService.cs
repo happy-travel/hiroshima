@@ -214,26 +214,27 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return _contractManagerContext.GetContractManager()
                 .EnsureAccommodationBelongsToContractManager(_dbContext, accommodationId)
-                .Bind(async contractManager =>
+                .Map(async contractManager =>
                 {
-                    var dbImages = await _dbContext.Images
-                        .Where(image => image.ContractManagerId == contractManager.Id && image.AccommodationId == accommodationId).ToListAsync();
+                    return await _dbContext.Images
+                        .Where(image => image.ContractManagerId == contractManager.Id && image.ReferenceId == accommodationId && image.ImageType == ImageTypes.AccommodationImage)
+                        .ToListAsync();
+                })
+                .Bind(dbImages => ArrangeImages(dbImages, images));
+        }
 
-                    for (var i = 0; i < images.Count; i++)
-                    {
-                        var dbImage = dbImages.SingleOrDefault(image => image.Id == images[i].Id);
-                        if (dbImage != null)
-                        {
-                            dbImage.Position = i;
-                            dbImage.Description = JsonDocumentUtilities.CreateJDocument(images[i].Description);
-                            
-                            _dbContext.Images.Update(dbImage);
-                        }
-                    }
-                    await _dbContext.SaveChangesAsync();
 
-                    return Result.Success();
-                });
+        public Task<Result> Update(int accommodationId, int roomId, List<Models.Requests.SlimImage> images)
+        {
+            return _contractManagerContext.GetContractManager()
+                .EnsureRoomBelongsToContractManager(_dbContext, accommodationId, roomId)
+                .Map(async contractManager =>
+                {
+                    return await _dbContext.Images
+                        .Where(image => image.ContractManagerId == contractManager.Id && image.ReferenceId == roomId && image.ImageType == ImageTypes.RoomImage)
+                        .ToListAsync();
+                })
+                .Bind(dbImages => ArrangeImages(dbImages, images));
         }
 
 
@@ -318,6 +319,25 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 slimImages.Add(slimImage);
             }
             return slimImages;
+        }
+
+
+        private async Task<Result> ArrangeImages(List<Image> dbImages, List<Models.Requests.SlimImage> images)
+        {
+            for (var i = 0; i < images.Count; i++)
+            {
+                var dbImage = dbImages.SingleOrDefault(image => image.Id == images[i].Id);
+                if (dbImage != null)
+                {
+                    dbImage.Position = i;
+                    dbImage.Description = JsonDocumentUtilities.CreateJDocument(images[i].Description);
+
+                    _dbContext.Images.Update(dbImage);
+                }
+            }
+            await _dbContext.SaveChangesAsync();
+
+            return Result.Success();
         }
 
 
