@@ -78,133 +78,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Task<Result<Guid>> ConvertAndUpload(Image dbImage, FormFile uploadedFile)
-        {
-            return GetBytes()
-                .Ensure(AreDimensionsValid,
-                    $"Uploading image size must be at least {MinimumImageWidth}×{MinimumImageHeight} pixels and the width mustn't exceed two heights and vice versa")
-                .Bind(Convert)
-                .Bind(Upload);
-
-
-            Result<byte[]> GetBytes()
-            {
-                using var binaryReader = new BinaryReader(uploadedFile.OpenReadStream());
-                return Result.Success(binaryReader.ReadBytes((int)uploadedFile.Length));
-            }
-
-
-            async Task<bool> AreDimensionsValid(byte[] imageBytes)
-            {
-                var info = await ImageJob.GetImageInfo(new BytesSource(imageBytes));
-
-                return MinimumImageWidth <= info.ImageWidth &&
-                    MinimumImageHeight <= info.ImageHeight &&
-                    info.ImageWidth / info.ImageHeight < 2 &&
-                    info.ImageHeight / info.ImageWidth < 2;
-            }
-
-
-            async Task<Result<ImageSet>> Convert(byte[] imageBytes)
-            {
-                var imagesSet = new ImageSet();
-
-                using var imageJob = new ImageJob();
-                var jobResult = await imageJob.Decode(imageBytes)
-                    .Constrain(new Constraint(ConstraintMode.Within, ResizedLargeImageMaximumSideSize, ResizedLargeImageMaximumSideSize))
-                    .Branch(f => f.ConstrainWithin(ResizedSmallImageMaximumSideSize, ResizedSmallImageMaximumSideSize).EncodeToBytes(new MozJpegEncoder(TargetJpegQuality, true)))
-                    .EncodeToBytes(new MozJpegEncoder(TargetJpegQuality, true))
-                    .Finish().InProcessAsync();
-
-                imagesSet.SmallImage = GetImage(1);
-                imagesSet.MainImage = GetImage(2);
-
-                return imagesSet.MainImage.Any() && imagesSet.SmallImage.Any()
-                    ? Result.Success(imagesSet)
-                    : Result.Failure<ImageSet>("Processing of the images failed");
-
-
-                byte[] GetImage(int index)
-                {
-                    var encodeResult = jobResult?.TryGet(index);
-                    var bytes = encodeResult?.TryGetBytes();
-
-                    return bytes != null ? bytes.Value.ToArray() : new byte[] { };
-                }
-            }
-
-
-            async Task<Result<Guid>> Upload(ImageSet imageSet)
-            {
-                dbImage.Position = _dbContext.Images.Count(i => i.ReferenceId == dbImage.ReferenceId && i.ImageType == dbImage.ImageType);
-                var entry = _dbContext.Images.Add(dbImage);
-                await _dbContext.SaveChangesAsync();
-                var imageId = entry.Entity.Id;
-
-                SetImageDetails();
-
-                var addToBucketResult = await AddImagesToBucket();
-                if (!addToBucketResult)
-                {
-                    _dbContext.Images.Remove(entry.Entity);
-
-                    await _dbContext.SaveChangesAsync();
-
-                    return Result.Failure<Guid>("Uploading of the image failed");
-                }
-
-                _dbContext.Images.Update(entry.Entity);
-
-                await _dbContext.SaveChangesAsync();
-
-                _dbContext.DetachEntry(entry.Entity);
-
-                return Result.Success(imageId);
-
-
-                void SetImageDetails()
-                {
-                    var basePartOfKey = $"{S3FolderName}/{dbImage.AccommodationId}/{imageId}";
-                    dbImage.MainImage.Key = $"{basePartOfKey}-main.jpg";
-                    dbImage.SmallImage.Key = $"{basePartOfKey}-small.jpg";
-
-                    dbImage.MainImage.Url = $"{_basePathToAmazon}/{dbImage.MainImage.Key}";
-                    dbImage.SmallImage.Url = $"{_basePathToAmazon}/{dbImage.SmallImage.Key}";
-                }
-
-
-                async Task<bool> AddImagesToBucket()
-                {
-                    await using var largeStream = new MemoryStream(imageSet.MainImage);
-                    await using var smallStream = new MemoryStream(imageSet.SmallImage);
-                    var imageList = new List<(string key, Stream stream)>
-                        {
-                            (dbImage.MainImage.Key, largeStream),
-                            (dbImage.SmallImage.Key, smallStream)
-                        };
-
-                    var resultList = await _amazonS3ClientService.Add(_bucketName, imageList);
-                    foreach (var result in resultList)
-                    {
-                        if (result.IsFailure)
-                        {
-                            var keyList = new List<string>
-                                {
-                                    dbImage.MainImage.Key,
-                                    dbImage.SmallImage.Key,
-                                };
-                            await _amazonS3ClientService.Delete(_bucketName, keyList);
-
-                            return false;
-                        }
-                    }
-
-                    return true;
-                }
-            }
-        }
-
-
         public Task<Result<Guid>> Add(Models.Requests.RoomImage image)
         {
             return _contractManagerContext.GetContractManager()
@@ -214,132 +87,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Map(contractManager => Create(contractManager.Id, image))
                 .Ensure(dbImage => ValidateImageType(image.UploadedFile).Value, "Invalid image file type")
                 .Bind(dbImage => ConvertAndUpload(dbImage, image.UploadedFile));
-
-
-            Task<Result<Guid>> ConvertAndUpload(Image dbImage, FormFile uploadedFile)
-            {
-                return GetBytes()
-                    .Ensure(AreDimensionsValid,
-                        $"Uploading image size must be at least {MinimumImageWidth}×{MinimumImageHeight} pixels and the width mustn't exceed two heights and vice versa")
-                    .Bind(Convert)
-                    .Bind(Upload);
-
-
-                Result<byte[]> GetBytes()
-                {
-                    using var binaryReader = new BinaryReader(uploadedFile.OpenReadStream());
-                    return Result.Success(binaryReader.ReadBytes((int)uploadedFile.Length));
-                }
-
-
-                async Task<bool> AreDimensionsValid(byte[] imageBytes)
-                {
-                    var info = await ImageJob.GetImageInfo(new BytesSource(imageBytes));
-
-                    return MinimumImageWidth <= info.ImageWidth &&
-                        MinimumImageHeight <= info.ImageHeight &&
-                        info.ImageWidth / info.ImageHeight < 2 &&
-                        info.ImageHeight / info.ImageWidth < 2;
-                }
-
-                async Task<Result<ImageSet>> Convert(byte[] imageBytes)
-                {
-                    var imagesSet = new ImageSet();
-
-                    using var imageJob = new ImageJob();
-                    var jobResult = await imageJob.Decode(imageBytes)
-                        .Constrain(new Constraint(ConstraintMode.Within, ResizedLargeImageMaximumSideSize, ResizedLargeImageMaximumSideSize))
-                        .Branch(f => f.ConstrainWithin(ResizedSmallImageMaximumSideSize, ResizedSmallImageMaximumSideSize).EncodeToBytes(new MozJpegEncoder(TargetJpegQuality, true)))
-                        .EncodeToBytes(new MozJpegEncoder(TargetJpegQuality, true))
-                        .Finish().InProcessAsync();
-
-                    imagesSet.SmallImage = GetImage(1);
-                    imagesSet.MainImage = GetImage(2);
-
-                    return imagesSet.MainImage.Any() && imagesSet.SmallImage.Any()
-                        ? Result.Success(imagesSet)
-                        : Result.Failure<ImageSet>("Processing of the images failed");
-
-
-                    byte[] GetImage(int index)
-                    {
-                        var encodeResult = jobResult?.TryGet(index);
-                        var bytes = encodeResult?.TryGetBytes();
-
-                        return bytes != null ? bytes.Value.ToArray() : new byte[] { };
-                    }
-                }
-
-
-                async Task<Result<Guid>> Upload(ImageSet imageSet)
-                {
-                    dbImage.Position = _dbContext.Images.Count(i => i.AccommodationId == dbImage.AccommodationId);
-                    var entry = _dbContext.Images.Add(dbImage);
-                    await _dbContext.SaveChangesAsync();
-                    var imageId = entry.Entity.Id;
-
-                    SetImageDetails();
-
-                    var addToBucketResult = await AddImagesToBucket();
-                    if (!addToBucketResult)
-                    {
-                        _dbContext.Images.Remove(entry.Entity);
-
-                        await _dbContext.SaveChangesAsync();
-
-                        return Result.Failure<Guid>("Uploading of the image failed");
-                    }
-
-                    _dbContext.Images.Update(entry.Entity);
-
-                    await _dbContext.SaveChangesAsync();
-
-                    _dbContext.DetachEntry(entry.Entity);
-
-                    return Result.Success(imageId);
-
-
-                    void SetImageDetails()
-                    {
-                        var basePartOfKey = $"{S3FolderName}/{dbImage.AccommodationId}/{imageId}";
-                        dbImage.MainImage.Key = $"{basePartOfKey}-main.jpg";
-                        dbImage.SmallImage.Key = $"{basePartOfKey}-small.jpg";
-
-                        dbImage.MainImage.Url = $"{_basePathToAmazon}/{dbImage.MainImage.Key}";
-                        dbImage.SmallImage.Url = $"{_basePathToAmazon}/{dbImage.SmallImage.Key}";
-                    }
-
-
-                    async Task<bool> AddImagesToBucket()
-                    {
-                        await using var largeStream = new MemoryStream(imageSet.MainImage);
-                        await using var smallStream = new MemoryStream(imageSet.SmallImage);
-                        var imageList = new List<(string key, Stream stream)>
-                        {
-                            (dbImage.MainImage.Key, largeStream),
-                            (dbImage.SmallImage.Key, smallStream)
-                        };
-
-                        var resultList = await _amazonS3ClientService.Add(_bucketName, imageList);
-                        foreach (var result in resultList)
-                        {
-                            if (result.IsFailure)
-                            {
-                                var keyList = new List<string>
-                                {
-                                    dbImage.MainImage.Key,
-                                    dbImage.SmallImage.Key,
-                                };
-                                await _amazonS3ClientService.Delete(_bucketName, keyList);
-
-                                return false;
-                            }
-                        }
-
-                        return true;
-                    }
-                }
-            }
         }
 
 
@@ -457,6 +204,133 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             var extension = Path.GetExtension(uploadedFile?.FileName)?.ToLower() ?? string.Empty;
             return extension == ".jpg" || extension == ".jpeg" || extension == ".png";
+        }
+
+
+        private Task<Result<Guid>> ConvertAndUpload(Image dbImage, FormFile uploadedFile)
+        {
+            return GetBytes()
+                .Ensure(AreDimensionsValid,
+                    $"Uploading image size must be at least {MinimumImageWidth}×{MinimumImageHeight} pixels and the width mustn't exceed two heights and vice versa")
+                .Bind(Convert)
+                .Bind(Upload);
+
+
+            Result<byte[]> GetBytes()
+            {
+                using var binaryReader = new BinaryReader(uploadedFile.OpenReadStream());
+                return Result.Success(binaryReader.ReadBytes((int)uploadedFile.Length));
+            }
+
+
+            async Task<bool> AreDimensionsValid(byte[] imageBytes)
+            {
+                var info = await ImageJob.GetImageInfo(new BytesSource(imageBytes));
+
+                return MinimumImageWidth <= info.ImageWidth &&
+                    MinimumImageHeight <= info.ImageHeight &&
+                    info.ImageWidth / info.ImageHeight < 2 &&
+                    info.ImageHeight / info.ImageWidth < 2;
+            }
+
+
+            async Task<Result<ImageSet>> Convert(byte[] imageBytes)
+            {
+                var imagesSet = new ImageSet();
+
+                using var imageJob = new ImageJob();
+                var jobResult = await imageJob.Decode(imageBytes)
+                    .Constrain(new Constraint(ConstraintMode.Within, ResizedLargeImageMaximumSideSize, ResizedLargeImageMaximumSideSize))
+                    .Branch(f => f.ConstrainWithin(ResizedSmallImageMaximumSideSize, ResizedSmallImageMaximumSideSize).EncodeToBytes(new MozJpegEncoder(TargetJpegQuality, true)))
+                    .EncodeToBytes(new MozJpegEncoder(TargetJpegQuality, true))
+                    .Finish().InProcessAsync();
+
+                imagesSet.SmallImage = GetImage(1);
+                imagesSet.MainImage = GetImage(2);
+
+                return imagesSet.MainImage.Any() && imagesSet.SmallImage.Any()
+                    ? Result.Success(imagesSet)
+                    : Result.Failure<ImageSet>("Processing of the images failed");
+
+
+                byte[] GetImage(int index)
+                {
+                    var encodeResult = jobResult?.TryGet(index);
+                    var bytes = encodeResult?.TryGetBytes();
+
+                    return bytes != null ? bytes.Value.ToArray() : new byte[] { };
+                }
+            }
+
+
+            async Task<Result<Guid>> Upload(ImageSet imageSet)
+            {
+                dbImage.Position = _dbContext.Images.Count(i => i.ReferenceId == dbImage.ReferenceId && i.ImageType == dbImage.ImageType);
+                var entry = _dbContext.Images.Add(dbImage);
+                await _dbContext.SaveChangesAsync();
+                var imageId = entry.Entity.Id;
+
+                SetImageDetails();
+
+                var addToBucketResult = await AddImagesToBucket();
+                if (!addToBucketResult)
+                {
+                    _dbContext.Images.Remove(entry.Entity);
+
+                    await _dbContext.SaveChangesAsync();
+
+                    return Result.Failure<Guid>("Uploading of the image failed");
+                }
+
+                _dbContext.Images.Update(entry.Entity);
+
+                await _dbContext.SaveChangesAsync();
+
+                _dbContext.DetachEntry(entry.Entity);
+
+                return Result.Success(imageId);
+
+
+                void SetImageDetails()
+                {
+                    var basePartOfKey = $"{S3FolderName}/{dbImage.ContractManagerId}/{imageId}";
+                    dbImage.MainImage.Key = $"{basePartOfKey}-main.jpg";
+                    dbImage.SmallImage.Key = $"{basePartOfKey}-small.jpg";
+
+                    dbImage.MainImage.Url = $"{_basePathToAmazon}/{dbImage.MainImage.Key}";
+                    dbImage.SmallImage.Url = $"{_basePathToAmazon}/{dbImage.SmallImage.Key}";
+                }
+
+
+                async Task<bool> AddImagesToBucket()
+                {
+                    await using var largeStream = new MemoryStream(imageSet.MainImage);
+                    await using var smallStream = new MemoryStream(imageSet.SmallImage);
+                    var imageList = new List<(string key, Stream stream)>
+                        {
+                            (dbImage.MainImage.Key, largeStream),
+                            (dbImage.SmallImage.Key, smallStream)
+                        };
+
+                    var resultList = await _amazonS3ClientService.Add(_bucketName, imageList);
+                    foreach (var result in resultList)
+                    {
+                        if (result.IsFailure)
+                        {
+                            var keyList = new List<string>
+                                {
+                                    dbImage.MainImage.Key,
+                                    dbImage.SmallImage.Key,
+                                };
+                            await _amazonS3ClientService.Delete(_bucketName, keyList);
+
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+            }
         }
 
 
