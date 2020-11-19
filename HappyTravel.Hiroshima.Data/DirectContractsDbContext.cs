@@ -249,13 +249,14 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(i => i.SmallImage).HasColumnType("jsonb").IsRequired();
                 e.Property(i => i.Created).IsRequired();
                 e.Property(i => i.ContractManagerId).IsRequired();
-                e.Property(i => i.AccommodationId).IsRequired();
+                e.Property(i => i.ReferenceId).IsRequired();
+                e.Property(i => i.ImageType).IsRequired();
                 e.Property(i => i.Position).IsRequired();
                 e.Property(i => i.Description).HasColumnType("jsonb").IsRequired();
                 e.HasIndex(i => i.ContractManagerId);
-                e.HasIndex(i => i.AccommodationId);
+                e.HasIndex(i => i.ReferenceId);
+                e.HasIndex(i => i.ImageType);
                 e.HasOne(i => i.ContractManager).WithMany().OnDelete(DeleteBehavior.SetNull);
-                e.HasOne(i => i.Accommodation).WithMany(a => a.Images).OnDelete(DeleteBehavior.SetNull);
             });
         }
 

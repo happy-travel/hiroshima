@@ -18,6 +18,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Hiroshima.Common.Models.Images;
+using HappyTravel.Hiroshima.Common.Models.Enums;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {
@@ -42,7 +43,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Map(async contractManager =>
                 {
                     return await _dbContext.Images
-                        .Where(image => image.ContractManagerId == contractManager.Id && image.AccommodationId == accommodationId).OrderBy(image => image.Position).ToListAsync();
+                        .Where(image => image.ContractManagerId == contractManager.Id && image.ReferenceId == accommodationId && image.ImageType == ImageTypes.AccommodationImage)
+                        .OrderBy(image => image.Position)
+                        .ToListAsync();
                 })
                 .Map(Build);
         }
@@ -55,7 +58,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Map(async contractManager =>
                 {
                     return await _dbContext.Images
-                        .Where(image => image.ContractManagerId == contractManager.Id && image.AccommodationId == accommodationId && image.RoomId == roomId)
+                        .Where(image => image.ContractManagerId == contractManager.Id && image.ReferenceId == roomId && image.ImageType == ImageTypes.RoomImage)
                         .OrderBy(image => image.Position)
                         .ToListAsync();
                 })
@@ -239,7 +242,18 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             return await _contractManagerContext.GetContractManager()
                 .Tap(async contractManager => 
                 { 
-                    var result = await RemoveImage(contractManager.Id, accommodationId, imageId);
+                    var result = await RemoveImage(contractManager.Id, accommodationId, ImageTypes.AccommodationImage, imageId);
+                    return result ? Result.Success(contractManager) : Result.Failure<ContractManager>("Image deletion error");
+                });
+        }
+
+
+        public async Task<Result> Remove(int accommodationId, int roomId, Guid imageId)
+        {
+            return await _contractManagerContext.GetContractManager()
+                .Tap(async contractManager =>
+                {
+                    var result = await RemoveImage(contractManager.Id, roomId, ImageTypes.RoomImage, imageId);
                     return result ? Result.Success(contractManager) : Result.Failure<ContractManager>("Image deletion error");
                 });
         }
@@ -247,10 +261,27 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result> RemoveAll(int contractManagerId, int accommodationId)
         {
-            var images = _dbContext.Images.Where(image => image.ContractManagerId == contractManagerId && image.AccommodationId == accommodationId);
+            var images = _dbContext.Images.Where(image => image.ContractManagerId == contractManagerId && 
+                image.ReferenceId == accommodationId && image.ImageType == ImageTypes.AccommodationImage);
+            
             foreach (var image in images)
             {
-                var result = await RemoveImage(contractManagerId, accommodationId, image.Id);
+                var result = await RemoveImage(contractManagerId, accommodationId, image.ImageType, image.Id);
+                if (!result)
+                    return Result.Failure("Image deletion error");
+            }
+            return Result.Success();
+        }
+
+
+        public async Task<Result> RemoveAll(int contractManagerId, int accommodationId, int roomId)
+        {
+            var images = _dbContext.Images.Where(image => image.ContractManagerId == contractManagerId &&
+                image.ReferenceId == roomId && image.ImageType == ImageTypes.RoomImage);
+            
+            foreach (var image in images)
+            {
+                var result = await RemoveImage(contractManagerId, roomId, image.ImageType, image.Id);
                 if (!result)
                     return Result.Failure("Image deletion error");
             }
@@ -290,9 +321,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private async Task<bool> RemoveImage(int contractManagerId, int accommodationId, Guid imageId)
+        private async Task<bool> RemoveImage(int contractManagerId, int referenceId, ImageTypes imageType, Guid imageId)
         {
-            var image = await _dbContext.Images.SingleOrDefaultAsync(i => i.ContractManagerId == contractManagerId && i.AccommodationId == accommodationId && i.Id == imageId);
+            var image = await _dbContext.Images.SingleOrDefaultAsync(i => i.ContractManagerId == contractManagerId && 
+                i.ReferenceId == referenceId && i.ImageType == imageType && i.Id == imageId);
             if (image is null)
                 return false;
 

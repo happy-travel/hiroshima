@@ -9,9 +9,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     public interface IImageManagementService
     {
         Task<Result<List<SlimImage>>> Get(int accommodationId);
+        Task<Result<List<SlimImage>>> Get(int accommodationId, int roomId);
         Task<Result<Guid>> Add(Models.Requests.Image image);
         Task<Result> Update(int accommodationId, List<Models.Requests.SlimImage> images);
         Task<Result> Remove(int accommodationId, Guid imageId);
+        Task<Result> Remove(int accommodationId, int roomId, Guid imageId);
         Task<Result> RemoveAll(int contractManagerId, int accommodationId);
+        Task<Result> RemoveAll(int contractManagerId, int accommodationId, int roomId);
     }
 }

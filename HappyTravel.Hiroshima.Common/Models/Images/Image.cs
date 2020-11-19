@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text.Json;
-using HappyTravel.Hiroshima.Common.Models.Accommodations;
+using HappyTravel.Hiroshima.Common.Models.Enums;
 
 namespace HappyTravel.Hiroshima.Common.Models.Images
 {
@@ -12,11 +12,11 @@ namespace HappyTravel.Hiroshima.Common.Models.Images
         public ImageDetails MainImage { get; set; } = new ImageDetails();
         public DateTime Created { get; set; }
         public int ContractManagerId { get; set; }
-        public int AccommodationId { get; set; }
+        public int ReferenceId { get; set; }
+        public ImageTypes ImageType { get; set; }
         public int Position { get; set; }
         public JsonDocument Description { get; set; }
 
         public ContractManager ContractManager { get; set;}
-        public Accommodation Accommodation { get; set; }
     }
 }
