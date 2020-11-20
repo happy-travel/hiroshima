@@ -63,7 +63,7 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations
         
         public DateTime Modified { get; set; }
 
-        public List<Image> Images { get; set; } = new List<Image>();
+        public JsonDocument[] Images { get; set; }
         
         
         public override bool Equals(object? obj) => obj is Accommodation other && Equals(other);

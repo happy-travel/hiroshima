@@ -19,6 +19,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Hiroshima.Common.Models.Images;
 using HappyTravel.Hiroshima.Common.Models.Enums;
+using System.Text.Json;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {
@@ -74,8 +75,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Tap(contractManager => ResortImages(contractManager.Id, image.AccommodationId, ImageTypes.AccommodationImage))
                 .Map(contractManager => Create(contractManager.Id, image))
                 .Ensure(dbImage => ValidateImageType(image.UploadedFile).Value, "Invalid image file type")
-                .Bind(dbImage => ConvertAndUpload(dbImage, image.UploadedFile));
+                .Bind(dbImage => ConvertAndUpload(dbImage, image.UploadedFile))
+                .Bind(AddSlimImageToAccommodation);
         }
+
+
 
 
         public Task<Result<Guid>> Add(Models.Requests.RoomImage image)
@@ -86,8 +90,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Tap(contractManager => ResortImages(contractManager.Id, image.RoomId, ImageTypes.RoomImage))
                 .Map(contractManager => Create(contractManager.Id, image))
                 .Ensure(dbImage => ValidateImageType(image.UploadedFile).Value, "Invalid image file type")
-                .Bind(dbImage => ConvertAndUpload(dbImage, image.UploadedFile));
+                .Bind(dbImage => ConvertAndUpload(dbImage, image.UploadedFile))
+                .Bind(AddSlimImageToRoom);
         }
+
+
 
 
         public Task<Result> Update(int accommodationId, List<Models.Requests.SlimImage> images)
@@ -207,7 +214,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Task<Result<Guid>> ConvertAndUpload(Image dbImage, FormFile uploadedFile)
+        private Task<Result<Image>> ConvertAndUpload(Image dbImage, FormFile uploadedFile)
         {
             return GetBytes()
                 .Ensure(AreDimensionsValid,
@@ -263,7 +270,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
 
 
-            async Task<Result<Guid>> Upload(ImageSet imageSet)
+            async Task<Result<Image>> Upload(ImageSet imageSet)
             {
                 dbImage.Position = _dbContext.Images.Count(i => i.ReferenceId == dbImage.ReferenceId && i.ImageType == dbImage.ImageType);
                 var entry = _dbContext.Images.Add(dbImage);
@@ -279,7 +286,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                     await _dbContext.SaveChangesAsync();
 
-                    return Result.Failure<Guid>("Uploading of the image failed");
+                    return Result.Failure<Image>("Uploading of the image failed");
                 }
 
                 _dbContext.Images.Update(entry.Entity);
@@ -288,7 +295,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                 _dbContext.DetachEntry(entry.Entity);
 
-                return Result.Success(imageId);
+                return Result.Success(dbImage);
 
 
                 void SetImageDetails()
@@ -390,6 +397,52 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 _dbContext.Images.Update(image);
             }
             await _dbContext.SaveChangesAsync();
+        }
+
+
+        private async Task<Result<Guid>> AddSlimImageToAccommodation(Image image)
+        {
+            var accommodation = _dbContext.Accommodations.SingleOrDefault(a => a.ContractManager == image.ContractManager && a.Id == image.ReferenceId);
+
+            var slimImage = Build(image);
+
+            var accommodationImages = accommodation.Images.ToList();
+            accommodationImages.Add(JsonDocumentUtilities.CreateJDocument(slimImage));
+            accommodation.Images = accommodationImages.ToArray();
+
+            _dbContext.Accommodations.Update(accommodation);
+            await _dbContext.SaveChangesAsync();
+
+            return Result.Success(image.Id);
+        }
+
+
+        private async Task<Result<Guid>> AddSlimImageToRoom(Image image)
+        {
+            var room = _dbContext.Rooms.SingleOrDefault(r => r.Id == image.ReferenceId);
+
+            var slimImage = Build(image);
+
+            var roomImages = room.Images.ToList();
+            roomImages.Add(JsonDocumentUtilities.CreateJDocument(slimImage));
+            room.Images = roomImages.ToArray();
+
+            _dbContext.Rooms.Update(room);
+            await _dbContext.SaveChangesAsync();
+
+            return Result.Success(image.Id);
+        }
+
+
+        private Models.Responses.SlimImage Build(Image image)
+        {
+            return  new Models.Responses.SlimImage
+            (
+                image.Id,
+                image.MainImage.Url,
+                image.SmallImage.Url,
+                image.Description.GetValue<MultiLanguage<string>>()
+            );
         }
 
 
