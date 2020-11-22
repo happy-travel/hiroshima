@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using HappyTravel.EdoContracts.Extensions;
 using HappyTravel.EdoContracts.General;
+using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Money.Models;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Models
@@ -19,6 +21,17 @@ namespace HappyTravel.Hiroshima.DirectContracts.Models
             DailyPrices = dailyPrices;
         }
 
+        
+        public override bool Equals(object? obj) => obj is SeasonDailyPrice other && Equals(other);
+        
+        
+        public bool Equals(in SeasonPriceDetails other)
+            => (StartDate, EndDate, RateAmount, NumberOfNights, TotalAmount, TotalAmountWithDiscount, Discount.Description, Discount.Percent).Equals((StartDate, EndDate, RateAmount, NumberOfNights, TotalAmount, TotalAmountWithDiscount, Discount.Description, Discount.Percent))
+                && DailyPrices.SafeSequenceEqual(other.DailyPrices);
+
+        
+        public override int GetHashCode() => Hash.Aggregate<SeasonDailyPrice>(DailyPrices, HashCode.Combine(StartDate, EndDate, RateAmount, NumberOfNights, TotalAmount, TotalAmountWithDiscount, Discount.Description, Discount.Percent));
+        
 
         /// <summary>
         /// Season start date

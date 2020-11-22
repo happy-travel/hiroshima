@@ -18,7 +18,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Models
             PaymentDetails = paymentDetails;
             MealPlan = mealPlan;
             BoardBasis = boardBasis;
-            CancellationPolicies = cancellationPolicies ?? new List<CancellationPolicyDetails>();
+            CancellationPolicies = cancellationPolicies;
             Taxes = taxes ?? new List<TaxDetails>();
             Description = description;
             OccupationRequest = occupationRequest;
@@ -30,12 +30,13 @@ namespace HappyTravel.Hiroshima.DirectContracts.Models
 
 
         public bool Equals(in RateDetails other)
-            => (Room, RoomType, OccupationRequest, PaymentDetails, BoardBasis, Description).Equals((other.Room, other.RoomType, other.OccupationRequest, other.PaymentDetails,
-                    other.BoardBasis, other.Description))
-                && CancellationPolicies.SafeSequenceEqual(other.CancellationPolicies);
+            => (Room, RoomType, OccupationRequest, PaymentDetails, BoardBasis, MealPlan, Description).Equals((other.Room, other.RoomType, other.OccupationRequest, other.PaymentDetails, other.BoardBasis, other.MealPlan, other.Description))
+                && CancellationPolicies.SafeSequenceEqual(other.CancellationPolicies)
+                && Taxes.SafeSequenceEqual(other.Taxes)
+                && Amenities.SafeSequenceEqual(other.Amenities);
 
         
-        public override int GetHashCode() => Hash.Aggregate(HashCode.Combine(Room, RoomType, OccupationRequest, PaymentDetails, BoardBasis, Description), Hash.Get(CancellationPolicies));
+        public override int GetHashCode() => Hash.Aggregate<CancellationPolicyDetails>(CancellationPolicies, Hash.Aggregate<TaxDetails>(Taxes, Hash.Aggregate<string>(Amenities, HashCode.Combine(Room, RoomType, OccupationRequest, PaymentDetails, BoardBasis, MealPlan, Description))));
         
         
         public Room Room { get; }

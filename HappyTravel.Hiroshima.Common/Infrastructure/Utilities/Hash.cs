@@ -23,6 +23,17 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure.Utilities
         }
 
 
+        public static int Aggregate<T>(IEnumerable<T> objects, int hash)
+        {
+            foreach (var obj in objects)
+            {
+                hash = Aggregate(obj, hash);
+            }
+
+            return hash;
+        }
+        
+
         public static int Get<T>(IEnumerable<T> objects)
         {
             var hash = 17;

@@ -21,11 +21,11 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
 
         public async Task<Result<Availability, ProblemDetails>> Get(AvailabilityRequest availabilityRequest, string languageCode)
         {
-            var accommodationsWithAvailableRates = await _availabilityService.Get(availabilityRequest, languageCode);
-            if (!accommodationsWithAvailableRates.Any())
+            var availability = await _availabilityService.Get(availabilityRequest, languageCode);
+            if (!availability.AvailableRates.Any())
                 return _availabilityResponseService.CreateEmptyAvailability(availabilityRequest);
             
-            var availabilityResult = _availabilityResponseService.Create(availabilityRequest, accommodationsWithAvailableRates, languageCode);
+            var availabilityResult = _availabilityResponseService.Create(availabilityRequest, availability, languageCode);
             await _availabilitySearchStorage.AddAvailabilityRequest(availabilityResult.AvailabilityId, availabilityRequest);
             
             return availabilityResult;
@@ -42,40 +42,36 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
             if (!int.TryParse(accommodationId,  out var parsedAccommodationId))
                 return Result.Failure<AccommodationAvailability, ProblemDetails>(ProblemDetailsBuilder.Build($"Failed to retrieve accommodation data with {nameof(accommodationId)} '{accommodationId}'"));
                 
-            var accommodationsWithAvailableRates = await _availabilityService.Get(availabilityRequest, parsedAccommodationId, languageCode);
+            var availability = await _availabilityService.Get(availabilityRequest, parsedAccommodationId, languageCode);
 
-            if (!accommodationsWithAvailableRates.Any())
+            if (!availability.AvailableRates.Any())
                 return _availabilityResponseService.CreateEmptyAccommodationAvailability(availabilityRequest);
 
-            var accommodationsWithAvailableRate = accommodationsWithAvailableRates.First();
-            
-            var availabilityResult = _availabilityResponseService.Create(availabilityRequest, accommodationsWithAvailableRate, languageCode);
+            var availabilityResult = _availabilityResponseService.CreateAccommodationAvailability(availabilityRequest, availability, languageCode);
 
             await Task.WhenAll(_availabilitySearchStorage.AddAccommodationAvailability(availabilityResult), 
                 ReplaceAvailabilityRequest(availabilityId, availabilityResult.AvailabilityId, availabilityRequest));
 
             return availabilityResult;
+            
+            
+            Task ReplaceAvailabilityRequest(string previousAvailabilityId, string currentAvailabilityId, AvailabilityRequest availabilityRequest)
+                => Task.WhenAll(_availabilitySearchStorage.RemoveAvailabilityRequest(previousAvailabilityId),
+                    _availabilitySearchStorage.AddAvailabilityRequest(currentAvailabilityId, availabilityRequest));
         }
 
-
+ 
         public async Task<Result<RoomContractSetAvailability, ProblemDetails>> Get(string availabilityId, Guid roomContractSetId)
         {
             var accommodationAvailability = await _availabilitySearchStorage.GetAccommodationAvailability(availabilityId);
-            if (accommodationAvailability.AvailabilityId is null)
+            if (string.IsNullOrEmpty(accommodationAvailability.AvailabilityId))
                 return Result.Failure<RoomContractSetAvailability, ProblemDetails>(ProblemDetailsBuilder.Build($"Failed to retrieve availability data with {nameof(availabilityId)} '{availabilityId}'"));
             
             var availabilityResult = _availabilityResponseService.Create(accommodationAvailability, roomContractSetId);
 
-            var availabilityRequest = await _availabilitySearchStorage.GetAvailabilityRequest(availabilityId);
-            await ReplaceAvailabilityRequest(availabilityId, availabilityResult.AvailabilityId, availabilityRequest);
-
             return availabilityResult;
         }
 
-
-        private Task ReplaceAvailabilityRequest(string previousAvailabilityId, string currentAvailabilityId, AvailabilityRequest availabilityRequest)
-            => Task.WhenAll(_availabilitySearchStorage.RemoveAvailabilityRequest(previousAvailabilityId),
-                _availabilitySearchStorage.AddAvailabilityRequest(currentAvailabilityId, availabilityRequest));
         
         
         private readonly IAvailabilityResponseService _availabilityResponseService;

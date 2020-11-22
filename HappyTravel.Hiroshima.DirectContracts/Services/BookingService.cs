@@ -9,25 +9,20 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
     public class BookingService : IBookingService
     {
 
-        public BookingService(IAvailableRatesStorage availableRatesStorage)
+        public BookingService(IAvailabilityDataStorage availabilityDataStorage)
         {
-            _availableRatesStorage = availableRatesStorage;
+            _availabilityDataStorage = availabilityDataStorage;
         }
 
 
-        public async Task<BookingDetails> Book(Guid availableRatesId, BookingRequest rooms, AvailabilityRequest availabilityRequest)
+        public async Task<BookingDetails> Book(Guid availableRatesId, BookingRequest bookingRequest, AvailabilityRequest availabilityRequest)
         {
-            var availableRates = await _availableRatesStorage.Get(availableRatesId);
-            //bookingRequest.AvailabilityId // GetSearchDetails
-            //"book_hash": "h-a2206f15-4b96-57d1-ab06-f872284f576d"
-            //"partner_order_id": "testRef125" 
-            //"Rooms": [{"Guests":[{"Fn"}]}]
-            //_s GetRate
-            
+            var rateDetailsHash = await _availabilityDataStorage.GetHash(bookingRequest.AvailabilityId, bookingRequest.RoomContractSetId);
+           
             throw new NotImplementedException();
         }
 
 
-        private readonly IAvailableRatesStorage _availableRatesStorage;
+        private readonly IAvailabilityDataStorage _availabilityDataStorage;
     }
 }

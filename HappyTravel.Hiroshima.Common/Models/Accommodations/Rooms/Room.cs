@@ -8,6 +8,7 @@ using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefiniti
 
 namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms
 {
+    [Serializable]
     public class Room
     {
         public int Id { get; set; }
@@ -47,8 +48,7 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms
 
 
         public override int GetHashCode()
-            => Hash.Aggregate(HashCode.Combine(Id, AccommodationId, Name.RootElement.ToString(), Description.RootElement.ToString(), Amenities.RootElement.ToString()),
-                Hash.Get(OccupancyConfigurations));
+            => Hash.Aggregate<OccupancyConfiguration>(OccupancyConfigurations, HashCode.Combine(Id, AccommodationId, Name.RootElement.ToString(), Description.RootElement.ToString(), Amenities.RootElement.ToString()));
             
         
         public bool Equals(Room other)

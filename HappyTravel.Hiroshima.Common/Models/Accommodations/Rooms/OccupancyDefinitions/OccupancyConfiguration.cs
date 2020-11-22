@@ -2,6 +2,7 @@
 
 namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefinitions
 {
+    [Serializable]
     public class OccupancyConfiguration
     {
         public int Adults { get; set; }

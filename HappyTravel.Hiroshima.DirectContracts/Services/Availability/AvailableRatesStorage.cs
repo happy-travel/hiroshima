@@ -8,23 +8,59 @@ using HappyTravel.Hiroshima.DirectContracts.Models;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 {
-    public class AvailableRatesStorage : IAvailableRatesStorage
+    public class AvailabilityDataStorage : IAvailabilityDataStorage
     {
-        public AvailableRatesStorage(IDoubleFlow doubleFlow)
+        public AvailabilityDataStorage(IDistributedFlow distributedFlow)
         {
-            _doubleFlow = doubleFlow;
+            _distributedFlow = distributedFlow;
         }
         
         
-        public Task Add(List<AvailableRates> rates) => Task.WhenAll(rates.Select(ar => _doubleFlow.SetAsync(BuildKey(ar.Id), ar, CacheExpirationTime)));
-        
+        public Task Add(Models.Availability availability)
+        {
+            var rateDetailsInternal = availability.AvailableRates.SelectMany(ar => ar.Value)
+                .Select(r => new RateDetailsInternal{Id = r.Id, Hash = r.Hash}).ToList();
 
-        public ValueTask<AvailableRates> Get(Guid id) => _doubleFlow.GetAsync<AvailableRates>(BuildKey(id), CacheExpirationTime);
-        
+            var availabilityInternal = new AvailabilityInternal{ Id = availability.Id, RateDetails = rateDetailsInternal};
+            
+            return _distributedFlow.SetAsync(BuildKey(availability.Id), availabilityInternal, CacheExpirationTime);
+        }
 
-        private string BuildKey(Guid id) => _doubleFlow.BuildKey(nameof(AvailableRatesStorage), id.ToString());
+
+        public async Task<string> GetHash(string availabilityId, Guid availableRateId)
+        {
+            var availabilityInternal = await _distributedFlow.GetAsync<AvailabilityInternal>(BuildKey(availabilityId));
+            if (string.IsNullOrEmpty(availabilityInternal.Id))
+                return string.Empty;
+
+            var rateDetails = availabilityInternal.RateDetails.SingleOrDefault(rd => rd.Id.Equals(availableRateId));
+
+            return rateDetails.Id.Equals(default)
+                ? string.Empty
+                : rateDetails.Hash;
+        }
+
+
+        private string BuildKey(string availabilityId) => _distributedFlow.BuildKey(nameof(AvailabilityDataStorage), availabilityId);
+        
+        
+        private readonly IDistributedFlow _distributedFlow;
+        
+        
         private static readonly TimeSpan CacheExpirationTime = TimeSpan.FromMinutes(15);
+
         
-        private readonly IDoubleFlow _doubleFlow;
+        private struct AvailabilityInternal
+        {
+            public string Id { get; set; }
+            public List<RateDetailsInternal> RateDetails { get; set;}
+        }
+        
+        
+        private struct RateDetailsInternal
+        {
+            public Guid Id { get; set; }
+            public string Hash { get; set; }
+        }
     }
 }

@@ -5,10 +5,10 @@ using HappyTravel.Hiroshima.DirectContracts.Models;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 {
-    public interface IAvailableRatesStorage
+    public interface IAvailabilityDataStorage
     {
-        Task Add(List<AvailableRates> rates);
+        Task Add(Models.Availability availability);
 
-        ValueTask<AvailableRates> Get(Guid id);
+        Task<string> GetHash(string availabilityId, Guid availableRateId);
     }
 }

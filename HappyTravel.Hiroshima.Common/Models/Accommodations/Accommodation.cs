@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using HappyTravel.EdoContracts.Extensions;
+using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefinitions;
 using HappyTravel.Hiroshima.Common.Models.Enums;
@@ -68,10 +70,10 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations
         
         public override bool Equals(object? obj) => obj is Accommodation other && Equals(other);
 
+
+        public bool Equals(Accommodation other) => (Id, Coordinates, Name.RootElement.ToString(), Address.RootElement.ToString(), ContactInfo, OccupancyDefinition, LocationId).Equals((other.Id, other.Coordinates, other.Name.RootElement.ToString(), other.Address.RootElement.ToString(), other.ContactInfo, other.OccupancyDefinition, other.LocationId))
+            && Rooms.SafeSequenceEqual(other.Rooms);
         
-        public override int GetHashCode() => HashCode.Combine(Id, Coordinates, Name.RootElement.ToString());
-
-
-        public bool Equals(Accommodation other) => Id == other.Id && Coordinates.Equals(other.Coordinates) && Name.RootElement.ToString().Equals(other.Name.RootElement.ToString());
+        public override int GetHashCode() => Hash.Aggregate<Room>(Rooms, HashCode.Combine(Id, Coordinates, Name.RootElement.ToString()));
     }
 }

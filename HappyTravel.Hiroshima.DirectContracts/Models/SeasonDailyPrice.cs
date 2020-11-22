@@ -14,7 +14,18 @@ namespace HappyTravel.Hiroshima.DirectContracts.Models
             ToDate = toDate;
             Discount = discount;
         }
+
         
+        public override bool Equals(object? obj) => obj is SeasonDailyPrice other && Equals(other);
+
+        
+        public bool Equals(in SeasonDailyPrice other)
+            => (DailyAmount, DailyAmountWithDiscount, FromDate, ToDate, Discount.Description, Discount.Percent).Equals((other.DailyAmount, other.DailyAmountWithDiscount,
+                other.FromDate, other.ToDate, other.Discount.Description, other.Discount.Percent));
+
+
+        public override int GetHashCode() => HashCode.Combine(DailyAmount, DailyAmountWithDiscount, FromDate, ToDate, Discount.Description, Discount.Percent);
+
         
         public DateTime FromDate { get; }
         public DateTime ToDate { get; }
