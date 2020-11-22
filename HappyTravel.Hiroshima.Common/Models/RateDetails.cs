@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.EdoContracts.Extensions;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
+using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
+using HappyTravel.Hiroshima.Common.Models.Availabilities;
 
-namespace HappyTravel.Hiroshima.DirectContracts.Models
+namespace HappyTravel.Hiroshima.Common.Models
 {
     public readonly struct RateDetails
     {

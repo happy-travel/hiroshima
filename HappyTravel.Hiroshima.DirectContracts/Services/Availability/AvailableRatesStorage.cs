@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
-using HappyTravel.Hiroshima.DirectContracts.Models;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 {
@@ -16,7 +15,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         }
         
         
-        public Task Add(Models.Availability availability)
+        public Task Add(Common.Models.Availabilities.Availability availability)
         {
             var rateDetailsInternal = availability.AvailableRates.SelectMany(ar => ar.Value)
                 .Select(r => new RateDetailsInternal{Id = r.Id, Hash = r.Hash}).ToList();

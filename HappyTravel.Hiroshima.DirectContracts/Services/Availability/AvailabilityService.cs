@@ -8,9 +8,10 @@ using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.GeoData.Enums;
 using HappyTravel.Hiroshima.Common.Constants;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
+using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
+using HappyTravel.Hiroshima.Common.Models.Availabilities;
 using HappyTravel.Hiroshima.Data;
-using HappyTravel.Hiroshima.DirectContracts.Models;
 using Microsoft.EntityFrameworkCore;
 using Accommodation = HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation;
 
@@ -28,7 +29,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         }
 
 
-        public async Task<Models.Availability> Get(AvailabilityRequest availabilityRequest, string languageCode)
+        public async Task<Common.Models.Availabilities.Availability> Get(AvailabilityRequest availabilityRequest, string languageCode)
         {
             var accommodations = await ExtractAvailabilityData();
             var groupedAvailableRooms = _roomAvailabilityService.GetGroupedAvailableRooms(accommodations, availabilityRequest.Rooms);
@@ -74,7 +75,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         }
 
 
-        public async Task<Models.Availability> Get(AvailabilityRequest availabilityRequest, int accommodationId,
+        public async Task<Common.Models.Availabilities.Availability> Get(AvailabilityRequest availabilityRequest, int accommodationId,
             string languageCode)
         {
             var accommodations = await GetAvailableAccommodations(availabilityRequest)
@@ -128,7 +129,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         }
 
         
-        private Models.Availability CreateAvailability(AvailabilityRequest availabilityRequest, List<Dictionary<RoomOccupationRequest, List<Room>>> groupedAvailableRooms, string languageCode)
+        private Common.Models.Availabilities.Availability CreateAvailability(AvailabilityRequest availabilityRequest, List<Dictionary<RoomOccupationRequest, List<Room>>> groupedAvailableRooms, string languageCode)
         {
             var accommodationAvailableRates = new Dictionary<Accommodation, List<AvailableRates>>();
             foreach (var accommodationGroupedRooms in groupedAvailableRooms)
@@ -155,7 +156,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                 }).ToList());
             }
 
-            return new Models.Availability
+            return new Common.Models.Availabilities.Availability
             {
                 Id = GenerateAvailability(),
                 AvailableRates = accommodationAvailableRates

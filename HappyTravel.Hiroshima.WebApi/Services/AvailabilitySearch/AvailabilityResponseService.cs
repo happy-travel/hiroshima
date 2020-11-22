@@ -5,7 +5,8 @@ using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
-using HappyTravel.Hiroshima.DirectContracts.Models;
+using HappyTravel.Hiroshima.Common.Models;
+using HappyTravel.Hiroshima.Common.Models.Availabilities;
 using HappyTravel.Money.Helpers;
 using HappyTravel.Money.Models;
 using Accommodation = HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation;
@@ -21,7 +22,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
         }
 
 
-        public Availability Create(in AvailabilityRequest availabilityRequest, DirectContracts.Models.Availability availability, string languageCode)
+        public Availability Create(in AvailabilityRequest availabilityRequest, Common.Models.Availabilities.Availability availability, string languageCode)
         {
             var numberOfNights = CalculateNumberOfNights(availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate);
             var numberOfProcessedAccommodations = availability.AvailableRates.Count;
@@ -31,7 +32,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
         }
 
         
-        public AccommodationAvailability CreateAccommodationAvailability(in AvailabilityRequest availabilityRequest, DirectContracts.Models.Availability availability, string languageCode)
+        public AccommodationAvailability CreateAccommodationAvailability(in AvailabilityRequest availabilityRequest, Common.Models.Availabilities.Availability availability, string languageCode)
         {
             var accommodationAvailability = availability.AvailableRates.FirstOrDefault();
             var availabilityId = availability.Id;

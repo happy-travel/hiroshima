@@ -2,7 +2,7 @@
 using HappyTravel.EdoContracts.General;
 using HappyTravel.Money.Models;
 
-namespace HappyTravel.Hiroshima.DirectContracts.Models
+namespace HappyTravel.Hiroshima.Common.Models.Availabilities
 {
     public readonly struct SeasonDailyPrice
     {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-namespace HappyTravel.Hiroshima.DirectContracts.Models
+
+namespace HappyTravel.Hiroshima.Common.Models.Availabilities
 {
     public class AvailableRates
     {

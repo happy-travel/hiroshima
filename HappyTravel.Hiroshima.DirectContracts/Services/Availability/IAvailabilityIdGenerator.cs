@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using HappyTravel.Hiroshima.DirectContracts.Models;
+using HappyTravel.Hiroshima.Common.Models;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 {

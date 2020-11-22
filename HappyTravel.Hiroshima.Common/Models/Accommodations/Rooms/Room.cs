@@ -8,7 +8,6 @@ using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefiniti
 
 namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms
 {
-    [Serializable]
     public class Room
     {
         public int Id { get; set; }

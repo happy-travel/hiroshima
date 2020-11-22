@@ -5,7 +5,8 @@ using System.Text;
 using System.Text.Json;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.Hiroshima.DirectContracts.Models;
+using HappyTravel.Hiroshima.Common.Models;
+using HappyTravel.Hiroshima.Common.Models.Availabilities;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 {

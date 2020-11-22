@@ -1,9 +1,8 @@
 ﻿using System;
-using HappyTravel.EdoContracts.General;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
 
-namespace HappyTravel.Hiroshima.DirectContracts.Models
+namespace HappyTravel.Hiroshima.Common.Models.Availabilities
 {
     public readonly struct TaxDetails
     {

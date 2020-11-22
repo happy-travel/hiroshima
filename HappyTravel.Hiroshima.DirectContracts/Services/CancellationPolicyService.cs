@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
-using HappyTravel.Hiroshima.DirectContracts.Models;
+using HappyTravel.Hiroshima.Common.Models.Availabilities;
 using HappyTravel.Money.Helpers;
 using HappyTravel.Money.Models;
 
