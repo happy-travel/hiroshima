@@ -76,10 +76,6 @@ namespace HappyTravel.Hiroshima.Common.Models
             set => SetValue(DcLanguages.Russian, value);
         }
 
-
-        public List<(string languageCode, T value)> GetAll() 
-            => _languageStore.Select(kv => (Languages.GetLanguageCode(kv.Key), kv.Value)).ToList();
-        
         
         private readonly Dictionary<DcLanguages, T> _languageStore = new Dictionary<DcLanguages, T>();
     }
