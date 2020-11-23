@@ -7,22 +7,22 @@ namespace HappyTravel.Hiroshima.Common.Models
     public class ContractManager
     {
         public int Id { get; set; }
-        
-        public string IdentityHash { get; set; }
-        
-        public string FirstName { get; set; }
-        
-        public string LastName { get; set; }
-        
-        public string Title { get; set; }
-        
-        public string Position { get; set; }
-        
-        public string Email { get; set; }
-        
-        public string Phone { get; set; }
-        
-        public string Fax { get; set; }
+
+        public string IdentityHash { get; set; } = string.Empty;
+
+        public string FirstName { get; set; } = string.Empty;
+
+        public string LastName { get; set; } = string.Empty;
+
+        public string Title { get; set; } = string.Empty;
+
+        public string Position { get; set; } = string.Empty;
+
+        public string Email { get; set; } = string.Empty;
+
+        public string Phone { get; set; } = string.Empty;
+
+        public string Fax { get; set; } = string.Empty;
 
         public DateTime Created { get; set; }
         

@@ -38,6 +38,7 @@ namespace HappyTravel.Hiroshima.Data
                 .HasPostgresExtension("uuid-ossp");
 
             AddAccommodations(modelBuilder);
+            AddAmenities(modelBuilder);
             AddBooking(modelBuilder);
             AddCancellationPolicies(modelBuilder);
             AddContractAccommodationRelation(modelBuilder);
@@ -90,6 +91,19 @@ namespace HappyTravel.Hiroshima.Data
                 e.HasIndex(a => a.ContractManagerId);
                 e.HasOne(a => a.ContractManager).WithMany(cm => cm.Accommodations).OnDelete(DeleteBehavior.SetNull);
                 e.HasOne(a => a.Location).WithMany().OnDelete(DeleteBehavior.SetNull);
+            });
+        }
+
+        
+        private void AddAmenities(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Amenity>(e =>
+            {
+                e.ToTable("Amenities");
+                e.HasKey(a => a.Id);
+                e.Property(a => a.LanguageCode).IsRequired();
+                e.Property(a => a.Name).IsRequired();
+                e.HasIndex(a => a.LanguageCode);
             });
         }
 
@@ -410,6 +424,7 @@ namespace HappyTravel.Hiroshima.Data
 
         public virtual DbSet<Accommodation> Accommodations { get; set; }
         public virtual DbSet<BookingOrder> Booking { get; set; }
+        public virtual DbSet<Amenity> Amenities { get; set; }
         public virtual DbSet<RoomCancellationPolicy> RoomCancellationPolicies { get; set; }
         public virtual DbSet<ContractAccommodationRelation> ContractAccommodationRelations { get; set; }
         public virtual DbSet<ContractManager> ContractManagers { get; set; }

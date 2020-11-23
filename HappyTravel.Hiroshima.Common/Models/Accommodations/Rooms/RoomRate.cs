@@ -18,8 +18,8 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms
         public Currencies Currency { get; set; }
         
         public BoardBasisTypes BoardBasis { get; set; }
-        
-        public string MealPlan { get; set; }
+
+        public string MealPlan { get; set; } = string.Empty;
         
         public RoomTypes RoomType { get; set; } 
         

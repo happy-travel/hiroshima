@@ -4,12 +4,12 @@ namespace HappyTravel.Hiroshima.Common.Models
 {
     public class ContactInfo
     {
-        public string Email { get; set; }
-        
-        public string Phone { get; set; }
-        
-        public string Website { get; set; }
-        
+        public string Email { get; set; } = string.Empty;
+
+        public string Phone { get; set; } = string.Empty;
+
+        public string Website { get; set; } = string.Empty;
+
         
         public override bool Equals(object? obj) => obj is ContactInfo other && Equals(other);
 
