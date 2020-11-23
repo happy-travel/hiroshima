@@ -96,11 +96,11 @@ namespace HappyTravel.Hiroshima.Data
 
         private void AddBooking(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Booking>(e =>
+            modelBuilder.Entity<BookingOrder>(e =>
             {
                 e.ToTable("BookingOrders");
-                e.HasKey(b => b.Id); 
-                e.Property(b=>b.Id).HasDefaultValueSql("uuid_generate_v4()").IsRequired();
+                e.HasKey(b => b.Id);
+                e.Property(b=> b.Id).HasDefaultValueSql("uuid_generate_v4()").IsRequired();
                 e.Property(b => b.Status).IsRequired();
                 e.Property(b => b.ReferenceCode).IsRequired();
                 e.Property(b => b.CheckInDate).IsRequired();
@@ -110,7 +110,8 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(b => b.Modified).IsRequired().HasDefaultValueSql("now() at time zone 'utc'");
                 e.Property(b => b.AvailabilityRequest).IsRequired().HasColumnType("jsonb");
                 e.Property(b => b.BookingRequest).IsRequired().HasColumnType("jsonb");
-                e.Property(b => b.Rates).IsRequired().HasColumnType("jsonb");
+                e.Property(b => b.AvailableRates).IsRequired().HasColumnType("jsonb");
+                e.HasOne(b => b.ContractManager).WithMany(cm => cm.BookingOrders).OnDelete(DeleteBehavior.SetNull);
             });
         }
 
@@ -408,7 +409,7 @@ namespace HappyTravel.Hiroshima.Data
 
 
         public virtual DbSet<Accommodation> Accommodations { get; set; }
-        public virtual DbSet<Booking> Booking { get; set; }
+        public virtual DbSet<BookingOrder> Booking { get; set; }
         public virtual DbSet<RoomCancellationPolicy> RoomCancellationPolicies { get; set; }
         public virtual DbSet<ContractAccommodationRelation> ContractAccommodationRelations { get; set; }
         public virtual DbSet<ContractManager> ContractManagers { get; set; }

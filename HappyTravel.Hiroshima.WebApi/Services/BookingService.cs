@@ -32,13 +32,13 @@ namespace HappyTravel.Hiroshima.WebApi.Services
             }
 
 
-            async Task<Result<Common.Models.Bookings.Booking>> ProcessBooking(EdoContracts.Accommodations.AvailabilityRequest availabilityRequest)
+            async Task<Result<Common.Models.Bookings.BookingOrder>> ProcessBooking(EdoContracts.Accommodations.AvailabilityRequest availabilityRequest)
             {
                return await _bookingService.Book(bookingRequest, availabilityRequest, languageCode);
             }
 
 
-            EdoContracts.Accommodations.Booking BuildResponse(Common.Models.Bookings.Booking booking)
+            EdoContracts.Accommodations.Booking BuildResponse(Common.Models.Bookings.BookingOrder booking)
             {
                 return _bookingResponseService.Create(booking);
             }

@@ -10,6 +10,7 @@ using HappyTravel.Hiroshima.Common.Models.Images;
 using HappyTravel.Hiroshima.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -17,9 +18,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Hiroshima.Data.Migrations
 {
     [DbContext(typeof(DirectContractsDbContext))]
-    partial class DirectContractsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201123191432_RemoveObsoleteBookingTable")]
+    partial class RemoveObsoleteBookingTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -379,8 +381,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasDefaultValueSql("uuid_generate_v4()");
+                        .HasColumnType("uuid");
 
                     b.Property<JsonDocument>("AvailabilityRequest")
                         .IsRequired()
@@ -404,18 +405,14 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("Created")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone")
-                        .HasDefaultValueSql("now() at time zone 'utc'");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("LanguageCode")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("Modified")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone")
-                        .HasDefaultValueSql("now() at time zone 'utc'");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("ReferenceCode")
                         .IsRequired()
@@ -428,7 +425,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
 
                     b.HasIndex("ContractManagerId");
 
-                    b.ToTable("BookingOrders");
+                    b.ToTable("Booking");
                 });
 
             modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.Contract", b =>
@@ -874,7 +871,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.HasOne("HappyTravel.Hiroshima.Common.Models.ContractManager", "ContractManager")
                         .WithMany("BookingOrders")
                         .HasForeignKey("ContractManagerId")
-                        .OnDelete(DeleteBehavior.SetNull)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ContractManager");

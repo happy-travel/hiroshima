@@ -2,6 +2,6 @@
 {
     public interface IBookingResponseService
     {
-        EdoContracts.Accommodations.Booking Create(Common.Models.Bookings.Booking booking);
+        EdoContracts.Accommodations.Booking Create(Common.Models.Bookings.BookingOrder bookingOrder);
     }
 }

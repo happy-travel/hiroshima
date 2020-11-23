@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Hiroshima.WebApi.Infrastructure;
 using HappyTravel.Hiroshima.WebApi.Infrastructure.Attributes;
 using HappyTravel.Hiroshima.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -33,7 +34,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
         {
             var (_, isFailure, bookingDetails, error) = await _bookingService.Book(bookingRequest, LanguageCode);
             if (isFailure)
-                return BadRequest(error);
+                return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return Ok(bookingDetails);
         }

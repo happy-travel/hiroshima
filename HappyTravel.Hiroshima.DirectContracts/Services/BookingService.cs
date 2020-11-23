@@ -2,11 +2,14 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Hiroshima.Common.Infrastructure.Extensions.Extensions.FunctionalExensions;
+using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models.Availabilities;
 using HappyTravel.Hiroshima.Common.Models.Enums;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.DirectContracts.Services.Availability;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services
 {
@@ -20,16 +23,15 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
         }
 
 
-        public async Task<Result<Common.Models.Bookings.Booking>> Book(EdoContracts.Accommodations.BookingRequest bookingRequest, EdoContracts.Accommodations.AvailabilityRequest availabilityRequest, string languageCode)
+        public async Task<Result<Common.Models.Bookings.BookingOrder>> Book(EdoContracts.Accommodations.BookingRequest bookingRequest, EdoContracts.Accommodations.AvailabilityRequest availabilityRequest, string languageCode)
         {
-            const string error = "There are no available rates"; 
-            
+            const string error = "There are no available rates";
+
             return await GetRequiredHash()
-                .BindWithTransactionScope(requiredHash 
-                    => GetAvailableRates(requiredHash)
-                        .Bind(ModifyAllotment)
-                        .Map(CreateDbEntry)
-                        .Map(AddDbEntry));
+                .BindWithTransaction(_dbContext, requiredHash => GetAvailableRates(requiredHash)
+                    .Bind(ModifyAvailability)
+                    .Map(CreateDbEntry)
+                    .Map(AddDbEntry));
             
 
             async Task<Result<string>> GetRequiredHash()
@@ -60,19 +62,19 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
             }
             
             
-            async Task<Result<AvailableRates>> ModifyAllotment(AvailableRates availableRates)
+            async Task<Result<AvailableRates>> ModifyAvailability(AvailableRates availableRates)
             {
-                //TODO Modify rooms' allotment
+                //TODO Modify rates availability
                 return Result.Success(availableRates);
             }
 
             
-            Common.Models.Bookings.Booking CreateDbEntry(AvailableRates availableRates)
+            Common.Models.Bookings.BookingOrder CreateDbEntry(AvailableRates availableRates)
             {
                 var contractManagerId = availableRates.Rates.First().Room.Accommodation.ContractManagerId;
                 var utcNow = DateTime.UtcNow;
             
-                return new Common.Models.Bookings.Booking
+                return new Common.Models.Bookings.BookingOrder
                 {
                     Status = BookingStatuses.Processing,
                     ReferenceCode = bookingRequest.ReferenceCode,
@@ -80,15 +82,15 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
                     CheckOutDate = availabilityRequest.CheckOutDate,
                     Created = utcNow,
                     Modified = utcNow,
-                    BookingRequest = bookingRequest,
-                    AvailabilityRequest = availabilityRequest,
-                    Rates = availableRates,
+                    BookingRequest = JsonDocumentUtilities.CreateJDocument(bookingRequest),
+                    AvailabilityRequest = JsonDocumentUtilities.CreateJDocument(availabilityRequest),
+                    AvailableRates = JsonDocumentUtilities.CreateJDocument(availableRates.AvailableRatesSlim),
                     ContractManagerId = contractManagerId
                 };
             }
 
 
-            async Task<Common.Models.Bookings.Booking> AddDbEntry(Common.Models.Bookings.Booking booking)
+            async Task<Common.Models.Bookings.BookingOrder> AddDbEntry(Common.Models.Bookings.BookingOrder booking)
             {
                 var entry = _dbContext.Booking.Add(booking);
                 await _dbContext.SaveChangesAsync();

@@ -1,21 +1,25 @@
 ﻿using System;
+using HappyTravel.Hiroshima.Common.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.Common.Models.Enums;
 
 namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
 {
     public class BookingResponseService : IBookingResponseService
     {
-        public EdoContracts.Accommodations.Booking Create(Common.Models.Bookings.Booking booking)
+        public EdoContracts.Accommodations.Booking Create(Common.Models.Bookings.BookingOrder bookingOrder)
         {
-            var referenceCode = booking.ReferenceCode;
-            var status = GetStatus(booking.Status);
+            var referenceCode = bookingOrder.ReferenceCode;
+            var status = GetStatus(bookingOrder.Status);
+            var availabilityRequest = bookingOrder.AvailabilityRequest.GetValue<EdoContracts.Accommodations.AvailabilityRequest>();
+            var availableRates = bookingOrder.AvailableRates.GetValue<Common.Models.Availabilities.AvailableRatesSlim>();
+            var bookingRequest = bookingOrder.BookingRequest .GetValue<EdoContracts.Accommodations.BookingRequest>();
             
-            var accommodationId = booking.Rates.AccommodationId;
-            var supplierReferenceCode = booking.Rates.Id.ToString();
-            var checkInDate = booking.AvailabilityRequest.CheckInDate;
-            var checkOutDate = booking.AvailabilityRequest.CheckOutDate;
-            var rooms = booking.BookingRequest.Rooms;
-            var updateMode = EdoContracts.Accommodations.Enums.BookingUpdateModes.Asynchronous; 
+            var accommodationId = availableRates.AccommodationId;
+            var supplierReferenceCode = availableRates.Id.ToString();
+            var checkInDate = availabilityRequest.CheckInDate;
+            var checkOutDate = availabilityRequest.CheckOutDate;
+            var rooms = bookingRequest.Rooms;
+            var updateMode = EdoContracts.Accommodations.Enums.BookingUpdateModes.Asynchronous;
             
             return new EdoContracts.Accommodations.Booking(referenceCode, status, accommodationId.ToString(), supplierReferenceCode, checkInDate, checkOutDate, rooms, updateMode);
         }

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Data;
 
-namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions.FunctionalExensions
+namespace HappyTravel.Hiroshima.Common.Infrastructure.Extensions.Extensions.FunctionalExensions
 {
     public static class ResultTransactionExtensions
     {
@@ -102,7 +102,7 @@ namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions.FunctionalExens
             where TResult : IResult
         {
             var strategy = context.Database.CreateExecutionStrategy();
-            return strategy.ExecuteAsync((object) null!,
+            return strategy.ExecuteAsync((object) null,
                 async (dbContext, state, cancellationToken) =>
                 {
                     // Nested transaction support. We can commit only on a top-level
@@ -113,14 +113,13 @@ namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions.FunctionalExens
                     {
                         var result = await operation();
                         if (result.IsSuccess)
-                            await transaction?.CommitAsync(cancellationToken)!;
+                            transaction?.Commit();
 
                         return result;
                     }
                     finally
                     {
-                        if (transaction != null)
-                            await transaction.DisposeAsync();
+                        transaction?.Dispose();
                     }
                 },
                 // This delegate is not used in NpgSql.

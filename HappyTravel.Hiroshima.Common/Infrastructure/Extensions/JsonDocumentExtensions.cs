@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Hiroshima.Common.Infrastructure.Extensions
 {
@@ -12,8 +13,10 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure.Extensions
                 return string.Empty;
             
             var firstJsonElement = GetFirst(jsonDocument);
-        
-            return firstJsonElement.GetString();
+
+            var result = firstJsonElement.GetString();
+            
+            return result ?? string.Empty ;
         }
 
 
@@ -22,8 +25,8 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure.Extensions
             var json = jsonDocument.RootElement.ToString();
             if (string.IsNullOrEmpty(json))
                 return default;
-            
-            return JsonSerializer.Deserialize<TResult>(json, SerializeOptions);
+
+            return JsonConvert.DeserializeObject<TResult>(json, SerializeSettings);
         }
 
 
@@ -38,7 +41,7 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure.Extensions
             
             var firstJsonElement = GetFirst(jsonDocument);
             
-            return JsonSerializer.Deserialize<TResult>(firstJsonElement.ToString(), SerializeOptions);
+            return JsonConvert.DeserializeObject<TResult>(firstJsonElement.ToString(), SerializeSettings);
         }
         
         
@@ -50,10 +53,9 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure.Extensions
         }
         
         
-        private static readonly JsonSerializerOptions SerializeOptions = new JsonSerializerOptions
+        private static readonly JsonSerializerSettings SerializeSettings = new JsonSerializerSettings
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            WriteIndented = true
+            ReferenceLoopHandling  = ReferenceLoopHandling.Ignore
         };
     }
 }

@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json;
-
+using Newtonsoft.Json;
 namespace HappyTravel.Hiroshima.Common.Infrastructure.Utilities
 {
     public static class JsonDocumentUtilities
     {
-        public static JsonDocument CreateJDocument<T>(T value, JsonSerializerOptions serializerOptions = default)
+        public static JsonDocument CreateJDocument<T>(T value, JsonSerializerSettings serializeSettings = null)
         {
-            serializerOptions ??= SerializeOptions;
+            serializeSettings ??= SerializeSettings;
 
             string serialized;
             if (EqualityComparer<T>.Default.Equals(value, default(T)))
@@ -17,17 +17,16 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure.Utilities
             }
             else
             {
-                serialized = JsonSerializer.Serialize(value, serializerOptions);
+                serialized = JsonConvert.SerializeObject(value, serializeSettings);
             }
                 
             return JsonDocument.Parse(serialized);
         }
 
-
-        private static readonly JsonSerializerOptions SerializeOptions = new JsonSerializerOptions
+        
+        private static readonly JsonSerializerSettings SerializeSettings = new JsonSerializerSettings
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            WriteIndented = true
+            ReferenceLoopHandling  = ReferenceLoopHandling.Ignore
         };
     }
 }

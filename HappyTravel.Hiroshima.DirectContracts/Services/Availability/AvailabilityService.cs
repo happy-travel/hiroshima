@@ -8,7 +8,6 @@ using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.GeoData.Enums;
 using HappyTravel.Hiroshima.Common.Constants;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
-using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Common.Models.Availabilities;
 using HappyTravel.Hiroshima.Data;
@@ -86,7 +85,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             var availability = CreateAvailability(availabilityRequest, groupedAvailableRooms, languageCode);
 
             await _availabilityDataStorage.Add(availability);
-            var hash = await _availabilityDataStorage.GetHash(availability.Id, availability.AvailableRates.First().Value.First().Id);
+
             return availability;
         }
         

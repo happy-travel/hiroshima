@@ -4,6 +4,7 @@ using HappyTravel.EdoContracts.Extensions;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Money.Models;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Hiroshima.Common.Models.Availabilities
 {
@@ -69,9 +70,11 @@ namespace HappyTravel.Hiroshima.Common.Models.Availabilities
         /// </summary>
         public Discount Discount { get; }
         
+        
         /// <summary>
         /// Daily prices
         /// </summary>
+        [JsonIgnore]
         public List<SeasonDailyPrice> DailyPrices { get; }
     }
 }
