@@ -79,9 +79,11 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.Property<int?>("Floors")
                         .HasColumnType("integer");
 
-                    b.Property<JsonDocument[]>("Images")
+                    b.Property<List<SlimImage>>("Images")
                         .IsRequired()
-                        .HasColumnType("jsonb[]");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'[]'::json");
 
                     b.Property<JsonDocument>("LeisureAndSports")
                         .IsRequired()
@@ -231,9 +233,11 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
-                    b.Property<JsonDocument[]>("Images")
+                    b.Property<List<SlimImage>>("Images")
                         .IsRequired()
-                        .HasColumnType("jsonb[]");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'[]'::json");
 
                     b.Property<DateTime>("Modified")
                         .HasColumnType("timestamp without time zone");

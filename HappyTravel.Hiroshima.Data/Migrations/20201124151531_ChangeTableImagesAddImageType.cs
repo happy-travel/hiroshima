@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Collections.Generic;
+using HappyTravel.Hiroshima.Common.Models.Images;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace HappyTravel.Hiroshima.Data.Migrations
@@ -21,12 +22,12 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                 table: "Images",
                 newName: "IX_Images_ReferenceId");
 
-            migrationBuilder.AddColumn<JsonDocument[]>(
+            migrationBuilder.AddColumn<List<SlimImage>>(
                 name: "Images",
                 table: "Rooms",
-                type: "jsonb[]",
+                type: "jsonb",
                 nullable: false,
-                defaultValue: new JsonDocument[0]);
+                defaultValueSql: "'[]'::json");
 
             migrationBuilder.AddColumn<int>(
                 name: "ImageType",
@@ -35,12 +36,12 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                 nullable: false,
                 defaultValue: 0);
 
-            migrationBuilder.AddColumn<JsonDocument[]>(
+            migrationBuilder.AddColumn<List<SlimImage>>(
                 name: "Images",
                 table: "Accommodations",
-                type: "jsonb[]",
+                type: "jsonb",
                 nullable: false,
-                defaultValue: new JsonDocument[0]);
+                defaultValueSql: "'[]'::json");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Images_ImageType",

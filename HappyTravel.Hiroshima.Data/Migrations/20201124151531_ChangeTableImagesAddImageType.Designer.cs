@@ -19,7 +19,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Hiroshima.Data.Migrations
 {
     [DbContext(typeof(DirectContractsDbContext))]
-    [Migration("20201120210018_ChangeTableImagesAddImageType")]
+    [Migration("20201124151531_ChangeTableImagesAddImageType")]
     partial class ChangeTableImagesAddImageType
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -81,9 +81,11 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.Property<int?>("Floors")
                         .HasColumnType("integer");
 
-                    b.Property<JsonDocument[]>("Images")
+                    b.Property<List<SlimImage>>("Images")
                         .IsRequired()
-                        .HasColumnType("jsonb[]");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'[]'::json");
 
                     b.Property<JsonDocument>("LeisureAndSports")
                         .IsRequired()
@@ -233,9 +235,11 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
-                    b.Property<JsonDocument[]>("Images")
+                    b.Property<List<SlimImage>>("Images")
                         .IsRequired()
-                        .HasColumnType("jsonb[]");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'[]'::json");
 
                     b.Property<DateTime>("Modified")
                         .HasColumnType("timestamp without time zone");

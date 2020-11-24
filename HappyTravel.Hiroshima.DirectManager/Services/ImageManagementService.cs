@@ -132,7 +132,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 { 
                     var result = await RemoveImage(contractManager.Id, accommodationId, ImageTypes.AccommodationImage, imageId);
                     return result ? Result.Success(contractManager) : Result.Failure<ContractManager>("Image deletion error");
-                });
+                })
+                .Tap(contractManager => RemoveSlimImageFromAccommodation(contractManager.Id, accommodationId, imageId));
         }
 
 
@@ -143,7 +144,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 {
                     var result = await RemoveImage(contractManager.Id, roomId, ImageTypes.RoomImage, imageId);
                     return result ? Result.Success(contractManager) : Result.Failure<ContractManager>("Image deletion error");
-                });
+                })
+                .Tap(contractManager => RemoveSlimImageFromRoom(roomId, imageId));
         }
 
 
@@ -402,13 +404,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private async Task<Result<Guid>> AddSlimImageToAccommodation(Image image)
         {
-            var accommodation = _dbContext.Accommodations.SingleOrDefault(a => a.ContractManager == image.ContractManager && a.Id == image.ReferenceId);
+            var accommodation = _dbContext.Accommodations.SingleOrDefault(a => a.ContractManagerId == image.ContractManagerId && a.Id == image.ReferenceId);
 
             var slimImage = Build(image);
-
-            var accommodationImages = accommodation.Images.ToList();
-            accommodationImages.Add(JsonDocumentUtilities.CreateJDocument(slimImage));
-            accommodation.Images = accommodationImages.ToArray();
+            accommodation.Images.Add(slimImage);
 
             _dbContext.Accommodations.Update(accommodation);
             await _dbContext.SaveChangesAsync();
@@ -422,10 +421,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             var room = _dbContext.Rooms.SingleOrDefault(r => r.Id == image.ReferenceId);
 
             var slimImage = Build(image);
-
-            var roomImages = room.Images.ToList();
-            roomImages.Add(JsonDocumentUtilities.CreateJDocument(slimImage));
-            room.Images = roomImages.ToArray();
+            room.Images.Add(slimImage);
 
             _dbContext.Rooms.Update(room);
             await _dbContext.SaveChangesAsync();
@@ -434,15 +430,49 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Models.Responses.SlimImage Build(Image image)
+        private async Task<Result> RemoveSlimImageFromAccommodation(int contractManagerId, int accommodationId, Guid imageId)
         {
-            return  new Models.Responses.SlimImage
-            (
-                image.Id,
-                image.MainImage.Url,
-                image.SmallImage.Url,
-                image.Description.GetValue<MultiLanguage<string>>()
-            );
+            var accommodation = _dbContext.Accommodations.SingleOrDefault(a => a.ContractManagerId == contractManagerId && a.Id == accommodationId);
+
+            var slimImage = accommodation.Images.SingleOrDefault(i => i.Id == imageId);
+            if (slimImage == null)
+                return Result.Failure("Image not found in accommodation");
+
+            accommodation.Images.Remove(slimImage);
+
+            _dbContext.Accommodations.Update(accommodation);
+            await _dbContext.SaveChangesAsync();
+
+            return Result.Success();
+        }
+
+
+        private async Task<Result> RemoveSlimImageFromRoom(int roomId, Guid imageId)
+        {
+            var room = _dbContext.Rooms.SingleOrDefault(r => r.Id == roomId);
+
+            var slimImage = room.Images.SingleOrDefault(i => i.Id == imageId);
+            if (slimImage == null)
+                return Result.Failure("Image not found in accommodation");
+
+            room.Images.Remove(slimImage);
+
+            _dbContext.Rooms.Update(room);
+            await _dbContext.SaveChangesAsync();
+
+            return Result.Success();
+        }
+
+
+        private SlimImage Build(Image image)
+        {
+            return  new SlimImage
+            {
+                Id = image.Id,
+                LargeImageURL = image.MainImage.Url,
+                SmallImageURL = image.SmallImage.Url,
+                Description = image.Description.GetValue<MultiLanguage<string>>()
+            };
         }
 
 

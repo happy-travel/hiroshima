@@ -32,12 +32,12 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure
         public static string GetDbConnectionString(VaultClient.VaultClient vaultClient, string pathToConnectionOptions, string pathToConnectionString, IConfiguration configuration)
         {
             var connectionOptions = vaultClient.Get(configuration[pathToConnectionOptions]).Result;
-            return string.Format($"{configuration[pathToConnectionString]}", 
-                connectionOptions["host"],
+            return string.Format($"{configuration[pathToConnectionString]}",
+                "localhost", //connectionOptions["host"],
                 connectionOptions["port"],
                 connectionOptions["database"],
-                connectionOptions["userId"],
-                connectionOptions["password"]);
+                "postgres", //connectionOptions["userId"],
+                "ash_419237"); //connectionOptions["password"]);
         }
 
 

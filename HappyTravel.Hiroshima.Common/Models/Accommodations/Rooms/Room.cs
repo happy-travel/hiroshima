@@ -43,7 +43,7 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms
         
         public List<RoomCancellationPolicy> RoomCancellationPolicies { get; set; } = new List<RoomCancellationPolicy>();
 
-        public JsonDocument[] Images { get; set; }
+        public List<SlimImage> Images { get; set; } = new List<SlimImage>();
 
 
         public override bool Equals(object? obj) => obj is Room other && Equals(other);
