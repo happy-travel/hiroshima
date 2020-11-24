@@ -25,8 +25,6 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
 
         public async Task<Result<Common.Models.Bookings.BookingOrder>> Book(EdoContracts.Accommodations.BookingRequest bookingRequest, EdoContracts.Accommodations.AvailabilityRequest availabilityRequest, string languageCode)
         {
-            const string error = "There are no available rates";
-
             return await GetRequiredHash()
                 .BindWithTransaction(_dbContext, requiredHash => GetAvailableRates(requiredHash)
                     .Bind(ModifyAvailability)
@@ -39,13 +37,14 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
                 var hash = await _availabilityDataStorage.GetHash(bookingRequest.AvailabilityId, bookingRequest.RoomContractSetId);
 
                 return string.IsNullOrEmpty(hash)
-                    ? Result.Failure<string>(error)
+                    ? Result.Failure<string>("Failed to retrieve the required hash")
                     : Result.Success(hash);
             }
 
 
             async Task<Result<AvailableRates>> GetAvailableRates(string requiredHash)
             {
+                var error = "Available rates not found";
                 var availability = await _availabilityService.Get(availabilityRequest, languageCode);
                 
                 if (availability.AvailableRates.Any())

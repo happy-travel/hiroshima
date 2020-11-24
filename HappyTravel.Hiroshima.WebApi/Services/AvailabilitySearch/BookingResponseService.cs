@@ -12,7 +12,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
             var status = GetStatus(bookingOrder.Status);
             var availabilityRequest = bookingOrder.AvailabilityRequest.GetValue<EdoContracts.Accommodations.AvailabilityRequest>();
             var availableRates = bookingOrder.AvailableRates.GetValue<Common.Models.Availabilities.AvailableRatesSlim>();
-            var bookingRequest = bookingOrder.BookingRequest .GetValue<EdoContracts.Accommodations.BookingRequest>();
+            var bookingRequest = bookingOrder.BookingRequest.GetValue<EdoContracts.Accommodations.BookingRequest>();
             
             var accommodationId = availableRates.AccommodationId;
             var supplierReferenceCode = availableRates.Id.ToString();

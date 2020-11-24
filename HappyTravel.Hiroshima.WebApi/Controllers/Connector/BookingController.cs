@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Net;
+﻿using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.WebApi.Infrastructure;
@@ -14,7 +13,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/accommodations")]
     [Produces("application/json")]
-    public class BookingController : Controller
+    public class BookingController : BaseController
     {
         public BookingController(IBookingService bookingService)
         {
@@ -41,6 +40,5 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
 
 
         private readonly IBookingService _bookingService;
-        private string LanguageCode => CultureInfo.CurrentCulture.Name;
     }
 }

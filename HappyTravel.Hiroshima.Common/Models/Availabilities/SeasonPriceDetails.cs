@@ -59,7 +59,6 @@ namespace HappyTravel.Hiroshima.Common.Models.Availabilities
         /// </summary>
         public MoneyAmount TotalAmount { get; }
         
-        
         /// <summary>
         /// Total money amount with the discount 
         /// </summary>
@@ -69,7 +68,6 @@ namespace HappyTravel.Hiroshima.Common.Models.Availabilities
         /// Total discount 
         /// </summary>
         public Discount Discount { get; }
-        
         
         /// <summary>
         /// Daily prices
