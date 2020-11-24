@@ -430,6 +430,32 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
+        private async Task<Result> ArrangeImagesInAccommodation(int contractManagerId, int accommodationId, List<Models.Requests.SlimImage> images)
+        {
+            var accommodation = _dbContext.Accommodations.SingleOrDefault(a => a.ContractManagerId == contractManagerId && a.Id == accommodationId);
+
+            accommodation.Images = Build(images);
+
+            _dbContext.Accommodations.Update(accommodation);
+            await _dbContext.SaveChangesAsync();
+
+            return Result.Success();
+        }
+
+
+        private async Task<Result> ArrangeImagesInRoom(int roomId, List<Models.Requests.SlimImage> images)
+        {
+            var room = _dbContext.Rooms.SingleOrDefault(r => r.Id == roomId);
+
+            room.Images = Build(images);
+
+            _dbContext.Rooms.Update(room);
+            await _dbContext.SaveChangesAsync();
+
+            return Result.Success();
+        }
+
+
         private async Task<Result> RemoveSlimImageFromAccommodation(int contractManagerId, int accommodationId, Guid imageId)
         {
             var accommodation = _dbContext.Accommodations.SingleOrDefault(a => a.ContractManagerId == contractManagerId && a.Id == accommodationId);
@@ -473,6 +499,24 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 SmallImageURL = image.SmallImage.Url,
                 Description = image.Description.GetValue<MultiLanguage<string>>()
             };
+        }
+
+
+        private List<SlimImage> Build(List<Models.Requests.SlimImage> images)
+        {
+            var slimImages = new List<SlimImage>();
+            foreach (var image in images)
+            {
+                var slimImage = new SlimImage
+                {
+                    Id = image.Id,
+                    LargeImageURL = image.LargeImageURL,
+                    SmallImageURL = image.SmallImageURL,
+                    Description = image.Description
+                };
+                slimImages.Add(slimImage);
+            }
+            return slimImages;
         }
 
 
