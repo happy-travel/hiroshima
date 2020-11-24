@@ -101,6 +101,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return _contractManagerContext.GetContractManager()
                 .EnsureAccommodationBelongsToContractManager(_dbContext, accommodationId)
+                .Tap(async contractManager => await ArrangeSlimImagesInAccommodation(contractManager.Id, accommodationId, images))
                 .Map(async contractManager =>
                 {
                     return await _dbContext.Images
@@ -115,6 +116,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return _contractManagerContext.GetContractManager()
                 .EnsureRoomBelongsToContractManager(_dbContext, accommodationId, roomId)
+                .Tap(async contractManager => await ArrangeSlimImagesInRoom(roomId, images))
                 .Map(async contractManager =>
                 {
                     return await _dbContext.Images
@@ -430,7 +432,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private async Task<Result> ArrangeImagesInAccommodation(int contractManagerId, int accommodationId, List<Models.Requests.SlimImage> images)
+        private async Task<Result> ArrangeSlimImagesInAccommodation(int contractManagerId, int accommodationId, List<Models.Requests.SlimImage> images)
         {
             var accommodation = _dbContext.Accommodations.SingleOrDefault(a => a.ContractManagerId == contractManagerId && a.Id == accommodationId);
 
@@ -443,7 +445,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private async Task<Result> ArrangeImagesInRoom(int roomId, List<Models.Requests.SlimImage> images)
+        private async Task<Result> ArrangeSlimImagesInRoom(int roomId, List<Models.Requests.SlimImage> images)
         {
             var room = _dbContext.Rooms.SingleOrDefault(r => r.Id == roomId);
 
