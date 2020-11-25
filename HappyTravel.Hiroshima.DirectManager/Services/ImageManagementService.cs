@@ -181,6 +181,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
+        public string GetImageUrl(string imageKey)
+        {
+            return $"{_basePathToAmazon}/{imageKey}";
+        }
+
+
         private Image Create(int contractManagerId, Models.Requests.AccommodationImage image) => new Image
         {
             ReferenceId = image.AccommodationId,
@@ -281,7 +287,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 await _dbContext.SaveChangesAsync();
                 var imageId = entry.Entity.Id;
 
-                SetImageDetails();
+                SetImageKeys();
 
                 var addToBucketResult = await AddImagesToBucket();
                 if (!addToBucketResult)
@@ -302,14 +308,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 return Result.Success(dbImage);
 
 
-                void SetImageDetails()
+                void SetImageKeys()
                 {
                     var basePartOfKey = $"{S3FolderName}/{dbImage.ContractManagerId}/{imageId}";
-                    dbImage.MainImage.Key = $"{basePartOfKey}-main.jpg";
-                    dbImage.SmallImage.Key = $"{basePartOfKey}-small.jpg";
-
-                    dbImage.MainImage.Url = $"{_basePathToAmazon}/{dbImage.MainImage.Key}";
-                    dbImage.SmallImage.Url = $"{_basePathToAmazon}/{dbImage.SmallImage.Key}";
+                    dbImage.Keys.MainImage = $"{basePartOfKey}-main.jpg";
+                    dbImage.Keys.SmallImage = $"{basePartOfKey}-small.jpg";
                 }
 
 
@@ -319,8 +322,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     await using var smallStream = new MemoryStream(imageSet.SmallImage);
                     var imageList = new List<(string key, Stream stream)>
                         {
-                            (dbImage.MainImage.Key, largeStream),
-                            (dbImage.SmallImage.Key, smallStream)
+                            (dbImage.Keys.MainImage, largeStream),
+                            (dbImage.Keys.SmallImage, smallStream)
                         };
 
                     var resultList = await _amazonS3ClientService.Add(_bucketName, imageList);
@@ -330,8 +333,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                         {
                             var keyList = new List<string>
                                 {
-                                    dbImage.MainImage.Key,
-                                    dbImage.SmallImage.Key,
+                                    dbImage.Keys.MainImage,
+                                    dbImage.Keys.SmallImage
                                 };
                             await _amazonS3ClientService.Delete(_bucketName, keyList);
 
@@ -371,11 +374,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             if (image is null)
                 return false;
 
-            var result = await _amazonS3ClientService.Delete(_bucketName, image.MainImage.Key);
+            var result = await _amazonS3ClientService.Delete(_bucketName, image.Keys.MainImage);
             if (result.IsFailure)
                 return false;
 
-            result = await _amazonS3ClientService.Delete(_bucketName, image.SmallImage.Key);
+            result = await _amazonS3ClientService.Delete(_bucketName, image.Keys.SmallImage);
             if (result.IsFailure)
                 return false;
 
@@ -497,8 +500,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             return  new SlimImage
             {
                 Id = image.Id,
-                LargeImageURL = image.MainImage.Url,
-                SmallImageURL = image.SmallImage.Url,
+                LargeImageURL = GetImageUrl(image.Keys.MainImage),
+                SmallImageURL = GetImageUrl(image.Keys.SmallImage),
                 Description = image.Description.GetValue<MultiLanguage<string>>()
             };
         }
@@ -530,15 +533,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 var slimImage = new Models.Responses.SlimImage
                     (
                         image.Id,
-                        image.MainImage.Url,
-                        image.SmallImage.Url,
+                        GetImageUrl(image.Keys.MainImage),
+                        GetImageUrl(image.Keys.SmallImage),
                         image.Description.GetValue<MultiLanguage<string>>()
                     );
                 slimImages.Add(slimImage);
             }
             return slimImages;
         }
-
+        
 
         private const string S3FolderName = "images";
         private const long MinimumImageWidth = 500;

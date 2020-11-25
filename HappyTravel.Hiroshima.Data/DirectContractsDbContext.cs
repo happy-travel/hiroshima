@@ -246,8 +246,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.HasKey(i => i.Id);
                 e.Property(i => i.Id).HasColumnType("uuid").HasDefaultValueSql("uuid_generate_v4()");
                 e.Property(i => i.OriginalImageDetails).HasColumnType("jsonb").IsRequired();
-                e.Property(i => i.MainImage).HasColumnType("jsonb").IsRequired();
-                e.Property(i => i.SmallImage).HasColumnType("jsonb").IsRequired();
+                e.Property(i => i.Keys).HasColumnType("jsonb").IsRequired().HasDefaultValueSql("'{}'::json");
                 e.Property(i => i.Created).IsRequired();
                 e.Property(i => i.ContractManagerId).IsRequired();
                 e.Property(i => i.ReferenceId).IsRequired();

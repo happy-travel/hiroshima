@@ -8,8 +8,7 @@ namespace HappyTravel.Hiroshima.Common.Models.Images
     {
         public Guid Id { get; set; }
         public OriginalImageDetails OriginalImageDetails { get; set; } = new OriginalImageDetails();
-        public ImageDetails SmallImage { get; set; } = new ImageDetails();
-        public ImageDetails MainImage { get; set; } = new ImageDetails();
+        public ImageKeys Keys { get; set; } = new ImageKeys();
         public DateTime Created { get; set; }
         public int ContractManagerId { get; set; }
         public int ReferenceId { get; set; }
