@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NetTopologySuite;
+using OpenTelemetry;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using StackExchange.Redis;
@@ -72,22 +73,22 @@ namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions
                 agentPort = int.Parse(EnvironmentVariableHelper.Get("Jaeger:AgentPort", configuration));
             }
 
-            //var connection = ConnectionMultiplexer.Connect(EnvironmentVariableHelper.Get("Redis:Endpoint", configuration));
+            var connection = ConnectionMultiplexer.Connect(EnvironmentVariableHelper.Get("Redis:Endpoint", configuration));
             var serviceName = $"{environment.ApplicationName}-{environment.EnvironmentName}";
 
             services.AddOpenTelemetryTracing(builder =>
             {
                 builder.AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
-                    //.AddRedisInstrumentation(connection)
+                    .AddRedisInstrumentation(connection)
                     .AddSqlClientInstrumentation()
+                    .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName))
+                    .AddSource(environment.ApplicationName)
                     .AddJaegerExporter(options =>
                     {
-                        options.ServiceName = serviceName;
                         options.AgentHost = agentHost;
                         options.AgentPort = agentPort;
                     })
-                    .SetResource(Resources.CreateServiceResource(serviceName))
                     .SetSampler(new AlwaysOnSampler());
             });
 
