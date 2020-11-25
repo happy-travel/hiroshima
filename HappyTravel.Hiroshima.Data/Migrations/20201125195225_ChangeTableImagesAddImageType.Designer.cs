@@ -19,7 +19,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Hiroshima.Data.Migrations
 {
     [DbContext(typeof(DirectContractsDbContext))]
-    [Migration("20201124151531_ChangeTableImagesAddImageType")]
+    [Migration("20201125195225_ChangeTableImagesAddImageType")]
     partial class ChangeTableImagesAddImageType
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -574,9 +574,11 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.Property<int>("ImageType")
                         .HasColumnType("integer");
 
-                    b.Property<ImageDetails>("MainImage")
+                    b.Property<ImageKeys>("Keys")
                         .IsRequired()
-                        .HasColumnType("jsonb");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValueSql("'{}'::json");
 
                     b.Property<OriginalImageDetails>("OriginalImageDetails")
                         .IsRequired()
@@ -587,10 +589,6 @@ namespace HappyTravel.Hiroshima.Data.Migrations
 
                     b.Property<int>("ReferenceId")
                         .HasColumnType("integer");
-
-                    b.Property<ImageDetails>("SmallImage")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
 
                     b.HasKey("Id");
 

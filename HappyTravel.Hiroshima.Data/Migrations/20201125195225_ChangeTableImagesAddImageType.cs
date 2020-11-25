@@ -12,6 +12,14 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                 name: "FK_Images_Accommodations_AccommodationId",
                 table: "Images");
 
+            migrationBuilder.DropColumn(
+                name: "MainImage",
+                table: "Images");
+
+            migrationBuilder.DropColumn(
+                name: "SmallImage",
+                table: "Images");
+
             migrationBuilder.RenameColumn(
                 name: "AccommodationId",
                 table: "Images",
@@ -35,6 +43,13 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                 type: "integer",
                 nullable: false,
                 defaultValue: 0);
+
+            migrationBuilder.AddColumn<ImageKeys>(
+                name: "Keys",
+                table: "Images",
+                type: "jsonb",
+                nullable: false,
+                defaultValueSql: "'{}'::json");
 
             migrationBuilder.AddColumn<List<SlimImage>>(
                 name: "Images",
@@ -73,6 +88,10 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                 table: "Images");
 
             migrationBuilder.DropColumn(
+                name: "Keys",
+                table: "Images");
+
+            migrationBuilder.DropColumn(
                 name: "Images",
                 table: "Accommodations");
 
@@ -85,6 +104,18 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                 name: "IX_Images_ReferenceId",
                 table: "Images",
                 newName: "IX_Images_AccommodationId");
+
+            migrationBuilder.AddColumn<ImageDetails>(
+                name: "MainImage",
+                table: "Images",
+                type: "jsonb",
+                nullable: false);
+
+            migrationBuilder.AddColumn<ImageDetails>(
+                name: "SmallImage",
+                table: "Images",
+                type: "jsonb",
+                nullable: false);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Images_Accommodations_AccommodationId",
