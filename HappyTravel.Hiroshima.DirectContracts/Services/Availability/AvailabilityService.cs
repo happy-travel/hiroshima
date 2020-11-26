@@ -123,7 +123,6 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                     => checkInDate <= promotionalOffer.ValidToDate && promotionalOffer.ValidFromDate <= checkOutDate))
                 .Include(accommodation => accommodation.Location)
                 .ThenInclude(location => location.Country)
-                .Include(accommodation => accommodation.Images)
                 .Where(accommodation => ratings.Contains(accommodation.Rating));
         }
 
