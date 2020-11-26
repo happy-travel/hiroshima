@@ -5,6 +5,7 @@ using HappyTravel.EdoContracts.Extensions;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefinitions;
+using HappyTravel.Hiroshima.Common.Models.Images;
 
 namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms
 {
@@ -41,6 +42,8 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms
         public List<RoomAvailabilityRestriction> RoomAvailabilityRestrictions { get; set; } = new List<RoomAvailabilityRestriction>();
         
         public List<RoomCancellationPolicy> RoomCancellationPolicies { get; set; } = new List<RoomCancellationPolicy>();
+
+        public List<SlimImage> Images { get; set; } = new List<SlimImage>();
 
 
         public override bool Equals(object? obj) => obj is Room other && Equals(other);

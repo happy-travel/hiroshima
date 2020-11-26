@@ -8,8 +8,10 @@ using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolic
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefinitions;
 using HappyTravel.Hiroshima.Common.Models.Images;
 using HappyTravel.Hiroshima.Data;
+using HappyTravel.Hiroshima.Data.Models.Booking;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -17,9 +19,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Hiroshima.Data.Migrations
 {
     [DbContext(typeof(DirectContractsDbContext))]
-    partial class DirectContractsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201125195225_ChangeTableImagesAddImageType")]
+    partial class ChangeTableImagesAddImageType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,7 +47,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasColumnType("jsonb")
-                        .HasDefaultValueSql("'{}'::jsonb");
+                        .HasDefaultValueSql("'{}'::json");
 
                     b.Property<JsonDocument>("Address")
                         .IsRequired()
@@ -82,7 +85,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasColumnType("jsonb")
-                        .HasDefaultValueSql("'[]'::jsonb");
+                        .HasDefaultValueSql("'[]'::json");
 
                     b.Property<JsonDocument>("LeisureAndSports")
                         .IsRequired()
@@ -236,7 +239,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasColumnType("jsonb")
-                        .HasDefaultValueSql("'[]'::jsonb");
+                        .HasDefaultValueSql("'[]'::json");
 
                     b.Property<DateTime>("Modified")
                         .HasColumnType("timestamp without time zone");
@@ -409,62 +412,6 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.ToTable("RoomRates");
                 });
 
-            modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.Bookings.BookingOrder", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasDefaultValueSql("uuid_generate_v4()");
-
-                    b.Property<JsonDocument>("AvailabilityRequest")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.Property<JsonDocument>("AvailableRates")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.Property<JsonDocument>("BookingRequest")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.Property<DateTime>("CheckInDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<DateTime>("CheckOutDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int>("ContractManagerId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("Created")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone")
-                        .HasDefaultValueSql("now() at time zone 'utc'");
-
-                    b.Property<string>("LanguageCode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("Modified")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone")
-                        .HasDefaultValueSql("now() at time zone 'utc'");
-
-                    b.Property<string>("ReferenceCode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ContractManagerId");
-
-                    b.ToTable("BookingOrders");
-                });
-
             modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.Contract", b =>
                 {
                     b.Property<int>("Id")
@@ -631,7 +578,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasColumnType("jsonb")
-                        .HasDefaultValueSql("'{}'::jsonb");
+                        .HasDefaultValueSql("'{}'::json");
 
                     b.Property<OriginalImageDetails>("OriginalImageDetails")
                         .IsRequired()
@@ -738,6 +685,50 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.HasIndex("SeasonId");
 
                     b.ToTable("SeasonRanges");
+                });
+
+            modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.Booking.Booking", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .UseIdentityByDefaultColumn();
+
+                    b.Property<DateTime>("BookingDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("CheckInDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("CheckOutDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("LanguageCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Nationality")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ReferenceCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Residency")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<List<RoomGuests>>("Rooms")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<int>("StatusCode")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BookingOrders");
                 });
 
             modelBuilder.Entity("HappyTravel.Hiroshima.Data.Models.ContractAccommodationRelation", b =>
@@ -906,17 +897,6 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.Navigation("Season");
                 });
 
-            modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.Bookings.BookingOrder", b =>
-                {
-                    b.HasOne("HappyTravel.Hiroshima.Common.Models.ContractManager", "ContractManager")
-                        .WithMany("BookingOrders")
-                        .HasForeignKey("ContractManagerId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
-
-                    b.Navigation("ContractManager");
-                });
-
             modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.Contract", b =>
                 {
                     b.HasOne("HappyTravel.Hiroshima.Common.Models.ContractManager", "ContractManager")
@@ -1046,8 +1026,6 @@ namespace HappyTravel.Hiroshima.Data.Migrations
             modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.ContractManager", b =>
                 {
                     b.Navigation("Accommodations");
-
-                    b.Navigation("BookingOrders");
 
                     b.Navigation("Contracts");
                 });

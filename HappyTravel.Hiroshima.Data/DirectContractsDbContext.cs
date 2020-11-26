@@ -72,7 +72,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(a => a.Pictures).HasColumnType("jsonb").IsRequired();
                 e.Property(a => a.Rating).IsRequired();
                 e.Property(a => a.AccommodationAmenities).HasColumnType("jsonb").IsRequired();
-                e.Property(a => a.AdditionalInfo).HasColumnType("jsonb").HasDefaultValueSql("'{}'::json");
+                e.Property(a => a.AdditionalInfo).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
                 e.Property(a => a.PropertyType).IsRequired();
                 e.Property(a => a.TextualDescription).HasColumnType("jsonb").IsRequired();
                 e.Property(a => a.CheckInTime).IsRequired();
@@ -86,6 +86,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(a => a.Modified).IsRequired();
                 e.Property(a => a.Floors);
                 e.Property(a => a.BuildYear);
+                e.Property(a => a.Images).HasColumnType("jsonb").IsRequired().HasDefaultValueSql("'[]'::jsonb");
                 e.HasIndex(a => a.Coordinates).HasMethod("GIST");
                 e.HasIndex(a => a.LocationId);
                 e.HasIndex(a => a.ContractManagerId);
@@ -248,17 +249,17 @@ namespace HappyTravel.Hiroshima.Data
                 e.HasKey(i => i.Id);
                 e.Property(i => i.Id).HasColumnType("uuid").HasDefaultValueSql("uuid_generate_v4()");
                 e.Property(i => i.OriginalImageDetails).HasColumnType("jsonb").IsRequired();
-                e.Property(i => i.MainImage).HasColumnType("jsonb").IsRequired();
-                e.Property(i => i.SmallImage).HasColumnType("jsonb").IsRequired();
+                e.Property(i => i.Keys).HasColumnType("jsonb").IsRequired().HasDefaultValueSql("'{}'::jsonb");
                 e.Property(i => i.Created).IsRequired();
                 e.Property(i => i.ContractManagerId).IsRequired();
-                e.Property(i => i.AccommodationId).IsRequired();
+                e.Property(i => i.ReferenceId).IsRequired();
+                e.Property(i => i.ImageType).IsRequired();
                 e.Property(i => i.Position).IsRequired();
                 e.Property(i => i.Description).HasColumnType("jsonb").IsRequired();
                 e.HasIndex(i => i.ContractManagerId);
-                e.HasIndex(i => i.AccommodationId);
+                e.HasIndex(i => i.ReferenceId);
+                e.HasIndex(i => i.ImageType);
                 e.HasOne(i => i.ContractManager).WithMany().OnDelete(DeleteBehavior.SetNull);
-                e.HasOne(i => i.Accommodation).WithMany(a => a.Images).OnDelete(DeleteBehavior.SetNull);
             });
         }
 
@@ -387,6 +388,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(r => r.AccommodationId).IsRequired();
                 e.Property(r => r.Created).IsRequired();
                 e.Property(r => r.Modified).IsRequired();
+                e.Property(r => r.Images).HasColumnType("jsonb").IsRequired().HasDefaultValueSql("'[]'::jsonb");
                 e.HasIndex(r => r.AccommodationId);
                 e.HasOne(r => r.Accommodation).WithMany(a => a.Rooms).OnDelete(DeleteBehavior.SetNull); 
             });
