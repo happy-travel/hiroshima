@@ -90,7 +90,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="accommodationId">Accommodation Id</param>
         /// <param name="imageId">Id of the image file to be deleted</param>
         /// <returns></returns>
-        [HttpDelete("accommodations/{accommodationId}/photo/{imageId}")]
+        [HttpDelete("accommodations/{accommodationId}/photos/{imageId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> RemoveImage([FromRoute] int accommodationId, [FromRoute] Guid imageId)
@@ -176,7 +176,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="roomId">Room Id</param>
         /// <param name="imageId">Id of the image file to be deleted</param>
         /// <returns></returns>
-        [HttpDelete("accommodations/{accommodationId}/rooms/{roomId}/photo/{imageId}")]
+        [HttpDelete("accommodations/{accommodationId}/rooms/{roomId}/photos/{imageId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> RemoveImage([FromRoute] int accommodationId, [FromRoute] int roomId, [FromRoute] Guid imageId)
