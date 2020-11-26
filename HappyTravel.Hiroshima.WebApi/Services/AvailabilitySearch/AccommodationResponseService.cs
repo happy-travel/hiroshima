@@ -48,13 +48,13 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
 
         private ImageInfo GetFirstImage(Accommodation accommodation, string languageCode)
         {
-           if (!accommodation.Images.Any()) 
+            if (!accommodation.Images.Any()) 
                return new ImageInfo();
 
-           var firstImage = accommodation.Images.OrderBy(image => image.Position).First();
-           firstImage.Description.GetValue<MultiLanguage<string>>().TryGetValueOrDefault(languageCode, out var caption);
-           
-           return new ImageInfo(firstImage.MainImage.Url, caption); 
+            var firstImage = accommodation.Images.First();
+            firstImage.Description.TryGetValueOrDefault(languageCode, out var caption);
+
+            return new ImageInfo(firstImage.LargeImageURL, caption); 
         }
     }
 }

@@ -21,5 +21,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions
                 async cm
                     => await dbContext.Accommodations.SingleOrDefaultAsync(a => a.Id == accommodationId && a.ContractManagerId == cm.Id) != null,
                 $"Invalid accommodation id '{accommodationId}'");
+
+
+        public static Task<Result<ContractManager>> EnsureRoomBelongsToContractManager(this Task<Result<ContractManager>> contractManager,
+            DirectContractsDbContext dbContext, int accommodationId, int roomId)
+            => contractManager
+                .Ensure(
+                async cm
+                    => await dbContext.Rooms.SingleOrDefaultAsync(r => r.Id == roomId && r.AccommodationId == accommodationId) != null,
+                $"Invalid room id '{roomId}'")
+                .EnsureAccommodationBelongsToContractManager(dbContext, accommodationId);
     }
 }

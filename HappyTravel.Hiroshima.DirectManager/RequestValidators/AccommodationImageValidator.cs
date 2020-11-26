@@ -2,9 +2,9 @@
 
 namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
 {
-    public class ImageValidator : AbstractValidator<Models.Requests.Image>
+    public class AccommodationImageValidator : AbstractValidator<Models.Requests.AccommodationImage>
     {
-        public ImageValidator()
+        public AccommodationImageValidator()
         {
             RuleFor(image => image).NotNull();
             RuleFor(image => image.AccommodationId).NotEmpty();
