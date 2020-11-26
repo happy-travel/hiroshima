@@ -71,7 +71,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return _contractManagerContext.GetContractManager()
                 .EnsureAccommodationBelongsToContractManager(_dbContext, image.AccommodationId)
-                .Ensure(contractManager => ValidationHelper.Validate(image, new AccommodationImageValidator()))
+                .Bind(contractManager =>
+                {
+                    var validationResult = ValidationHelper.Validate(image, new AccommodationImageValidator());
+                    return validationResult.IsFailure ? Result.Failure<ContractManager>(validationResult.Error) : Result.Success(contractManager);
+                })
                 .Tap(contractManager => ResortImages(contractManager.Id, image.AccommodationId, ImageTypes.AccommodationImage))
                 .Map(contractManager => Create(contractManager.Id, image))
                 .Ensure(dbImage => ValidateImageType(image.UploadedFile).Value, "Invalid image file type")
@@ -84,7 +88,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return _contractManagerContext.GetContractManager()
                 .EnsureRoomBelongsToContractManager(_dbContext, image.AccommodationId, image.RoomId)
-                .Ensure(contractManager => ValidationHelper.Validate(image, new RoomImageValidator()))
+                .Bind(contractManager =>
+                {
+                    var validationResult = ValidationHelper.Validate(image, new RoomImageValidator());
+                    return validationResult.IsFailure ? Result.Failure<ContractManager>(validationResult.Error) : Result.Success(contractManager);
+                })
                 .Tap(contractManager => ResortImages(contractManager.Id, image.RoomId, ImageTypes.RoomImage))
                 .Map(contractManager => Create(contractManager.Id, image))
                 .Ensure(dbImage => ValidateImageType(image.UploadedFile).Value, "Invalid image file type")
