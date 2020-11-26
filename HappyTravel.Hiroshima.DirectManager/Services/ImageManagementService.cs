@@ -505,7 +505,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private List<SlimImage> Build(List<Models.Requests.SlimImage> images)
         {
-            var slimImages = new List<SlimImage>();
+            var slimImages = new List<SlimImage>(images.Count);
             foreach (var image in images)
             {
                 var slimImage = new SlimImage
@@ -523,7 +523,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private List<Models.Responses.SlimImage> Build(List<Image> images)
         {
-            var slimImages = new List<Models.Responses.SlimImage>();
+            var slimImages = new List<Models.Responses.SlimImage>(images.Count);
             foreach (var image in images)
             {
                 var slimImage = new Models.Responses.SlimImage
