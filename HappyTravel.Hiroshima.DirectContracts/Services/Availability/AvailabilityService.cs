@@ -9,30 +9,31 @@ using HappyTravel.EdoContracts.GeoData.Enums;
 using HappyTravel.Hiroshima.Common.Constants;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
+using HappyTravel.Hiroshima.Common.Models.Availabilities;
 using HappyTravel.Hiroshima.Data;
-using HappyTravel.Hiroshima.DirectContracts.Models;
 using Microsoft.EntityFrameworkCore;
 using Accommodation = HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation;
-
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 {
     public class AvailabilityService : IAvailabilityService
     {
-        public AvailabilityService(IRoomAvailabilityService roomAvailabilityService, IRateAvailabilityService rateAvailabilityService, DirectContractsDbContext dbContext)
+        public AvailabilityService(IRoomAvailabilityService roomAvailabilityService, IRateAvailabilityService rateAvailabilityService, IAvailabilityDataStorage availabilityDataStorage, IAvailabilityIdGenerator availabilityIdGenerator, DirectContractsDbContext dbContext)
         {
             _roomAvailabilityService = roomAvailabilityService;
             _rateAvailabilityService = rateAvailabilityService;
+            _availabilityDataStorage = availabilityDataStorage;
+            _availabilityIdGenerator = availabilityIdGenerator;
             _dbContext = dbContext;
         }
 
 
-        public async Task<Dictionary<Accommodation, List<AvailableRates>>> Get(AvailabilityRequest availabilityRequest, string languageCode)
+        public async Task<Common.Models.Availabilities.Availability> Get(AvailabilityRequest availabilityRequest, string languageCode)
         {
             var accommodations = await ExtractAvailabilityData();
             var groupedAvailableRooms = _roomAvailabilityService.GetGroupedAvailableRooms(accommodations, availabilityRequest.Rooms);
 
-            return GetAvailableRates(availabilityRequest, groupedAvailableRooms, languageCode);
+            return CreateAvailability(availabilityRequest, groupedAvailableRooms, languageCode);
             
             
             async Task<List<Accommodation>> ExtractAvailabilityData()
@@ -73,13 +74,19 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         }
 
 
-        public async Task<Dictionary<Accommodation, List<AvailableRates>>> Get(AvailabilityRequest availabilityRequest, int accommodationId, string languageCode)
+        public async Task<Common.Models.Availabilities.Availability> Get(AvailabilityRequest availabilityRequest, int accommodationId,
+            string languageCode)
         {
             var accommodations = await GetAvailableAccommodations(availabilityRequest)
-                .Where(accommodation => accommodation.Id.Equals(accommodationId)).ToListAsync();
+                .Where(accommodation => accommodation.Id.Equals(accommodationId))
+                .ToListAsync();
             var groupedAvailableRooms = _roomAvailabilityService.GetGroupedAvailableRooms(accommodations, availabilityRequest.Rooms);
-            
-            return GetAvailableRates(availabilityRequest, groupedAvailableRooms, languageCode);
+
+            var availability = CreateAvailability(availabilityRequest, groupedAvailableRooms, languageCode);
+
+            await _availabilityDataStorage.Add(availability);
+
+            return availability;
         }
         
         
@@ -116,14 +123,13 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                     => checkInDate <= promotionalOffer.ValidToDate && promotionalOffer.ValidFromDate <= checkOutDate))
                 .Include(accommodation => accommodation.Location)
                 .ThenInclude(location => location.Country)
-                .Include(accommodation => accommodation.Images)
                 .Where(accommodation => ratings.Contains(accommodation.Rating));
         }
 
         
-        private Dictionary<Accommodation, List<AvailableRates>> GetAvailableRates(AvailabilityRequest availabilityRequest, List<Dictionary<RoomOccupationRequest, List<Room>>> groupedAvailableRooms, string languageCode)
+        private Common.Models.Availabilities.Availability CreateAvailability(AvailabilityRequest availabilityRequest, List<Dictionary<RoomOccupationRequest, List<Room>>> groupedAvailableRooms, string languageCode)
         {
-            var accommodationAvailableRatesStore = new Dictionary<Accommodation, List<AvailableRates>>();
+            var accommodationAvailableRates = new Dictionary<Accommodation, List<AvailableRates>>();
             foreach (var accommodationGroupedRooms in groupedAvailableRooms)
             {
                 if (accommodationGroupedRooms.Count != availabilityRequest.Rooms.Count)
@@ -139,20 +145,38 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                     continue;
 
                 var accommodation = accommodationGroupedRooms.First().Value.First().Accommodation;
-                accommodationAvailableRatesStore.Add(accommodation, rateDetailsCombinations.Select(rateDetails => new AvailableRates {Rates = rateDetails}).ToList());
+                accommodationAvailableRates.Add(accommodation, rateDetailsCombinations.Select(rateDetails => new AvailableRates
+                {
+                    Id = GenerateRateDetailsId(),
+                    AccommodationId = accommodation.Id,
+                    Hash = _availabilityIdGenerator.Generate(rateDetails),
+                    Rates = rateDetails
+                }).ToList());
             }
-                
-            return accommodationAvailableRatesStore;
+
+            return new Common.Models.Availabilities.Availability
+            {
+                Id = GenerateAvailability(),
+                AvailableRates = accommodationAvailableRates
+            };
 
             
             Dictionary<RoomOccupationRequest, List<RateDetails>> GetAvailableRateDetails(Dictionary<RoomOccupationRequest, List<Room>> occupationRequestRoomsStore)
                 => occupationRequestRoomsStore
                     .ToDictionary(occupationRequestRooms => occupationRequestRooms.Key, occupationRequestRooms => _rateAvailabilityService.GetAvailableRates(occupationRequestRooms.Key, occupationRequestRooms.Value.ToList(), availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate, languageCode));
+           
+            
+            string GenerateAvailability() => Guid.NewGuid().ToString("N");
+            
+            
+            Guid GenerateRateDetailsId() => Guid.NewGuid();
         }
         
         
         private readonly IRateAvailabilityService _rateAvailabilityService;
         private readonly IRoomAvailabilityService _roomAvailabilityService;
         private readonly DirectContractsDbContext _dbContext;
+        private readonly IAvailabilityDataStorage _availabilityDataStorage;
+        private readonly IAvailabilityIdGenerator _availabilityIdGenerator;
     }
 }

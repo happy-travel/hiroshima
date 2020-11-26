@@ -33,5 +33,6 @@ namespace HappyTravel.Hiroshima.Common.Models
         public List<Accommodation> Accommodations { get; set; }
         
         public List<Contract> Contracts { get; set; }
+        public List<Bookings.BookingOrder> BookingOrders { get; set; }
     }
 }

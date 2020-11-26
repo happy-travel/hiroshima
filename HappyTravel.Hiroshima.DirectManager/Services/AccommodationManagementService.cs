@@ -315,9 +315,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 ContractManagerId = contractManagerId,
                 ContactInfo = new ContactInfo
                 {
-                    Email = accommodation.ContactInfo.Email,
-                    Phone = accommodation.ContactInfo.Phone,
-                    Website = accommodation.ContactInfo.Website
+                    Emails = new List<string> {accommodation.ContactInfo.Email},
+                    Phones = new List<string> {accommodation.ContactInfo.Phone},
+                    Websites = new List<string> {accommodation.ContactInfo.Website}
                 },
                 AdditionalInfo = JsonDocumentUtilities.CreateJDocument(accommodation.AdditionalInfo),
                 OccupancyDefinition = accommodation.OccupancyDefinition,

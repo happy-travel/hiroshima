@@ -4,11 +4,11 @@ using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
+using HappyTravel.Hiroshima.Common.Models.Bookings;
 using HappyTravel.Hiroshima.Common.Models.Images;
 using HappyTravel.Hiroshima.Common.Models.Locations;
 using HappyTravel.Hiroshima.Common.Models.Seasons;
 using HappyTravel.Hiroshima.Data.Models;
-using HappyTravel.Hiroshima.Data.Models.Booking;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 using Location = HappyTravel.Hiroshima.Common.Models.Locations.Location;
@@ -111,19 +111,22 @@ namespace HappyTravel.Hiroshima.Data
 
         private void AddBooking(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Booking>(e =>
+            modelBuilder.Entity<BookingOrder>(e =>
             {
                 e.ToTable("BookingOrders");
-                e.HasKey(bo => bo.Id);
-                e.Property(bo => bo.ReferenceCode).IsRequired();
-                e.Property(bo => bo.StatusCode).IsRequired();
-                e.Property(bo => bo.BookingDate).IsRequired();
-                e.Property(bo => bo.CheckInDate).IsRequired();
-                e.Property(bo => bo.CheckOutDate).IsRequired();
-                e.Property(bo => bo.Rooms).HasColumnType("jsonb").IsRequired();
-                e.Property(bo => bo.Nationality).IsRequired();
-                e.Property(bo => bo.Residency).IsRequired();
-                e.Property(bo => bo.LanguageCode).IsRequired();
+                e.HasKey(b => b.Id);
+                e.Property(b=> b.Id).HasDefaultValueSql("uuid_generate_v4()").IsRequired();
+                e.Property(b => b.Status).IsRequired();
+                e.Property(b => b.ReferenceCode).IsRequired();
+                e.Property(b => b.CheckInDate).IsRequired();
+                e.Property(b => b.CheckOutDate).IsRequired();
+                e.Property(b => b.LanguageCode).IsRequired();
+                e.Property(b => b.Created).IsRequired().HasDefaultValueSql("now() at time zone 'utc'");
+                e.Property(b => b.Modified).IsRequired().HasDefaultValueSql("now() at time zone 'utc'");
+                e.Property(b => b.AvailabilityRequest).IsRequired().HasColumnType("jsonb");
+                e.Property(b => b.BookingRequest).IsRequired().HasColumnType("jsonb");
+                e.Property(b => b.AvailableRates).IsRequired().HasColumnType("jsonb");
+                e.HasOne(b => b.ContractManager).WithMany(cm => cm.BookingOrders).OnDelete(DeleteBehavior.SetNull);
             });
         }
 
@@ -422,8 +425,8 @@ namespace HappyTravel.Hiroshima.Data
 
 
         public virtual DbSet<Accommodation> Accommodations { get; set; }
+        public virtual DbSet<BookingOrder> Booking { get; set; }
         public virtual DbSet<Amenity> Amenities { get; set; }
-        public virtual DbSet<Booking> Booking { get; set; }
         public virtual DbSet<RoomCancellationPolicy> RoomCancellationPolicies { get; set; }
         public virtual DbSet<ContractAccommodationRelation> ContractAccommodationRelations { get; set; }
         public virtual DbSet<ContractManager> ContractManagers { get; set; }
