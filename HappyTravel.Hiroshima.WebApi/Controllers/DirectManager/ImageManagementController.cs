@@ -27,7 +27,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// </summary>
         /// <param name="accommodationId">ID of the accommodation</param>
         /// <returns></returns>
-        [HttpGet("accommodations/{accommodationId}/photo")]
+        [HttpGet("accommodations/{accommodationId}/photos")]
         [ProducesResponseType(typeof(Hiroshima.DirectManager.Models.Responses.Accommodation), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetImageList([FromRoute] int accommodationId)
@@ -71,7 +71,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="accommodationId">Accommodation Id</param>
         /// <param name="slimImages">Ordered list of images</param>
         /// <returns></returns>
-        [HttpPut("accommodations/{accommodationId}/photo")]
+        [HttpPut("accommodations/{accommodationId}/photos")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> UpdateAccommodationImages([FromRoute] int accommodationId, [FromBody] List<Hiroshima.DirectManager.Models.Requests.SlimImage> slimImages)
@@ -109,7 +109,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="accommodationId">ID of the accommodation</param>
         /// <param name="roomId">ID of the room</param>
         /// <returns></returns>
-        [HttpGet("accommodations/{accommodationId}/rooms/{roomId}/photo")]
+        [HttpGet("accommodations/{accommodationId}/rooms/{roomId}/photos")]
         [ProducesResponseType(typeof(Hiroshima.DirectManager.Models.Responses.Room), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetImageList([FromRoute] int accommodationId, [FromRoute] int roomId)
@@ -156,7 +156,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="roomId">Room Id</param>
         /// <param name="slimImages">Ordered list of images</param>
         /// <returns></returns>
-        [HttpPut("accommodations/{accommodationId}/rooms/{roomId}/photo")]
+        [HttpPut("accommodations/{accommodationId}/rooms/{roomId}/photos")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> UpdateRoomImages([FromRoute] int accommodationId, [FromRoute] int roomId, [FromBody] List<Hiroshima.DirectManager.Models.Requests.SlimImage> slimImages)
