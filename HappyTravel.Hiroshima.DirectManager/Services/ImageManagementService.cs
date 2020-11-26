@@ -80,8 +80,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-
-
         public Task<Result<Guid>> Add(Models.Requests.RoomImage image)
         {
             return _contractManagerContext.GetContractManager()
@@ -93,8 +91,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Bind(dbImage => ConvertAndUpload(dbImage, image.UploadedFile))
                 .Bind(AddSlimImageToRoom);
         }
-
-
 
 
         public Task<Result> Update(int accommodationId, List<Models.Requests.SlimImage> images)
