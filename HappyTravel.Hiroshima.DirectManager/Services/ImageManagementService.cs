@@ -497,7 +497,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private SlimImage Build(Image image)
         {
-            return  new SlimImage
+            return new SlimImage
             {
                 Id = image.Id,
                 LargeImageURL = GetImageUrl(image.Keys.MainImage),
