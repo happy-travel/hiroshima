@@ -6,7 +6,6 @@ using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefinitions;
 using HappyTravel.Hiroshima.Data;
-using HappyTravel.Hiroshima.Data.Models.Booking;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -497,10 +496,6 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.Property<string>("Residency")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<List<RoomGuests>>("Rooms")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
 
                     b.Property<int>("StatusCode")
                         .HasColumnType("integer");

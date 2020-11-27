@@ -10,6 +10,7 @@ using FloxDc.CacheFlow.Extensions;
 using FluentValidation.AspNetCore;
 using HappyTravel.AmazonS3Client.Extensions;
 using HappyTravel.Hiroshima.Common.Infrastructure;
+using HappyTravel.Hiroshima.Common.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.DirectContracts.Extensions;
 using HappyTravel.Hiroshima.DirectManager.Extensions;

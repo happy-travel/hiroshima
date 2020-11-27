@@ -4,7 +4,6 @@ using System.Text.Json;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefinitions;
-using HappyTravel.Hiroshima.Data.Models.Booking;
 using Microsoft.EntityFrameworkCore.Migrations;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -60,7 +59,6 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     CheckOutDate = table.Column<DateTime>(nullable: false),
                     Nationality = table.Column<string>(nullable: false),
                     Residency = table.Column<string>(nullable: false),
-                    Rooms = table.Column<List<RoomGuests>>(type: "jsonb", nullable: false)
                 },
                 constraints: table =>
                 {

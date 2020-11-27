@@ -16,7 +16,7 @@ namespace HappyTravel.Hiroshima.Common.Models
 
 
         public bool TryGetValueOrDefault(string languageCode, out T value)
-        {
+        { 
             if (TryGetValue(languageCode, out value))
                 return true;
 

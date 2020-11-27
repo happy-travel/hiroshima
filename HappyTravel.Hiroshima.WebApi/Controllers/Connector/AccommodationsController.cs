@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -15,7 +14,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/accommodations")]
     [Produces("application/json")]
-    public class AccommodationsController : ControllerBase
+    public class AccommodationsController : BaseController
     {
         public AccommodationsController(IAvailabilityService availabilityService)
         {
@@ -79,7 +78,6 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
         }
         
         
-        private string LanguageCode => CultureInfo.CurrentCulture.Name;
         private readonly IAvailabilityService _availabilityService;
     }
 }
