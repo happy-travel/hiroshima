@@ -62,7 +62,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 {
                     var validationResult = ValidationHelper.Validate(document, new DocumentValidator());
 
-                    return validationResult.IsFailure ? Result.Failure<ContractManager>(validationResult.Error) : Result.Success(contractManager);
+                    return validationResult.IsFailure ? Result.Failure<Manager>(validationResult.Error) : Result.Success(contractManager);
                 })
                 .Map(contractManager => Create(contractManager.Id, document))
                 .Map(dbDocument => AddDocument(dbDocument, document.UploadedFile))
@@ -105,7 +105,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Tap(async contractManager => 
                 {
                     var result = await RemoveDocument(contractManager.Id, contractId, documentId);
-                    return result ? Result.Success(contractManager) : Result.Failure<ContractManager>("Document deletion error"); 
+                    return result ? Result.Success(contractManager) : Result.Failure<Manager>("Document deletion error"); 
                 });
         }
 

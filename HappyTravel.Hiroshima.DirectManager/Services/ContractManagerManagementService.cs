@@ -16,12 +16,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<Models.Responses.ContractManager>> Get()
+        public Task<Result<Models.Responses.Manager>> Get()
             => _contractManagerContextService.GetContractManager()
                 .Map(Build);
         
         
-        public Task<Result<Models.Responses.ContractManager>> Register(Models.Requests.ContractManager contractManagerRequest, string email)
+        public Task<Result<Models.Responses.Manager>> Register(Models.Requests.Manager contractManagerRequest, string email)
         {
            return Result.Success()
                 .Ensure(IdentityHashNotEmpty, "Failed to get the sub claim")
@@ -38,10 +38,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             async Task<bool> ContractManagerNotExist() => !await _contractManagerContextService.DoesContractManagerExist();
             
             
-            Common.Models.ContractManager Create()
+            Common.Models.Manager Create()
             {
                 var utcNowDate = DateTime.UtcNow;
-                return new Common.Models.ContractManager
+                return new Common.Models.Manager
                 {
                     IdentityHash = _contractManagerContextService.GetIdentityHash(),
                     Email = email,
@@ -58,7 +58,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
 
 
-            async Task<Common.Models.ContractManager> Add(Common.Models.ContractManager contractManager)
+            async Task<Common.Models.Manager> Add(Common.Models.Manager contractManager)
             {
                 var entry = _dbContext.Add(contractManager);
                 await _dbContext.SaveChangesAsync();
@@ -69,7 +69,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
         
-        public Task<Result<Models.Responses.ContractManager>> Modify(Models.Requests.ContractManager contractManagerRequest)
+        public Task<Result<Models.Responses.Manager>> Modify(Models.Requests.Manager contractManagerRequest)
         {
             return GetContractManager()
                 .Tap(contractManager => IsRequestValid(contractManagerRequest))
@@ -78,11 +78,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Map(Build);
 
             
-            Task<Result<Common.Models.ContractManager>> GetContractManager() 
+            Task<Result<Common.Models.Manager>> GetContractManager() 
                 => _contractManagerContextService.GetContractManager();
             
             
-            Common.Models.ContractManager ModifyContractManager(Common.Models.ContractManager contractManager)
+            Common.Models.Manager ModifyContractManager(Common.Models.Manager contractManager)
             {
                 contractManager.FirstName = contractManagerRequest.FirstName;
                 contractManager.LastName = contractManagerRequest.LastName;
@@ -96,7 +96,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
             
             
-            async Task<Common.Models.ContractManager> Update(Common.Models.ContractManager contractManager)
+            async Task<Common.Models.Manager> Update(Common.Models.Manager contractManager)
             {
                 var entry = _dbContext.ContractManagers.Update(contractManager);
                 await _dbContext.SaveChangesAsync();
@@ -107,8 +107,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
         
-        private Models.Responses.ContractManager Build(Common.Models.ContractManager contractManager) 
-            => new Models.Responses.ContractManager(contractManager.FirstName, 
+        private Models.Responses.Manager Build(Common.Models.Manager contractManager) 
+            => new Models.Responses.Manager(contractManager.FirstName, 
                 contractManager.LastName, 
                 contractManager.Title, 
                 contractManager.Position,
@@ -117,7 +117,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 contractManager.Fax);
 
 
-        private Result IsRequestValid(Models.Requests.ContractManager contractManagerRequest)
+        private Result IsRequestValid(Models.Requests.Manager contractManagerRequest)
             => ValidationHelper.Validate(contractManagerRequest, new ContractManagerRegisterRequestValidator());
         
 

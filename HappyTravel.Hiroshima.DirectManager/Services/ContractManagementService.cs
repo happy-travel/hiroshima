@@ -52,7 +52,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Map(Get);
 
 
-            async Task<List<Models.Responses.Contract>> Get(ContractManager contractManager)
+            async Task<List<Models.Responses.Contract>> Get(Manager contractManager)
             {
                 var contracts = await _dbContext.Contracts
                         .Where(contract => contract.ContractManagerId == contractManager.Id).OrderBy(contract => contract.Id)
@@ -87,7 +87,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 {
                     var validationResult = ValidationHelper.Validate(contract, new ContractValidator());
                     
-                    return validationResult.IsFailure ? Result.Failure<ContractManager>(validationResult.Error) : Result.Success(contractManager);
+                    return validationResult.IsFailure ? Result.Failure<Manager>(validationResult.Error) : Result.Success(contractManager);
                 })
                 .Map(contractManager => Create(contractManager.Id, contract))
                 .Map(Add)
@@ -125,7 +125,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 {
                     var (_, failure, error) = ValidationHelper.Validate(contract, new ContractValidator());
 
-                    return failure ? Result.Failure<ContractManager>(error) : Result.Success(contractManager);
+                    return failure ? Result.Failure<Manager>(error) : Result.Success(contractManager);
                 })
                 .Map(contractManager => Create(contractManager.Id, contract))
                 .Tap(Update);

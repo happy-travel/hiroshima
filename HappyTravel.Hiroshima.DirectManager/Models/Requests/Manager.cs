@@ -2,7 +2,7 @@
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
 {
-    public class ContractManager
+    public class Manager
     {
         [Required]
         public string FirstName { get; set; }

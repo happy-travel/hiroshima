@@ -15,14 +15,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             _tokenInfoAccessor = tokenInfoAccessor;
         }
 
-        public async Task<Result<ContractManager>> GetContractManager()
+        public async Task<Result<Manager>> GetContractManager()
         {
             var identityHash = GetIdentityHash();
 
             var contractManager = await _dbContext.ContractManagers.SingleOrDefaultAsync(manager => manager.IsActive && manager.IdentityHash  == identityHash);
 
             return contractManager is null
-                ? Result.Failure<ContractManager>("Failed to retrieve a contract manager") 
+                ? Result.Failure<Manager>("Failed to retrieve a contract manager") 
                 : Result.Success(contractManager);
         }
 

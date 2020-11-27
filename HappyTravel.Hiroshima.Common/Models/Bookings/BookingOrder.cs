@@ -39,6 +39,6 @@ namespace HappyTravel.Hiroshima.Common.Models.Bookings
         
         public int ContractManagerId { get; set; }
         
-        public ContractManager ContractManager { get; set; }
+        public Manager ContractManager { get; set; }
     }
 }

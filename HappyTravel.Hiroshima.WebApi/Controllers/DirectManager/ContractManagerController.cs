@@ -26,9 +26,9 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="contractManager"></param>
         /// <returns></returns>
         [HttpPost]
-        [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ContractManager), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.Manager), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> AddContractManager([FromBody] Hiroshima.DirectManager.Models.Requests.ContractManager contractManager)
+        public async Task<IActionResult> AddContractManager([FromBody] Hiroshima.DirectManager.Models.Requests.Manager contractManager)
         {
             var (_, isFailure, response, error) = await GetEmailFromIdentity()
                 .Bind(email => _contractManagerManagementService.Register(contractManager, email));
@@ -55,7 +55,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ContractManager), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.Manager), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetContractManager()
         {
@@ -73,9 +73,9 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="contractManager"></param>  
         /// <returns></returns>
         [HttpPut]
-        [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ContractManager), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.Manager), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> ModifyContractManager([FromBody] Hiroshima.DirectManager.Models.Requests.ContractManager contractManager)
+        public async Task<IActionResult> ModifyContractManager([FromBody] Hiroshima.DirectManager.Models.Requests.Manager contractManager)
         {
             var (_, isFailure, response, error) = await _contractManagerManagementService.Modify(contractManager);
             if (isFailure)

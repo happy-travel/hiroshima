@@ -16,6 +16,6 @@ namespace HappyTravel.Hiroshima.Common.Models.Images
         public int Position { get; set; }
         public JsonDocument Description { get; set; }
 
-        public ContractManager ContractManager { get; set;}
+        public Manager ContractManager { get; set;}
     }
 }

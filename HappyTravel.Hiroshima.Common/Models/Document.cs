@@ -12,7 +12,7 @@ namespace HappyTravel.Hiroshima.Common.Models
         public int ContractManagerId { get; set; }
         public int ContractId { get; set; }
 
-        public ContractManager ContractManager { get; set; }
+        public Manager ContractManager { get; set; }
         public Contract Contract { get; set; }
     }
 }

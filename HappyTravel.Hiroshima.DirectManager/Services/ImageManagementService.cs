@@ -78,10 +78,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Bind(dbImage => ConvertAndUpload(dbImage, image.UploadedFile))
                 .Bind(AddSlimImageToAccommodation);
 
-            Result<ContractManager> Validate(Models.Requests.AccommodationImage image, ContractManager contractManager)
+            Result<Manager> Validate(Models.Requests.AccommodationImage image, Manager contractManager)
             {
                 var validationResult = ValidationHelper.Validate(image, new AccommodationImageValidator());
-                return validationResult.IsFailure ? Result.Failure<ContractManager>(validationResult.Error) : Result.Success(contractManager);
+                return validationResult.IsFailure ? Result.Failure<Manager>(validationResult.Error) : Result.Success(contractManager);
             }
         }
 
@@ -97,10 +97,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Bind(dbImage => ConvertAndUpload(dbImage, image.UploadedFile))
                 .Bind(AddSlimImageToRoom);
 
-            Result<ContractManager> Validate(Models.Requests.RoomImage image, ContractManager contractManager)
+            Result<Manager> Validate(Models.Requests.RoomImage image, Manager contractManager)
             {
                 var validationResult = ValidationHelper.Validate(image, new RoomImageValidator());
-                return validationResult.IsFailure ? Result.Failure<ContractManager>(validationResult.Error) : Result.Success(contractManager);
+                return validationResult.IsFailure ? Result.Failure<Manager>(validationResult.Error) : Result.Success(contractManager);
             }
         }
 
@@ -141,7 +141,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Tap(async contractManager => 
                 { 
                     var result = await RemoveImage(contractManager.Id, accommodationId, ImageTypes.AccommodationImage, imageId);
-                    return result ? Result.Success(contractManager) : Result.Failure<ContractManager>("Image deletion error");
+                    return result ? Result.Success(contractManager) : Result.Failure<Manager>("Image deletion error");
                 })
                 .Tap(contractManager => RemoveSlimImageFromAccommodation(contractManager.Id, accommodationId, imageId));
         }
@@ -153,7 +153,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Tap(async contractManager =>
                 {
                     var result = await RemoveImage(contractManager.Id, roomId, ImageTypes.RoomImage, imageId);
-                    return result ? Result.Success(contractManager) : Result.Failure<ContractManager>("Image deletion error");
+                    return result ? Result.Success(contractManager) : Result.Failure<Manager>("Image deletion error");
                 })
                 .Tap(contractManager => RemoveSlimImageFromRoom(roomId, imageId));
         }

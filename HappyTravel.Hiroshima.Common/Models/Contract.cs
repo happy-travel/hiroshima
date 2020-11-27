@@ -26,7 +26,7 @@ namespace HappyTravel.Hiroshima.Common.Models
         
         public int ContractManagerId { get; set; }
         
-        public ContractManager ContractManager { get; set; }
+        public Manager ContractManager { get; set; }
 
         public List<Season> Seasons { get; set; } = new List<Season>();
 

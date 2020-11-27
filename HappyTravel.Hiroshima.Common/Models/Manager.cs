@@ -4,7 +4,7 @@ using HappyTravel.Hiroshima.Common.Models.Accommodations;
 
 namespace HappyTravel.Hiroshima.Common.Models
 {
-    public class ContractManager
+    public class Manager
     {
         public int Id { get; set; }
 

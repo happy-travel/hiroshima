@@ -42,7 +42,7 @@ namespace HappyTravel.Hiroshima.Data
             AddBooking(modelBuilder);
             AddCancellationPolicies(modelBuilder);
             AddContractAccommodationRelation(modelBuilder);
-            AddContractManagers(modelBuilder);
+            AddManagers(modelBuilder);
             AddContracts(modelBuilder);
             AddCountries(modelBuilder);
             AddDocuments(modelBuilder);
@@ -164,11 +164,11 @@ namespace HappyTravel.Hiroshima.Data
         }
 
 
-        private void AddContractManagers(ModelBuilder modelBuilder)
+        private void AddManagers(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<ContractManager>(e =>
+            modelBuilder.Entity<Manager>(e =>
             {
-                e.ToTable("ContractManagers");
+                e.ToTable("Managers");
                 e.HasKey(cm => cm.Id);
                 e.Property(cm => cm.IdentityHash).IsRequired();
                 e.Property(cm => cm.Email).IsRequired();
@@ -429,7 +429,7 @@ namespace HappyTravel.Hiroshima.Data
         public virtual DbSet<Amenity> Amenities { get; set; }
         public virtual DbSet<RoomCancellationPolicy> RoomCancellationPolicies { get; set; }
         public virtual DbSet<ContractAccommodationRelation> ContractAccommodationRelations { get; set; }
-        public virtual DbSet<ContractManager> ContractManagers { get; set; }
+        public virtual DbSet<Manager> ContractManagers { get; set; }
         public virtual DbSet<Contract> Contracts { get; set; }
         public virtual DbSet<Country> Countries { get; set; }
         public virtual DbSet<Document> Documents { get; set; }

@@ -9,13 +9,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions
 {
     public static class ContractManagerExtensions
     {
-        public static Task<Result<ContractManager>> EnsureContractBelongsToContractManager(this Task<Result<ContractManager>> contractManager,
+        public static Task<Result<Manager>> EnsureContractBelongsToContractManager(this Task<Result<Manager>> contractManager,
             DirectContractsDbContext dbContext, int contractId)
             => contractManager.Ensure(cm => dbContext.DoesContractBelongToContractManager(contractId, cm.Id),
                 $"Invalid contract id '{contractId}'");
 
 
-        public static Task<Result<ContractManager>> EnsureAccommodationBelongsToContractManager(this Task<Result<ContractManager>> contractManager,
+        public static Task<Result<Manager>> EnsureAccommodationBelongsToContractManager(this Task<Result<Manager>> contractManager,
             DirectContractsDbContext dbContext, int accommodationId)
             => contractManager.Ensure(
                 async cm
@@ -23,7 +23,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions
                 $"Invalid accommodation id '{accommodationId}'");
 
 
-        public static Task<Result<ContractManager>> EnsureRoomBelongsToContractManager(this Task<Result<ContractManager>> contractManager,
+        public static Task<Result<Manager>> EnsureRoomBelongsToContractManager(this Task<Result<Manager>> contractManager,
             DirectContractsDbContext dbContext, int accommodationId, int roomId)
             => contractManager
                 .Ensure(

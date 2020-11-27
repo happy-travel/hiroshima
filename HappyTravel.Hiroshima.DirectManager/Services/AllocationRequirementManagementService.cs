@@ -32,7 +32,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Map(Build);
 
 
-            async Task<Result> CheckRoomAndSeasonRangeIds(ContractManager contractManager) 
+            async Task<Result> CheckRoomAndSeasonRangeIds(Manager contractManager) 
                 => Result.Combine(await CheckIfSeasonRangesBelongToContract(allocationRequirements.Select(requirement => requirement.SeasonRangeId).ToList()),
                 await CheckIfRoomsBelongToContract(contractManager, allocationRequirements.Select(requirement => requirement.RoomId).ToList()));
 
@@ -41,7 +41,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 => _dbContext.CheckIfSeasonRangesBelongToContract(contractId, seasonRangeIds);
 
 
-            Task<Result> CheckIfRoomsBelongToContract(ContractManager contractManager, List<int> roomIds)
+            Task<Result> CheckIfRoomsBelongToContract(Manager contractManager, List<int> roomIds)
                 => _dbContext.CheckIfRoomsBelongToContract(contractId, contractManager.Id, roomIds);
             
             

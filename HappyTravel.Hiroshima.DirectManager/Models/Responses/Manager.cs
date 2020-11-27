@@ -1,8 +1,8 @@
 ﻿namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
-    public readonly struct ContractManager
+    public readonly struct Manager
     {
-        public ContractManager(string firstName, string lastName, string title, string position, string email, string phone, string fax)
+        public Manager(string firstName, string lastName, string title, string position, string email, string phone, string fax)
         {
             FirstName = firstName;
             LastName = lastName;

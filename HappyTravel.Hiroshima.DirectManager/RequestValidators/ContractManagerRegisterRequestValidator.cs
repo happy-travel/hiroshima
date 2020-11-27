@@ -3,7 +3,7 @@ using HappyTravel.Hiroshima.DirectManager.Models.Requests;
 
 namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
 {
-    public class ContractManagerRegisterRequestValidator : AbstractValidator<ContractManager>
+    public class ContractManagerRegisterRequestValidator : AbstractValidator<Manager>
     {
         public ContractManagerRegisterRequestValidator()
         {
