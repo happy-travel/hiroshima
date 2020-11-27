@@ -19,7 +19,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             var identityHash = GetIdentityHash();
 
-            var contractManager = await _dbContext.ContractManagers.SingleOrDefaultAsync(manager => manager.IsActive && manager.IdentityHash  == identityHash);
+            var contractManager = await _dbContext.Managers.SingleOrDefaultAsync(manager => manager.IsActive && manager.IdentityHash  == identityHash);
 
             return contractManager is null
                 ? Result.Failure<Manager>("Failed to retrieve a contract manager") 
@@ -28,7 +28,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         public async Task<bool> DoesContractManagerExist()
-            => await _dbContext.ContractManagers.SingleOrDefaultAsync(contractManager => contractManager.IdentityHash == GetIdentityHash()) != null;
+            => await _dbContext.Managers.SingleOrDefaultAsync(contractManager => contractManager.IdentityHash == GetIdentityHash()) != null;
 
         
         public string GetIdentityHash() => _tokenInfoAccessor.GetIdentityHash();

@@ -281,8 +281,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private async Task<Contract> GetContract(int contractId, int contractManagerId) =>
-            await _dbContext.Contracts.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.Id == contractId);
+        private async Task<Contract> GetContract(int contractId, int managerId) =>
+            await _dbContext.Contracts.SingleOrDefaultAsync(c => c.ManagerId == managerId && c.Id == contractId);
 
 
         private async Task<List<SeasonRange>> GetOrderedSeasonRanges(Expression<Func<Season, bool>> expression, int skip, int top)

@@ -52,10 +52,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Map(Get);
 
 
-            async Task<List<Models.Responses.Contract>> Get(Manager contractManager)
+            async Task<List<Models.Responses.Contract>> Get(Manager manager)
             {
                 var contracts = await _dbContext.Contracts
-                        .Where(contract => contract.ContractManagerId == contractManager.Id).OrderBy(contract => contract.Id)
+                        .Where(contract => contract.ManagerId == manager.Id).OrderBy(contract => contract.Id)
                         .Skip(skip)
                         .Take(top)
                         .ToListAsync();
@@ -65,7 +65,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                     var contractIds = contracts.Select(contract => contract.Id).ToList();
                     var contractsAccommodationRelations =
-                        (await GetContractRelations(contractManager.Id, contractIds)).ToDictionary(relation => relation.ContractId);
+                        (await GetContractRelations(manager.Id, contractIds)).ToDictionary(relation => relation.ContractId);
 
                     return contracts.Select(contract =>
                     {
@@ -153,9 +153,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 return await _documentManagementService.RemoveAll(contractManagerId, contractId);
             }
 
-            async Task RemoveContract(int contractManagerId)
+            async Task RemoveContract(int managerId)
             {
-                var contract = await _dbContext.Contracts.SingleOrDefaultAsync(c => c.Id == contractId && c.ContractManagerId == contractManagerId);
+                var contract = await _dbContext.Contracts.SingleOrDefaultAsync(c => c.Id == contractId && c.ManagerId == managerId);
                 if (contract is null)
                     return;
 
@@ -284,7 +284,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Contract Create(int contractManagerId, Models.Requests.Contract contract)
+        private Contract Create(int managerId, Models.Requests.Contract contract)
             => new Contract
             {
                 Name = contract.Name,
@@ -292,7 +292,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 ValidFrom = contract.ValidFrom.Date,
                 ValidTo = contract.ValidTo.Date,
                 Modified = DateTime.UtcNow,
-                ContractManagerId = contractManagerId
+                ManagerId = managerId
             };
         
         
@@ -318,32 +318,32 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private async Task<Contract> GetContractWithDocuments(int contractId, int contractManagerId)
+        private async Task<Contract> GetContractWithDocuments(int contractId, int managerId)
         {
-            var contract = await _dbContext.Contracts.SingleOrDefaultAsync(c => c.ContractManagerId == contractManagerId && c.Id == contractId);
+            var contract = await _dbContext.Contracts.SingleOrDefaultAsync(c => c.ManagerId == managerId && c.Id == contractId);
             if (contract == null)
                 return contract;
 
-            contract.Documents = await _dbContext.Documents.Where(d => d.ContractManagerId == contractManagerId && d.ContractId == contractId).ToListAsync();
+            contract.Documents = await _dbContext.Documents.Where(d => d.ManagerId == managerId && d.ContractId == contractId).ToListAsync();
 
             return contract;
         }
 
 
-        private async Task<List<Accommodation>> GetRelatedAccommodations(int contractId, int contractManagerId) =>
+        private async Task<List<Accommodation>> GetRelatedAccommodations(int contractId, int managerId) =>
             (await JoinContractAccommodationRelationAndAccommodation()
                 .Where(contractAccommodationRelationAndAccommodation =>
-                    contractAccommodationRelationAndAccommodation.Accommodation!.ContractManagerId == contractManagerId &&
+                    contractAccommodationRelationAndAccommodation.Accommodation!.ManagerId == managerId &&
                     contractAccommodationRelationAndAccommodation.ContractAccommodationRelation!.ContractId ==
                     contractId)
                 .Select(contractAccommodationRelationAndAccommodation => contractAccommodationRelationAndAccommodation.Accommodation)
                 .ToListAsync())!;
 
 
-        private async Task<List<ContractAccommodationRelation>> GetContractRelations(int contractManagerId, List<int> contractIds)
+        private async Task<List<ContractAccommodationRelation>> GetContractRelations(int managerId, List<int> contractIds)
             => (await JoinContractAccommodationRelationAndAccommodation()
                 .Where(contractAccommodationRelationAndAccommodation =>
-                    contractAccommodationRelationAndAccommodation.Accommodation!.ContractManagerId == contractManagerId &&
+                    contractAccommodationRelationAndAccommodation.Accommodation!.ManagerId == managerId &&
                     contractIds.Contains(contractAccommodationRelationAndAccommodation.ContractAccommodationRelation!.ContractId))
                 .Select(contractAccommodationRelationAndAccommodation =>
                     contractAccommodationRelationAndAccommodation.ContractAccommodationRelation).ToListAsync())!;

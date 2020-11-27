@@ -47,11 +47,11 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations
         
         public OccupancyDefinition OccupancyDefinition { get; set; }
         
-        public int ContractManagerId { get; set; }
+        public int ManagerId { get; set; }
         
         public int LocationId { get; set; }
         
-        public Manager ContractManager { get; set; }
+        public Manager Manager { get; set; }
         
         public Locations.Location Location { get; set; }
         

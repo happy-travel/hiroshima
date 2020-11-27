@@ -147,15 +147,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
         
     
-        private async Task<Result> Validate(int contractManagerId, int contractId, List<Models.Requests.AvailabilityRestriction> availabilityRestrictions)
+        private async Task<Result> Validate(int managerId, int contractId, List<Models.Requests.AvailabilityRestriction> availabilityRestrictions)
         {
-            var contract = await _dbContext.Contracts.SingleOrDefaultAsync(c => c.Id == contractId && c.ContractManagerId == contractManagerId);
+            var contract = await _dbContext.Contracts.SingleOrDefaultAsync(c => c.Id == contractId && c.ManagerId == managerId);
             if (contract == null)
                 return Result.Failure($"Contract '{contractId}' doesn't belong to the contract manager");
             
             return Result.Combine(GenericValidator<List<Models.Requests.AvailabilityRestriction>>.Validate(
                 configure => configure.RuleFor(restrictions => restrictions).SetValidator(new AvailabilityRestrictionsValidator(contract)), availabilityRestrictions),
-                await _dbContext.CheckIfRoomsBelongToContract(contractId, contractManagerId,
+                await _dbContext.CheckIfRoomsBelongToContract(contractId, managerId,
                     availabilityRestrictions.Select(availabilityRestriction => availabilityRestriction.RoomId).ToList()));
         }
 

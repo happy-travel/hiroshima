@@ -78,7 +78,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(a => a.CheckInTime).IsRequired();
                 e.Property(a => a.CheckOutTime).IsRequired();
                 e.Property(a => a.OccupancyDefinition).HasColumnType("jsonb");
-                e.Property(a => a.ContractManagerId).IsRequired();
+                e.Property(a => a.ManagerId).IsRequired();
                 e.Property(a => a.LeisureAndSports).HasColumnType("jsonb").IsRequired();
                 e.Property(a => a.Status).IsRequired();
                 e.Property(a => a.RateOptions).HasColumnType("jsonb").IsRequired();
@@ -89,8 +89,8 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(a => a.Images).HasColumnType("jsonb").IsRequired().HasDefaultValueSql("'[]'::jsonb");
                 e.HasIndex(a => a.Coordinates).HasMethod("GIST");
                 e.HasIndex(a => a.LocationId);
-                e.HasIndex(a => a.ContractManagerId);
-                e.HasOne(a => a.ContractManager).WithMany(cm => cm.Accommodations).OnDelete(DeleteBehavior.SetNull);
+                e.HasIndex(a => a.ManagerId);
+                e.HasOne(a => a.Manager).WithMany(cm => cm.Accommodations).OnDelete(DeleteBehavior.SetNull);
                 e.HasOne(a => a.Location).WithMany().OnDelete(DeleteBehavior.SetNull);
             });
         }
@@ -126,7 +126,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(b => b.AvailabilityRequest).IsRequired().HasColumnType("jsonb");
                 e.Property(b => b.BookingRequest).IsRequired().HasColumnType("jsonb");
                 e.Property(b => b.AvailableRates).IsRequired().HasColumnType("jsonb");
-                e.HasOne(b => b.ContractManager).WithMany(cm => cm.BookingOrders).OnDelete(DeleteBehavior.SetNull);
+                e.HasOne(b => b.Manager).WithMany(cm => cm.BookingOrders).OnDelete(DeleteBehavior.SetNull);
             });
         }
 
@@ -169,22 +169,22 @@ namespace HappyTravel.Hiroshima.Data
             modelBuilder.Entity<Manager>(e =>
             {
                 e.ToTable("Managers");
-                e.HasKey(cm => cm.Id);
-                e.Property(cm => cm.IdentityHash).IsRequired();
-                e.Property(cm => cm.Email).IsRequired();
-                e.Property(cm => cm.FirstName).IsRequired();
-                e.Property(cm => cm.LastName).IsRequired();
-                e.Property(cm => cm.Title).IsRequired();
-                e.Property(cm => cm.Position).IsRequired();
-                e.Property(cm => cm.Phone).IsRequired();
-                e.Property(cm => cm.Fax);
+                e.HasKey(m => m.Id);
+                e.Property(m => m.IdentityHash).IsRequired();
+                e.Property(m => m.Email).IsRequired();
+                e.Property(m => m.FirstName).IsRequired();
+                e.Property(m => m.LastName).IsRequired();
+                e.Property(m => m.Title).IsRequired();
+                e.Property(m => m.Position).IsRequired();
+                e.Property(m => m.Phone).IsRequired();
+                e.Property(m => m.Fax);
                 
-                e.Property(cm => cm.Created).IsRequired().HasDefaultValueSql("now() at time zone 'utc'");
-                e.Property(cm => cm.Updated).IsRequired().HasDefaultValueSql("now() at time zone 'utc'");
-                e.Property(cm => cm.IsActive).IsRequired().HasDefaultValue(false);
+                e.Property(m => m.Created).IsRequired().HasDefaultValueSql("now() at time zone 'utc'");
+                e.Property(m => m.Updated).IsRequired().HasDefaultValueSql("now() at time zone 'utc'");
+                e.Property(m => m.IsActive).IsRequired().HasDefaultValue(false);
                 
-                e.HasIndex(cm => cm.IdentityHash).IsUnique();
-                e.HasIndex(cm => cm.Email).IsUnique();
+                e.HasIndex(m => m.IdentityHash).IsUnique();
+                e.HasIndex(m => m.Email).IsUnique();
             });
         }
 
@@ -199,12 +199,12 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(c => c.ValidTo).IsRequired();
                 e.Property(c => c.Name).IsRequired();
                 e.Property(c => c.Description);
-                e.Property(c => c.ContractManagerId).IsRequired();
+                e.Property(c => c.ManagerId).IsRequired();
                 e.Property(c => c.Created).IsRequired();
                 e.Property(c => c.Modified).IsRequired();
                 e.Property(c => c.Verified).IsRequired();
-                e.HasIndex(c => c.ContractManagerId);
-                e.HasOne(c => c.ContractManager).WithMany(cm => cm.Contracts).OnDelete(DeleteBehavior.SetNull);
+                e.HasIndex(c => c.ManagerId);
+                e.HasOne(c => c.Manager).WithMany(cm => cm.Contracts).OnDelete(DeleteBehavior.SetNull);
             });
         }
 
@@ -231,11 +231,11 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(d => d.ContentType).IsRequired();
                 e.Property(d => d.Key).IsRequired();
                 e.Property(d => d.Created).IsRequired();
-                e.Property(d => d.ContractManagerId).IsRequired();
+                e.Property(d => d.ManagerId).IsRequired();
                 e.Property(d => d.ContractId).IsRequired();
-                e.HasIndex(d => d.ContractManagerId);
+                e.HasIndex(d => d.ManagerId);
                 e.HasIndex(d => d.ContractId);
-                e.HasOne(d => d.ContractManager).WithMany().OnDelete(DeleteBehavior.SetNull);
+                e.HasOne(d => d.Manager).WithMany().OnDelete(DeleteBehavior.SetNull);
                 e.HasOne(d => d.Contract).WithMany(c => c.Documents).OnDelete(DeleteBehavior.SetNull);
             });
         }
@@ -251,15 +251,15 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(i => i.OriginalImageDetails).HasColumnType("jsonb").IsRequired();
                 e.Property(i => i.Keys).HasColumnType("jsonb").IsRequired().HasDefaultValueSql("'{}'::jsonb");
                 e.Property(i => i.Created).IsRequired();
-                e.Property(i => i.ContractManagerId).IsRequired();
+                e.Property(i => i.ManagerId).IsRequired();
                 e.Property(i => i.ReferenceId).IsRequired();
                 e.Property(i => i.ImageType).IsRequired();
                 e.Property(i => i.Position).IsRequired();
                 e.Property(i => i.Description).HasColumnType("jsonb").IsRequired();
-                e.HasIndex(i => i.ContractManagerId);
+                e.HasIndex(i => i.ManagerId);
                 e.HasIndex(i => i.ReferenceId);
                 e.HasIndex(i => i.ImageType);
-                e.HasOne(i => i.ContractManager).WithMany().OnDelete(DeleteBehavior.SetNull);
+                e.HasOne(i => i.Manager).WithMany().OnDelete(DeleteBehavior.SetNull);
             });
         }
 
@@ -429,7 +429,7 @@ namespace HappyTravel.Hiroshima.Data
         public virtual DbSet<Amenity> Amenities { get; set; }
         public virtual DbSet<RoomCancellationPolicy> RoomCancellationPolicies { get; set; }
         public virtual DbSet<ContractAccommodationRelation> ContractAccommodationRelations { get; set; }
-        public virtual DbSet<Manager> ContractManagers { get; set; }
+        public virtual DbSet<Manager> Managers { get; set; }
         public virtual DbSet<Contract> Contracts { get; set; }
         public virtual DbSet<Country> Countries { get; set; }
         public virtual DbSet<Document> Documents { get; set; }

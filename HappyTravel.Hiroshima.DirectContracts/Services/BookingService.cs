@@ -70,7 +70,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
             
             Common.Models.Bookings.BookingOrder CreateDbEntry(AvailableRates availableRates)
             {
-                var contractManagerId = availableRates.Rates.First().Room.Accommodation.ContractManagerId;
+                var contractManagerId = availableRates.Rates.First().Room.Accommodation.ManagerId;
                 var utcNow = DateTime.UtcNow;
             
                 return new Common.Models.Bookings.BookingOrder
@@ -84,7 +84,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
                     BookingRequest = JsonDocumentUtilities.CreateJDocument(bookingRequest),
                     AvailabilityRequest = JsonDocumentUtilities.CreateJDocument(availabilityRequest),
                     AvailableRates = JsonDocumentUtilities.CreateJDocument(availableRates.AvailableRatesSlim),
-                    ContractManagerId = contractManagerId
+                    ManagerId = contractManagerId
                 };
             }
 

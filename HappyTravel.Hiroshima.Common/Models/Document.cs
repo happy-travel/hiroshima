@@ -9,10 +9,10 @@ namespace HappyTravel.Hiroshima.Common.Models
         public string ContentType { get; set; } = string.Empty;
         public string Key { get; set; } = string.Empty;
         public DateTime Created { get; set; }
-        public int ContractManagerId { get; set; }
+        public int ManagerId { get; set; }
         public int ContractId { get; set; }
 
-        public Manager ContractManager { get; set; }
+        public Manager Manager { get; set; }
         public Contract Contract { get; set; }
     }
 }

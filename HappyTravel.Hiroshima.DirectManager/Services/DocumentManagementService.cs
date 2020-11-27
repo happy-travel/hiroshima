@@ -110,12 +110,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public async Task<Result> RemoveAll(int contractManagerId, int contractId)
+        public async Task<Result> RemoveAll(int managerId, int contractId)
         {
-            var documents = _dbContext.Documents.Where(document => document.ContractManagerId == contractManagerId && document.ContractId == contractId);
+            var documents = _dbContext.Documents.Where(document => document.ManagerId == managerId && document.ContractId == contractId);
             foreach (var document in documents)
             {
-                var result = await RemoveDocument(contractManagerId, contractId, document.Id);
+                var result = await RemoveDocument(managerId, contractId, document.Id);
                 if (!result)
                     return Result.Failure("Document deletion error");
             }
@@ -123,13 +123,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Document Create(int contractManagerId, Models.Requests.Document document) => new Document
+        private Document Create(int managerId, Models.Requests.Document document) => new Document
         {
             Name = document.UploadedFile.FileName,
             ContentType = document.UploadedFile.ContentType,
             Key = string.Empty,
             Created = DateTime.UtcNow,
-            ContractManagerId = contractManagerId,
+            ManagerId = managerId,
             ContractId = document.ContractId
         };
 
@@ -138,9 +138,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             => new Models.Responses.Document(document.Id, document.Name, document.ContentType, document.Key, document.ContractId);
 
 
-        private async Task<bool> RemoveDocument(int contractManagerId, int contractId, Guid documentId)
+        private async Task<bool> RemoveDocument(int managerId, int contractId, Guid documentId)
         {
-            var document = await _dbContext.Documents.SingleOrDefaultAsync(d => d.ContractManagerId == contractManagerId &&
+            var document = await _dbContext.Documents.SingleOrDefaultAsync(d => d.ManagerId == managerId &&
                 d.ContractId == contractId && d.Id == documentId);
             if (document is null)
                 return false;

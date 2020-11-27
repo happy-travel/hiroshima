@@ -98,7 +98,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             
             async Task<Common.Models.Manager> Update(Common.Models.Manager contractManager)
             {
-                var entry = _dbContext.ContractManagers.Update(contractManager);
+                var entry = _dbContext.Managers.Update(contractManager);
                 await _dbContext.SaveChangesAsync();
                 _dbContext.DetachEntry(entry.Entity);
                 

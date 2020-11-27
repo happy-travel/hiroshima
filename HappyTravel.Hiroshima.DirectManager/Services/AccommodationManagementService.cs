@@ -78,10 +78,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 );
 
 
-            async Task<List<Accommodation>> GetContractManagerAccommodationsWithRoomIds(int contractManagerId)
+            async Task<List<Accommodation>> GetContractManagerAccommodationsWithRoomIds(int managerId)
                 => await _dbContext.Accommodations
                     .Include(accommodation => accommodation.Rooms)
-                    .Where(accommodation => accommodation.ContractManagerId == contractManagerId)
+                    .Where(accommodation => accommodation.ManagerId == managerId)
                     .OrderBy(accommodation => accommodation.Id)
                     .Skip(skip)
                     .Take(top)
@@ -191,11 +191,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Map(Build);
 
 
-            async Task<Result<Room>> GetRoom(int contractManagerId)
+            async Task<Result<Room>> GetRoom(int managerId)
             {
                 var room = await _dbContext.GetAccommodations()
                     .Where(accommodation => accommodation.Id == accommodationId &&
-                        accommodation.ContractManagerId == contractManagerId)
+                        accommodation.ManagerId == managerId)
                     .Select(accommodation => accommodation.Rooms.SingleOrDefault(r => r.Id == roomId))
                     .SingleOrDefaultAsync();
 
@@ -290,17 +290,17 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private IQueryable<Room> GetRooms(int contractManagerId, int accommodationId)
+        private IQueryable<Room> GetRooms(int managerId, int accommodationId)
             => _dbContext.Rooms
                 .Join(_dbContext.Accommodations, room => room.AccommodationId, accommodation => accommodation.Id,
                     (room, accommodation) => new { room, accommodation })
                 .Where(roomAndAccommodations =>
-                    roomAndAccommodations.accommodation.ContractManagerId == contractManagerId &&
+                    roomAndAccommodations.accommodation.ManagerId == managerId &&
                     roomAndAccommodations.accommodation.Id == accommodationId)
                 .Select(roomAndAccommodation => roomAndAccommodation.room);
 
 
-        private Accommodation CreateAccommodation(int contractManagerId, Models.Requests.Accommodation accommodation)
+        private Accommodation CreateAccommodation(int managerId, Models.Requests.Accommodation accommodation)
         {
             return new Accommodation
             {
@@ -312,7 +312,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 TextualDescription = JsonDocumentUtilities.CreateJDocument(accommodation.Description),
                 LeisureAndSports = JsonDocumentUtilities.CreateJDocument(accommodation.LeisureAndSports),
                 Rating = accommodation.Rating,
-                ContractManagerId = contractManagerId,
+                ManagerId = managerId,
                 ContactInfo = new ContactInfo
                 {
                     Emails = new List<string> {accommodation.ContactInfo.Email},
@@ -445,10 +445,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             => await _dbContext.Rooms.Where(room => room.AccommodationId == accommodationId && room.Id == roomId).SingleOrDefaultAsync() != null;
 
 
-        private IQueryable<Accommodation> GetAccommodationWithRooms(int contractManagerId, int accommodationId)
+        private IQueryable<Accommodation> GetAccommodationWithRooms(int managerId, int accommodationId)
             => _dbContext.Accommodations
             .Include(accommodation => accommodation.Rooms)
-            .Where(accommodation => accommodation.ContractManagerId == contractManagerId &&
+            .Where(accommodation => accommodation.ManagerId == managerId &&
                 accommodation.Id == accommodationId);
 
 

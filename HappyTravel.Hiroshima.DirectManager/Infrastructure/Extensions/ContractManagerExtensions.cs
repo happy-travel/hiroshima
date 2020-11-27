@@ -19,7 +19,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions
             DirectContractsDbContext dbContext, int accommodationId)
             => contractManager.Ensure(
                 async cm
-                    => await dbContext.Accommodations.SingleOrDefaultAsync(a => a.Id == accommodationId && a.ContractManagerId == cm.Id) != null,
+                    => await dbContext.Accommodations.SingleOrDefaultAsync(a => a.Id == accommodationId && a.ManagerId == cm.Id) != null,
                 $"Invalid accommodation id '{accommodationId}'");
 
 
