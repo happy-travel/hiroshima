@@ -1,8 +1,6 @@
-﻿using System;
+﻿using HappyTravel.Hiroshima.Common.Models.Accommodations;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HappyTravel.Hiroshima.Common.Models
 {
@@ -16,5 +14,10 @@ namespace HappyTravel.Hiroshima.Common.Models
         public string Website { get; set; } = string.Empty;
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
+
+        public List<Manager> Managers { get; set; } = new List<Manager>();
+        public List<Accommodation> Accommodations { get; set; } = new List<Accommodation>();
+        public List<Contract> Contracts { get; set; } = new List<Contract>();
+        public List<Bookings.BookingOrder> BookingOrders { get; set; } = new List<Bookings.BookingOrder>();
     }
 }

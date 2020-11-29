@@ -12,7 +12,7 @@ namespace HappyTravel.Hiroshima.Data.Extensions
 {
     public static class ContractManagementQueryExtensions
     {
-        public static async Task<Result> CheckIfRoomsBelongToContract(this DirectContractsDbContext dbContext, int contractId, int managerId, List<int> roomIds)
+        public static async Task<Result> CheckIfRoomsBelongToContract(this DirectContractsDbContext dbContext, int contractId, int companyId, List<int> roomIds)
         {
             if (!roomIds.Any())
                 return Result.Success();
@@ -23,7 +23,8 @@ namespace HappyTravel.Hiroshima.Data.Extensions
                     room,
                     accommodation
                 })
-                .Join(dbContext.ContractAccommodationRelations, roomAndAccommodation=> roomAndAccommodation.accommodation.Id, relation => relation.AccommodationId, (roomAndAccommodation, relation) => new {roomAndAccommodation.accommodation, roomAndAccommodation.room, relation})
+                .Join(dbContext.ContractAccommodationRelations, roomAndAccommodation=> roomAndAccommodation.accommodation.Id, relation => relation.AccommodationId, (roomAndAccommodation, relation) 
+                    => new {roomAndAccommodation.accommodation, roomAndAccommodation.room, relation})
                 .Join(dbContext.Contracts, accommodationAndRoomAndRelation => accommodationAndRoomAndRelation.relation.ContractId , contract => contract.Id,
                     (accommodationAndRoomAndRelation, contract) => new
                     {
@@ -34,7 +35,7 @@ namespace HappyTravel.Hiroshima.Data.Extensions
                     })
                 .Where(accommodationAndRoomAndRelationAndContract => accommodationAndRoomAndRelationAndContract.contract.Id == contractId &&
                     roomIds.Contains(accommodationAndRoomAndRelationAndContract.room.Id) &&
-                    accommodationAndRoomAndRelationAndContract.contract.ManagerId == managerId)
+                    accommodationAndRoomAndRelationAndContract.contract.CompanyId == companyId)
                 .Select(accommodationAndRoomAndRelationAndContract => accommodationAndRoomAndRelationAndContract.room.Id)
                 .ToListAsync();
                 
@@ -76,19 +77,23 @@ namespace HappyTravel.Hiroshima.Data.Extensions
         }
         
 
-        public static IQueryable<Accommodation> GetContractedAccommodations(this DirectContractsDbContext dbContext, int contractId, int managerId) 
+        public static IQueryable<Accommodation> GetContractedAccommodations(this DirectContractsDbContext dbContext, int contractId, int companyId) 
             => dbContext.Accommodations
             .Join(dbContext.ContractAccommodationRelations, accommodation => accommodation.Id, relation => relation.AccommodationId,
                 (accommodation, relation) => new {accommodation, relation})
             .Join(dbContext.Contracts, accommodationAndRelation => accommodationAndRelation.relation.ContractId, contract => contract.Id,
                 (accommodationAndRelation, contract) => new {accommodationAndRelation, contract})
-            .Where(accommodationAndRelationAndContract => accommodationAndRelationAndContract.contract.ManagerId == managerId &&
+            .Where(accommodationAndRelationAndContract => accommodationAndRelationAndContract.contract.CompanyId == companyId &&
                 accommodationAndRelationAndContract.contract.Id == contractId)
             .Select(accommodationAndRelationAndContract => accommodationAndRelationAndContract.accommodationAndRelation.accommodation);
 
 
-        public static async Task<bool> DoesContractBelongToContractManager(this DirectContractsDbContext dbContext, int contractId, int managerId)
-            => await dbContext.Contracts.SingleOrDefaultAsync(c => c.ManagerId == managerId && c.Id == contractId) != null;
+        public static async Task<bool> DoesAccommodationBelongToCompany(this DirectContractsDbContext dbContext, int accommodationId, int companyId)
+            => await dbContext.Accommodations.SingleOrDefaultAsync(c => c.CompanyId == companyId && c.Id == accommodationId) != null;
+
+
+        public static async Task<bool> DoesContractBelongToCompany(this DirectContractsDbContext dbContext, int contractId, int companyId)
+            => await dbContext.Contracts.SingleOrDefaultAsync(c => c.CompanyId == companyId && c.Id == contractId) != null;
 
 
         public static IIncludableQueryable<Season, List<SeasonRange>> GetSeasons(this DirectContractsDbContext dbContext)

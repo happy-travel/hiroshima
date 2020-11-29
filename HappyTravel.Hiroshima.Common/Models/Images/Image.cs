@@ -10,12 +10,12 @@ namespace HappyTravel.Hiroshima.Common.Models.Images
         public OriginalImageDetails OriginalImageDetails { get; set; } = new OriginalImageDetails();
         public ImageKeys Keys { get; set; } = new ImageKeys();
         public DateTime Created { get; set; }
-        public int ManagerId { get; set; }
+        public int CompanyId { get; set; }
         public int ReferenceId { get; set; }
         public ImageTypes ImageType { get; set; }
         public int Position { get; set; }
         public JsonDocument Description { get; set; }
 
-        public Manager Manager { get; set;}
+        public Company Company { get; set;}
     }
 }

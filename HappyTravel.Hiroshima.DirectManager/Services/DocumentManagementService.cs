@@ -18,10 +18,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class DocumentManagementService : IDocumentManagementService
     {
-        public DocumentManagementService(IContractManagerContextService contractManagerContextService,
+        public DocumentManagementService(IContractManagerContextService managerContextService,
             DirectContractsDbContext dbContext, IAmazonS3ClientService amazonS3ClientService, IOptions<DocumentManagementServiceOptions> options)
         {
-            _contractManagerContext = contractManagerContextService;
+            _managerContext = managerContextService;
             _dbContext = dbContext;
             _amazonS3ClientService = amazonS3ClientService;
             _bucketName = options.Value.AmazonS3Bucket;
@@ -30,8 +30,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.DocumentFile>> Get(int contractId, Guid documentId)
         {
-            return _contractManagerContext.GetContractManager()
-                .EnsureContractBelongsToContractManager(_dbContext, contractId)
+            return _managerContext.GetContractManager()
+                .GetCompany(_dbContext)
+                .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Bind(dbDocument => GetDocumentFile());
 
 
@@ -56,15 +57,16 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.Document>> Add(Models.Requests.Document document)
         {
-            return _contractManagerContext.GetContractManager()
-                .EnsureContractBelongsToContractManager(_dbContext, document.ContractId)
-                .Bind(contractManager =>
+            return _managerContext.GetContractManager()
+                .GetCompany(_dbContext)
+                .EnsureContractBelongsToCompany(_dbContext, document.ContractId)
+                .Bind(company =>
                 {
                     var validationResult = ValidationHelper.Validate(document, new DocumentValidator());
 
-                    return validationResult.IsFailure ? Result.Failure<Manager>(validationResult.Error) : Result.Success(contractManager);
+                    return validationResult.IsFailure ? Result.Failure<Company>(validationResult.Error) : Result.Success(company);
                 })
-                .Map(contractManager => Create(contractManager.Id, document))
+                .Map(company => Create(company.Id, document))
                 .Map(dbDocument => AddDocument(dbDocument, document.UploadedFile))
                 .Ensure(dbDocument => dbDocument != null, "Error saving document")
                 .Map(dbDocument => Build(dbDocument));
@@ -101,21 +103,22 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result> Remove(int contractId, Guid documentId)
         {
-            return await _contractManagerContext.GetContractManager()
-                .Tap(async contractManager => 
+            return await _managerContext.GetContractManager()
+                .GetCompany(_dbContext)
+                .Tap(async company => 
                 {
-                    var result = await RemoveDocument(contractManager.Id, contractId, documentId);
-                    return result ? Result.Success(contractManager) : Result.Failure<Manager>("Document deletion error"); 
+                    var result = await RemoveDocument(company.Id, contractId, documentId);
+                    return result ? Result.Success(company) : Result.Failure<Company>("Document deletion error"); 
                 });
         }
 
 
-        public async Task<Result> RemoveAll(int managerId, int contractId)
+        public async Task<Result> RemoveAll(int companyId, int contractId)
         {
-            var documents = _dbContext.Documents.Where(document => document.ManagerId == managerId && document.ContractId == contractId);
+            var documents = _dbContext.Documents.Where(document => document.CompanyId == companyId && document.ContractId == contractId);
             foreach (var document in documents)
             {
-                var result = await RemoveDocument(managerId, contractId, document.Id);
+                var result = await RemoveDocument(companyId, contractId, document.Id);
                 if (!result)
                     return Result.Failure("Document deletion error");
             }
@@ -123,13 +126,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Document Create(int managerId, Models.Requests.Document document) => new Document
+        private Document Create(int companyId, Models.Requests.Document document) => new Document
         {
             Name = document.UploadedFile.FileName,
             ContentType = document.UploadedFile.ContentType,
             Key = string.Empty,
             Created = DateTime.UtcNow,
-            ManagerId = managerId,
+            CompanyId = companyId,
             ContractId = document.ContractId
         };
 
@@ -138,9 +141,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             => new Models.Responses.Document(document.Id, document.Name, document.ContentType, document.Key, document.ContractId);
 
 
-        private async Task<bool> RemoveDocument(int managerId, int contractId, Guid documentId)
+        private async Task<bool> RemoveDocument(int companyId, int contractId, Guid documentId)
         {
-            var document = await _dbContext.Documents.SingleOrDefaultAsync(d => d.ManagerId == managerId &&
+            var document = await _dbContext.Documents.SingleOrDefaultAsync(d => d.CompanyId == companyId &&
                 d.ContractId == contractId && d.Id == documentId);
             if (document is null)
                 return false;
@@ -161,7 +164,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         private const string S3FolderName = "contracts";
 
 
-        private readonly IContractManagerContextService _contractManagerContext;
+        private readonly IContractManagerContextService _managerContext;
         private readonly DirectContractsDbContext _dbContext;
         private readonly IAmazonS3ClientService _amazonS3ClientService;
         private readonly string _bucketName;

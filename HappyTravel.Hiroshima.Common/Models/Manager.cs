@@ -29,10 +29,8 @@ namespace HappyTravel.Hiroshima.Common.Models
         public DateTime Updated { get; set; }
         
         public bool IsActive { get; set; }
-        
-        public List<Accommodation> Accommodations { get; set; }
-        
-        public List<Contract> Contracts { get; set; }
-        public List<Bookings.BookingOrder> BookingOrders { get; set; }
+
+        public int CompanyId { get; set; }
+        public Company Company { get; set; }
     }
 }

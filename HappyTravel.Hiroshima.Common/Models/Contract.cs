@@ -24,9 +24,9 @@ namespace HappyTravel.Hiroshima.Common.Models
         
         public bool Verified { get; set; }
         
-        public int ManagerId { get; set; }
+        public int CompanyId { get; set; }
         
-        public Manager Manager { get; set; }
+        public Company Company { get; set; }
 
         public List<Season> Seasons { get; set; } = new List<Season>();
 

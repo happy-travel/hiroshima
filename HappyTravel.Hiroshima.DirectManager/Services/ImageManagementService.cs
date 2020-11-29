@@ -25,10 +25,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class ImageManagementService : IImageManagementService
     {
-        public ImageManagementService(IContractManagerContextService contractManagerContextService,
+        public ImageManagementService(IContractManagerContextService managerContextService,
             DirectContractsDbContext dbContext, IAmazonS3ClientService amazonS3ClientService, IOptions<ImageManagementServiceOptions> options)
         {
-            _contractManagerContext = contractManagerContextService;
+            _managerContext = managerContextService;
             _dbContext = dbContext;
             _amazonS3ClientService = amazonS3ClientService;
             _bucketName = options.Value.AmazonS3Bucket;
@@ -39,12 +39,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<List<Models.Responses.SlimImage>>> Get(int accommodationId)
         {
-            return _contractManagerContext.GetContractManager()
-                .EnsureAccommodationBelongsToContractManager(_dbContext, accommodationId)
-                .Map(async manager =>
+            return _managerContext.GetContractManager()
+                .GetCompany(_dbContext)
+                .EnsureAccommodationBelongsToCompany(_dbContext, accommodationId)
+                .Map(async company =>
                 {
                     return await _dbContext.Images
-                        .Where(image => image.ManagerId == manager.Id && image.ReferenceId == accommodationId && image.ImageType == ImageTypes.AccommodationImage)
+                        .Where(image => image.CompanyId == company.Id && image.ReferenceId == accommodationId && image.ImageType == ImageTypes.AccommodationImage)
                         .OrderBy(image => image.Position)
                         .ToListAsync();
                 })
@@ -54,12 +55,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<List<Models.Responses.SlimImage>>> Get(int accommodationId, int roomId)
         {
-            return _contractManagerContext.GetContractManager()
-                .EnsureRoomBelongsToContractManager(_dbContext, accommodationId, roomId)
-                .Map(async manager =>
+            return _managerContext.GetContractManager()
+                .GetCompany(_dbContext)
+                .EnsureRoomBelongsToCompany(_dbContext, accommodationId, roomId)
+                .Map(async company =>
                 {
                     return await _dbContext.Images
-                        .Where(image => image.ManagerId == manager.Id && image.ReferenceId == roomId && image.ImageType == ImageTypes.RoomImage)
+                        .Where(image => image.CompanyId == company.Id && image.ReferenceId == roomId && image.ImageType == ImageTypes.RoomImage)
                         .OrderBy(image => image.Position)
                         .ToListAsync();
                 })
@@ -69,51 +71,54 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Guid>> Add(Models.Requests.AccommodationImage image)
         {
-            return _contractManagerContext.GetContractManager()
-                .EnsureAccommodationBelongsToContractManager(_dbContext, image.AccommodationId)
-                .Bind(contractManager => Validate(image, contractManager))
-                .Tap(contractManager => ResortImages(contractManager.Id, image.AccommodationId, ImageTypes.AccommodationImage))
-                .Map(contractManager => Create(contractManager.Id, image))
+            return _managerContext.GetContractManager()
+                .GetCompany(_dbContext)
+                .EnsureAccommodationBelongsToCompany(_dbContext, image.AccommodationId)
+                .Bind(company => Validate(image, company))
+                .Tap(company => ResortImages(company.Id, image.AccommodationId, ImageTypes.AccommodationImage))
+                .Map(company => Create(company.Id, image))
                 .Ensure(dbImage => ValidateImageType(image.UploadedFile).Value, "Invalid image file type")
                 .Bind(dbImage => ConvertAndUpload(dbImage, image.UploadedFile))
                 .Bind(AddSlimImageToAccommodation);
 
-            Result<Manager> Validate(Models.Requests.AccommodationImage image, Manager contractManager)
+            Result<Company> Validate(Models.Requests.AccommodationImage image, Company company)
             {
                 var validationResult = ValidationHelper.Validate(image, new AccommodationImageValidator());
-                return validationResult.IsFailure ? Result.Failure<Manager>(validationResult.Error) : Result.Success(contractManager);
+                return validationResult.IsFailure ? Result.Failure<Company>(validationResult.Error) : Result.Success(company);
             }
         }
 
 
         public Task<Result<Guid>> Add(Models.Requests.RoomImage image)
         {
-            return _contractManagerContext.GetContractManager()
-                .EnsureRoomBelongsToContractManager(_dbContext, image.AccommodationId, image.RoomId)
-                .Bind(contractManager => Validate(image, contractManager))
+            return _managerContext.GetContractManager()
+                .GetCompany(_dbContext)
+                .EnsureRoomBelongsToCompany(_dbContext, image.AccommodationId, image.RoomId)
+                .Bind(company => Validate(image, company))
                 .Tap(contractManager => ResortImages(contractManager.Id, image.RoomId, ImageTypes.RoomImage))
                 .Map(contractManager => Create(contractManager.Id, image))
                 .Ensure(dbImage => ValidateImageType(image.UploadedFile).Value, "Invalid image file type")
                 .Bind(dbImage => ConvertAndUpload(dbImage, image.UploadedFile))
                 .Bind(AddSlimImageToRoom);
 
-            Result<Manager> Validate(Models.Requests.RoomImage image, Manager contractManager)
+            Result<Company> Validate(Models.Requests.RoomImage image, Company company)
             {
                 var validationResult = ValidationHelper.Validate(image, new RoomImageValidator());
-                return validationResult.IsFailure ? Result.Failure<Manager>(validationResult.Error) : Result.Success(contractManager);
+                return validationResult.IsFailure ? Result.Failure<Company>(validationResult.Error) : Result.Success(company);
             }
         }
 
 
         public Task<Result> Update(int accommodationId, List<Models.Requests.SlimImage> images)
         {
-            return _contractManagerContext.GetContractManager()
-                .EnsureAccommodationBelongsToContractManager(_dbContext, accommodationId)
-                .Tap(async contractManager => await ArrangeSlimImagesInAccommodation(contractManager.Id, accommodationId, images))
-                .Map(async contractManager =>
+            return _managerContext.GetContractManager()
+                .GetCompany(_dbContext)
+                .EnsureAccommodationBelongsToCompany(_dbContext, accommodationId)
+                .Tap(async company => await ArrangeSlimImagesInAccommodation(company.Id, accommodationId, images))
+                .Map(async company =>
                 {
                     return await _dbContext.Images
-                        .Where(image => image.ManagerId == contractManager.Id && image.ReferenceId == accommodationId && image.ImageType == ImageTypes.AccommodationImage)
+                        .Where(image => image.CompanyId == company.Id && image.ReferenceId == accommodationId && image.ImageType == ImageTypes.AccommodationImage)
                         .ToListAsync();
                 })
                 .Bind(dbImages => ArrangeImages(dbImages, images));
@@ -122,13 +127,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result> Update(int accommodationId, int roomId, List<Models.Requests.SlimImage> images)
         {
-            return _contractManagerContext.GetContractManager()
-                .EnsureRoomBelongsToContractManager(_dbContext, accommodationId, roomId)
-                .Tap(async contractManager => await ArrangeSlimImagesInRoom(roomId, images))
-                .Map(async contractManager =>
+            return _managerContext.GetContractManager()
+                .GetCompany(_dbContext)
+                .EnsureRoomBelongsToCompany(_dbContext, accommodationId, roomId)
+                .Tap(async company => await ArrangeSlimImagesInRoom(roomId, images))
+                .Map(async company =>
                 {
                     return await _dbContext.Images
-                        .Where(image => image.ManagerId == contractManager.Id && image.ReferenceId == roomId && image.ImageType == ImageTypes.RoomImage)
+                        .Where(image => image.CompanyId == company.Id && image.ReferenceId == roomId && image.ImageType == ImageTypes.RoomImage)
                         .ToListAsync();
                 })
                 .Bind(dbImages => ArrangeImages(dbImages, images));
@@ -137,38 +143,40 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result> Remove(int accommodationId, Guid imageId)
         {
-            return await _contractManagerContext.GetContractManager()
-                .Tap(async contractManager => 
+            return await _managerContext.GetContractManager()
+                .GetCompany(_dbContext)
+                .Tap(async company => 
                 { 
-                    var result = await RemoveImage(contractManager.Id, accommodationId, ImageTypes.AccommodationImage, imageId);
-                    return result ? Result.Success(contractManager) : Result.Failure<Manager>("Image deletion error");
+                    var result = await RemoveImage(company.Id, accommodationId, ImageTypes.AccommodationImage, imageId);
+                    return result ? Result.Success(company) : Result.Failure<Company>("Image deletion error");
                 })
-                .Tap(contractManager => RemoveSlimImageFromAccommodation(contractManager.Id, accommodationId, imageId));
+                .Tap(company => RemoveSlimImageFromAccommodation(company.Id, accommodationId, imageId));
         }
 
 
         public async Task<Result> Remove(int accommodationId, int roomId, Guid imageId)
         {
-            return await _contractManagerContext.GetContractManager()
-                .Tap(async contractManager =>
+            return await _managerContext.GetContractManager()
+                .GetCompany(_dbContext)
+                .Tap(async company =>
                 {
-                    var result = await RemoveImage(contractManager.Id, roomId, ImageTypes.RoomImage, imageId);
-                    return result ? Result.Success(contractManager) : Result.Failure<Manager>("Image deletion error");
+                    var result = await RemoveImage(company.Id, roomId, ImageTypes.RoomImage, imageId);
+                    return result ? Result.Success(company) : Result.Failure<Manager>("Image deletion error");
                 })
-                .Tap(contractManager => RemoveSlimImageFromRoom(roomId, imageId));
+                .Tap(company => RemoveSlimImageFromRoom(roomId, imageId));
         }
 
 
-        public async Task<Result> RemoveAll(int contractManagerId, int accommodationId)
+        public async Task<Result> RemoveAll(int companyId, int accommodationId)
         {
             var images = await _dbContext.Images
-                .Where(image => image.ManagerId == contractManagerId && 
+                .Where(image => image.CompanyId == companyId && 
                     image.ReferenceId == accommodationId && image.ImageType == ImageTypes.AccommodationImage)
                 .ToListAsync();
             
             foreach (var image in images)
             {
-                var result = await RemoveImage(contractManagerId, accommodationId, image.ImageType, image.Id);
+                var result = await RemoveImage(companyId, accommodationId, image.ImageType, image.Id);
                 if (!result)
                     return Result.Failure("Image deletion error");
             }
@@ -176,16 +184,16 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public async Task<Result> RemoveAll(int contractManagerId, int accommodationId, int roomId)
+        public async Task<Result> RemoveAll(int companyId, int accommodationId, int roomId)
         {
             var images = await _dbContext.Images
-                .Where(image => image.ManagerId == contractManagerId && 
+                .Where(image => image.CompanyId == companyId && 
                     image.ReferenceId == roomId && image.ImageType == ImageTypes.RoomImage)
                 .ToListAsync();
             
             foreach (var image in images)
             {
-                var result = await RemoveImage(contractManagerId, roomId, image.ImageType, image.Id);
+                var result = await RemoveImage(companyId, roomId, image.ImageType, image.Id);
                 if (!result)
                     return Result.Failure("Image deletion error");
             }
@@ -199,7 +207,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Image Create(int managerId, Models.Requests.AccommodationImage image) => new Image
+        private Image Create(int companyId, Models.Requests.AccommodationImage image) => new Image
         {
             ReferenceId = image.AccommodationId,
             ImageType = ImageTypes.AccommodationImage,
@@ -208,13 +216,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 OriginalName = image.UploadedFile.FileName,
                 OriginalContentType = image.UploadedFile.ContentType
             },
-            ManagerId = managerId,
+            CompanyId = companyId,
             Created = DateTime.UtcNow,
             Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> { Ar = string.Empty, En = string.Empty, Ru = string.Empty } )
         };
 
 
-        private Image Create(int managerId, Models.Requests.RoomImage image) => new Image
+        private Image Create(int companyId, Models.Requests.RoomImage image) => new Image
         {
             ReferenceId = image.RoomId,
             ImageType = ImageTypes.RoomImage,
@@ -223,7 +231,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 OriginalName = image.UploadedFile.FileName,
                 OriginalContentType = image.UploadedFile.ContentType
             },
-            ManagerId = managerId,
+            CompanyId = companyId,
             Created = DateTime.UtcNow,
             Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> { Ar = string.Empty, En = string.Empty, Ru = string.Empty })
         };
@@ -322,7 +330,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                 void SetImageKeys()
                 {
-                    var basePartOfKey = $"{S3FolderName}/{dbImage.ManagerId}/{imageId}";
+                    var basePartOfKey = $"{S3FolderName}/{dbImage.CompanyId}/{imageId}";
                     dbImage.Keys.MainImage = $"{basePartOfKey}-main.jpg";
                     dbImage.Keys.SmallImage = $"{basePartOfKey}-small.jpg";
                 }
@@ -379,9 +387,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private async Task<bool> RemoveImage(int contractManagerId, int referenceId, ImageTypes imageType, Guid imageId)
+        private async Task<bool> RemoveImage(int companyId, int referenceId, ImageTypes imageType, Guid imageId)
         {
-            var image = await _dbContext.Images.SingleOrDefaultAsync(i => i.ManagerId == contractManagerId && 
+            var image = await _dbContext.Images.SingleOrDefaultAsync(i => i.CompanyId == companyId && 
                 i.ReferenceId == referenceId && i.ImageType == imageType && i.Id == imageId);
             if (image is null)
                 return false;
@@ -402,10 +410,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private async Task ResortImages(int contractManagerId, int referenceId, ImageTypes imageType)
+        private async Task ResortImages(int companyId, int referenceId, ImageTypes imageType)
         {
             var images = await _dbContext.Images
-                .Where(image => image.ManagerId == contractManagerId && image.ReferenceId == referenceId && image.ImageType == imageType)
+                .Where(image => image.CompanyId == companyId && image.ReferenceId == referenceId && image.ImageType == imageType)
                 .OrderBy(image => image.Position)
                 .ToListAsync();
 
@@ -421,7 +429,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private async Task<Result<Guid>> AddSlimImageToAccommodation(Image image)
         {
-            var accommodation = _dbContext.Accommodations.SingleOrDefault(a => a.ManagerId == image.ManagerId && a.Id == image.ReferenceId);
+            var accommodation = _dbContext.Accommodations.SingleOrDefault(a => a.CompanyId == image.CompanyId && a.Id == image.ReferenceId);
 
             var slimImage = Build(image);
             accommodation.Images.Add(slimImage);
@@ -447,9 +455,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private async Task<Result> ArrangeSlimImagesInAccommodation(int managerId, int accommodationId, List<Models.Requests.SlimImage> images)
+        private async Task<Result> ArrangeSlimImagesInAccommodation(int companyId, int accommodationId, List<Models.Requests.SlimImage> images)
         {
-            var accommodation = _dbContext.Accommodations.SingleOrDefault(a => a.ManagerId == managerId && a.Id == accommodationId);
+            var accommodation = _dbContext.Accommodations.SingleOrDefault(a => a.CompanyId == companyId && a.Id == accommodationId);
 
             accommodation.Images = Build(images);
 
@@ -473,9 +481,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private async Task<Result> RemoveSlimImageFromAccommodation(int managerId, int accommodationId, Guid imageId)
+        private async Task<Result> RemoveSlimImageFromAccommodation(int companyId, int accommodationId, Guid imageId)
         {
-            var accommodation = _dbContext.Accommodations.SingleOrDefault(a => a.ManagerId == managerId && a.Id == accommodationId);
+            var accommodation = _dbContext.Accommodations.SingleOrDefault(a => a.CompanyId == companyId && a.Id == accommodationId);
 
             var slimImage = accommodation.Images.SingleOrDefault(i => i.Id == imageId);
             if (slimImage == null)
@@ -562,7 +570,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         private const int ResizedSmallImageMaximumSideSize = 400;
         private const int TargetJpegQuality = 85;
         
-        private readonly IContractManagerContextService _contractManagerContext;
+        private readonly IContractManagerContextService _managerContext;
         private readonly DirectContractsDbContext _dbContext;
         private readonly IAmazonS3ClientService _amazonS3ClientService;
         private readonly string _bucketName;

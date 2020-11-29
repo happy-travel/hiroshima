@@ -14,9 +14,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class AllocationRequirementManagementService : IAllocationRequirementManagementService
     {
-        public AllocationRequirementManagementService(DirectContractsDbContext dbContext, IContractManagerContextService contractManagerContextService)
+        public AllocationRequirementManagementService(DirectContractsDbContext dbContext, IContractManagerContextService managerContextService)
         {
-            _contractManagerContextService = contractManagerContextService;
+            _managerContext = managerContextService;
             _dbContext = dbContext;
         }
 
@@ -24,25 +24,26 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.AllocationRequirement>>> Add(int contractId, List<Models.Requests.AllocationRequirement> allocationRequirements)
         {
             return Validate(allocationRequirements)
-                .Bind(() => _contractManagerContextService.GetContractManager())
-                .EnsureContractBelongsToContractManager(_dbContext, contractId)
+                .Bind(() => _managerContext.GetContractManager())
+                .GetCompany(_dbContext)
+                .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Bind(CheckRoomAndSeasonRangeIds)
                 .Bind(CheckIfAlreadyExists)
                 .Map(AddAllocationRequirements)
                 .Map(Build);
 
 
-            async Task<Result> CheckRoomAndSeasonRangeIds(Manager contractManager) 
+            async Task<Result> CheckRoomAndSeasonRangeIds(Company company) 
                 => Result.Combine(await CheckIfSeasonRangesBelongToContract(allocationRequirements.Select(requirement => requirement.SeasonRangeId).ToList()),
-                await CheckIfRoomsBelongToContract(contractManager, allocationRequirements.Select(requirement => requirement.RoomId).ToList()));
+                await CheckIfRoomsBelongToContract(company.Id, allocationRequirements.Select(requirement => requirement.RoomId).ToList()));
 
 
             Task<Result> CheckIfSeasonRangesBelongToContract(List<int> seasonRangeIds) 
                 => _dbContext.CheckIfSeasonRangesBelongToContract(contractId, seasonRangeIds);
 
 
-            Task<Result> CheckIfRoomsBelongToContract(Manager contractManager, List<int> roomIds)
-                => _dbContext.CheckIfRoomsBelongToContract(contractId, contractManager.Id, roomIds);
+            Task<Result> CheckIfRoomsBelongToContract(int companyId, List<int> roomIds)
+                => _dbContext.CheckIfRoomsBelongToContract(contractId, companyId, roomIds);
             
             
             async Task<Result> CheckIfAlreadyExists()
@@ -79,13 +80,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<List<Models.Responses.AllocationRequirement>>> Get(int contractId, int skip, int top, List<int> roomIds = null, List<int> seasonIds = null, List<int> seasonRangeIds = null)
         {
-            return _contractManagerContextService.GetContractManager()
-                .EnsureContractBelongsToContractManager(_dbContext, contractId)
-                .Map(contractManager => GetAllocationRequirements(contractManager.Id))
+            return _managerContext.GetContractManager()
+                .GetCompany(_dbContext)
+                .EnsureContractBelongsToCompany(_dbContext, contractId)
+                .Map(company => GetAllocationRequirements(company.Id))
                 .Map(Build);
             
             
-            async Task<List<RoomAllocationRequirement>> GetAllocationRequirements(int contractManagerId)
+            async Task<List<RoomAllocationRequirement>> GetAllocationRequirements(int companyId)
             {
                 var seasonsAndSeasonRanges = _dbContext.Seasons.Join(_dbContext.SeasonRanges, season => season.Id, seasonRange => seasonRange.SeasonId,
                         (season, seasonRange) => new
@@ -113,7 +115,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                 if (roomIds != null && roomIds.Any())
                 {
-                    var contractedAccommodations = _dbContext.GetContractedAccommodations(contractId, contractManagerId);
+                    var contractedAccommodations = _dbContext.GetContractedAccommodations(contractId, companyId);
 
                     var validRoomIds = (await contractedAccommodations.Include(accommodation => accommodation.Rooms)
                         .Select(accommodation => accommodation
@@ -136,9 +138,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result> Remove(int contractId, List<int> allocationRequirementIds)
         {
-            return await _contractManagerContextService.GetContractManager()
-                .EnsureContractBelongsToContractManager(_dbContext, contractId)
-                .Map(contractManager => GetAllocationRequirements())
+            return await _managerContext.GetContractManager()
+                .GetCompany(_dbContext)
+                .EnsureContractBelongsToCompany(_dbContext, contractId)
+                .Map(company => GetAllocationRequirements())
                 .Tap(Remove);
 
 
@@ -195,6 +198,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         
         private readonly DirectContractsDbContext _dbContext;
-        private readonly IContractManagerContextService _contractManagerContextService;
+        private readonly IContractManagerContextService _managerContext;
     }
 }

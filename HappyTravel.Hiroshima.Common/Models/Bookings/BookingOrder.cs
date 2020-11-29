@@ -37,8 +37,8 @@ namespace HappyTravel.Hiroshima.Common.Models.Bookings
         
         public string LanguageCode { get; set; } = string.Empty;
         
-        public int ManagerId { get; set; }
+        public int CompanyId { get; set; }
         
-        public Manager Manager { get; set; }
+        public Company Company { get; set; }
     }
 }
