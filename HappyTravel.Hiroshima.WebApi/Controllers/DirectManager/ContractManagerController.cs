@@ -9,29 +9,29 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/management/contract-manager")]
+    [Route("api/{v:apiVersion}/management/manager")]
     [Produces("application/json")]
     public class ContractManagerController : ControllerBase
     {
-        public ContractManagerController(IContractManagerManagementService contractManagerManagementService, IdentityHttpClient identityHttpClient)
+        public ContractManagerController(IManagerManagementService managerManagementService, IdentityHttpClient identityHttpClient)
         {
-            _contractManagerManagementService = contractManagerManagementService;
+            _managerManagementService = managerManagementService;
             _identityHttpClient = identityHttpClient;
         }
         
         
         /// <summary>
-        /// Registers a contract manager
+        /// Registers a manager
         /// </summary>
-        /// <param name="contractManager"></param>
+        /// <param name="manager"></param>
         /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.Manager), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> AddContractManager([FromBody] Hiroshima.DirectManager.Models.Requests.Manager contractManager)
+        public async Task<IActionResult> AddContractManager([FromBody] Hiroshima.DirectManager.Models.Requests.Manager manager)
         {
             var (_, isFailure, response, error) = await GetEmailFromIdentity()
-                .Bind(email => _contractManagerManagementService.Register(contractManager, email));
+                .Bind(email => _managerManagementService.Register(manager, email));
             
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -51,7 +51,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
 
         /// <summary>
-        /// Retrieves current contract manager's data
+        /// Retrieves current manager's data
         /// </summary>
         /// <returns></returns>
         [HttpGet]
@@ -59,7 +59,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetContractManager()
         {
-            var (_, isFailure, response, error) = await _contractManagerManagementService.Get();
+            var (_, isFailure, response, error) = await _managerManagementService.Get();
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
             
@@ -68,16 +68,16 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
 
         /// <summary>
-        /// Modifies contract manager's data
+        /// Modifies manager's data
         /// </summary>
-        /// <param name="contractManager"></param>  
+        /// <param name="manager"></param>  
         /// <returns></returns>
         [HttpPut]
         [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.Manager), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> ModifyContractManager([FromBody] Hiroshima.DirectManager.Models.Requests.Manager contractManager)
+        public async Task<IActionResult> ModifyContractManager([FromBody] Hiroshima.DirectManager.Models.Requests.Manager manager)
         {
-            var (_, isFailure, response, error) = await _contractManagerManagementService.Modify(contractManager);
+            var (_, isFailure, response, error) = await _managerManagementService.Modify(manager);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -86,6 +86,6 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
     
         
         private readonly IdentityHttpClient _identityHttpClient;
-        private readonly IContractManagerManagementService _contractManagerManagementService;
+        private readonly IManagerManagementService _managerManagementService;
     }
 }

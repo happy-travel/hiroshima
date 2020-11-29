@@ -14,7 +14,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class AllocationRequirementManagementService : IAllocationRequirementManagementService
     {
-        public AllocationRequirementManagementService(DirectContractsDbContext dbContext, IContractManagerContextService managerContextService)
+        public AllocationRequirementManagementService(DirectContractsDbContext dbContext, IManagerContextService managerContextService)
         {
             _managerContext = managerContextService;
             _dbContext = dbContext;
@@ -198,6 +198,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         
         private readonly DirectContractsDbContext _dbContext;
-        private readonly IContractManagerContextService _managerContext;
+        private readonly IManagerContextService _managerContext;
     }
 }

@@ -25,7 +25,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class ImageManagementService : IImageManagementService
     {
-        public ImageManagementService(IContractManagerContextService managerContextService,
+        public ImageManagementService(IManagerContextService managerContextService,
             DirectContractsDbContext dbContext, IAmazonS3ClientService amazonS3ClientService, IOptions<ImageManagementServiceOptions> options)
         {
             _managerContext = managerContextService;
@@ -570,7 +570,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         private const int ResizedSmallImageMaximumSideSize = 400;
         private const int TargetJpegQuality = 85;
         
-        private readonly IContractManagerContextService _managerContext;
+        private readonly IManagerContextService _managerContext;
         private readonly DirectContractsDbContext _dbContext;
         private readonly IAmazonS3ClientService _amazonS3ClientService;
         private readonly string _bucketName;

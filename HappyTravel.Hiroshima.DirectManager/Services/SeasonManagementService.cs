@@ -16,7 +16,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class SeasonManagementService : ISeasonManagementService
     {
-        public SeasonManagementService(DirectContractsDbContext dbContext, IContractManagerContextService managerContextService)
+        public SeasonManagementService(DirectContractsDbContext dbContext, IManagerContextService managerContextService)
         {
             _dbContext = dbContext;
             _managerContext = managerContextService;
@@ -315,7 +315,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             => new Models.Responses.Season(season.Id, season.Name);
         
         
-        private readonly IContractManagerContextService _managerContext;
+        private readonly IManagerContextService _managerContext;
         private readonly DirectContractsDbContext _dbContext;
     }
 }

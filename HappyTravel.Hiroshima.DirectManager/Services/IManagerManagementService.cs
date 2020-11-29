@@ -3,7 +3,7 @@ using CSharpFunctionalExtensions;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {
-    public interface IContractManagerManagementService
+    public interface IManagerManagementService
     {
         Task<Result<Models.Responses.Manager>> Get();
         

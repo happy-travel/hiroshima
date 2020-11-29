@@ -22,7 +22,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class AccommodationManagementService : IAccommodationManagementService
     {
-        public AccommodationManagementService(IContractManagerContextService managerContextService, 
+        public AccommodationManagementService(IManagerContextService managerContextService, 
             IImageManagementService imageManagementService, IAmenityService amenityService,
             DirectContractsDbContext dbContext, GeometryFactory geometryFactory)
         {
@@ -470,7 +470,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 accommodation.Id == accommodationId);
 
 
-        private readonly IContractManagerContextService _managerContext;
+        private readonly IManagerContextService _managerContext;
         private readonly IImageManagementService _imageManagementService;
         private readonly IAmenityService _amenityService;
         private readonly GeometryFactory _geometryFactory;

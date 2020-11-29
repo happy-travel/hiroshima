@@ -13,7 +13,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class CancellationPolicyManagementService : ICancellationPolicyManagementService
     {
-        public CancellationPolicyManagementService(IContractManagerContextService managerContextService, DirectContractsDbContext dbContext)
+        public CancellationPolicyManagementService(IManagerContextService managerContextService, DirectContractsDbContext dbContext)
         {
             _dbContext = dbContext;
             _managerContext = managerContextService;
@@ -154,6 +154,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         
         
         private readonly DirectContractsDbContext _dbContext;
-        private readonly IContractManagerContextService _managerContext;
+        private readonly IManagerContextService _managerContext;
     }
 }

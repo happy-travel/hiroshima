@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions
 {
-    public static class CompanyExtentions
+    public static class CompanyExtensions
     {
         public static Task<Result<Company>> EnsureAccommodationBelongsToCompany(this Task<Result<Company>> company,
             DirectContractsDbContext dbContext, int accommodationId)

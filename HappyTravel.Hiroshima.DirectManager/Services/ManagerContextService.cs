@@ -7,9 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {
-    public class ContractManagerContextService : IContractManagerContextService
+    public class ManagerContextService : IManagerContextService
     {
-        public ContractManagerContextService(DirectContractsDbContext dbContext, ITokenInfoAccessor tokenInfoAccessor)
+        public ManagerContextService(DirectContractsDbContext dbContext, ITokenInfoAccessor tokenInfoAccessor)
         {
             _dbContext = dbContext;
             _tokenInfoAccessor = tokenInfoAccessor;

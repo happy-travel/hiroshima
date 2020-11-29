@@ -15,7 +15,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class AvailabilityRestrictionsManagementService : IAvailabilityRestrictionsManagementService
     {
-        public AvailabilityRestrictionsManagementService(DirectContractsDbContext dbContext, IContractManagerContextService managerContextService)
+        public AvailabilityRestrictionsManagementService(DirectContractsDbContext dbContext, IManagerContextService managerContextService)
         {
             _dbContext = dbContext;
             _managerContext = managerContextService;
@@ -186,7 +186,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             => availabilityRestrictions.Select(Build).ToList();
         
         
-        private readonly IContractManagerContextService _managerContext;
+        private readonly IManagerContextService _managerContext;
         private readonly DirectContractsDbContext _dbContext;
     }
 }

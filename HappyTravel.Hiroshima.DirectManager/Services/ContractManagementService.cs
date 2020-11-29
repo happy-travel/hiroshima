@@ -17,7 +17,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class ContractManagementService : IContractManagementService
     {
-        public ContractManagementService(IContractManagerContextService managerContextService, IDocumentManagementService documentManagementService,
+        public ContractManagementService(IManagerContextService managerContextService, IDocumentManagementService documentManagementService,
             DirectContractsDbContext dbContext)
         {
             _managerContext = managerContextService;
@@ -366,7 +366,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     });
 
 
-        private readonly IContractManagerContextService _managerContext;
+        private readonly IManagerContextService _managerContext;
         private readonly IDocumentManagementService _documentManagementService;
         private readonly DirectContractsDbContext _dbContext;
 

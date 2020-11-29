@@ -7,9 +7,9 @@ using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {
-    public class ContractManagerManagementService : IContractManagerManagementService
+    public class ManagerManagementService : IManagerManagementService
     {
-        public ContractManagerManagementService(IContractManagerContextService contractManagerContextService, DirectContractsDbContext dbContext)
+        public ManagerManagementService(IManagerContextService contractManagerContextService, DirectContractsDbContext dbContext)
         {
             _contractManagerContextService = contractManagerContextService;
             _dbContext = dbContext;
@@ -121,7 +121,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             => ValidationHelper.Validate(contractManagerRequest, new ContractManagerRegisterRequestValidator());
         
 
-        private readonly IContractManagerContextService _contractManagerContextService;
+        private readonly IManagerContextService _contractManagerContextService;
         private readonly DirectContractsDbContext _dbContext;
     }
 }

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions
 {
-    public static class ContractManagerExtensions
+    public static class ManagerExtensions
     {
         public static async Task<Result<Company>> GetCompany(this Task<Result<Manager>> manager, DirectContractsDbContext dbContext)
         {

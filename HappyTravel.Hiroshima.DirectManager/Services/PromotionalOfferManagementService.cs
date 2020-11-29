@@ -17,7 +17,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class PromotionalOfferManagementService: IPromotionalOfferManagementService
     {
-        public PromotionalOfferManagementService(IContractManagerContextService managerContextService, DirectContractsDbContext dbContext)
+        public PromotionalOfferManagementService(IManagerContextService managerContextService, DirectContractsDbContext dbContext)
         {
             _managerContext = managerContextService;
             _dbContext = dbContext;
@@ -266,7 +266,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             => stopSalePeriods.Select(stopSalePeriod => Create(contractId, stopSalePeriod)).ToList();
         
         
-        private readonly IContractManagerContextService _managerContext;
+        private readonly IManagerContextService _managerContext;
         private readonly DirectContractsDbContext _dbContext;
     }
 }
