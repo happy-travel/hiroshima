@@ -18,5 +18,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         Task<Result> Remove(int accommodationId, int roomId, Guid imageId);
         Task<Result> RemoveAll(int contractManagerId, int accommodationId);
         Task<Result> RemoveAll(int contractManagerId, int accommodationId, int roomId);
+        string GetImageUrl(string imageKey);
     }
 }

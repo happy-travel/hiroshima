@@ -4,12 +4,13 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Infrastructure.Extensions.Extensions.FunctionalExensions;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
+using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Availabilities;
 using HappyTravel.Hiroshima.Common.Models.Enums;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.DirectContracts.Services.Availability;
-using Newtonsoft.Json;
+using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services
 {
@@ -23,15 +24,24 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
         }
 
 
+        public async Task<Result<Common.Models.Bookings.BookingOrder>> Get(string referenceCode)
+        {
+            var bookingOrder = await _dbContext.BookingOrders.SingleOrDefaultAsync(bo => bo.ReferenceCode.Equals(referenceCode));
+            return bookingOrder == null
+                ? Result.Failure<Common.Models.Bookings.BookingOrder>($"Failed to retrieve the booking order with the reference code '{referenceCode}'")
+                : Result.Success(bookingOrder);
+        }
+
+
         public async Task<Result<Common.Models.Bookings.BookingOrder>> Book(EdoContracts.Accommodations.BookingRequest bookingRequest, EdoContracts.Accommodations.AvailabilityRequest availabilityRequest, string languageCode)
         {
             return await GetRequiredHash()
                 .BindWithTransaction(_dbContext, requiredHash => GetAvailableRates(requiredHash)
-                    .Bind(ModifyAvailability)
-                    .Map(CreateDbEntry)
-                    .Map(AddDbEntry));
+                    .Map(CreateBookingEntry)
+                    .Map(AddBookingEntry)
+                    .Bind(AddRoomOccupancy));
+                
             
-
             async Task<Result<string>> GetRequiredHash()
             {
                 var hash = await _availabilityDataStorage.GetHash(bookingRequest.AvailabilityId, bookingRequest.RoomContractSetId);
@@ -61,19 +71,12 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
             }
             
             
-            async Task<Result<AvailableRates>> ModifyAvailability(AvailableRates availableRates)
-            {
-                //TODO Modify rates availability
-                return Result.Success(availableRates);
-            }
-
-            
-            Common.Models.Bookings.BookingOrder CreateDbEntry(AvailableRates availableRates)
+            (Common.Models.Bookings.BookingOrder, AvailableRates) CreateBookingEntry(AvailableRates availableRates)
             {
                 var contractManagerId = availableRates.Rates.First().Room.Accommodation.ContractManagerId;
                 var utcNow = DateTime.UtcNow;
             
-                return new Common.Models.Bookings.BookingOrder
+                return (new Common.Models.Bookings.BookingOrder
                 {
                     Status = BookingStatuses.Processing,
                     ReferenceCode = bookingRequest.ReferenceCode,
@@ -84,18 +87,69 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
                     BookingRequest = JsonDocumentUtilities.CreateJDocument(bookingRequest),
                     AvailabilityRequest = JsonDocumentUtilities.CreateJDocument(availabilityRequest),
                     AvailableRates = JsonDocumentUtilities.CreateJDocument(availableRates.AvailableRatesSlim),
+                    LanguageCode = languageCode,
                     ContractManagerId = contractManagerId
-                };
+                }, availableRates);
             }
 
 
-            async Task<Common.Models.Bookings.BookingOrder> AddDbEntry(Common.Models.Bookings.BookingOrder booking)
+            async Task<(Common.Models.Bookings.BookingOrder bookingOrder, AvailableRates availableRates)> AddBookingEntry((Common.Models.Bookings.BookingOrder bookingOrder, AvailableRates availableRates) bookingOrderAndAvailableRates)
             {
-                var entry = _dbContext.Booking.Add(booking);
+                var entry = _dbContext.BookingOrders.Add(bookingOrderAndAvailableRates.bookingOrder);
                 await _dbContext.SaveChangesAsync();
                 _dbContext.DetachEntry(entry.Entity);
                 
-                return entry.Entity;
+                return (entry.Entity, bookingOrderAndAvailableRates.availableRates);
+            }
+            
+            
+            async Task<Result<Common.Models.Bookings.BookingOrder >> AddRoomOccupancy((Common.Models.Bookings.BookingOrder bookingOrder, AvailableRates availableRates) bookingOrderAndAvailableRates)
+            {
+                var utcNow = DateTime.UtcNow;
+                
+                foreach (var roomId in bookingOrderAndAvailableRates.availableRates.Rates.Select(rd => rd.Room.Id))
+                {
+                    _dbContext.RoomOccupancies.Add(new RoomOccupancy
+                    {
+                        RoomId = roomId,
+                        Created = utcNow,
+                        FromDate = availabilityRequest.CheckInDate,
+                        ToDate = availabilityRequest.CheckOutDate,
+                        BookingOrderId = bookingOrderAndAvailableRates.bookingOrder.Id
+                    });
+                }
+
+                await _dbContext.SaveChangesAsync();
+                
+                return Result.Success(bookingOrderAndAvailableRates.bookingOrder);
+            }
+        }
+
+
+        public async Task<Result> Cancel(string referenceCode)
+        {
+            return await Get(referenceCode)
+                .BindWithTransaction(_dbContext,
+                bookingOrder => RemoveRoomOccupancies(bookingOrder)
+                    .Map(ChangeBookingStatus));
+            
+
+            async Task<Result<Common.Models.Bookings.BookingOrder>> RemoveRoomOccupancies(Common.Models.Bookings.BookingOrder bookingOrder)
+            {
+                var roomOccupancies = await _dbContext.RoomOccupancies.Where(ro => ro.BookingOrderId.Equals(bookingOrder.Id)).ToListAsync();
+                _dbContext.RoomOccupancies.RemoveRange(roomOccupancies);
+                await _dbContext.SaveChangesAsync();
+                
+                return Result.Success(bookingOrder);
+            }
+            
+            
+            async Task ChangeBookingStatus(Common.Models.Bookings.BookingOrder bookingOrder)
+            {
+                bookingOrder.Status = BookingStatuses.Cancelled;
+                bookingOrder.Modified = DateTime.UtcNow;
+                _dbContext.BookingOrders.Update(bookingOrder);
+                await _dbContext.SaveChangesAsync();
             }
         }
 

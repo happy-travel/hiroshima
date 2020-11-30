@@ -71,7 +71,6 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
 
             return availabilityResult;
         }
-
         
         
         private readonly IAvailabilityResponseService _availabilityResponseService;

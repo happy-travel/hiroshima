@@ -1,17 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
+using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefinitions;
+using Microsoft.VisualBasic.CompilerServices;
 using Accommodation = HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation;
-
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 {
     public class RoomAvailabilityService : IRoomAvailabilityService
     {
-        public List<Dictionary<RoomOccupationRequest, List<Room>>> GetGroupedAvailableRooms(List<Accommodation> accommodations,
+        public List<Dictionary<RoomOccupationRequest, List<Room>>> GetGroupedAvailableRooms(AvailabilityRequest availabilityRequest,
+            List<Accommodation> accommodations,
             List<RoomOccupationRequest> occupationRequest)
         {
             var groupedAccommodationRooms = new List<Dictionary<RoomOccupationRequest, List<Room>>>();
@@ -28,18 +31,13 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             Dictionary<RoomOccupationRequest, List<Room>> GroupAccommodationRooms(Accommodation accommodation)
             {
                 var roomsGroupedByOccupationRequest = new Dictionary<RoomOccupationRequest, List<Room>>();
-                var roomsWithEmptyAllotment = new List<Room>();
 
+                var availableRooms = accommodation.Rooms.Where(room => AvailabilityHelper.IsRoomAvailableByAllotment(availabilityRequest, room)).ToList();
+                
                 foreach (var occupationRequestItem in occupationRequest)
                 {
-                    foreach (var room in accommodation.Rooms)
+                    foreach (var room in availableRooms)
                     {
-                        if (DoesRoomHasAllotmentAvailabilityRestriction(room))
-                        {
-                            if (RoomHasEmptyAllotment(roomsWithEmptyAllotment, room))
-                                continue;
-                        }
-
                         if (IsRoomCompatibleWithOccupancyRequestItem(room, occupationRequestItem))
                         {
                             AddRoomToOccupationRequestGroup(occupationRequestItem, room);
@@ -58,43 +56,10 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                         roomsGroupedByOccupationRequest[occupationRequestItem].Add(room);
                 }
             }
-
-
-            bool RoomHasEmptyAllotment(List<Room> emptyAllotmentRooms, Room room)
-            {
-                if (emptyAllotmentRooms.Contains(room))
-                    return true;
-
-                if (ExistEmptyAllotmentRestriction(room))
-                {
-                    emptyAllotmentRooms.Add(room);
-                    return true;
-                }
-
-                return false;
-            }
         }
 
 
-        private bool ExistEmptyAllotmentRestriction(Room room)
-        {
-            foreach (var allocationRequirement in room.RoomAllocationRequirements.Where(allocationRequirement
-                => allocationRequirement.Allotment != null && allocationRequirement.Allotment == 0))
-            {
-                if (room.RoomAvailabilityRestrictions.Any(availabilityRestriction => DateRange.AreIntersect(allocationRequirement.SeasonRange.StartDate,
-                    allocationRequirement.SeasonRange.EndDate,
-                    availabilityRestriction.FromDate, availabilityRestriction.ToDate)))
-                    return true;
-            }
-
-            return false;
-        }
-
-
-        private bool DoesRoomHasAllotmentAvailabilityRestriction(Room room)
-            => room.RoomAvailabilityRestrictions.Any(availabilityRestriction
-                => availabilityRestriction.Restriction == AvailabilityRestrictions.Allotment);
-
+        
 
         private bool IsRoomCompatibleWithOccupancyRequestItem(Room room, RoomOccupationRequest occupationRequestItem)
             => room.OccupancyConfigurations.Any(occupancyConfiguration

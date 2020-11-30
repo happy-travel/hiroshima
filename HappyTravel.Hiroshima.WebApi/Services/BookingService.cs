@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch;
-
 
 namespace HappyTravel.Hiroshima.WebApi.Services
 {
@@ -19,39 +19,97 @@ namespace HappyTravel.Hiroshima.WebApi.Services
         {
             return await GetAvailabilityRequest()
                 .Bind(ProcessBooking)
-                .Map(BuildResponse);
+                .Map(Build);
             
 
             async Task<Result<EdoContracts.Accommodations.AvailabilityRequest>> GetAvailabilityRequest()
             {
                 var availabilityRequest = await _availabilitySearchStorage.GetAvailabilityRequest(bookingRequest.AvailabilityId);
 
-                return availabilityRequest.Equals(default)
-                    ? Result.Failure<EdoContracts.Accommodations.AvailabilityRequest>("Failed to retrieve availability data")
-                    : Result.Success(availabilityRequest);
+                if (availabilityRequest.Equals(default))
+                    return Result.Failure<EdoContracts.Accommodations.AvailabilityRequest>("Failed to retrieve availability data");
+                
+                await _availabilitySearchStorage.RemoveAvailabilityRequest(bookingRequest.AvailabilityId);
+                
+                return Result.Success(availabilityRequest);
             }
 
 
-            async Task<Result<Common.Models.Bookings.BookingOrder>> ProcessBooking(EdoContracts.Accommodations.AvailabilityRequest availabilityRequest)
+            Task<Result<Common.Models.Bookings.BookingOrder>> ProcessBooking(EdoContracts.Accommodations.AvailabilityRequest availabilityRequest)
             {
-               return await _bookingService.Book(bookingRequest, availabilityRequest, languageCode);
+               return ValidateBookingRequest()
+                    .Bind(() => _bookingService.Book(bookingRequest, availabilityRequest, languageCode)); 
+               
+
+               Task<Result> ValidateBookingRequest()
+               {
+                   return ValidateRooms()
+                       .Bind(() => ValidateReferenceCode(bookingRequest.ReferenceCode))
+                       .Bind(CheckIfBookingOrderNotExist);
+                   
+                   
+                   Result ValidateRooms()
+                   {
+                       if (bookingRequest.Rooms.Count != availabilityRequest.Rooms.Count)
+                           return Result.Failure("Invalid number of rooms");
+
+                       for (var i = 0; i < bookingRequest.Rooms.Count; i++)
+                       {
+                           var bookingRequestRoom = bookingRequest.Rooms[i];
+                           var availabilityRequestRoom = availabilityRequest.Rooms[i];
+                           if (!RoomsAreEqual(bookingRequestRoom, availabilityRequestRoom))
+                               return Result.Failure("Invalid rooms parameters");
+                       }
+                       return Result.Success();
+                   }
+                   
+                   
+                   bool RoomsAreEqual(SlimRoomOccupation bookingRequestRoom, RoomOccupationRequest slimOccupationRequest) => bookingRequestRoom.Type == slimOccupationRequest.Type && bookingRequestRoom.Passengers.Count ==
+                       slimOccupationRequest.AdultsNumber + slimOccupationRequest.ChildrenAges?.Count;
+               }
+              
+
+               async Task<Result> CheckIfBookingOrderNotExist()
+               {
+                   var (_, isFailure, _, _) = await _bookingService.Get(bookingRequest.ReferenceCode);
+                   return isFailure
+                       ? Result.Success()
+                       : Result.Failure<Common.Models.Bookings.BookingOrder>($"The booking order with the reference code '{bookingRequest.ReferenceCode}' already exists");
+               }
             }
-
-
-            EdoContracts.Accommodations.Booking BuildResponse(Common.Models.Bookings.BookingOrder booking)
+            
+            
+            EdoContracts.Accommodations.Booking Build(Common.Models.Bookings.BookingOrder booking)
             {
                 return _bookingResponseService.Create(booking);
             }
         }
+          
+        
+        Result ValidateReferenceCode(string bookingReferenceCode) => IsReferenceCodeValid(bookingReferenceCode)
+            ? Result.Success()
+            : Result.Failure($"Invalid booking reference code '{bookingReferenceCode}'");
 
-
+        
+        private bool IsReferenceCodeValid(string bookingReferenceCode)
+            => !string.IsNullOrWhiteSpace(bookingReferenceCode) && bookingReferenceCode.Length <= BookingReferenceCodeMaxLength;
+        
+        
         public Task<Result<EdoContracts.Accommodations.Booking>> GetDetails(string bookingReferenceCode, string languageCode) => throw new System.NotImplementedException();
 
 
-        public Task<Result> Cancel(string bookingReferenceCode, string languageCode) => throw new System.NotImplementedException();
+        public Task<Result> Cancel(string bookingReferenceCode, string languageCode)
+        {
+            return ValidateReferenceCode(bookingReferenceCode)
+                .Bind(() => _bookingService.Get(bookingReferenceCode))
+                .Bind(_ => _bookingService.Cancel(bookingReferenceCode));
+        }
 
+        
         private readonly DirectContracts.Services.IBookingService _bookingService;
         private readonly IAvailabilitySearchStorage _availabilitySearchStorage;
         private readonly IBookingResponseService _bookingResponseService;
+
+        private const int BookingReferenceCodeMaxLength = 36;
     }
 }
