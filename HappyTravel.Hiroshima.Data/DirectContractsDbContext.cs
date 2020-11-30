@@ -5,6 +5,7 @@ using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
 using HappyTravel.Hiroshima.Common.Models.Bookings;
+using HappyTravel.Hiroshima.Common.Models.Enums;
 using HappyTravel.Hiroshima.Common.Models.Images;
 using HappyTravel.Hiroshima.Common.Models.Locations;
 using HappyTravel.Hiroshima.Common.Models.Seasons;
@@ -200,6 +201,8 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(m => m.Created).IsRequired().HasDefaultValueSql("now() at time zone 'utc'");
                 e.Property(m => m.Updated).IsRequired().HasDefaultValueSql("now() at time zone 'utc'");
                 e.Property(m => m.IsActive).IsRequired().HasDefaultValue(false);
+                e.Property(m => m.Permissions).IsRequired().HasDefaultValue(InCompanyPermissions.All);  // All permissions
+                e.Property(m => m.IsMaster).IsRequired().HasDefaultValue(false);
                 e.Property(m => m.CompanyId).IsRequired();
 
                 e.HasIndex(m => m.IdentityHash).IsUnique();
