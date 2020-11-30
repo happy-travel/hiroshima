@@ -5,6 +5,7 @@ using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
+using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {
@@ -20,8 +21,23 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Models.Responses.Manager>> Get()
             => _managerContext.GetManager()
                 .Map(Build);
-        
-        
+
+
+        public Task<Result<Models.Responses.Manager>> Get(int managerId)
+        {
+            return _managerContext.GetManager()
+                .GetCompany(_dbContext)
+                .EnsureManagerBelongsToCompany(_dbContext, managerId)
+                .Map(company => GetManagerById(company.Id, managerId))
+                .Map(Build);
+
+
+            async Task<Common.Models.Manager> GetManagerById(int companyId, int managerId)
+            {
+                return await _dbContext.Managers.SingleOrDefaultAsync(manager => manager.Id == managerId && manager.CompanyId == companyId);
+            }
+        }
+
         public Task<Result<Models.Responses.Manager>> Register(Models.Requests.Manager managerRequest, string email)
         {
            return Result.Success()

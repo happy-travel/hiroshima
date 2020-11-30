@@ -86,6 +86,23 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
 
         /// <summary>
+        /// Retrieves data for manager ID
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("{managerId}")]
+        [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.Manager), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetManager([FromRoute] int managerId)
+        {
+            var (_, isFailure, response, error) = await _managerManagementService.Get(managerId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
+        }
+
+
+        /// <summary>
         /// Modifies manager's data
         /// </summary>
         /// <param name="manager"></param>  

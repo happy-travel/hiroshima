@@ -6,6 +6,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     public interface IManagerManagementService
     {
         Task<Result<Models.Responses.Manager>> Get();
+
+        Task<Result<Models.Responses.Manager>> Get(int managerId);
         
         Task<Result<Models.Responses.Manager>> Register(Models.Requests.Manager managerRequest, string email);
 

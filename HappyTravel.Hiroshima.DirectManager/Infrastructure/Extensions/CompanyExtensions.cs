@@ -21,6 +21,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions
                 $"Invalid contract id '{contractId}'");
 
 
+        public static Task<Result<Company>> EnsureManagerBelongsToCompany(this Task<Result<Company>> company,
+            DirectContractsDbContext dbContext, int managerId)
+            => company.Ensure(c => dbContext.DoesManagerBelongToCompany(managerId, c.Id),
+                $"Invalid manager id '{managerId}'");
+
+
         public static Task<Result<Company>> EnsureRoomBelongsToCompany(this Task<Result<Company>> company,
             DirectContractsDbContext dbContext, int accommodationId, int roomId)
             => company
