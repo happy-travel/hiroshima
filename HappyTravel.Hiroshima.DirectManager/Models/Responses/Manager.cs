@@ -1,8 +1,10 @@
-﻿namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
+﻿using HappyTravel.Hiroshima.Common.Models.Enums;
+
+namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
     public readonly struct Manager
     {
-        public Manager(string firstName, string lastName, string title, string position, string email, string phone, string fax)
+        public Manager(string firstName, string lastName, string title, string position, string email, string phone, string fax, InCompanyPermissions permissions, bool isMaster)
         {
             FirstName = firstName;
             LastName = lastName;
@@ -11,6 +13,8 @@
             Email = email;
             Phone = phone;
             Fax = fax;
+            Permissions = permissions;
+            IsMaster = isMaster;
         }
         
         
@@ -21,5 +25,7 @@
         public string Email { get; }
         public string Phone { get; }
         public string Fax { get; }
+        public InCompanyPermissions Permissions { get; }
+        public bool IsMaster { get; }
     }
 }

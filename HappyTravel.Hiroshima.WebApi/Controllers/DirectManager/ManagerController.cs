@@ -11,9 +11,9 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/management/manager")]
     [Produces("application/json")]
-    public class ContractManagerController : ControllerBase
+    public class ManagerController : ControllerBase
     {
-        public ContractManagerController(IManagerManagementService managerManagementService, IdentityHttpClient identityHttpClient)
+        public ManagerController(IManagerManagementService managerManagementService, IdentityHttpClient identityHttpClient)
         {
             _managerManagementService = managerManagementService;
             _identityHttpClient = identityHttpClient;

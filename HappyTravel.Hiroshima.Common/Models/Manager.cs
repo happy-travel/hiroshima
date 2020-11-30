@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
+using HappyTravel.Hiroshima.Common.Models.Enums;
 
 namespace HappyTravel.Hiroshima.Common.Models
 {
@@ -23,6 +24,10 @@ namespace HappyTravel.Hiroshima.Common.Models
         public string Phone { get; set; } = string.Empty;
 
         public string Fax { get; set; } = string.Empty;
+
+        public InCompanyPermissions Permissions { get; set; }
+
+        public bool IsMaster { get; set; }
 
         public DateTime Created { get; set; }
         

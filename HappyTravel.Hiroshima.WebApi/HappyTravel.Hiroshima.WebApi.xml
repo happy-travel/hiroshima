@@ -265,26 +265,6 @@
             <param name="contractId">New contract data</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ContractManagerController.AddContractManager(HappyTravel.Hiroshima.DirectManager.Models.Requests.Manager)">
-            <summary>
-            Registers a manager
-            </summary>
-            <param name="manager"></param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ContractManagerController.GetContractManager">
-            <summary>
-            Retrieves current manager's data
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ContractManagerController.ModifyContractManager(HappyTravel.Hiroshima.DirectManager.Models.Requests.Manager)">
-            <summary>
-            Modifies manager's data
-            </summary>
-            <param name="manager"></param>  
-            <returns></returns>
-        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.DocumentManagementController.GetContractFile(System.Int32,System.Guid)">
             <summary>
             Returns a direct contract document file by ID
@@ -395,6 +375,26 @@
             <param name="top"></param>
             <param name="skip"></param>
             <returns>Retrieves country names</returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.AddContractManager(HappyTravel.Hiroshima.DirectManager.Models.Requests.Manager)">
+            <summary>
+            Registers a manager
+            </summary>
+            <param name="manager"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.GetContractManager">
+            <summary>
+            Retrieves current manager's data
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.ModifyContractManager(HappyTravel.Hiroshima.DirectManager.Models.Requests.Manager)">
+            <summary>
+            Modifies manager's data
+            </summary>
+            <param name="manager"></param>  
+            <returns></returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.PromotionalOfferManagementController.GetPromotionalOffers(System.Int32,System.Int32,System.Int32,System.Collections.Generic.List{System.Int32},System.Nullable{System.DateTime},System.Nullable{System.DateTime})">
             <summary>

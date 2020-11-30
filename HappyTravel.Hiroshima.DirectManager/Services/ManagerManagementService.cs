@@ -51,6 +51,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     Position = managerRequest.Position,
                     Phone = managerRequest.Phone,
                     Fax = managerRequest.Fax,
+                    Permissions = managerRequest.Permissions,
                     Created = utcNowDate,
                     Updated = utcNowDate,
                     IsActive = true
@@ -90,6 +91,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 manager.Position = managerRequest.Position;
                 manager.Phone = managerRequest.Phone;
                 manager.Fax = managerRequest.Fax;
+                manager.Permissions = managerRequest.Permissions;
                 manager.Updated = DateTime.UtcNow;
 
                 return manager;
@@ -114,7 +116,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 manager.Position,
                 manager.Email,
                 manager.Phone,
-                manager.Fax);
+                manager.Fax,
+                manager.Permissions,
+                manager.IsMaster);
 
 
         private Result IsRequestValid(Models.Requests.Manager managerRequest)
