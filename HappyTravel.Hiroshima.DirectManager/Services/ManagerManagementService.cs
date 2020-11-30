@@ -28,6 +28,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Ensure(IdentityHashNotEmpty, "Failed to get the sub claim")
                 .Ensure(ManagerNotExist, "Contract manager has already been registered")
                 .Bind(() => IsRequestValid(managerRequest))
+                .Map(CreateCompany)
+                .Map(AddCompany)
                 .Map(Create)
                 .Map(Add)
                 .Map(Build);
@@ -37,9 +39,35 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             
             
             async Task<bool> ManagerNotExist() => !await _managerContext.DoesManagerExist();
-            
-            
-            Common.Models.Manager Create()
+
+
+            Common.Models.Company CreateCompany()
+            {
+                var utcNowDate = DateTime.UtcNow;
+                return new Common.Models.Company
+                {
+                    Name = string.Empty,
+                    Address = string.Empty,
+                    PostalCode = string.Empty,
+                    Phone = string.Empty,
+                    Website = string.Empty,
+                    Created = utcNowDate,
+                    Modified = utcNowDate
+                };
+            }
+
+
+            async Task<Common.Models.Company> AddCompany(Common.Models.Company company)
+            {
+                var entry = _dbContext.Companies.Add(company);
+                await _dbContext.SaveChangesAsync();
+                _dbContext.DetachEntry(entry.Entity);
+
+                return entry.Entity;
+            }
+
+
+            Common.Models.Manager Create(Common.Models.Company company)
             {
                 var utcNowDate = DateTime.UtcNow;
                 return new Common.Models.Manager
@@ -53,6 +81,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     Phone = managerRequest.Phone,
                     Fax = managerRequest.Fax,
                     Permissions = managerRequest.Permissions,
+                    IsMaster = true,
+                    CompanyId = company.Id,
                     Created = utcNowDate,
                     Updated = utcNowDate,
                     IsActive = true
@@ -62,7 +92,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<Common.Models.Manager> Add(Common.Models.Manager manager)
             {
-                var entry = _dbContext.Add(manager);
+                var entry = _dbContext.Managers.Add(manager);
                 await _dbContext.SaveChangesAsync();
                 _dbContext.DetachEntry(entry.Entity);
 
