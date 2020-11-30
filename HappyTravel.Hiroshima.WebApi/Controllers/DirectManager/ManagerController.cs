@@ -28,7 +28,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpPost]
         [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.Manager), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> AddContractManager([FromBody] Hiroshima.DirectManager.Models.Requests.Manager manager)
+        public async Task<IActionResult> AddManager([FromBody] Hiroshima.DirectManager.Models.Requests.Manager manager)
         {
             var (_, isFailure, response, error) = await GetEmailFromIdentity()
                 .Bind(email => _managerManagementService.Register(manager, email));
@@ -51,13 +51,31 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
 
         /// <summary>
+        /// Registers a company
+        /// </summary>
+        /// <param name="company"></param>
+        /// <returns></returns>
+        [HttpPost("company")]
+        [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.Company), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> AddCompany([FromBody] Hiroshima.DirectManager.Models.Requests.Company company)
+        {
+            var (_, isFailure, response, error) = await _managerManagementService.RegisterCompany(company);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
+        }
+
+
+        /// <summary>
         /// Retrieves current manager's data
         /// </summary>
         /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.Manager), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetContractManager()
+        public async Task<IActionResult> GetManager()
         {
             var (_, isFailure, response, error) = await _managerManagementService.Get();
             if (isFailure)
@@ -75,7 +93,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpPut]
         [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.Manager), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> ModifyContractManager([FromBody] Hiroshima.DirectManager.Models.Requests.Manager manager)
+        public async Task<IActionResult> ModifyManager([FromBody] Hiroshima.DirectManager.Models.Requests.Manager manager)
         {
             var (_, isFailure, response, error) = await _managerManagementService.Modify(manager);
             if (isFailure)

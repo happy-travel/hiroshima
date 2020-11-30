@@ -30,7 +30,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public async Task<bool> DoesManagerExist()
             => await _dbContext.Managers.SingleOrDefaultAsync(manager => manager.IdentityHash == GetIdentityHash()) != null;
 
-        
+
         public string GetIdentityHash() => _tokenInfoAccessor.GetIdentityHash();
         
         
