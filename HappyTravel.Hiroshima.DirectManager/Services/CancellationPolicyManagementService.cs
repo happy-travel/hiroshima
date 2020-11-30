@@ -22,7 +22,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<List<Models.Responses.CancellationPolicy>>> Get(int contractId, int skip, int top, List<int> roomIds = null, List<int> seasonIds = null)
         {
-            return _managerContext.GetContractManager()
+            return _managerContext.GetManager()
                 .GetCompany(_dbContext)
                 .Map(company => GetCancellationPolicies(contractId, company.Id, skip, top, roomIds, seasonIds))
                 .Map(Build);
@@ -32,7 +32,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.CancellationPolicy>>> Add(int contractId, List<Models.Requests.CancellationPolicy> cancellationPolicies)
         {
             return ValidationHelper.Validate(cancellationPolicies, new CancellationPoliciesValidator())
-                .Bind(() => _managerContext.GetContractManager())
+                .Bind(() => _managerContext.GetManager())
                 .GetCompany(_dbContext)
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Bind(company => CheckIfSeasonIdsAndRoomIdsBelongToContract(company.Id)) 
@@ -87,7 +87,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         
         public async Task<Result> Remove(int contractId, List<int> cancellationPolicyIds)
         {
-            return await _managerContext.GetContractManager()
+            return await _managerContext.GetManager()
                 .GetCompany(_dbContext)
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Bind(company => GetCancellationPoliciesToRemove(contractId, company.Id, cancellationPolicyIds))

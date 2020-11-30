@@ -39,7 +39,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<List<Models.Responses.SlimImage>>> Get(int accommodationId)
         {
-            return _managerContext.GetContractManager()
+            return _managerContext.GetManager()
                 .GetCompany(_dbContext)
                 .EnsureAccommodationBelongsToCompany(_dbContext, accommodationId)
                 .Map(async company =>
@@ -55,7 +55,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<List<Models.Responses.SlimImage>>> Get(int accommodationId, int roomId)
         {
-            return _managerContext.GetContractManager()
+            return _managerContext.GetManager()
                 .GetCompany(_dbContext)
                 .EnsureRoomBelongsToCompany(_dbContext, accommodationId, roomId)
                 .Map(async company =>
@@ -71,7 +71,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Guid>> Add(Models.Requests.AccommodationImage image)
         {
-            return _managerContext.GetContractManager()
+            return _managerContext.GetManager()
                 .GetCompany(_dbContext)
                 .EnsureAccommodationBelongsToCompany(_dbContext, image.AccommodationId)
                 .Bind(company => Validate(image, company))
@@ -91,7 +91,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Guid>> Add(Models.Requests.RoomImage image)
         {
-            return _managerContext.GetContractManager()
+            return _managerContext.GetManager()
                 .GetCompany(_dbContext)
                 .EnsureRoomBelongsToCompany(_dbContext, image.AccommodationId, image.RoomId)
                 .Bind(company => Validate(image, company))
@@ -111,7 +111,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result> Update(int accommodationId, List<Models.Requests.SlimImage> images)
         {
-            return _managerContext.GetContractManager()
+            return _managerContext.GetManager()
                 .GetCompany(_dbContext)
                 .EnsureAccommodationBelongsToCompany(_dbContext, accommodationId)
                 .Tap(async company => await ArrangeSlimImagesInAccommodation(company.Id, accommodationId, images))
@@ -127,7 +127,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result> Update(int accommodationId, int roomId, List<Models.Requests.SlimImage> images)
         {
-            return _managerContext.GetContractManager()
+            return _managerContext.GetManager()
                 .GetCompany(_dbContext)
                 .EnsureRoomBelongsToCompany(_dbContext, accommodationId, roomId)
                 .Tap(async company => await ArrangeSlimImagesInRoom(roomId, images))
@@ -143,7 +143,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result> Remove(int accommodationId, Guid imageId)
         {
-            return await _managerContext.GetContractManager()
+            return await _managerContext.GetManager()
                 .GetCompany(_dbContext)
                 .Tap(async company => 
                 { 
@@ -156,7 +156,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result> Remove(int accommodationId, int roomId, Guid imageId)
         {
-            return await _managerContext.GetContractManager()
+            return await _managerContext.GetManager()
                 .GetCompany(_dbContext)
                 .Tap(async company =>
                 {

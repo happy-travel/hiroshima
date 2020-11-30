@@ -17,7 +17,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         public Task<Result<Models.Responses.Manager>> Get()
-            => _managerContext.GetContractManager()
+            => _managerContext.GetManager()
                 .Map(Build);
         
         
@@ -71,15 +71,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         
         public Task<Result<Models.Responses.Manager>> Modify(Models.Requests.Manager managerRequest)
         {
-            return GetContractManager()
+            return GetManager()
                 .Tap(manager => IsRequestValid(managerRequest))
                 .Map(ModifyContractManager)
                 .Map(Update)
                 .Map(Build);
 
             
-            Task<Result<Common.Models.Manager>> GetContractManager() 
-                => _managerContext.GetContractManager();
+            Task<Result<Common.Models.Manager>> GetManager() 
+                => _managerContext.GetManager();
             
             
             Common.Models.Manager ModifyContractManager(Common.Models.Manager manager)
@@ -118,7 +118,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         private Result IsRequestValid(Models.Requests.Manager managerRequest)
-            => ValidationHelper.Validate(managerRequest, new ContractManagerRegisterRequestValidator());
+            => ValidationHelper.Validate(managerRequest, new ManagerRegisterRequestValidator());
         
 
         private readonly IManagerContextService _managerContext;

@@ -24,7 +24,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.AllocationRequirement>>> Add(int contractId, List<Models.Requests.AllocationRequirement> allocationRequirements)
         {
             return Validate(allocationRequirements)
-                .Bind(() => _managerContext.GetContractManager())
+                .Bind(() => _managerContext.GetManager())
                 .GetCompany(_dbContext)
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Bind(CheckRoomAndSeasonRangeIds)
@@ -80,7 +80,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<List<Models.Responses.AllocationRequirement>>> Get(int contractId, int skip, int top, List<int> roomIds = null, List<int> seasonIds = null, List<int> seasonRangeIds = null)
         {
-            return _managerContext.GetContractManager()
+            return _managerContext.GetManager()
                 .GetCompany(_dbContext)
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Map(company => GetAllocationRequirements(company.Id))
@@ -138,7 +138,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result> Remove(int contractId, List<int> allocationRequirementIds)
         {
-            return await _managerContext.GetContractManager()
+            return await _managerContext.GetManager()
                 .GetCompany(_dbContext)
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Map(company => GetAllocationRequirements())

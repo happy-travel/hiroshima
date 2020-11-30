@@ -6,7 +6,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public interface IManagerContextService
     {
-        Task<Result<Manager>> GetContractManager();
+        Task<Result<Manager>> GetManager();
 
         string GetIdentityHash();
 

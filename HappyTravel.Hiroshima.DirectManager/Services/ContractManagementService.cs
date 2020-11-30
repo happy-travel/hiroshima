@@ -28,7 +28,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.Contract>> Get(int contractId)
         {
-            return _managerContext.GetContractManager()
+            return _managerContext.GetManager()
                 .GetCompany(_dbContext)
                 .Bind(company => Get(company.Id));
 
@@ -49,7 +49,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<List<Models.Responses.Contract>>> GetContracts(int skip, int top)
         {
-           return _managerContext.GetContractManager()
+           return _managerContext.GetManager()
                 .GetCompany(_dbContext)
                 .Map(Get);
 
@@ -83,7 +83,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.Contract>> Add(Models.Requests.Contract contract)
         {
-            return _managerContext.GetContractManager()
+            return _managerContext.GetManager()
                 .GetCompany(_dbContext)
                 .EnsureAccommodationBelongsToCompany(_dbContext, contract.AccommodationId)
                 .Bind(company =>
@@ -121,7 +121,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result> Update(int contractId, Models.Requests.Contract contract)
         {
-            return await _managerContext.GetContractManager()
+            return await _managerContext.GetManager()
                 .GetCompany(_dbContext)
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .EnsureAccommodationBelongsToCompany(_dbContext, contract.AccommodationId)
@@ -148,7 +148,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result> Remove(int contractId)
         {
-            return await _managerContext.GetContractManager()
+            return await _managerContext.GetManager()
                 .GetCompany(_dbContext)
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Tap(company => RemoveContractDocuments(company.Id))

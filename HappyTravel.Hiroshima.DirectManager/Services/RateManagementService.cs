@@ -25,7 +25,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<List<Models.Responses.Rate>>> Get(int contractId, int skip, int top, List<int> roomIds = null, List<int> seasonIds = null)
         {
-            return _managerContext.GetContractManager()
+            return _managerContext.GetManager()
                 .GetCompany(_dbContext)
                 .Map(company => GetRates(company.Id))
                 .Map(Build);
@@ -63,7 +63,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public async Task<Result<List<Models.Responses.Rate>>> Add(int contractId, List<Models.Requests.Rate> ratesRequest)
         {
             return await ValidationHelper.Validate(ratesRequest, new RateValidator())
-                .Bind(() => _managerContext.GetContractManager())
+                .Bind(() => _managerContext.GetManager())
                 .GetCompany(_dbContext)
                 .Ensure(company => ratesRequest.Any(), "Request is empty")
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
@@ -104,7 +104,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result> Remove(int contractId, List<int> rateIds)
         {
-            return await _managerContext.GetContractManager()
+            return await _managerContext.GetManager()
                 .GetCompany(_dbContext)
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Bind(company => GetRatesToRemove(contractId, company.Id, rateIds))
