@@ -57,7 +57,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         
         
         /// <summary>
-        /// Retrieves all Contract Manager's accommodations
+        /// Retrieves all company accommodations
         /// </summary>
         /// <returns></returns>
         [HttpGet("accommodations")]

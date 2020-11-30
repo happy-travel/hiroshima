@@ -27,7 +27,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public async Task<bool> DoesContractManagerExist()
+        public async Task<bool> DoesManagerExist()
             => await _dbContext.Managers.SingleOrDefaultAsync(contractManager => contractManager.IdentityHash == GetIdentityHash()) != null;
 
         

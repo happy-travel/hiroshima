@@ -9,33 +9,33 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class ManagerManagementService : IManagerManagementService
     {
-        public ManagerManagementService(IManagerContextService contractManagerContextService, DirectContractsDbContext dbContext)
+        public ManagerManagementService(IManagerContextService managerContextService, DirectContractsDbContext dbContext)
         {
-            _contractManagerContextService = contractManagerContextService;
+            _managerContext = managerContextService;
             _dbContext = dbContext;
         }
 
 
         public Task<Result<Models.Responses.Manager>> Get()
-            => _contractManagerContextService.GetContractManager()
+            => _managerContext.GetContractManager()
                 .Map(Build);
         
         
-        public Task<Result<Models.Responses.Manager>> Register(Models.Requests.Manager contractManagerRequest, string email)
+        public Task<Result<Models.Responses.Manager>> Register(Models.Requests.Manager managerRequest, string email)
         {
            return Result.Success()
                 .Ensure(IdentityHashNotEmpty, "Failed to get the sub claim")
                 .Ensure(ContractManagerNotExist, "Contract manager has already been registered")
-                .Bind(() => IsRequestValid(contractManagerRequest))
+                .Bind(() => IsRequestValid(managerRequest))
                 .Map(Create)
                 .Map(Add)
                 .Map(Build);
 
             
-            bool IdentityHashNotEmpty() => !string.IsNullOrEmpty(_contractManagerContextService.GetIdentityHash());
+            bool IdentityHashNotEmpty() => !string.IsNullOrEmpty(_managerContext.GetIdentityHash());
             
             
-            async Task<bool> ContractManagerNotExist() => !await _contractManagerContextService.DoesContractManagerExist();
+            async Task<bool> ContractManagerNotExist() => !await _managerContext.DoesManagerExist();
             
             
             Common.Models.Manager Create()
@@ -43,14 +43,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 var utcNowDate = DateTime.UtcNow;
                 return new Common.Models.Manager
                 {
-                    IdentityHash = _contractManagerContextService.GetIdentityHash(),
+                    IdentityHash = _managerContext.GetIdentityHash(),
                     Email = email,
-                    FirstName = contractManagerRequest.FirstName,
-                    LastName = contractManagerRequest.LastName,
-                    Title = contractManagerRequest.Title,
-                    Position = contractManagerRequest.Position,
-                    Phone = contractManagerRequest.Phone,
-                    Fax = contractManagerRequest.Fax,
+                    FirstName = managerRequest.FirstName,
+                    LastName = managerRequest.LastName,
+                    Title = managerRequest.Title,
+                    Position = managerRequest.Position,
+                    Phone = managerRequest.Phone,
+                    Fax = managerRequest.Fax,
                     Created = utcNowDate,
                     Updated = utcNowDate,
                     IsActive = true
@@ -58,9 +58,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
 
 
-            async Task<Common.Models.Manager> Add(Common.Models.Manager contractManager)
+            async Task<Common.Models.Manager> Add(Common.Models.Manager manager)
             {
-                var entry = _dbContext.Add(contractManager);
+                var entry = _dbContext.Add(manager);
                 await _dbContext.SaveChangesAsync();
                 _dbContext.DetachEntry(entry.Entity);
 
@@ -69,36 +69,36 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
         
-        public Task<Result<Models.Responses.Manager>> Modify(Models.Requests.Manager contractManagerRequest)
+        public Task<Result<Models.Responses.Manager>> Modify(Models.Requests.Manager managerRequest)
         {
             return GetContractManager()
-                .Tap(contractManager => IsRequestValid(contractManagerRequest))
+                .Tap(manager => IsRequestValid(managerRequest))
                 .Map(ModifyContractManager)
                 .Map(Update)
                 .Map(Build);
 
             
             Task<Result<Common.Models.Manager>> GetContractManager() 
-                => _contractManagerContextService.GetContractManager();
+                => _managerContext.GetContractManager();
             
             
-            Common.Models.Manager ModifyContractManager(Common.Models.Manager contractManager)
+            Common.Models.Manager ModifyContractManager(Common.Models.Manager manager)
             {
-                contractManager.FirstName = contractManagerRequest.FirstName;
-                contractManager.LastName = contractManagerRequest.LastName;
-                contractManager.Title = contractManagerRequest.Title;
-                contractManager.Position = contractManagerRequest.Position;
-                contractManager.Phone = contractManagerRequest.Phone;
-                contractManager.Fax = contractManagerRequest.Fax;
-                contractManager.Updated = DateTime.UtcNow;
+                manager.FirstName = managerRequest.FirstName;
+                manager.LastName = managerRequest.LastName;
+                manager.Title = managerRequest.Title;
+                manager.Position = managerRequest.Position;
+                manager.Phone = managerRequest.Phone;
+                manager.Fax = managerRequest.Fax;
+                manager.Updated = DateTime.UtcNow;
 
-                return contractManager;
+                return manager;
             }
             
             
-            async Task<Common.Models.Manager> Update(Common.Models.Manager contractManager)
+            async Task<Common.Models.Manager> Update(Common.Models.Manager manager)
             {
-                var entry = _dbContext.Managers.Update(contractManager);
+                var entry = _dbContext.Managers.Update(manager);
                 await _dbContext.SaveChangesAsync();
                 _dbContext.DetachEntry(entry.Entity);
                 
@@ -107,21 +107,21 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
         
-        private Models.Responses.Manager Build(Common.Models.Manager contractManager) 
-            => new Models.Responses.Manager(contractManager.FirstName, 
-                contractManager.LastName, 
-                contractManager.Title, 
-                contractManager.Position,
-                contractManager.Email,
-                contractManager.Phone,
-                contractManager.Fax);
+        private Models.Responses.Manager Build(Common.Models.Manager manager) 
+            => new Models.Responses.Manager(manager.FirstName, 
+                manager.LastName, 
+                manager.Title, 
+                manager.Position,
+                manager.Email,
+                manager.Phone,
+                manager.Fax);
 
 
-        private Result IsRequestValid(Models.Requests.Manager contractManagerRequest)
-            => ValidationHelper.Validate(contractManagerRequest, new ContractManagerRegisterRequestValidator());
+        private Result IsRequestValid(Models.Requests.Manager managerRequest)
+            => ValidationHelper.Validate(managerRequest, new ContractManagerRegisterRequestValidator());
         
 
-        private readonly IManagerContextService _contractManagerContextService;
+        private readonly IManagerContextService _managerContext;
         private readonly DirectContractsDbContext _dbContext;
     }
 }
