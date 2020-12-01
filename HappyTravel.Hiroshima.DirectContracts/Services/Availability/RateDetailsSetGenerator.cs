@@ -7,7 +7,7 @@ using HappyTravel.Hiroshima.Common.Models.Availabilities;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 {
-    public class RateDetailsSetsGenerator: IRateDetailsSetsGenerator
+    public class RateDetailsSetGenerator: IRateDetailsSetGenerator
     {
         public List<List<RateDetails>> GenerateSets(AvailabilityRequest availabilityRequest, Dictionary<RoomOccupationRequest, List<RateDetails>> availableRateDetails)
         {
@@ -16,7 +16,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                 .ToList();
             
             FilterRoomDuplicatesByAllotment();
-            OrderByMinTotalPrice();
+            rateDetailsSet = OrderByMinTotalPrice();
             
             return rateDetailsSet;
 
@@ -42,10 +42,8 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             }
 
 
-            void OrderByMinTotalPrice()
-            {
-                rateDetailsSet = rateDetailsSet.OrderBy(rds => rds.Sum(rd => rd.PaymentDetails.TotalAmount.Amount)).ToList();
-            }
+            List<List<RateDetails>> OrderByMinTotalPrice() 
+                => rateDetailsSet.OrderBy(rds => rds.Sum(rd => rd.PaymentDetails.TotalAmount.Amount)).ToList();
         }
     }
 }

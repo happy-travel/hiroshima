@@ -28,10 +28,12 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
         private EdoContracts.Accommodations.Enums.BookingStatusCodes GetStatus(BookingStatuses status) => status switch
         {
             BookingStatuses.Processing => EdoContracts.Accommodations.Enums.BookingStatusCodes.WaitingForResponse,
+            BookingStatuses.WaitingForConfirmation => EdoContracts.Accommodations.Enums.BookingStatusCodes.WaitingForResponse,
+            BookingStatuses.WaitingForCancellation => EdoContracts.Accommodations.Enums.BookingStatusCodes.WaitingForResponse,
             BookingStatuses.Confirmed => EdoContracts.Accommodations.Enums.BookingStatusCodes.Confirmed,
             BookingStatuses.Cancelled => EdoContracts.Accommodations.Enums.BookingStatusCodes.Cancelled,
             BookingStatuses.Rejected => EdoContracts.Accommodations.Enums.BookingStatusCodes.Cancelled,
-            _ => throw new ArgumentOutOfRangeException(nameof(status), status, "Failed to retrieve booking status")
+            _ => throw new ArgumentOutOfRangeException(nameof(status), status, "Failed to retrieve a booking status")
         };
     }
 }

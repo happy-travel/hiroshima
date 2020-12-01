@@ -18,13 +18,13 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 {
     public class AvailabilityService : IAvailabilityService
     {
-        public AvailabilityService(IRoomAvailabilityService roomAvailabilityService, IRateAvailabilityService rateAvailabilityService, IAvailabilityDataStorage availabilityDataStorage, IAvailabilityIdGenerator availabilityIdGenerator, IRateDetailsSetsGenerator rateDetailsSetsGenerator, DirectContractsDbContext dbContext)
+        public AvailabilityService(IRoomAvailabilityService roomAvailabilityService, IRateAvailabilityService rateAvailabilityService, IAvailabilityDataStorage availabilityDataStorage, IAvailabilityIdGenerator availabilityIdGenerator, IRateDetailsSetGenerator rateDetailsSetGenerator, DirectContractsDbContext dbContext)
         {
             _roomAvailabilityService = roomAvailabilityService;
             _rateAvailabilityService = rateAvailabilityService;
             _availabilityDataStorage = availabilityDataStorage;
             _availabilityIdGenerator = availabilityIdGenerator;
-            _rateDetailsSetsGenerator = rateDetailsSetsGenerator;
+            _rateDetailsSetGenerator = rateDetailsSetGenerator;
             _dbContext = dbContext;
         }
 
@@ -140,7 +140,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                     
                 var availableRateDetails = GetAvailableRateDetails(accommodationGroupedRooms);
 
-                var rateDetailsSets = _rateDetailsSetsGenerator.GenerateSets(availabilityRequest, availableRateDetails);
+                var rateDetailsSets = _rateDetailsSetGenerator.GenerateSets(availabilityRequest, availableRateDetails);
                 if (!rateDetailsSets.Any())
                     continue;
 
@@ -178,6 +178,6 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         private readonly DirectContractsDbContext _dbContext;
         private readonly IAvailabilityDataStorage _availabilityDataStorage;
         private readonly IAvailabilityIdGenerator _availabilityIdGenerator;
-        private readonly IRateDetailsSetsGenerator _rateDetailsSetsGenerator;
+        private readonly IRateDetailsSetGenerator _rateDetailsSetGenerator;
     }
 }

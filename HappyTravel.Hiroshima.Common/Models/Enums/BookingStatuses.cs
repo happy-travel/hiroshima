@@ -3,8 +3,10 @@
     public enum BookingStatuses
     {
         Processing = 0,
-        Confirmed = 1,
-        Cancelled = 2,
-        Rejected = 3
+        WaitingForConfirmation = 1,
+        Confirmed = 2,
+        WaitingForCancellation = 3,
+        Cancelled = 4,
+        Rejected = 5
     }
 }

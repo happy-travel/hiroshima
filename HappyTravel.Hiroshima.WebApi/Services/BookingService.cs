@@ -45,7 +45,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services
                {
                    return ValidateRooms()
                        .Bind(() => ValidateReferenceCode(bookingRequest.ReferenceCode))
-                       .Bind(CheckIfBookingOrderNotExist);
+                       .Bind(CheckIfBookingOrderNotExists);
                    
                    
                    Result ValidateRooms()
@@ -69,7 +69,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services
                }
               
 
-               async Task<Result> CheckIfBookingOrderNotExist()
+               async Task<Result> CheckIfBookingOrderNotExists()
                {
                    var (_, isFailure, _, _) = await _bookingService.Get(bookingRequest.ReferenceCode);
                    return isFailure
@@ -91,7 +91,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services
 
         public Task<Result> Cancel(string bookingReferenceCode, string languageCode) 
             => ValidateReferenceCode(bookingReferenceCode)
-            .Bind(() => _bookingService.Cancel(bookingReferenceCode));
+                .Bind(() => _bookingService.Cancel(bookingReferenceCode));
 
 
         Result ValidateReferenceCode(string bookingReferenceCode) => IsReferenceCodeValid(bookingReferenceCode)

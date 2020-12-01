@@ -29,13 +29,8 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                 var availableRoomOccupations = GetRoomOccupations(currentDate);
 
                 if (!availableRoomOccupations.Any() || availableRoomOccupations.Count + roomsNumber <= currentAllocationRequirement!.Allotment)
-                {
-                    currentDate = currentDate.AddDays(1);
-                }
-                else
-                {
-                    return false;
-                }
+                    currentDate = currentDate.AddDays(1); 
+                else return false;
             } while (currentDate <= availabilityRequest.CheckOutDate);
 
             return true;
