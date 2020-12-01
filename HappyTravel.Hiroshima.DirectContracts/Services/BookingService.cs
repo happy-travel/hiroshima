@@ -128,11 +128,19 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
 
         public async Task<Result> Cancel(string referenceCode)
         {
-            return await Get(referenceCode)
+            return await Get(referenceCode).Ensure(BookingCanBeCancelled, $"The booking order '{referenceCode}' has already been cancelled")
                 .BindWithTransaction(_dbContext,
                 bookingOrder => RemoveRoomOccupancies(bookingOrder)
                     .Map(ChangeBookingStatus));
-            
+
+
+            bool BookingCanBeCancelled(Common.Models.Bookings.BookingOrder bookingOrder)
+            {
+                //TODO Add cancellation policies checking
+                return bookingOrder.Status == BookingStatuses.Confirmed || bookingOrder.Status == BookingStatuses.Processing &&
+                    DateTime.UtcNow.Date < bookingOrder.CheckInDate.Date;
+            }
+           
 
             async Task<Result<Common.Models.Bookings.BookingOrder>> RemoveRoomOccupancies(Common.Models.Bookings.BookingOrder bookingOrder)
             {
@@ -148,8 +156,9 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
             {
                 bookingOrder.Status = BookingStatuses.Cancelled;
                 bookingOrder.Modified = DateTime.UtcNow;
-                _dbContext.BookingOrders.Update(bookingOrder);
+                var entry = _dbContext.BookingOrders.Update(bookingOrder);
                 await _dbContext.SaveChangesAsync();
+                _dbContext.DetachEntry(entry.Entity);
             }
         }
 

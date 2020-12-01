@@ -84,8 +84,16 @@ namespace HappyTravel.Hiroshima.WebApi.Services
                 return _bookingResponseService.Create(booking);
             }
         }
-          
         
+        
+        public Task<Result<EdoContracts.Accommodations.Booking>> GetDetails(string bookingReferenceCode, string languageCode) => throw new System.NotImplementedException();
+
+
+        public Task<Result> Cancel(string bookingReferenceCode, string languageCode) 
+            => ValidateReferenceCode(bookingReferenceCode)
+            .Bind(() => _bookingService.Cancel(bookingReferenceCode));
+
+
         Result ValidateReferenceCode(string bookingReferenceCode) => IsReferenceCodeValid(bookingReferenceCode)
             ? Result.Success()
             : Result.Failure($"Invalid booking reference code '{bookingReferenceCode}'");
@@ -94,17 +102,6 @@ namespace HappyTravel.Hiroshima.WebApi.Services
         private bool IsReferenceCodeValid(string bookingReferenceCode)
             => !string.IsNullOrWhiteSpace(bookingReferenceCode) && bookingReferenceCode.Length <= BookingReferenceCodeMaxLength;
         
-        
-        public Task<Result<EdoContracts.Accommodations.Booking>> GetDetails(string bookingReferenceCode, string languageCode) => throw new System.NotImplementedException();
-
-
-        public Task<Result> Cancel(string bookingReferenceCode, string languageCode)
-        {
-            return ValidateReferenceCode(bookingReferenceCode)
-                .Bind(() => _bookingService.Get(bookingReferenceCode))
-                .Bind(_ => _bookingService.Cancel(bookingReferenceCode));
-        }
-
         
         private readonly DirectContracts.Services.IBookingService _bookingService;
         private readonly IAvailabilitySearchStorage _availabilitySearchStorage;
