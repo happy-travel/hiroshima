@@ -42,7 +42,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
            return Result.Success()
                 .Ensure(IdentityHashNotEmpty, "Failed to get the sub claim")
-                .Ensure(ManagerNotExist, "Contract manager has already been registered")
+                .Ensure(DoesManagerNotExist, "Contract manager has already been registered")
                 .Bind(() => IsRequestValid(managerRequest))
                 .Map(CreateCompany)
                 .Map(AddCompany)
@@ -54,7 +54,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             bool IdentityHashNotEmpty() => !string.IsNullOrEmpty(_managerContext.GetIdentityHash());
             
             
-            async Task<bool> ManagerNotExist() => !await _managerContext.DoesManagerExist();
+            async Task<bool> DoesManagerNotExist() => !await _managerContext.DoesManagerExist();
 
 
             Common.Models.Company CreateCompany()
@@ -122,17 +122,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             return _managerContext.GetManager()
                 .Ensure(manager => manager.IsMaster, "Manager has no rights to register the company")
                 .GetCompany(_dbContext)
-                .Bind(company => Validate(companyRequest, company))
-                .Map(company => ModifyCompany(company))
+                .Check(company => IsRequestValid(companyRequest))
+                .Map(ModifyCompany)
                 .Map(Update)
                 .Map(Build);
-
-
-            Result<Common.Models.Company> Validate(Models.Requests.Company companyRequest, Common.Models.Company company)
-            {
-                var validationResult = ValidationHelper.Validate(companyRequest, new CompanyRegisterRequestValidator());
-                return validationResult.IsFailure ? Result.Failure<Common.Models.Company>(validationResult.Error) : Result.Success(company);
-            }
 
 
             Common.Models.Company ModifyCompany(Common.Models.Company company)
@@ -162,7 +155,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Models.Responses.Manager>> Modify(Models.Requests.Manager managerRequest)
         {
             return GetManager()
-                .Tap(manager => IsRequestValid(managerRequest))
+                .Check(manager => IsRequestValid(managerRequest))
                 .Map(ModifyManager)
                 .Map(Update)
                 .Map(Build);
@@ -216,6 +209,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 company.PostalCode,
                 company.Phone,
                 company.Website);
+
+
+        private Result IsRequestValid(Models.Requests.Company companyRequest)
+            => ValidationHelper.Validate(companyRequest, new CompanyRegisterRequestValidator());
 
 
         private Result IsRequestValid(Models.Requests.Manager managerRequest)

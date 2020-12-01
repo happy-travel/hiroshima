@@ -89,11 +89,11 @@ namespace HappyTravel.Hiroshima.Data.Extensions
 
 
         public static async Task<bool> DoesAccommodationBelongToCompany(this DirectContractsDbContext dbContext, int accommodationId, int companyId)
-            => await dbContext.Accommodations.SingleOrDefaultAsync(c => c.CompanyId == companyId && c.Id == accommodationId) != null;
+            => await dbContext.Accommodations.AnyAsync(a => a.CompanyId == companyId && a.Id == accommodationId);
 
 
         public static async Task<bool> DoesContractBelongToCompany(this DirectContractsDbContext dbContext, int contractId, int companyId)
-            => await dbContext.Contracts.SingleOrDefaultAsync(c => c.CompanyId == companyId && c.Id == contractId) != null;
+            => await dbContext.Contracts.AnyAsync(c => c.CompanyId == companyId && c.Id == contractId);
 
 
         public static async Task<bool> DoesManagerBelongToCompany(this DirectContractsDbContext dbContext, int managerId, int companyId)
