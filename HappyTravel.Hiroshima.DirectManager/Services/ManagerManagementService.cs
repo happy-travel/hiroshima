@@ -115,7 +115,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             Result<Common.Models.Company> Validate(Models.Requests.Company companyRequest, Common.Models.Company company)
             {
                 var validationResult = ValidationHelper.Validate(companyRequest, new CompanyRegisterRequestValidator());
-                return validationResult.IsFailure ? Result.Failure<Common.Models.Company>(validationResult.Error) : Result.Success(company);
+
+                return validationResult.IsFailure 
+                    ? Result.Failure<Common.Models.Company>(validationResult.Error) 
+                    : Result.Success(company);
             }
 
 
