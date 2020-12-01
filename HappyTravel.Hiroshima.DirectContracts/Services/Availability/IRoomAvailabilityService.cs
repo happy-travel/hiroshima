@@ -9,7 +9,6 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 {
     public interface IRoomAvailabilityService
     {
-        List<Dictionary<RoomOccupationRequest, List<Room>>> GetGroupedAvailableRooms(AvailabilityRequest availabilityRequest,
-            List<Accommodation> accommodations, List<RoomOccupationRequest> occupationRequest);
+        List<Dictionary<RoomOccupationRequest, List<Room>>> GetGroupedAvailableRooms(AvailabilityRequest availabilityRequest, List<Accommodation> accommodations);
     }
 }

@@ -32,7 +32,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         public async Task<Common.Models.Availabilities.Availability> Get(AvailabilityRequest availabilityRequest, string languageCode)
         {
             var accommodations = await ExtractAvailabilityData();
-            var groupedAvailableRooms = _roomAvailabilityService.GetGroupedAvailableRooms(availabilityRequest, accommodations, availabilityRequest.Rooms);
+            var groupedAvailableRooms = _roomAvailabilityService.GetGroupedAvailableRooms(availabilityRequest, accommodations);
 
             return CreateAvailability(availabilityRequest, groupedAvailableRooms, languageCode);
             
@@ -81,7 +81,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             var accommodations = await GetAvailableAccommodations(availabilityRequest)
                 .Where(accommodation => accommodation.Id.Equals(accommodationId))
                 .ToListAsync();
-            var groupedAvailableRooms = _roomAvailabilityService.GetGroupedAvailableRooms(availabilityRequest, accommodations, availabilityRequest.Rooms);
+            var groupedAvailableRooms = _roomAvailabilityService.GetGroupedAvailableRooms(availabilityRequest, accommodations);
 
             var availability = CreateAvailability(availabilityRequest, groupedAvailableRooms, languageCode);
 

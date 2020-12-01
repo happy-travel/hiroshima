@@ -10,10 +10,9 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 {
     public class RoomAvailabilityService : IRoomAvailabilityService
     {
-        public List<Dictionary<RoomOccupationRequest, List<Room>>> GetGroupedAvailableRooms(AvailabilityRequest availabilityRequest,
-            List<Accommodation> accommodations,
-            List<RoomOccupationRequest> occupationRequest)
+        public List<Dictionary<RoomOccupationRequest, List<Room>>> GetGroupedAvailableRooms(AvailabilityRequest availabilityRequest, List<Accommodation> accommodations)
         {
+            var occupationRequest = availabilityRequest.Rooms;
             var groupedAccommodationRooms = new List<Dictionary<RoomOccupationRequest, List<Room>>>();
             foreach (var accommodation in accommodations)
             {
