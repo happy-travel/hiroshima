@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefinitions;
-using Microsoft.VisualBasic.CompilerServices;
 using Accommodation = HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
@@ -32,7 +29,9 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             {
                 var roomsGroupedByOccupationRequest = new Dictionary<RoomOccupationRequest, List<Room>>();
 
-                var availableRooms = accommodation.Rooms.Where(room => AvailabilityHelper.IsRoomAvailableByAllotment(availabilityRequest, room)).ToList();
+                var availableRooms = accommodation.Rooms
+                    .Where(room => AvailabilityHelper.IsRoomAvailableByAllotment(availabilityRequest, room))
+                    .Where(room => !DoesRoomHaveStopSaleAvailabilityRestriction(room)).ToList();
                 
                 foreach (var occupationRequestItem in occupationRequest)
                 {
@@ -59,8 +58,11 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         }
 
 
-        
+        private bool DoesRoomHaveStopSaleAvailabilityRestriction(Room room)
+            => room.AvailabilityRestrictions.Any(availabilityRestriction
+                => availabilityRestriction.Restriction == AvailabilityRestrictions.StopSale);
 
+        
         private bool IsRoomCompatibleWithOccupancyRequestItem(Room room, RoomOccupationRequest occupationRequestItem)
             => room.OccupancyConfigurations.Any(occupancyConfiguration
                 => IsRoomCompatibleWithOccupancyConfiguration(occupationRequestItem, occupancyConfiguration, room.Accommodation.OccupancyDefinition));
