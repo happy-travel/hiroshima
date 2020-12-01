@@ -26,7 +26,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
            return Result.Success()
                 .Ensure(IdentityHashNotEmpty, "Failed to get the sub claim")
-                .Ensure(ManagerNotExist, "Contract manager has already been registered")
+                .Ensure(DoesManagerNotExist, "Contract manager has already been registered")
                 .Bind(() => IsRequestValid(managerRequest))
                 .Map(CreateCompany)
                 .Map(AddCompany)
@@ -38,7 +38,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             bool IdentityHashNotEmpty() => !string.IsNullOrEmpty(_managerContext.GetIdentityHash());
             
             
-            async Task<bool> ManagerNotExist() => !await _managerContext.DoesManagerExist();
+            async Task<bool> DoesManagerNotExist() => !await _managerContext.DoesManagerExist();
 
 
             Common.Models.Company CreateCompany()
