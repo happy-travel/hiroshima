@@ -1,6 +1,5 @@
 ﻿using System;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
-using HappyTravel.Hiroshima.Common.Models.Bookings;
 
 namespace HappyTravel.Hiroshima.Common.Models
 {
@@ -17,8 +16,6 @@ namespace HappyTravel.Hiroshima.Common.Models
         public Room Room { get; set; }
         
         public Guid BookingOrderId { get; set; }
-        
-        public BookingOrder BookingOrder { get; set; } 
         
         public DateTime Created { get; set; }
     }

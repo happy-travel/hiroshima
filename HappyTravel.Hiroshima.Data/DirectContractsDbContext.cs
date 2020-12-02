@@ -128,6 +128,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(b => b.BookingRequest).IsRequired().HasColumnType("jsonb");
                 e.Property(b => b.AvailableRates).IsRequired().HasColumnType("jsonb");
                 e.HasOne(b => b.ContractManager).WithMany(cm => cm.BookingOrders).OnDelete(DeleteBehavior.SetNull);
+                e.HasMany(b => b.RoomOccupancies).WithOne().OnDelete(DeleteBehavior.SetNull);
             });
         }
 
@@ -437,7 +438,6 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(a => a.BookingOrderId).IsRequired();
                 e.Property(a => a.Created).HasDefaultValueSql("now() at time zone 'utc'").IsRequired();
                 e.HasOne(a => a.Room).WithMany(r => r.RoomOccupations).OnDelete(DeleteBehavior.SetNull);
-                e.HasOne(a => a.BookingOrder).WithMany(r => r.RoomOccupations).OnDelete(DeleteBehavior.SetNull);
             });
         }
         

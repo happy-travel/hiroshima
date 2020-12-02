@@ -42,6 +42,6 @@ namespace HappyTravel.Hiroshima.Common.Models.Bookings
         
         public ContractManager ContractManager { get; set; }
         
-        public List<RoomOccupancy> RoomOccupations { get; set; }
+        public List<RoomOccupancy> RoomOccupancies { get; set; }
     }
 }
