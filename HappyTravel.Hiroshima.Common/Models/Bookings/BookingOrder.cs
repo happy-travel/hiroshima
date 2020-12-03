@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using HappyTravel.Hiroshima.Common.Models.Enums;
 
@@ -40,5 +41,7 @@ namespace HappyTravel.Hiroshima.Common.Models.Bookings
         public int ContractManagerId { get; set; }
         
         public ContractManager ContractManager { get; set; }
+        
+        public List<RoomOccupancy> RoomOccupancies { get; set; }
     }
 }

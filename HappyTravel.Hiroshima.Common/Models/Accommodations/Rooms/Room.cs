@@ -37,13 +37,15 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms
 
         public List<PromotionalOfferStopSale> PromotionalOffersStopSale { get; set; } = new List<PromotionalOfferStopSale>();
 
-        public List<RoomAllocationRequirement> RoomAllocationRequirements { get; set; } = new List<RoomAllocationRequirement>();
+        public List<RoomAllocationRequirement> AllocationRequirements { get; set; } = new List<RoomAllocationRequirement>();
         
-        public List<RoomAvailabilityRestriction> RoomAvailabilityRestrictions { get; set; } = new List<RoomAvailabilityRestriction>();
+        public List<RoomAvailabilityRestriction> AvailabilityRestrictions { get; set; } = new List<RoomAvailabilityRestriction>();
         
-        public List<RoomCancellationPolicy> RoomCancellationPolicies { get; set; } = new List<RoomCancellationPolicy>();
+        public List<RoomCancellationPolicy> CancellationPolicies { get; set; } = new List<RoomCancellationPolicy>();
 
         public List<SlimImage> Images { get; set; } = new List<SlimImage>();
+        
+        public List<RoomOccupancy> RoomOccupations { get; set; } = new List<RoomOccupancy>();
 
 
         public override bool Equals(object? obj) => obj is Room other && Equals(other);

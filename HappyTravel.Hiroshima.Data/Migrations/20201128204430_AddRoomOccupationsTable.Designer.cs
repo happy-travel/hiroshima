@@ -10,6 +10,7 @@ using HappyTravel.Hiroshima.Common.Models.Images;
 using HappyTravel.Hiroshima.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -17,9 +18,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Hiroshima.Data.Migrations
 {
     [DbContext(typeof(DirectContractsDbContext))]
-    partial class DirectContractsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201128204430_AddRoomOccupationsTable")]
+    partial class AddRoomOccupationsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -696,7 +698,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.ToTable("Locations");
                 });
 
-            modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.RoomOccupancy", b =>
+            modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.RoomOccupation", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -726,7 +728,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
 
                     b.HasIndex("RoomId");
 
-                    b.ToTable("RoomOccupancies");
+                    b.ToTable("RoomOccupations");
                 });
 
             modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.Seasons.Season", b =>
@@ -817,7 +819,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
             modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies.RoomCancellationPolicy", b =>
                 {
                     b.HasOne("HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.Room", "Room")
-                        .WithMany("CancellationPolicies")
+                        .WithMany("RoomCancellationPolicies")
                         .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
@@ -866,7 +868,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
             modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.RoomAllocationRequirement", b =>
                 {
                     b.HasOne("HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.Room", "Room")
-                        .WithMany("AllocationRequirements")
+                        .WithMany("RoomAllocationRequirements")
                         .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
@@ -891,7 +893,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .IsRequired();
 
                     b.HasOne("HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.Room", "Room")
-                        .WithMany("AvailabilityRestrictions")
+                        .WithMany("RoomAvailabilityRestrictions")
                         .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
@@ -1002,7 +1004,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.Navigation("Country");
                 });
 
-            modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.RoomOccupancy", b =>
+            modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.RoomOccupation", b =>
                 {
                     b.HasOne("HappyTravel.Hiroshima.Common.Models.Bookings.BookingOrder", "BookingOrder")
                         .WithMany("RoomOccupations")
@@ -1011,7 +1013,7 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .IsRequired();
 
                     b.HasOne("HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.Room", "Room")
-                        .WithMany("RoomOccupations")
+                        .WithMany("OccupiedAllotments")
                         .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
@@ -1069,15 +1071,15 @@ namespace HappyTravel.Hiroshima.Data.Migrations
 
             modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.Room", b =>
                 {
-                    b.Navigation("AllocationRequirements");
-
-                    b.Navigation("AvailabilityRestrictions");
-
-                    b.Navigation("CancellationPolicies");
+                    b.Navigation("OccupiedAllotments");
 
                     b.Navigation("PromotionalOffersStopSale");
 
-                    b.Navigation("RoomOccupations");
+                    b.Navigation("RoomAllocationRequirements");
+
+                    b.Navigation("RoomAvailabilityRestrictions");
+
+                    b.Navigation("RoomCancellationPolicies");
 
                     b.Navigation("RoomPromotionalOffers");
 
