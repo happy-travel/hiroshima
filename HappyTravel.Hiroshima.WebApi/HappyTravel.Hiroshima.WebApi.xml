@@ -396,11 +396,25 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.GetManager(System.Int32)">
+            <summary>
+            Retrieves data for manager ID
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.ModifyManager(HappyTravel.Hiroshima.DirectManager.Models.Requests.Manager)">
             <summary>
             Modifies manager's data
             </summary>
             <param name="manager"></param>  
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.ModifyManagerPermissions(System.Int32,HappyTravel.Hiroshima.DirectManager.Models.Requests.ManagerPermissions)">
+            <summary>
+            Modifies manager's permissions
+            </summary>
+            <param name="managerId"></param>  
+            <param name="managerPermissions"></param>  
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.PromotionalOfferManagementController.GetPromotionalOffers(System.Int32,System.Int32,System.Int32,System.Collections.Generic.List{System.Int32},System.Nullable{System.DateTime},System.Nullable{System.DateTime})">

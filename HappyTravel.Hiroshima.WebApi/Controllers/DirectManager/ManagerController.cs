@@ -118,8 +118,27 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
             return Ok(response);
         }
-    
-        
+
+
+        /// <summary>
+        /// Modifies manager's permissions
+        /// </summary>
+        /// <param name="managerId"></param>  
+        /// <param name="managerPermissions"></param>  
+        /// <returns></returns>
+        [HttpPut("managerId/permissions")]
+        [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.Manager), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> ModifyManagerPermissions([FromRoute] int managerId, [FromBody] Hiroshima.DirectManager.Models.Requests.ManagerPermissions managerPermissions)
+        {
+            var (_, isFailure, response, error) = await _managerManagementService.ModifyPermissions(managerId, managerPermissions);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
+        }
+
+
         private readonly IdentityHttpClient _identityHttpClient;
         private readonly IManagerManagementService _managerManagementService;
     }

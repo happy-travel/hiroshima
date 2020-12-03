@@ -190,7 +190,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
         }
 
-        
+
+        public Task<Result<Models.Responses.Manager>> ModifyPermissions(int managerId, Models.Requests.ManagerPermissions managerPermissionsRequest)
+        {
+            throw new NotImplementedException();
+        }
+
+
         private Models.Responses.Manager Build(Common.Models.Manager manager) 
             => new Models.Responses.Manager(manager.FirstName, 
                 manager.LastName, 
@@ -217,6 +223,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private Result IsRequestValid(Models.Requests.Manager managerRequest)
             => ValidationHelper.Validate(managerRequest, new ManagerRegisterRequestValidator());
+
+        private Result IsRequestValid(Models.Requests.ManagerPermissions managerPermissionsRequest)
+            => ValidationHelper.Validate(managerPermissionsRequest, new ManagerPermissionsRequestValidator());
 
 
         private readonly IManagerContextService _managerContext;

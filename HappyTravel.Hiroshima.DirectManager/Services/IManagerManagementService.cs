@@ -14,5 +14,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         Task<Result<Models.Responses.Company>> RegisterCompany(Models.Requests.Company companyRequest);
 
         Task<Result<Models.Responses.Manager>> Modify(Models.Requests.Manager managerRequest);
+
+        Task<Result<Models.Responses.Manager>> ModifyPermissions(int managerId, Models.Requests.ManagerPermissions managerPermissionsRequest);
     }
 }
