@@ -60,13 +60,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             return _managerContext.GetManager()
                 .GetCompany(_dbContext)
                 .EnsureContractBelongsToCompany(_dbContext, document.ContractId)
-                .Bind(company =>
+                .Bind(serviceSupplier =>
                 {
                     var validationResult = ValidationHelper.Validate(document, new DocumentValidator());
 
-                    return validationResult.IsFailure ? Result.Failure<Company>(validationResult.Error) : Result.Success(company);
+                    return validationResult.IsFailure ? Result.Failure<ServiceSupplier>(validationResult.Error) : Result.Success(serviceSupplier);
                 })
-                .Map(company => Create(company.Id, document))
+                .Map(serviceSupplier => Create(serviceSupplier.Id, document))
                 .Map(dbDocument => AddDocument(dbDocument, document.UploadedFile))
                 .Ensure(dbDocument => dbDocument != null, "Error saving document")
                 .Map(dbDocument => Build(dbDocument));
@@ -105,20 +105,20 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return await _managerContext.GetManager()
                 .GetCompany(_dbContext)
-                .Tap(async company => 
+                .Tap(async serviceSupplier => 
                 {
-                    var result = await RemoveDocument(company.Id, contractId, documentId);
-                    return result ? Result.Success(company) : Result.Failure<Company>("Document deletion error"); 
+                    var result = await RemoveDocument(serviceSupplier.Id, contractId, documentId);
+                    return result ? Result.Success(serviceSupplier) : Result.Failure<ServiceSupplier>("Document deletion error"); 
                 });
         }
 
 
-        public async Task<Result> RemoveAll(int companyId, int contractId)
+        public async Task<Result> RemoveAll(int serviceSupplierId, int contractId)
         {
-            var documents = _dbContext.Documents.Where(document => document.CompanyId == companyId && document.ContractId == contractId);
+            var documents = _dbContext.Documents.Where(document => document.ServiceSupplierId == serviceSupplierId && document.ContractId == contractId);
             foreach (var document in documents)
             {
-                var result = await RemoveDocument(companyId, contractId, document.Id);
+                var result = await RemoveDocument(serviceSupplierId, contractId, document.Id);
                 if (!result)
                     return Result.Failure("Document deletion error");
             }
@@ -126,13 +126,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Document Create(int companyId, Models.Requests.Document document) => new Document
+        private Document Create(int serviceSupplierId, Models.Requests.Document document) => new Document
         {
             Name = document.UploadedFile.FileName,
             ContentType = document.UploadedFile.ContentType,
             Key = string.Empty,
             Created = DateTime.UtcNow,
-            CompanyId = companyId,
+            ServiceSupplierId = serviceSupplierId,
             ContractId = document.ContractId
         };
 
@@ -141,9 +141,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             => new Models.Responses.Document(document.Id, document.Name, document.ContentType, document.Key, document.ContractId);
 
 
-        private async Task<bool> RemoveDocument(int companyId, int contractId, Guid documentId)
+        private async Task<bool> RemoveDocument(int serviceSupplierId, int contractId, Guid documentId)
         {
-            var document = await _dbContext.Documents.SingleOrDefaultAsync(d => d.CompanyId == companyId &&
+            var document = await _dbContext.Documents.SingleOrDefaultAsync(d => d.ServiceSupplierId == serviceSupplierId &&
                 d.ContractId == contractId && d.Id == documentId);
             if (document is null)
                 return false;

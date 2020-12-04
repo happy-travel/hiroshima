@@ -33,17 +33,17 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Map(Build);
 
 
-            async Task<Result> CheckRoomAndSeasonRangeIds(Company company) 
+            async Task<Result> CheckRoomAndSeasonRangeIds(ServiceSupplier serviceSupplier) 
                 => Result.Combine(await CheckIfSeasonRangesBelongToContract(allocationRequirements.Select(requirement => requirement.SeasonRangeId).ToList()),
-                await CheckIfRoomsBelongToContract(company.Id, allocationRequirements.Select(requirement => requirement.RoomId).ToList()));
+                await CheckIfRoomsBelongToContract(serviceSupplier.Id, allocationRequirements.Select(requirement => requirement.RoomId).ToList()));
 
 
             Task<Result> CheckIfSeasonRangesBelongToContract(List<int> seasonRangeIds) 
                 => _dbContext.CheckIfSeasonRangesBelongToContract(contractId, seasonRangeIds);
 
 
-            Task<Result> CheckIfRoomsBelongToContract(int companyId, List<int> roomIds)
-                => _dbContext.CheckIfRoomsBelongToContract(contractId, companyId, roomIds);
+            Task<Result> CheckIfRoomsBelongToContract(int serviceSupplierId, List<int> roomIds)
+                => _dbContext.CheckIfRoomsBelongToContract(contractId, serviceSupplierId, roomIds);
             
             
             async Task<Result> CheckIfAlreadyExists()
@@ -83,11 +83,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             return _managerContext.GetManager()
                 .GetCompany(_dbContext)
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
-                .Map(company => GetAllocationRequirements(company.Id))
+                .Map(serviceSupplier => GetAllocationRequirements(serviceSupplier.Id))
                 .Map(Build);
             
             
-            async Task<List<RoomAllocationRequirement>> GetAllocationRequirements(int companyId)
+            async Task<List<RoomAllocationRequirement>> GetAllocationRequirements(int serviceSupplierId)
             {
                 var seasonsAndSeasonRanges = _dbContext.Seasons.Join(_dbContext.SeasonRanges, season => season.Id, seasonRange => seasonRange.SeasonId,
                         (season, seasonRange) => new
@@ -115,7 +115,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                 if (roomIds != null && roomIds.Any())
                 {
-                    var contractedAccommodations = _dbContext.GetContractedAccommodations(contractId, companyId);
+                    var contractedAccommodations = _dbContext.GetContractedAccommodations(contractId, serviceSupplierId);
 
                     var validRoomIds = (await contractedAccommodations.Include(accommodation => accommodation.Rooms)
                         .Select(accommodation => accommodation
@@ -141,7 +141,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             return await _managerContext.GetManager()
                 .GetCompany(_dbContext)
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
-                .Map(company => GetAllocationRequirements())
+                .Map(serviceSupplier => GetAllocationRequirements())
                 .Tap(Remove);
 
 

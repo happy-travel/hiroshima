@@ -27,8 +27,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return _managerContext.GetManager()
                 .GetCompany(_dbContext)
-                .Tap(company => Validate(company.Id, contractId, availabilityRestrictions))
-                .Map(company => Replace())
+                .Tap(serviceSupplier => Validate(serviceSupplier.Id, contractId, availabilityRestrictions))
+                .Map(serviceSupplier => Replace())
                 .Map(Build);
 
             
@@ -71,17 +71,17 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return _managerContext.GetManager()
                 .GetCompany(_dbContext)
-                .Map(company => Get(company.Id))
+                .Map(serviceSupplier => Get(serviceSupplier.Id))
                 .Map(Build);
 
 
-            async Task<List<RoomAvailabilityRestriction>> Get(int companyId)
+            async Task<List<RoomAvailabilityRestriction>> Get(int serviceSupplierId)
             {
                 var availabilityRestrictionsQueryable = _dbContext.RoomAvailabilityRestrictions.Where(availabilityRestriction => availabilityRestriction.ContractId == contractId);
                 
                 if (roomIds != null && roomIds.Any())
                 {
-                    var validRoomIdsQueryable = _dbContext.GetContractedAccommodations(contractId, companyId)
+                    var validRoomIdsQueryable = _dbContext.GetContractedAccommodations(contractId, serviceSupplierId)
                         .Join(_dbContext.Rooms.Where(room => roomIds.Contains(room.Id)), accommodation => accommodation.Id, room => room.AccommodationId,
                             (accommodation, room) => room.Id)
                         .OrderBy(id => id);
@@ -118,11 +118,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
           return await _managerContext.GetManager()
                 .GetCompany(_dbContext)
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
-                .Bind(company => GetAvailabilityRestrictionsToRemove(company.Id))
+                .Bind(serviceSupplier => GetAvailabilityRestrictionsToRemove(serviceSupplier.Id))
                 .Map(RemoveAvailabilityRestrictions);
                 
           
-            async Task<Result<List<RoomAvailabilityRestriction>>> GetAvailabilityRestrictionsToRemove(int companyId)
+            async Task<Result<List<RoomAvailabilityRestriction>>> GetAvailabilityRestrictionsToRemove(int serviceSupplierId)
             {
                 var availabilityRestrictions = await _dbContext.RoomAvailabilityRestrictions
                     .Where(availabilityRestriction => availabilityRestrictionIds.Contains(availabilityRestriction.Id))
@@ -131,7 +131,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 if (availabilityRestrictions == null || !availabilityRestrictions.Any())
                     return Result.Success(availabilityRestrictions);
 
-                var checkingResult = await _dbContext.CheckIfRoomsBelongToContract(contractId, companyId,
+                var checkingResult = await _dbContext.CheckIfRoomsBelongToContract(contractId, serviceSupplierId,
                     availabilityRestrictions.Select(availabilityRestriction => availabilityRestriction.RoomId).ToList());
 
                 return checkingResult.IsFailure 
@@ -150,15 +150,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
         
     
-        private async Task<Result> Validate(int companyId, int contractId, List<Models.Requests.AvailabilityRestriction> availabilityRestrictions)
+        private async Task<Result> Validate(int serviceSupplierId, int contractId, List<Models.Requests.AvailabilityRestriction> availabilityRestrictions)
         {
-            var contract = await _dbContext.Contracts.SingleOrDefaultAsync(c => c.Id == contractId && c.CompanyId == companyId);
+            var contract = await _dbContext.Contracts.SingleOrDefaultAsync(c => c.Id == contractId && c.ServiceSupplierId == serviceSupplierId);
             if (contract == null)
-                return Result.Failure($"Contract '{contractId}' doesn't belong to the company");
+                return Result.Failure($"Contract '{contractId}' doesn't belong to the service supplier");
             
             return Result.Combine(GenericValidator<List<Models.Requests.AvailabilityRestriction>>.Validate(
                 configure => configure.RuleFor(restrictions => restrictions).SetValidator(new AvailabilityRestrictionsValidator(contract)), availabilityRestrictions),
-                await _dbContext.CheckIfRoomsBelongToContract(contractId, companyId,
+                await _dbContext.CheckIfRoomsBelongToContract(contractId, serviceSupplierId,
                     availabilityRestrictions.Select(availabilityRestriction => availabilityRestriction.RoomId).ToList()));
         }
 

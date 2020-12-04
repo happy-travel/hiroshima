@@ -35,7 +35,7 @@ namespace HappyTravel.Hiroshima.Common.Models
         
         public bool IsActive { get; set; }
 
-        public int CompanyId { get; set; }
-        public Company Company { get; set; }
+        public int ServiceSupplierId { get; set; }
+        public ServiceSupplier ServiceSupplier { get; set; }
     }
 }

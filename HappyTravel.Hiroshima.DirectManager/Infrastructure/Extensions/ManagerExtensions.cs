@@ -8,13 +8,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions
 {
     public static class ManagerExtensions
     {
-        public static async Task<Result<Company>> GetCompany(this Task<Result<Manager>> manager, DirectContractsDbContext dbContext)
+        public static async Task<Result<ServiceSupplier>> GetCompany(this Task<Result<Manager>> manager, DirectContractsDbContext dbContext)
         {
-            var company = await dbContext.Companies.SingleOrDefaultAsync(company => company.Id == manager.Result.Value.CompanyId);
+            var serviceSupplier = await dbContext.Companies.SingleOrDefaultAsync(serviceSupplier => serviceSupplier.Id == manager.Result.Value.ServiceSupplierId);
 
-            return company is null
-                ? Result.Failure<Company>("Failed to retrieve a company")
-                : Result.Success(company);
+            return serviceSupplier is null
+                ? Result.Failure<ServiceSupplier>("Failed to retrieve a service supplier")
+                : Result.Success(serviceSupplier);
         }
     }
 }

@@ -4,6 +4,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
+using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {
@@ -108,7 +109,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
         }
 
-        
+
         private Models.Responses.Manager Build(Common.Models.Manager manager) 
             => new Models.Responses.Manager(manager.FirstName, 
                 manager.LastName, 

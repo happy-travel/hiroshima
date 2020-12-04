@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace HappyTravel.Hiroshima.Common.Models
 {
-    public class Company
+    public class ServiceSupplier
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
