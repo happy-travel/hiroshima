@@ -28,8 +28,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.Contract>> Get(int contractId)
         {
-            return _managerContext.GetManager()
-                .Bind(_managerContext.GetServiceSupplier)
+            return _managerContext.GetServiceSupplier()
                 .Bind(serviceSupplier => Get(serviceSupplier.Id));
 
 
@@ -49,8 +48,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<List<Models.Responses.Contract>>> GetContracts(int skip, int top)
         {
-           return _managerContext.GetManager()
-                .Bind(_managerContext.GetServiceSupplier)
+            return _managerContext.GetServiceSupplier()
                 .Map(Get);
 
 
@@ -83,8 +81,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.Contract>> Add(Models.Requests.Contract contract)
         {
-            return _managerContext.GetManager()
-                .Bind(_managerContext.GetServiceSupplier)
+            return _managerContext.GetServiceSupplier()
                 .EnsureAccommodationBelongsToCompany(_dbContext, contract.AccommodationId)
                 .Bind(serviceSupplier =>
                 {
@@ -123,8 +120,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result> Update(int contractId, Models.Requests.Contract contract)
         {
-            return await _managerContext.GetManager()
-                .Bind(_managerContext.GetServiceSupplier)
+            return await _managerContext.GetServiceSupplier()
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .EnsureAccommodationBelongsToCompany(_dbContext, contract.AccommodationId)
                 .Bind(serviceSupplier =>
@@ -150,8 +146,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result> Remove(int contractId)
         {
-            return await _managerContext.GetManager()
-                .Bind(_managerContext.GetServiceSupplier)
+            return await _managerContext.GetServiceSupplier()
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Tap(serviceSupplier => RemoveContractDocuments(serviceSupplier.Id))
                 .Tap(async serviceSupplier => await RemoveContract(serviceSupplier.Id));

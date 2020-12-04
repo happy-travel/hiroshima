@@ -27,8 +27,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.PromotionalOffer>>> Add(int contractId, List<Models.Requests.PromotionalOffer> promotionalOffers)
         {
             return ValidationHelper.Validate(promotionalOffers, new PromotionalOfferValidator())
-                .Bind(() => _managerContext.GetManager())
-                .Bind(_managerContext.GetServiceSupplier)
+                .Bind(() => _managerContext.GetServiceSupplier())
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Bind(serviceSupplier
                     => _dbContext.CheckIfRoomsBelongToContract(contractId, serviceSupplier.Id, promotionalOffers.Select(offer => offer.RoomId).ToList()))
@@ -50,8 +49,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         
         public Task<Result<List<Models.Responses.PromotionalOffer>>> Get(int contractId, int skip, int top, List<int> roomIds, DateTime? validFrom = null, DateTime? validTo = null)
         {
-            return _managerContext.GetManager()
-                .Bind(_managerContext.GetServiceSupplier)
+            return _managerContext.GetServiceSupplier()
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Bind(serviceSupplier => _dbContext.CheckIfRoomsBelongToContract(contractId, serviceSupplier.Id, roomIds))
                 .Map(GetPromotionalOffers)
@@ -79,8 +77,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result> Remove(int contractId, List<int> promotionalOfferIds)
         {
-            return await _managerContext.GetManager()
-                .Bind(_managerContext.GetServiceSupplier)
+            return await _managerContext.GetServiceSupplier()
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Bind(serviceSupplier => GetPromotionalOffersToRemove(serviceSupplier.Id))
                 .Tap(RemovePromotionalOffers);
@@ -119,8 +116,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.PromotionalOfferStopSalePeriod>>> AddStopSalePeriods(int contractId, List<Models.Requests.PromotionalOfferStopSale> stopSalePeriodsRequest)
         {
             return ValidationHelper.Validate(stopSalePeriodsRequest, new PromotionalOfferStopSaleValidator())
-                .Bind(() => _managerContext.GetManager())
-                .Bind(_managerContext.GetServiceSupplier)
+                .Bind(() => _managerContext.GetServiceSupplier())
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Map(serviceSupplier
                     => _dbContext.CheckIfRoomsBelongToContract(contractId, serviceSupplier.Id, stopSalePeriodsRequest.Select(offer => offer.RoomId).ToList()))
@@ -154,8 +150,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.PromotionalOfferStopSalePeriod>>> GetStopSalePeriods(int contractId, int skip, int top, List<int> roomIds,
             DateTime? fromDate, DateTime? toDate)
         {
-            return _managerContext.GetManager()
-                .Bind(_managerContext.GetServiceSupplier)
+            return _managerContext.GetServiceSupplier()
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Bind(serviceSupplier => _dbContext.CheckIfRoomsBelongToContract(contractId, serviceSupplier.Id, roomIds))
                 .Map(GetStopSalePeriods)
@@ -183,8 +178,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result> RemoveStopSalePeriods(int contractId, List<int> stopSalePeriodIds)
         {
-            return await _managerContext.GetManager()
-                .Bind(_managerContext.GetServiceSupplier)
+            return await _managerContext.GetServiceSupplier()
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Bind(serviceSupplier => GetStopSalePeriodsToRemove(serviceSupplier.Id))
                 .Tap(RemoveStopSalePeriods);

@@ -12,6 +12,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         Task<bool> DoesManagerExist();
 
-        Task<Result<ServiceSupplier>> GetServiceSupplier(Manager manager);
+        Task<Result<ServiceSupplier>> GetServiceSupplier();
     }
 }

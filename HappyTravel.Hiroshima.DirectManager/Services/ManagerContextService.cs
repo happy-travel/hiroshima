@@ -34,9 +34,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public string GetIdentityHash() => _tokenInfoAccessor.GetIdentityHash();
 
 
-        public async Task<Result<ServiceSupplier>> GetServiceSupplier(Manager manager)
+        public async Task<Result<ServiceSupplier>> GetServiceSupplier()
         {
-            var serviceSupplier = await _dbContext.Companies.SingleOrDefaultAsync(serviceSupplier => serviceSupplier.Id == manager.ServiceSupplierId);
+            var manager = GetManager();
+            if (manager.Result.IsFailure)
+                return Result.Failure<ServiceSupplier>(manager.Result.Error);
+
+            var serviceSupplier = await _dbContext.Companies.SingleOrDefaultAsync(serviceSupplier => serviceSupplier.Id == manager.Result.Value.ServiceSupplierId);
 
             return serviceSupplier is null
                 ? Result.Failure<ServiceSupplier>("Failed to retrieve a service supplier")
