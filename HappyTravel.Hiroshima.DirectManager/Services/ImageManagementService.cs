@@ -40,7 +40,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.SlimImage>>> Get(int accommodationId)
         {
             return _managerContext.GetManager()
-                .GetCompany(_dbContext)
+                .Bind(_managerContext.GetServiceSupplier)
                 .EnsureAccommodationBelongsToCompany(_dbContext, accommodationId)
                 .Map(async serviceSupplier =>
                 {
@@ -56,7 +56,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.SlimImage>>> Get(int accommodationId, int roomId)
         {
             return _managerContext.GetManager()
-                .GetCompany(_dbContext)
+                .Bind(_managerContext.GetServiceSupplier)
                 .EnsureRoomBelongsToCompany(_dbContext, accommodationId, roomId)
                 .Map(async serviceSupplier =>
                 {
@@ -72,7 +72,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Guid>> Add(Models.Requests.AccommodationImage image)
         {
             return _managerContext.GetManager()
-                .GetCompany(_dbContext)
+                .Bind(_managerContext.GetServiceSupplier)
                 .EnsureAccommodationBelongsToCompany(_dbContext, image.AccommodationId)
                 .Bind(serviceSupplier => Validate(image, serviceSupplier))
                 .Tap(serviceSupplier => ResortImages(serviceSupplier.Id, image.AccommodationId, ImageTypes.AccommodationImage))
@@ -94,7 +94,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Guid>> Add(Models.Requests.RoomImage image)
         {
             return _managerContext.GetManager()
-                .GetCompany(_dbContext)
+                .Bind(_managerContext.GetServiceSupplier)
                 .EnsureRoomBelongsToCompany(_dbContext, image.AccommodationId, image.RoomId)
                 .Bind(serviceSupplier => Validate(image, serviceSupplier))
                 .Tap(manager => ResortImages(manager.Id, image.RoomId, ImageTypes.RoomImage))
@@ -146,7 +146,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public async Task<Result> Remove(int accommodationId, Guid imageId)
         {
             return await _managerContext.GetManager()
-                .GetCompany(_dbContext)
+                .Bind(_managerContext.GetServiceSupplier)
                 .Tap(async serviceSupplier => 
                 { 
                     var result = await RemoveImage(serviceSupplier.Id, accommodationId, ImageTypes.AccommodationImage, imageId);
@@ -161,7 +161,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public async Task<Result> Remove(int accommodationId, int roomId, Guid imageId)
         {
             return await _managerContext.GetManager()
-                .GetCompany(_dbContext)
+                .Bind(_managerContext.GetServiceSupplier)
                 .Tap(async serviceSupplier =>
                 {
                     var result = await RemoveImage(serviceSupplier.Id, roomId, ImageTypes.RoomImage, imageId);

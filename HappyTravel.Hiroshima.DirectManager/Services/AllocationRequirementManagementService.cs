@@ -25,7 +25,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return Validate(allocationRequirements)
                 .Bind(() => _managerContext.GetManager())
-                .GetCompany(_dbContext)
+                .Bind(_managerContext.GetServiceSupplier)
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Bind(CheckRoomAndSeasonRangeIds)
                 .Bind(CheckIfAlreadyExists)
@@ -81,7 +81,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.AllocationRequirement>>> Get(int contractId, int skip, int top, List<int> roomIds = null, List<int> seasonIds = null, List<int> seasonRangeIds = null)
         {
             return _managerContext.GetManager()
-                .GetCompany(_dbContext)
+                .Bind(_managerContext.GetServiceSupplier)
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Map(serviceSupplier => GetAllocationRequirements(serviceSupplier.Id))
                 .Map(Build);
@@ -139,7 +139,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public async Task<Result> Remove(int contractId, List<int> allocationRequirementIds)
         {
             return await _managerContext.GetManager()
-                .GetCompany(_dbContext)
+                .Bind(_managerContext.GetServiceSupplier)
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Map(serviceSupplier => GetAllocationRequirements())
                 .Tap(Remove);

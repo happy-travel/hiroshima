@@ -31,7 +31,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Models.Responses.DocumentFile>> Get(int contractId, Guid documentId)
         {
             return _managerContext.GetManager()
-                .GetCompany(_dbContext)
+                .Bind(_managerContext.GetServiceSupplier)
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Bind(dbDocument => GetDocumentFile());
 
@@ -58,7 +58,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Models.Responses.Document>> Add(Models.Requests.Document document)
         {
             return _managerContext.GetManager()
-                .GetCompany(_dbContext)
+                .Bind(_managerContext.GetServiceSupplier)
                 .EnsureContractBelongsToCompany(_dbContext, document.ContractId)
                 .Bind(serviceSupplier =>
                 {
@@ -104,7 +104,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public async Task<Result> Remove(int contractId, Guid documentId)
         {
             return await _managerContext.GetManager()
-                .GetCompany(_dbContext)
+                .Bind(_managerContext.GetServiceSupplier)
                 .Tap(async serviceSupplier => 
                 {
                     var result = await RemoveDocument(serviceSupplier.Id, contractId, documentId);

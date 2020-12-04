@@ -26,7 +26,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             List<Models.Requests.AvailabilityRestriction> availabilityRestrictions)
         {
             return _managerContext.GetManager()
-                .GetCompany(_dbContext)
+                .Bind(_managerContext.GetServiceSupplier)
                 .Tap(serviceSupplier => Validate(serviceSupplier.Id, contractId, availabilityRestrictions))
                 .Map(serviceSupplier => Replace())
                 .Map(Build);
@@ -70,7 +70,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.AvailabilityRestriction>>> Get(int contractId, int skip, int top, List<int> roomIds, DateTime? fromDate, DateTime? toDate, AvailabilityRestrictions? restriction)
         {
             return _managerContext.GetManager()
-                .GetCompany(_dbContext)
+                .Bind(_managerContext.GetServiceSupplier)
                 .Map(serviceSupplier => Get(serviceSupplier.Id))
                 .Map(Build);
 
@@ -116,7 +116,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public async Task<Result> Remove(int contractId, List<int> availabilityRestrictionIds)
         {
           return await _managerContext.GetManager()
-                .GetCompany(_dbContext)
+                .Bind(_managerContext.GetServiceSupplier)
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Bind(serviceSupplier => GetAvailabilityRestrictionsToRemove(serviceSupplier.Id))
                 .Map(RemoveAvailabilityRestrictions);

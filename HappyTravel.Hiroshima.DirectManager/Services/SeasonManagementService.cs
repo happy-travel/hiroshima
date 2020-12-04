@@ -26,7 +26,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.Season>>> Add(int contractId, List<string> names)
         {
             return _managerContext.GetManager()
-                .GetCompany(_dbContext)
+                .Bind(_managerContext.GetServiceSupplier)
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Map(serviceSupplier => AddSeasonNames())
                 .Map(Build);
@@ -53,7 +53,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.Season>>> Get(int contractId, int skip, int top)
         {
             return _managerContext.GetManager()
-                .GetCompany(_dbContext)
+                .Bind(_managerContext.GetServiceSupplier)
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Map(serviceSupplier => GetSeasons())
                 .Map(Build);
@@ -69,7 +69,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public async Task<Result> Remove(int contractId, int seasonId)
         {
             return await _managerContext.GetManager()
-                .GetCompany(_dbContext)
+                .Bind(_managerContext.GetServiceSupplier)
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Bind(serviceSupplier => GetSeason())
                 .Tap(Remove);
@@ -154,7 +154,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.SeasonRange>>> SetSeasonRanges(int contractId, List<Models.Requests.SeasonRange> seasonRanges)
         {
             return _managerContext.GetManager()
-                .GetCompany(_dbContext)
+                .Bind(_managerContext.GetServiceSupplier)
                 .Bind(serviceSupplier => Validate(serviceSupplier.Id, contractId, seasonRanges))
                 .Map(async () => await ReplaceSeasonRanges())
                 .Map(Build);
@@ -208,7 +208,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.SeasonRange>>> GetSeasonRanges(int contractId, int skip, int top)
         {
             return _managerContext.GetManager()
-                .GetCompany(_dbContext)
+                .Bind(_managerContext.GetServiceSupplier)
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Map(serviceSupplier => GetOrderedSeasonRanges(season => season.ContractId == contractId, skip, top)) 
                 .Map(Build);
@@ -218,7 +218,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.SeasonRange>>> GetSeasonRanges(int contractId, int seasonId, int skip, int top)
         {
             return _managerContext.GetManager()
-                .GetCompany(_dbContext)
+                .Bind(_managerContext.GetServiceSupplier)
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .Map(serviceSupplier => GetOrderedSeasonRanges(season => season.ContractId == contractId && season.Id == seasonId, skip, top))
                 .Map(Build);
