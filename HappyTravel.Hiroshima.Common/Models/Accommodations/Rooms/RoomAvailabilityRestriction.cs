@@ -16,8 +16,10 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms
         
         public int ContractId { get; set; }
         
+        [Newtonsoft.Json.JsonIgnore]
         public Contract Contract { get; set; }
         
+        [Newtonsoft.Json.JsonIgnore]
         public Room Room { get; set; }
         
     }

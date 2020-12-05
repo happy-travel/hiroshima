@@ -51,7 +51,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services
                    Result ValidateRooms()
                    {
                        if (bookingRequest.Rooms.Count != availabilityRequest.Rooms.Count)
-                           return Result.Failure("Invalid number of rooms");
+                           return Result.Failure("Invalid number of the rooms");
 
                        for (var i = 0; i < bookingRequest.Rooms.Count; i++)
                        {

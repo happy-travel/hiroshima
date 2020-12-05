@@ -28,7 +28,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             var totalAmountWithDiscount = new MoneyAmount(seasonPrices.Sum(seasonPrice => seasonPrice.TotalAmountWithDiscount.Amount), currency);
             var discountPercent = GetDiscount(totalAmount, totalAmountWithDiscount);
 
-            var remarks = RetrievePaymentRemarks(rates);
+            var remarks = RetrievePaymentRemarks(rates, languageCode);
 
             return new PaymentDetails(totalAmount, discountPercent, seasonPrices, remarks);
         }
@@ -101,8 +101,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             {
                 if (promotionalOffer.ValidFromDate <= day && day <= promotionalOffer.ValidToDate)
                 {
-                    var description = string.Empty;
-                    promotionalOffer.Description?.GetValue<MultiLanguage<string>>().TryGetValueOrDefault(languageCode, out description);
+                    promotionalOffer.Description.TryGetValueOrDefault(languageCode, out string description);
 
                     return new Discount(promotionalOffer.DiscountPercent, description);
                 }
@@ -112,8 +111,12 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         }
 
 
-        private List<string> RetrievePaymentRemarks(List<RoomRate> rates)
-            => rates.Where(rate => rate.Description.IsNotEmpty()).Select(rateDetails => rateDetails.Description.GetFirstValue()).ToList();
+        private List<string> RetrievePaymentRemarks(List<RoomRate> rates, string languageCode)
+            => rates.Where(rate => rate.Description.GetAll().Any()).Select(rateDetails =>
+            {
+                rateDetails.Description.TryGetValue(languageCode, out var description);
+                return description;
+            }).ToList();
 
 
         private static MoneyAmount GetDiscountAmount(MoneyAmount moneyAmount, Discount discount, Currencies currency)

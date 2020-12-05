@@ -217,6 +217,12 @@
             <param name="ids">Availability restriction ids</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.BookingManagementController.GetBookings(HappyTravel.Hiroshima.DirectManager.Models.Requests.BookingRequest,System.Int32,System.Int32)">
+            <summary>
+            Retrieves booking orders
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.CancellationPolicyController.AddCancellationPolicies(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.CancellationPolicy})">
             <summary>
             Adds contract cancellation policies 

@@ -57,7 +57,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
                 var error = "Available rates not found";
                 var availability = await _availabilityService.Get(availabilityRequest, languageCode);
                 
-                if (availability.AvailableRates.Any())
+                if (!availability.AvailableRates.Any())
                     Result.Failure<Common.Models.Availabilities.Availability>(error);
 
                 foreach (var availableRates in availability.AvailableRates)
@@ -73,12 +73,12 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
             
             (Common.Models.Bookings.BookingOrder, AvailableRates) CreateBookingEntry(AvailableRates availableRates)
             {
-                var contractManagerId = availableRates.Rates.First().Room.Accommodation.ContractManagerId;
+                var accommodation = availableRates.Rates.First().Room.Accommodation;
                 var utcNow = DateTime.UtcNow;
             
                 return (new Common.Models.Bookings.BookingOrder
                 {
-                    Status = BookingStatuses.WaitingForConfirmation,
+                    Status = BookingStatuses.WaitingForCompletion,
                     ReferenceCode = bookingRequest.ReferenceCode,
                     CheckInDate = availabilityRequest.CheckInDate,
                     CheckOutDate = availabilityRequest.CheckOutDate,
@@ -86,9 +86,10 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
                     Modified = utcNow,
                     BookingRequest = JsonDocumentUtilities.CreateJDocument(bookingRequest),
                     AvailabilityRequest = JsonDocumentUtilities.CreateJDocument(availabilityRequest),
-                    AvailableRates = JsonDocumentUtilities.CreateJDocument(availableRates.AvailableRatesSlim),
+                    AvailableRates = JsonDocumentUtilities.CreateJDocument(availableRates),
                     LanguageCode = languageCode,
-                    ContractManagerId = contractManagerId
+                    ContractManagerId = accommodation.ContractManagerId,
+                    AccommodationId = accommodation.Id
                 }, availableRates);
             }
 
@@ -103,7 +104,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
             }
             
             
-            async Task<Result<Common.Models.Bookings.BookingOrder >> AddRoomOccupancy((Common.Models.Bookings.BookingOrder bookingOrder, AvailableRates availableRates) bookingOrderAndAvailableRates)
+            async Task<Result<Common.Models.Bookings.BookingOrder>> AddRoomOccupancy((Common.Models.Bookings.BookingOrder bookingOrder, AvailableRates availableRates) bookingOrderAndAvailableRates)
             {
                 var utcNow = DateTime.UtcNow;
                 
@@ -137,8 +138,8 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
             {
                 //TODO Add cancellation policies checking
                 return bookingOrder.Status == BookingStatuses.Processing || 
-                    bookingOrder.Status == BookingStatuses.WaitingForConfirmation ||
-                    bookingOrder.Status == BookingStatuses.Confirmed && DateTime.UtcNow.Date < bookingOrder.CheckInDate.Date;
+                    bookingOrder.Status == BookingStatuses.WaitingForCompletion ||
+                    bookingOrder.Status == BookingStatuses.Complete && DateTime.UtcNow.Date < bookingOrder.CheckInDate.Date;
             }
            
 
@@ -154,7 +155,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
             
             async Task ChangeBookingStatus(Common.Models.Bookings.BookingOrder bookingOrder)
             {
-                bookingOrder.Status = BookingStatuses.Cancelled;
+                bookingOrder.Status = BookingStatuses.WaitingForCancellation;
                 bookingOrder.Modified = DateTime.UtcNow;
                 var entry = _dbContext.BookingOrders.Update(bookingOrder);
                 await _dbContext.SaveChangesAsync();

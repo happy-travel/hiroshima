@@ -21,8 +21,4 @@
     <ProjectReference Include="..\HappyTravel.Hiroshima.Data\HappyTravel.Hiroshima.Data.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Models" />
-  </ItemGroup>
-
 </Project>

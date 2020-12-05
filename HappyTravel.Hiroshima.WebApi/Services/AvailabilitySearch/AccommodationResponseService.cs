@@ -32,7 +32,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
         
         private string GetName(Accommodation accommodation, string languageCode)
         {
-            accommodation.Name.GetValue<MultiLanguage<string>>().TryGetValueOrDefault(languageCode, out var name);
+            accommodation.Name.TryGetValueOrDefault(languageCode, out var name);
             
             return name;
         }
@@ -40,11 +40,11 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
 
         private SlimLocationInfo GetSlimLocation(Accommodation accommodation, string languageCode)
         {
-            accommodation.Address.GetValue<MultiLanguage<string>>().TryGetValueOrDefault(languageCode, out var address);
-            accommodation.Location.Country.Name.GetValue<MultiLanguage<string>>().TryGetValueOrDefault(languageCode, out var country);
+            accommodation.Address.TryGetValueOrDefault(languageCode, out var address);
+            accommodation.Location.Country.Name.TryGetValueOrDefault(languageCode, out var country);
             var countryCode = accommodation.Location.CountryCode;
-            accommodation.Location.Locality.GetValue<MultiLanguage<string>>().TryGetValueOrDefault(languageCode, out var locality);
-            accommodation.Location.Zone.GetValue<MultiLanguage<string>>().TryGetValueOrDefault(languageCode, out var zone);
+            accommodation.Location.Locality.TryGetValueOrDefault(languageCode, out var locality);
+            accommodation.Location.Zone.TryGetValueOrDefault(languageCode, out var zone);
             var coordinates = new GeoPoint(accommodation.Coordinates);
             
             return new SlimLocationInfo(address, country, countryCode, locality, zone, coordinates);
