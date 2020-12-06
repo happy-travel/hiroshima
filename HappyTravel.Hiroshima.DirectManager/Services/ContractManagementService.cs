@@ -28,19 +28,18 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.Contract>> Get(int contractId)
         {
-            return _managerContext.GetManager()
-                .GetCompany(_dbContext)
-                .Bind(company => Get(company.Id));
+            return _managerContext.GetServiceSupplier()
+                .Bind(serviceSupplier => Get(serviceSupplier.Id));
 
 
-            async Task<Result<Models.Responses.Contract>> Get(int companyId)
+            async Task<Result<Models.Responses.Contract>> Get(int serviceSupplierId)
             {
-                var contract = await GetContractWithDocuments(contractId, companyId);
+                var contract = await GetContractWithDocuments(contractId, serviceSupplierId);
 
                 if (contract is null)
                     return Result.Failure<Models.Responses.Contract>($"Failed to get the contract with {nameof(contractId)} '{contractId}'");
 
-                var accommodationId = (await GetRelatedAccommodations(contractId, companyId)).Single().Id;
+                var accommodationId = (await GetRelatedAccommodations(contractId, serviceSupplierId)).Single().Id;
 
                 return Build(contract, accommodationId);
             }
@@ -49,15 +48,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<List<Models.Responses.Contract>>> GetContracts(int skip, int top)
         {
-           return _managerContext.GetManager()
-                .GetCompany(_dbContext)
+            return _managerContext.GetServiceSupplier()
                 .Map(Get);
 
 
-            async Task<List<Models.Responses.Contract>> Get(Company company)
+            async Task<List<Models.Responses.Contract>> Get(ServiceSupplier serviceSupplier)
             {
                 var contracts = await _dbContext.Contracts
-                        .Where(contract => contract.CompanyId == company.Id).OrderBy(contract => contract.Id)
+                        .Where(contract => contract.ServiceSupplierId == serviceSupplier.Id).OrderBy(contract => contract.Id)
                         .Skip(skip)
                         .Take(top)
                         .ToListAsync();
@@ -67,7 +65,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                     var contractIds = contracts.Select(contract => contract.Id).ToList();
                     var contractsAccommodationRelations =
-                        (await GetContractRelations(company.Id, contractIds)).ToDictionary(relation => relation.ContractId);
+                        (await GetContractRelations(serviceSupplier.Id, contractIds)).ToDictionary(relation => relation.ContractId);
 
                     return contracts.Select(contract =>
                     {
@@ -83,16 +81,17 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.Contract>> Add(Models.Requests.Contract contract)
         {
-            return _managerContext.GetManager()
-                .GetCompany(_dbContext)
+            return _managerContext.GetServiceSupplier()
                 .EnsureAccommodationBelongsToCompany(_dbContext, contract.AccommodationId)
-                .Bind(company =>
+                .Bind(serviceSupplier =>
                 {
                     var validationResult = ValidationHelper.Validate(contract, new ContractValidator());
                     
-                    return validationResult.IsFailure ? Result.Failure<Company>(validationResult.Error) : Result.Success(company);
+                    return validationResult.IsFailure 
+                        ? Result.Failure<ServiceSupplier>(validationResult.Error) 
+                        : Result.Success(serviceSupplier);
                 })
-                .Map(company => Create(company.Id, contract))
+                .Map(serviceSupplier => Create(serviceSupplier.Id, contract))
                 .Map(Add)
                 .Map(dbContract => Build(dbContract, contract.AccommodationId));
 
@@ -121,17 +120,16 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result> Update(int contractId, Models.Requests.Contract contract)
         {
-            return await _managerContext.GetManager()
-                .GetCompany(_dbContext)
+            return await _managerContext.GetServiceSupplier()
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
                 .EnsureAccommodationBelongsToCompany(_dbContext, contract.AccommodationId)
-                .Bind(company =>
+                .Bind(serviceSupplier =>
                 {
                     var (_, failure, error) = ValidationHelper.Validate(contract, new ContractValidator());
 
-                    return failure ? Result.Failure<Company>(error) : Result.Success(company);
+                    return failure ? Result.Failure<ServiceSupplier>(error) : Result.Success(serviceSupplier);
                 })
-                .Map(company => Create(company.Id, contract))
+                .Map(serviceSupplier => Create(serviceSupplier.Id, contract))
                 .Tap(Update);
                
 
@@ -148,20 +146,19 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result> Remove(int contractId)
         {
-            return await _managerContext.GetManager()
-                .GetCompany(_dbContext)
+            return await _managerContext.GetServiceSupplier()
                 .EnsureContractBelongsToCompany(_dbContext, contractId)
-                .Tap(company => RemoveContractDocuments(company.Id))
-                .Tap(async company => await RemoveContract(company.Id));
+                .Tap(serviceSupplier => RemoveContractDocuments(serviceSupplier.Id))
+                .Tap(async serviceSupplier => await RemoveContract(serviceSupplier.Id));
 
-            async Task<Result> RemoveContractDocuments(int companyId)
+            async Task<Result> RemoveContractDocuments(int serviceSupplierId)
             {
-                return await _documentManagementService.RemoveAll(companyId, contractId);
+                return await _documentManagementService.RemoveAll(serviceSupplierId, contractId);
             }
 
-            async Task RemoveContract(int companyId)
+            async Task RemoveContract(int serviceSupplierId)
             {
-                var contract = await _dbContext.Contracts.SingleOrDefaultAsync(c => c.Id == contractId && c.CompanyId == companyId);
+                var contract = await _dbContext.Contracts.SingleOrDefaultAsync(c => c.Id == contractId && c.ServiceSupplierId == serviceSupplierId);
                 if (contract is null)
                     return;
 
@@ -290,7 +287,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Contract Create(int companyId, Models.Requests.Contract contract)
+        private Contract Create(int serviceSupplierId, Models.Requests.Contract contract)
             => new Contract
             {
                 Name = contract.Name,
@@ -298,7 +295,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 ValidFrom = contract.ValidFrom.Date,
                 ValidTo = contract.ValidTo.Date,
                 Modified = DateTime.UtcNow,
-                CompanyId = companyId
+                ServiceSupplierId = serviceSupplierId
             };
         
         
@@ -324,32 +321,32 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private async Task<Contract> GetContractWithDocuments(int contractId, int companyId)
+        private async Task<Contract> GetContractWithDocuments(int contractId, int serviceSupplierId)
         {
-            var contract = await _dbContext.Contracts.SingleOrDefaultAsync(c => c.CompanyId == companyId && c.Id == contractId);
+            var contract = await _dbContext.Contracts.SingleOrDefaultAsync(c => c.ServiceSupplierId == serviceSupplierId && c.Id == contractId);
             if (contract == null)
                 return contract;
 
-            contract.Documents = await _dbContext.Documents.Where(d => d.CompanyId == companyId && d.ContractId == contractId).ToListAsync();
+            contract.Documents = await _dbContext.Documents.Where(d => d.ServiceSupplierId == serviceSupplierId && d.ContractId == contractId).ToListAsync();
 
             return contract;
         }
 
 
-        private async Task<List<Accommodation>> GetRelatedAccommodations(int contractId, int companyId) =>
+        private async Task<List<Accommodation>> GetRelatedAccommodations(int contractId, int serviceSupplierId) =>
             (await JoinContractAccommodationRelationAndAccommodation()
                 .Where(contractAccommodationRelationAndAccommodation =>
-                    contractAccommodationRelationAndAccommodation.Accommodation!.CompanyId == companyId &&
+                    contractAccommodationRelationAndAccommodation.Accommodation!.ServiceSupplierId == serviceSupplierId &&
                     contractAccommodationRelationAndAccommodation.ContractAccommodationRelation!.ContractId ==
                     contractId)
                 .Select(contractAccommodationRelationAndAccommodation => contractAccommodationRelationAndAccommodation.Accommodation)
                 .ToListAsync())!;
 
 
-        private async Task<List<ContractAccommodationRelation>> GetContractRelations(int companyId, List<int> contractIds)
+        private async Task<List<ContractAccommodationRelation>> GetContractRelations(int serviceSupplierId, List<int> contractIds)
             => (await JoinContractAccommodationRelationAndAccommodation()
                 .Where(contractAccommodationRelationAndAccommodation =>
-                    contractAccommodationRelationAndAccommodation.Accommodation!.CompanyId == companyId &&
+                    contractAccommodationRelationAndAccommodation.Accommodation!.ServiceSupplierId == serviceSupplierId &&
                     contractIds.Contains(contractAccommodationRelationAndAccommodation.ContractAccommodationRelation!.ContractId))
                 .Select(contractAccommodationRelationAndAccommodation =>
                     contractAccommodationRelationAndAccommodation.ContractAccommodationRelation).ToListAsync())!;

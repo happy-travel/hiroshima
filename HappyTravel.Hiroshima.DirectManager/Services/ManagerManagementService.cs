@@ -5,6 +5,7 @@ using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
+using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {
@@ -80,9 +81,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     Position = managerRequest.Position,
                     Phone = managerRequest.Phone,
                     Fax = managerRequest.Fax,
-                    Permissions = managerRequest.Permissions,
-                    IsMaster = true,
-                    CompanyId = company.Id,
                     Created = utcNowDate,
                     Updated = utcNowDate,
                     IsActive = true
@@ -157,7 +155,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 manager.Position = managerRequest.Position;
                 manager.Phone = managerRequest.Phone;
                 manager.Fax = managerRequest.Fax;
-                manager.Permissions = managerRequest.Permissions;
                 manager.Updated = DateTime.UtcNow;
 
                 return manager;
@@ -174,7 +171,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
         }
 
-        
+
         private Models.Responses.Manager Build(Common.Models.Manager manager) 
             => new Models.Responses.Manager(manager.FirstName, 
                 manager.LastName, 
@@ -183,8 +180,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 manager.Email,
                 manager.Phone,
                 manager.Fax,
-                manager.Permissions,
-                manager.IsMaster);
+                Common.Models.Enums.ManagerPermissions.All, // TODO: Need add ManagerPermissions and IsMaster in next task
+                true);
 
 
         private Models.Responses.Company Build(Common.Models.Company company)
