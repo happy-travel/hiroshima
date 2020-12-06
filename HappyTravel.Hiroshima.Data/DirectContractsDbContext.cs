@@ -42,9 +42,10 @@ namespace HappyTravel.Hiroshima.Data
             AddAmenities(modelBuilder);
             AddBooking(modelBuilder);
             AddCancellationPolicies(modelBuilder);
-            AddCompanies(modelBuilder);
+            AddServiceSuppliers(modelBuilder);
             AddContractAccommodationRelation(modelBuilder);
             AddManagers(modelBuilder);
+            AddManagerServiceSupplierRelations(modelBuilder);
             AddContracts(modelBuilder);
             AddCountries(modelBuilder);
             AddDocuments(modelBuilder);
@@ -151,7 +152,7 @@ namespace HappyTravel.Hiroshima.Data
         }
 
 
-        private void AddCompanies(ModelBuilder modelBuilder)
+        private void AddServiceSuppliers(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<ServiceSupplier>(e =>
             {
@@ -201,14 +202,25 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(m => m.Created).IsRequired().HasDefaultValueSql("now() at time zone 'utc'");
                 e.Property(m => m.Updated).IsRequired().HasDefaultValueSql("now() at time zone 'utc'");
                 e.Property(m => m.IsActive).IsRequired().HasDefaultValue(false);
-                e.Property(m => m.Permissions).IsRequired().HasDefaultValue(InCompanyPermissions.All);  // All permissions
-                e.Property(m => m.IsMaster).IsRequired().HasDefaultValue(false);
                 e.Property(m => m.ServiceSupplierId).IsRequired();
 
                 e.HasIndex(m => m.IdentityHash).IsUnique();
                 e.HasIndex(m => m.Email).IsUnique();
                 e.HasIndex(m => m.ServiceSupplierId);
                 e.HasOne(m => m.ServiceSupplier).WithMany(c => c.Managers).OnDelete(DeleteBehavior.SetNull);
+            });
+        }
+
+
+        private void AddManagerServiceSupplierRelations(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ManagerServiceSupplierRelation>(e =>
+            {
+                e.ToTable("ManagerServiceSupplierRelations");
+                e.HasKey(mssr => new { mssr.ManagerId, mssr.ServiceSupplierId });
+                e.Property(mssr => mssr.ManagerPermissions).IsRequired().HasDefaultValue(ManagerPermissions.All);   // All permissions
+                e.Property(mssr => mssr.IsMaster).IsRequired().HasDefaultValue(false); 
+                e.Property(mssr => mssr.IsActive).IsRequired().HasDefaultValue(true);
             });
         }
 
@@ -455,6 +467,7 @@ namespace HappyTravel.Hiroshima.Data
         public virtual DbSet<ServiceSupplier> Companies { get; set; }
         public virtual DbSet<ContractAccommodationRelation> ContractAccommodationRelations { get; set; }
         public virtual DbSet<Manager> Managers { get; set; }
+        public virtual DbSet<ManagerServiceSupplierRelation> ManagerServiceSupplierRelations { get; set; }
         public virtual DbSet<Contract> Contracts { get; set; }
         public virtual DbSet<Country> Countries { get; set; }
         public virtual DbSet<Document> Documents { get; set; }

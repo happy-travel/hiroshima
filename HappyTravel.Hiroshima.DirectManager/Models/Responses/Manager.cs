@@ -4,7 +4,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
     public readonly struct Manager
     {
-        public Manager(string firstName, string lastName, string title, string position, string email, string phone, string fax, InCompanyPermissions permissions, bool isMaster)
+        public Manager(string firstName, string lastName, string title, string position, string email, string phone, string fax, ManagerPermissions permissions, bool isMaster)
         {
             FirstName = firstName;
             LastName = lastName;
@@ -25,7 +25,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
         public string Email { get; }
         public string Phone { get; }
         public string Fax { get; }
-        public InCompanyPermissions Permissions { get; }
+        public ManagerPermissions Permissions { get; }
         public bool IsMaster { get; }
     }
 }
