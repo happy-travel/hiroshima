@@ -9,7 +9,6 @@ using HappyTravel.Hiroshima.Common.Models.Seasons;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.Data.Models;
-using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.EntityFrameworkCore;
 
@@ -84,7 +83,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Models.Responses.Contract>> Add(Models.Requests.Contract contract)
         {
             return _managerContext.GetServiceSupplier()
-                .EnsureAccommodationBelongsToCompany(_dbContext, contract.AccommodationId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureAccommodationBelongsToServiceSupplier(serviceSupplier, contract.AccommodationId))
                 .Bind(serviceSupplier =>
                 {
                     var validationResult = ValidationHelper.Validate(contract, new ContractValidator());
@@ -124,7 +123,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return await _managerContext.GetServiceSupplier()
                 .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
-                .EnsureAccommodationBelongsToCompany(_dbContext, contract.AccommodationId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureAccommodationBelongsToServiceSupplier(serviceSupplier, contract.AccommodationId))
                 .Bind(serviceSupplier =>
                 {
                     var (_, failure, error) = ValidationHelper.Validate(contract, new ContractValidator());

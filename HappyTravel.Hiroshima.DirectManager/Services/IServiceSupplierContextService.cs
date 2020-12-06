@@ -11,5 +11,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     public interface IServiceSupplierContextService
     {
         Result<ServiceSupplier> EnsureContractBelongsToServiceSupplier(ServiceSupplier serviceSupplier, int contractId);
+
+        Result<ServiceSupplier> EnsureAccommodationBelongsToServiceSupplier(ServiceSupplier serviceSupplier, int accommodationId);
+
+        Task<Result<ServiceSupplier>> EnsureRoomBelongsToServiceSupplier(ServiceSupplier serviceSupplier, int accommodationId, int roomId);
     }
 }
