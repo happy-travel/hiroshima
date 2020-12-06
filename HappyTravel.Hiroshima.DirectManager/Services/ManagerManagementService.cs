@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Data;
@@ -29,8 +30,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Ensure(IdentityHashNotEmpty, "Failed to get the sub claim")
                 .Ensure(DoesManagerNotExist, "Contract manager has already been registered")
                 .Bind(() => IsRequestValid(managerRequest))
-                .Map(CreateCompany)
-                .Map(AddCompany)
+                .Map(CreateServiceSupplier)
+                .Map(AddServiceSupplier)
                 .Map(Create)
                 .Map(Add)
                 .Map(Build);
@@ -42,10 +43,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             async Task<bool> DoesManagerNotExist() => !await _managerContext.DoesManagerExist();
 
 
-            Common.Models.Company CreateCompany()
+            Common.Models.ServiceSupplier CreateServiceSupplier()
             {
                 var utcNowDate = DateTime.UtcNow;
-                return new Common.Models.Company
+                return new Common.Models.ServiceSupplier
                 {
                     Name = string.Empty,
                     Address = string.Empty,
@@ -58,9 +59,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
 
 
-            async Task<Common.Models.Company> AddCompany(Common.Models.Company company)
+            async Task<Common.Models.ServiceSupplier> AddServiceSupplier(Common.Models.ServiceSupplier serviceSupplier)
             {
-                var entry = _dbContext.Companies.Add(company);
+                var entry = _dbContext.ServiceSuppliers.Add(serviceSupplier);
                 await _dbContext.SaveChangesAsync();
                 _dbContext.DetachEntry(entry.Entity);
 
@@ -68,7 +69,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
 
 
-            Common.Models.Manager Create(Common.Models.Company company)
+            Common.Models.Manager Create(Common.Models.ServiceSupplier serviceSupplier)
             {
                 var utcNowDate = DateTime.UtcNow;
                 return new Common.Models.Manager
@@ -99,33 +100,48 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<Models.Responses.Company>> RegisterCompany(Models.Requests.Company companyRequest)
+        public Task<Result<Models.Responses.ServiceSupplier>> RegisterServiceSupplier(Models.Requests.ServiceSupplier serviceSupplierRequest)
         {
             return _managerContext.GetManager()
-                .Ensure(manager => manager.IsMaster, "Manager has no rights to register the company")
-                .GetCompany(_dbContext)
-                .Check(company => IsRequestValid(companyRequest))
-                .Map(ModifyCompany)
+                .Bind(GetRelation)
+                .Check(relation => IsRequestValid(serviceSupplierRequest))
+                .Bind(ModifyServiceSupplier)
                 .Map(Update)
                 .Map(Build);
 
 
-            Common.Models.Company ModifyCompany(Common.Models.Company company)
+            async Task<Result<Common.Models.ManagerServiceSupplierRelation>> GetRelation(Common.Models.Manager manager)
             {
-                company.Name = companyRequest.Name;
-                company.Address = companyRequest.Address;
-                company.PostalCode = companyRequest.PostalCode;
-                company.Phone = companyRequest.Phone;
-                company.Website = companyRequest.Website;
-                company.Modified = DateTime.UtcNow;
+                // TODO: Now it is assumed that the manager only works in one company. Will be changed in the next tasks
+                var managerRelation = await _dbContext.ManagerServiceSupplierRelations
+                    .SingleOrDefaultAsync(relation => relation.ManagerId == manager.Id && relation.IsActive && relation.IsMaster);
 
-                return company;
+                return managerRelation is null
+                    ? Result.Failure<Common.Models.ManagerServiceSupplierRelation>("Manager has no rights to register the service supplier")
+                    : Result.Success(managerRelation);
             }
 
 
-            async Task<Common.Models.Company> Update(Common.Models.Company company)
+            async Task<Result<Common.Models.ServiceSupplier>> ModifyServiceSupplier(Common.Models.ManagerServiceSupplierRelation managerRelation)
             {
-                var entry = _dbContext.Companies.Update(company);
+                var serviceSupplier = await _dbContext.ServiceSuppliers.SingleOrDefaultAsync(serviceSupplier => serviceSupplier.Id == managerRelation.ServiceSupplierId);
+                if (serviceSupplier is null)
+                    return Result.Failure<Common.Models.ServiceSupplier>("Invalid service supplier");
+
+                serviceSupplier.Name = serviceSupplierRequest.Name;
+                serviceSupplier.Address = serviceSupplierRequest.Address;
+                serviceSupplier.PostalCode = serviceSupplierRequest.PostalCode;
+                serviceSupplier.Phone = serviceSupplierRequest.Phone;
+                serviceSupplier.Website = serviceSupplierRequest.Website;
+                serviceSupplier.Modified = DateTime.UtcNow;
+
+                return serviceSupplier;
+            }
+
+
+            async Task<Common.Models.ServiceSupplier> Update(Common.Models.ServiceSupplier serviceSupplier)
+            {
+                var entry = _dbContext.ServiceSuppliers.Update(serviceSupplier);
                 await _dbContext.SaveChangesAsync();
                 _dbContext.DetachEntry(entry.Entity);
 
@@ -184,16 +200,16 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 true);
 
 
-        private Models.Responses.Company Build(Common.Models.Company company)
-            => new Models.Responses.Company(company.Name,
-                company.Address,
-                company.PostalCode,
-                company.Phone,
-                company.Website);
+        private Models.Responses.ServiceSupplier Build(Common.Models.ServiceSupplier serviceSupplier)
+            => new Models.Responses.ServiceSupplier(serviceSupplier.Name,
+                serviceSupplier.Address,
+                serviceSupplier.PostalCode,
+                serviceSupplier.Phone,
+                serviceSupplier.Website);
 
 
-        private Result IsRequestValid(Models.Requests.Company companyRequest)
-            => ValidationHelper.Validate(companyRequest, new CompanyRegisterRequestValidator());
+        private Result IsRequestValid(Models.Requests.ServiceSupplier serviceSupplierRequest)
+            => ValidationHelper.Validate(serviceSupplierRequest, new ServiceSupplierValidator());
 
 
         private Result IsRequestValid(Models.Requests.Manager managerRequest)

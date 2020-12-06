@@ -1,8 +1,8 @@
 ﻿namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
-    public readonly struct Company
+    public readonly struct ServiceSupplier
     {
-        public Company(string name, string address, string postalCode, string phone, string website)
+        public ServiceSupplier(string name, string address, string postalCode, string phone, string website)
         {
             Name = name;
             Address = address;

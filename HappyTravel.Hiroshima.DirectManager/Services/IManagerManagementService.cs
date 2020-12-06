@@ -9,7 +9,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         
         Task<Result<Models.Responses.Manager>> Register(Models.Requests.Manager managerRequest, string email);
 
-        Task<Result<Models.Responses.Company>> RegisterCompany(Models.Requests.Company companyRequest);
+        Task<Result<Models.Responses.ServiceSupplier>> RegisterServiceSupplier(Models.Requests.ServiceSupplier companyRequest);
 
         Task<Result<Models.Responses.Manager>> Modify(Models.Requests.Manager managerRequest);
     }

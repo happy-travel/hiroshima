@@ -464,7 +464,7 @@ namespace HappyTravel.Hiroshima.Data
         public virtual DbSet<BookingOrder> Booking { get; set; }
         public virtual DbSet<Amenity> Amenities { get; set; }
         public virtual DbSet<RoomCancellationPolicy> RoomCancellationPolicies { get; set; }
-        public virtual DbSet<ServiceSupplier> Companies { get; set; }
+        public virtual DbSet<ServiceSupplier> ServiceSuppliers { get; set; }
         public virtual DbSet<ContractAccommodationRelation> ContractAccommodationRelations { get; set; }
         public virtual DbSet<Manager> Managers { get; set; }
         public virtual DbSet<ManagerServiceSupplierRelation> ManagerServiceSupplierRelations { get; set; }
