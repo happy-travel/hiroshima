@@ -16,10 +16,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class RateManagementService : IRateManagementService
     {
-        public RateManagementService(IManagerContextService managerContextService, DirectContractsDbContext dbContext)
+        public RateManagementService(IManagerContextService managerContextService, IServiceSupplierContextService serviceSupplierContextService,
+            DirectContractsDbContext dbContext)
         {
             _dbContext = dbContext;
             _managerContext = managerContextService;
+            _serviceSupplierContext = serviceSupplierContextService;
         }
 
 
@@ -64,7 +66,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             return await ValidationHelper.Validate(ratesRequest, new RateValidator())
                 .Bind(() => _managerContext.GetServiceSupplier())
                 .Ensure(serviceSupplier => ratesRequest.Any(), "Request is empty")
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
                 .Bind(serviceSupplier => CheckIfSeasonIdsAndRoomIdsBelongToContract(serviceSupplier.Id))
                 .Bind(CheckIfAlreadyExists)
                 .Map(() => Create(ratesRequest))
@@ -103,7 +105,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public async Task<Result> Remove(int contractId, List<int> rateIds)
         {
             return await _managerContext.GetServiceSupplier()
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
                 .Bind(serviceSupplier => GetRatesToRemove(contractId, serviceSupplier.Id, rateIds))
                 .Tap(RemoveRates);
         }
@@ -174,5 +176,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private readonly DirectContractsDbContext _dbContext;
         private readonly IManagerContextService _managerContext;
+        private readonly IServiceSupplierContextService _serviceSupplierContext;
     }
 }

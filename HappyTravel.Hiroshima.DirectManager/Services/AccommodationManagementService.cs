@@ -23,10 +23,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     public class AccommodationManagementService : IAccommodationManagementService
     {
         public AccommodationManagementService(IManagerContextService managerContextService, 
-            IImageManagementService imageManagementService, IAmenityService amenityService,
-            DirectContractsDbContext dbContext, GeometryFactory geometryFactory)
+            IServiceSupplierContextService serviceSupplierContextService,
+            IImageManagementService imageManagementService, 
+            IAmenityService amenityService,
+            DirectContractsDbContext dbContext, 
+            GeometryFactory geometryFactory)
         {
             _managerContext = managerContextService;
+            _serviceSupplierContext = serviceSupplierContextService;
             _imageManagementService = imageManagementService;
             _amenityService = amenityService;
             _geometryFactory = geometryFactory;
@@ -37,7 +41,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.Accommodation>>> GetAccommodations(int contractId)
         {
             return _managerContext.GetServiceSupplier()
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
+                .Check(serviceSupplier =>_serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
                 .Map(serviceSupplier => GetContractAccommodations())
                 .Map(Build);
 
@@ -460,6 +464,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         private readonly IManagerContextService _managerContext;
+        private readonly IServiceSupplierContextService _serviceSupplierContext;
         private readonly IImageManagementService _imageManagementService;
         private readonly IAmenityService _amenityService;
         private readonly GeometryFactory _geometryFactory;

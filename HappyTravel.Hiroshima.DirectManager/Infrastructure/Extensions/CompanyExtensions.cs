@@ -15,10 +15,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions
                 $"Invalid accommodation id '{accommodationId}'");
 
 
-        public static Task<Result<ServiceSupplier>> EnsureContractBelongsToCompany(this Task<Result<ServiceSupplier>> serviceSupplier,
+/*        public static Task<Result<ServiceSupplier>> EnsureContractBelongsToCompany(this Task<Result<ServiceSupplier>> serviceSupplier,
             DirectContractsDbContext dbContext, int contractId)
             => serviceSupplier.Ensure(c => dbContext.DoesContractBelongToCompany(contractId, c.Id),
-                $"Invalid contract id '{contractId}'");
+                $"Invalid contract id '{contractId}'");*/
 
 
         public static Task<Result<ServiceSupplier>> EnsureRoomBelongsToCompany(this Task<Result<ServiceSupplier>> serviceSupplier,

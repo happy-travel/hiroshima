@@ -13,10 +13,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class CancellationPolicyManagementService : ICancellationPolicyManagementService
     {
-        public CancellationPolicyManagementService(IManagerContextService managerContextService, DirectContractsDbContext dbContext)
+        public CancellationPolicyManagementService(IManagerContextService managerContextService, IServiceSupplierContextService serviceSupplierContextService, 
+            DirectContractsDbContext dbContext)
         {
             _dbContext = dbContext;
             _managerContext = managerContextService;
+            _serviceSupplierContext = serviceSupplierContextService;
         }
 
 
@@ -32,7 +34,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return ValidationHelper.Validate(cancellationPolicies, new CancellationPoliciesValidator())
                 .Bind(() => _managerContext.GetServiceSupplier())
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
                 .Bind(serviceSupplier => CheckIfSeasonIdsAndRoomIdsBelongToContract(serviceSupplier.Id)) 
                 .Bind(CheckIfAlreadyExists)
                 .Bind(() => AddCancellationPolicies(cancellationPolicies));
@@ -86,7 +88,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public async Task<Result> Remove(int contractId, List<int> cancellationPolicyIds)
         {
             return await _managerContext.GetServiceSupplier()
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
                 .Bind(serviceSupplier => GetCancellationPoliciesToRemove(contractId, serviceSupplier.Id, cancellationPolicyIds))
                 .Tap(RemoveCancellationPolicies);
         }
@@ -152,5 +154,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         
         private readonly DirectContractsDbContext _dbContext;
         private readonly IManagerContextService _managerContext;
+        private readonly IServiceSupplierContextService _serviceSupplierContext;
     }
 }

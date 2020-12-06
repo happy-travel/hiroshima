@@ -14,10 +14,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class AllocationRequirementManagementService : IAllocationRequirementManagementService
     {
-        public AllocationRequirementManagementService(DirectContractsDbContext dbContext, IManagerContextService managerContextService)
+        public AllocationRequirementManagementService(DirectContractsDbContext dbContext, 
+            IManagerContextService managerContextService,
+            IServiceSupplierContextService serviceSupplierContextService)
         {
-            _managerContext = managerContextService;
             _dbContext = dbContext;
+            _managerContext = managerContextService;
+            _serviceSupplierContext = serviceSupplierContextService;
         }
 
 
@@ -25,7 +28,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return Validate(allocationRequirements)
                 .Bind(() => _managerContext.GetServiceSupplier())
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
                 .Bind(CheckRoomAndSeasonRangeIds)
                 .Bind(CheckIfAlreadyExists)
                 .Map(AddAllocationRequirements)
@@ -80,7 +83,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.AllocationRequirement>>> Get(int contractId, int skip, int top, List<int> roomIds = null, List<int> seasonIds = null, List<int> seasonRangeIds = null)
         {
             return _managerContext.GetServiceSupplier()
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
                 .Map(serviceSupplier => GetAllocationRequirements(serviceSupplier.Id))
                 .Map(Build);
             
@@ -137,7 +140,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public async Task<Result> Remove(int contractId, List<int> allocationRequirementIds)
         {
             return await _managerContext.GetServiceSupplier()
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
                 .Map(serviceSupplier => GetAllocationRequirements())
                 .Tap(Remove);
 
@@ -196,5 +199,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         
         private readonly DirectContractsDbContext _dbContext;
         private readonly IManagerContextService _managerContext;
+        private readonly IServiceSupplierContextService _serviceSupplierContext;
     }
 }

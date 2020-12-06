@@ -17,10 +17,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class ContractManagementService : IContractManagementService
     {
-        public ContractManagementService(IManagerContextService managerContextService, IDocumentManagementService documentManagementService,
+        public ContractManagementService(IManagerContextService managerContextService, IServiceSupplierContextService serviceSupplierContextService,
+            IDocumentManagementService documentManagementService,
             DirectContractsDbContext dbContext)
         {
             _managerContext = managerContextService;
+            _serviceSupplierContext = serviceSupplierContextService;
             _documentManagementService = documentManagementService;
             _dbContext = dbContext;
         }
@@ -121,7 +123,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public async Task<Result> Update(int contractId, Models.Requests.Contract contract)
         {
             return await _managerContext.GetServiceSupplier()
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
                 .EnsureAccommodationBelongsToCompany(_dbContext, contract.AccommodationId)
                 .Bind(serviceSupplier =>
                 {
@@ -147,13 +149,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public async Task<Result> Remove(int contractId)
         {
             return await _managerContext.GetServiceSupplier()
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
                 .Tap(serviceSupplier => RemoveContractDocuments(serviceSupplier.Id))
                 .Tap(async serviceSupplier => await RemoveContract(serviceSupplier.Id));
 
-            async Task<Result> RemoveContractDocuments(int serviceSupplierId)
+            async Task RemoveContractDocuments(int serviceSupplierId)
             {
-                return await _documentManagementService.RemoveAll(serviceSupplierId, contractId);
+                await _documentManagementService.RemoveAll(serviceSupplierId, contractId);
             }
 
             async Task RemoveContract(int serviceSupplierId)
@@ -365,6 +367,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private readonly IManagerContextService _managerContext;
         private readonly IDocumentManagementService _documentManagementService;
+        private readonly IServiceSupplierContextService _serviceSupplierContext;
         private readonly DirectContractsDbContext _dbContext;
 
 
