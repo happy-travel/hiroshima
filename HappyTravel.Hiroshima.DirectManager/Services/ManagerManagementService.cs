@@ -29,8 +29,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Ensure(IdentityHashNotEmpty, "Failed to get the sub claim")
                 .Ensure(DoesManagerNotExist, "Manager has already been registered")
                 .Bind(() => IsRequestValid(managerRequest))
-                .Map(CreateServiceSupplier)
-                .Map(AddServiceSupplier)
                 .Map(Create)
                 .Map(Add)
                 .Map(Build);
@@ -42,33 +40,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             async Task<bool> DoesManagerNotExist() => !await _managerContext.DoesManagerExist();
 
 
-            Common.Models.ServiceSupplier CreateServiceSupplier()
-            {
-                var utcNowDate = DateTime.UtcNow;
-                return new Common.Models.ServiceSupplier
-                {
-                    Name = string.Empty,
-                    Address = string.Empty,
-                    PostalCode = string.Empty,
-                    Phone = string.Empty,
-                    Website = string.Empty,
-                    Created = utcNowDate,
-                    Modified = utcNowDate
-                };
-            }
-
-
-            async Task<Common.Models.ServiceSupplier> AddServiceSupplier(Common.Models.ServiceSupplier serviceSupplier)
-            {
-                var entry = _dbContext.ServiceSuppliers.Add(serviceSupplier);
-                await _dbContext.SaveChangesAsync();
-                _dbContext.DetachEntry(entry.Entity);
-
-                return entry.Entity;
-            }
-
-
-            Common.Models.Manager Create(Common.Models.ServiceSupplier serviceSupplier)
+            Common.Models.Manager Create()
             {
                 var utcNowDate = DateTime.UtcNow;
                 return new Common.Models.Manager
@@ -102,49 +74,58 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Models.Responses.ServiceSupplier>> RegisterServiceSupplier(Models.Requests.ServiceSupplier serviceSupplierRequest)
         {
             return _managerContext.GetManager()
-                .Bind(GetRelation)
-                .Check(relation => IsRequestValid(serviceSupplierRequest))
-                .Bind(ModifyServiceSupplier)
-                .Map(Update)
+                .Check(manager => IsRequestValid(serviceSupplierRequest))
+                .Bind(AddServiceSupplierAndRelation)
                 .Map(Build);
 
 
-            async Task<Result<Common.Models.ManagerServiceSupplierRelation>> GetRelation(Common.Models.Manager manager)
+            async Task<Result<Common.Models.ServiceSupplier>> AddServiceSupplierAndRelation(Common.Models.Manager manager)
             {
-                // TODO: Now it is assumed that the manager only works in one company. Will be changed in the next tasks
-                var managerRelation = await _dbContext.ManagerServiceSupplierRelations
-                    .SingleOrDefaultAsync(relation => relation.ManagerId == manager.Id && relation.IsActive && relation.IsMaster);
-
-                return managerRelation is null
-                    ? Result.Failure<Common.Models.ManagerServiceSupplierRelation>("Manager has no rights to register the service supplier")
-                    : Result.Success(managerRelation);
-            }
+                return await Result.Success()
+                    .Bind(CreateServiceSupplier)
+                    .Bind(async serviceSupplier => await AddServiceSupplier(serviceSupplier))
+                    .Tap(AddRelation);
 
 
-            async Task<Result<Common.Models.ServiceSupplier>> ModifyServiceSupplier(Common.Models.ManagerServiceSupplierRelation managerRelation)
-            {
-                var serviceSupplier = await _dbContext.ServiceSuppliers.SingleOrDefaultAsync(serviceSupplier => serviceSupplier.Id == managerRelation.ServiceSupplierId);
-                if (serviceSupplier is null)
-                    return Result.Failure<Common.Models.ServiceSupplier>("Invalid service supplier");
+                Result<Common.Models.ServiceSupplier> CreateServiceSupplier()
+                {
+                    var utcNowDate = DateTime.UtcNow;
+                    return new Common.Models.ServiceSupplier
+                    {
+                        Name = string.Empty,
+                        Address = string.Empty,
+                        PostalCode = string.Empty,
+                        Phone = string.Empty,
+                        Website = string.Empty,
+                        Created = utcNowDate,
+                        Modified = utcNowDate
+                    };
+                }
 
-                serviceSupplier.Name = serviceSupplierRequest.Name;
-                serviceSupplier.Address = serviceSupplierRequest.Address;
-                serviceSupplier.PostalCode = serviceSupplierRequest.PostalCode;
-                serviceSupplier.Phone = serviceSupplierRequest.Phone;
-                serviceSupplier.Website = serviceSupplierRequest.Website;
-                serviceSupplier.Modified = DateTime.UtcNow;
+                async Task<Result<Common.Models.ServiceSupplier>> AddServiceSupplier(Common.Models.ServiceSupplier serviceSupplier)
+                {
+                    var entry = _dbContext.ServiceSuppliers.Add(serviceSupplier);
+                    await _dbContext.SaveChangesAsync();
+                    _dbContext.DetachEntry(entry.Entity);
 
-                return serviceSupplier;
-            }
+                    return entry.Entity;
+                }
 
+                async Task AddRelation(Common.Models.ServiceSupplier serviceSupplier)
+                {
+                    var relation = new Common.Models.ManagerServiceSupplierRelation
+                    {
+                        ManagerId = manager.Id,
+                        ManagerPermissions = Common.Models.Enums.ManagerPermissions.All,
+                        ServiceSupplierId = serviceSupplier.Id,
+                        IsMaster = true,
+                        IsActive = true
+                    };
 
-            async Task<Common.Models.ServiceSupplier> Update(Common.Models.ServiceSupplier serviceSupplier)
-            {
-                var entry = _dbContext.ServiceSuppliers.Update(serviceSupplier);
-                await _dbContext.SaveChangesAsync();
-                _dbContext.DetachEntry(entry.Entity);
-
-                return entry.Entity;
+                    var entry = _dbContext.ManagerServiceSupplierRelations.Add(relation);
+                    await _dbContext.SaveChangesAsync();
+                    _dbContext.DetachEntry(entry.Entity);
+                }
             }
         }
 
