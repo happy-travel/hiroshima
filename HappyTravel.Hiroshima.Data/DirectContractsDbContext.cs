@@ -202,12 +202,9 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(m => m.Created).IsRequired().HasDefaultValueSql("now() at time zone 'utc'");
                 e.Property(m => m.Updated).IsRequired().HasDefaultValueSql("now() at time zone 'utc'");
                 e.Property(m => m.IsActive).IsRequired().HasDefaultValue(false);
-                e.Property(m => m.ServiceSupplierId).IsRequired();
 
                 e.HasIndex(m => m.IdentityHash).IsUnique();
                 e.HasIndex(m => m.Email).IsUnique();
-                e.HasIndex(m => m.ServiceSupplierId);
-                e.HasOne(m => m.ServiceSupplier).WithMany(c => c.Managers).OnDelete(DeleteBehavior.SetNull);
             });
         }
 

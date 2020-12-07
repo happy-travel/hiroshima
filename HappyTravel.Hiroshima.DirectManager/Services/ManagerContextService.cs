@@ -40,8 +40,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             if (manager.Result.IsFailure)
                 return Result.Failure<ServiceSupplier>(manager.Result.Error);
 
-            var serviceSupplier = await _dbContext.ServiceSuppliers.SingleOrDefaultAsync(serviceSupplier => serviceSupplier.Id == manager.Result.Value.ServiceSupplierId);
+            // TODO: now we find only one service supplier. Need change in next tasks
+            var managerRelation = await _dbContext.ManagerServiceSupplierRelations.SingleOrDefaultAsync(relation => relation.ManagerId == manager.Result.Value.Id);
+            if (managerRelation is null)
+                return Result.Failure<ServiceSupplier>("Manager has no relations with service suppliers");
 
+            var serviceSupplier = await _dbContext.ServiceSuppliers.SingleOrDefaultAsync(serviceSupplier => serviceSupplier.Id == managerRelation.ServiceSupplierId);
             return serviceSupplier is null
                 ? Result.Failure<ServiceSupplier>("Failed to retrieve a service supplier")
                 : Result.Success(serviceSupplier);

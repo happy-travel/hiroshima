@@ -27,7 +27,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
            return Result.Success()
                 .Ensure(IdentityHashNotEmpty, "Failed to get the sub claim")
-                .Ensure(DoesManagerNotExist, "Contract manager has already been registered")
+                .Ensure(DoesManagerNotExist, "Manager has already been registered")
                 .Bind(() => IsRequestValid(managerRequest))
                 .Map(CreateServiceSupplier)
                 .Map(AddServiceSupplier)
