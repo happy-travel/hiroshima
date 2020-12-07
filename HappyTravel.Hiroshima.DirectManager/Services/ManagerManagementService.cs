@@ -18,12 +18,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<Models.Responses.Manager>> Get()
+        public Task<Result<Models.Responses.ManagerContext>> Get()
             => _managerContext.GetManager()
                 .Map(Build);
         
         
-        public Task<Result<Models.Responses.Manager>> Register(Models.Requests.Manager managerRequest, string email)
+        public Task<Result<Models.Responses.ManagerContext>> Register(Models.Requests.Manager managerRequest, string email)
         {
            return Result.Success()
                 .Ensure(IdentityHashNotEmpty, "Failed to get the sub claim")
@@ -130,7 +130,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<Models.Responses.Manager>> Modify(Models.Requests.Manager managerRequest)
+        public Task<Result<Models.Responses.ManagerContext>> Modify(Models.Requests.Manager managerRequest)
         {
             return GetManager()
                 .Check(manager => IsRequestValid(managerRequest))
@@ -168,14 +168,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Models.Responses.Manager Build(Common.Models.Manager manager) 
-            => new Models.Responses.Manager(manager.FirstName, 
+        private Models.Responses.ManagerContext Build(Common.Models.Manager manager) 
+            => new Models.Responses.ManagerContext(manager.FirstName, 
                 manager.LastName, 
                 manager.Title, 
                 manager.Position,
                 manager.Email,
                 manager.Phone,
                 manager.Fax,
+                1,
                 Common.Models.Enums.ManagerPermissions.All, // TODO: Need add ManagerPermissions and IsMaster in next task
                 true);
 
@@ -193,7 +194,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         private Result IsRequestValid(Models.Requests.Manager managerRequest)
-            => ValidationHelper.Validate(managerRequest, new ManagerRegisterRequestValidator());
+            => ValidationHelper.Validate(managerRequest, new ManagerValidator());
 
 
         private readonly IManagerContextService _managerContext;
