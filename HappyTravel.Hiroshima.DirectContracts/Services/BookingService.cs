@@ -78,7 +78,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
             
                 return (new Common.Models.Bookings.BookingOrder
                 {
-                    Status = BookingStatuses.WaitingForCompletion,
+                    Status = BookingStatuses.WaitingForConfirmation,
                     ReferenceCode = bookingRequest.ReferenceCode,
                     CheckInDate = availabilityRequest.CheckInDate,
                     CheckOutDate = availabilityRequest.CheckOutDate,
@@ -138,8 +138,8 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
             {
                 //TODO Add cancellation policies checking
                 return bookingOrder.Status == BookingStatuses.Processing || 
-                    bookingOrder.Status == BookingStatuses.WaitingForCompletion ||
-                    bookingOrder.Status == BookingStatuses.Complete && DateTime.UtcNow.Date < bookingOrder.CheckInDate.Date;
+                    bookingOrder.Status == BookingStatuses.WaitingForConfirmation ||
+                    bookingOrder.Status == BookingStatuses.Confirmed && DateTime.UtcNow.Date < bookingOrder.CheckInDate.Date;
             }
            
 

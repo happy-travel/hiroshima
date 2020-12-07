@@ -10,10 +10,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
         {
             Common.Models.Enums.BookingStatuses.Processing,
             Common.Models.Enums.BookingStatuses.WaitingForCancellation,
-            Common.Models.Enums.BookingStatuses.WaitingForCompletion,
+            Common.Models.Enums.BookingStatuses.WaitingForConfirmation,
             Common.Models.Enums.BookingStatuses.Rejected,
             Common.Models.Enums.BookingStatuses.Cancelled,
-            Common.Models.Enums.BookingStatuses.Complete
+            Common.Models.Enums.BookingStatuses.Confirmed
         };
         
         public List<int> AccommodationIds { get; set; } = new List<int>();

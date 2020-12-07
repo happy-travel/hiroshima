@@ -4,7 +4,7 @@ using HappyTravel.Money.Models;
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Responses.Bookings
 {
-    public struct PaymentDetails
+    public readonly struct PaymentDetails
     {
         public PaymentDetails(MoneyAmount totalAmount, Discount discount, List<string> remarks = null)
         {

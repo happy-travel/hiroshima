@@ -132,18 +132,18 @@ namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions
                 }
             };
             
-            foreach (var conv in GeoJsonSerializer.Create(serializationSettings, new GeometryFactory(new PrecisionModel(), 4326)).Converters)
+            foreach (var converter in GeoJsonSerializer.Create(serializationSettings, new GeometryFactory(new PrecisionModel(), 4326)).Converters)
             {
-                serializationSettings.Converters.Add(conv);
+                serializationSettings.Converters.Add(converter);
             }
             
-            builder.AddNewtonsoftJson(o=>
+            builder.AddNewtonsoftJson(options=>
             {
-                o.SerializerSettings.ReferenceLoopHandling = serializationSettings.ReferenceLoopHandling;
-                o.SerializerSettings.NullValueHandling = serializationSettings.NullValueHandling;
-                o.SerializerSettings.ContractResolver = serializationSettings.ContractResolver;
-                o.SerializerSettings.Formatting = serializationSettings.Formatting;
-                o.SerializerSettings.Converters = serializationSettings.Converters;
+                options.SerializerSettings.ReferenceLoopHandling = serializationSettings.ReferenceLoopHandling;
+                options.SerializerSettings.NullValueHandling = serializationSettings.NullValueHandling;
+                options.SerializerSettings.ContractResolver = serializationSettings.ContractResolver;
+                options.SerializerSettings.Formatting = serializationSettings.Formatting;
+                options.SerializerSettings.Converters = serializationSettings.Converters;
             });
             
             JsonConvert.DefaultSettings = () => serializationSettings;

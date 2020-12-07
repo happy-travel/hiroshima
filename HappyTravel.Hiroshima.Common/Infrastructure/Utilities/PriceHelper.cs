@@ -13,12 +13,12 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure.Utilities
         {
             var firstRateDetails = rateDetails.First();
             var currency = firstRateDetails.PaymentDetails.TotalAmount.Currency;
-            var totalPrice = rateDetails.Sum(rateDetailsItem => rateDetailsItem.PaymentDetails.TotalAmount.Amount);
-            var totalPriceWithDiscount = rateDetails.Sum(rateDetailsItem
-                => rateDetailsItem.PaymentDetails.TotalAmount.Amount - rateDetailsItem.PaymentDetails.TotalAmount.Amount * rateDetailsItem.PaymentDetails.Discount.Percent / 100);
-            var totalDiscount = new Discount(MoneyRounder.Truncate(100 - totalPriceWithDiscount * 100 / totalPrice, currency));
+            var totalPrice = rateDetails.Sum(rateDetailsItem => rateDetailsItem.PaymentDetails.TotalAmount.Amount); 
             var moneyAmount = new MoneyAmount(totalPrice, currency);
-            
+
+            var totalPriceWithDiscount = rateDetails.Sum(rateDetailsItem => rateDetailsItem.PaymentDetails.TotalAmount.Amount - rateDetailsItem.PaymentDetails.TotalAmount.Amount * rateDetailsItem.PaymentDetails.Discount.Percent / 100);
+            var totalDiscount = new Discount(MoneyRounder.Truncate(100 - totalPriceWithDiscount * 100 / totalPrice, currency));
+
             return (moneyAmount, totalDiscount);
         }
     }
