@@ -176,7 +176,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 manager.Email,
                 manager.Phone,
                 manager.Fax,
-                1,
+                1,  // TODO: Now we have only one service supplier. Will be changed in the next task
                 Common.Models.Enums.ManagerPermissions.All, // TODO: Need add ManagerPermissions and IsMaster in next task
                 true);
 

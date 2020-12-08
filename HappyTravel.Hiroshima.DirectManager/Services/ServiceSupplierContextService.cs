@@ -33,8 +33,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result<ServiceSupplier>> EnsureRoomBelongsToServiceSupplier(ServiceSupplier serviceSupplier, int accommodationId, int roomId)
         {
-            var ifRoomInAccommodationExist = await _dbContext.Rooms.AnyAsync(r => r.Id == roomId && r.AccommodationId == accommodationId);
-            if (!ifRoomInAccommodationExist)
+            var isRoomInAccommodationExist = await _dbContext.Rooms.AnyAsync(r => r.Id == roomId && r.AccommodationId == accommodationId);
+            if (!isRoomInAccommodationExist)
                 return Result.Failure<ServiceSupplier>($"Invalid room id '{roomId}'");
 
             return await EnsureAccommodationBelongsToServiceSupplier(serviceSupplier, accommodationId);
