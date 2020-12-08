@@ -222,7 +222,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 ValidFromDate = offer.ValidFrom,
                 ValidToDate = offer.ValidTo,
                 DiscountPercent = offer.DiscountPercent,
-                Description = JsonDocumentUtilities.CreateJDocument(offer.Description),
+                Description = offer.Description,
                 BookingCode = offer.BookingCode
             }).ToList();
 
@@ -231,7 +231,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             => new Models.Responses.PromotionalOffer(promotionalOffer.Id, promotionalOffer.ContractId, promotionalOffer.RoomId, promotionalOffer.BookByDate,
                 promotionalOffer.ValidFromDate,
                 promotionalOffer.ValidToDate, promotionalOffer.DiscountPercent, promotionalOffer.BookingCode,
-                promotionalOffer.Description.GetValue<MultiLanguage<string>>());
+                promotionalOffer.Description);
         
         
         private List<Models.Responses.PromotionalOffer> Build(List<RoomPromotionalOffer> promotionalOffers)

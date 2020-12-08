@@ -40,7 +40,7 @@ namespace HappyTravel.Hiroshima.Data
 
             AddAccommodations(modelBuilder);
             AddAmenities(modelBuilder);
-            AddBooking(modelBuilder);
+            AddBookingOrders(modelBuilder);
             AddCancellationPolicies(modelBuilder);
             AddServiceSuppliers(modelBuilder);
             AddContractAccommodationRelation(modelBuilder);
@@ -61,7 +61,7 @@ namespace HappyTravel.Hiroshima.Data
             AddSeasons(modelBuilder);
             AddRoomOccupancies(modelBuilder);
         }
-
+        
 
         private void AddAccommodations(ModelBuilder modelBuilder)
         {
@@ -71,9 +71,8 @@ namespace HappyTravel.Hiroshima.Data
                 e.HasKey(a => a.Id);
                 e.Property(a => a.Address).HasColumnType("jsonb").IsRequired();
                 e.Property(a => a.ContactInfo).HasColumnType("jsonb").IsRequired();
-                e.Property(a => a.Coordinates).HasColumnType("geometry (point)").IsRequired();
+                e.Property(a => a.Coordinates).HasColumnType("geography (point)").IsRequired();
                 e.Property(a => a.Name).HasColumnType("jsonb").IsRequired();
-                e.Property(a => a.Pictures).HasColumnType("jsonb").IsRequired();
                 e.Property(a => a.Rating).IsRequired();
                 e.Property(a => a.AccommodationAmenities).HasColumnType("jsonb").IsRequired();
                 e.Property(a => a.AdditionalInfo).HasColumnType("jsonb").HasDefaultValueSql("'{}'::jsonb");
@@ -91,6 +90,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(a => a.Floors);
                 e.Property(a => a.BuildYear);
                 e.Property(a => a.Images).HasColumnType("jsonb").IsRequired().HasDefaultValueSql("'[]'::jsonb");
+                e.Property(a => a.Pictures).HasColumnType("jsonb");
                 e.HasIndex(a => a.Coordinates).HasMethod("GIST");
                 e.HasIndex(a => a.LocationId);
                 e.HasIndex(a => a.ServiceSupplierId);
@@ -113,7 +113,7 @@ namespace HappyTravel.Hiroshima.Data
         }
 
 
-        private void AddBooking(ModelBuilder modelBuilder)
+        private void AddBookingOrders(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<BookingOrder>(e =>
             {
@@ -130,9 +130,11 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(b => b.AvailabilityRequest).IsRequired().HasColumnType("jsonb");
                 e.Property(b => b.BookingRequest).IsRequired().HasColumnType("jsonb");
                 e.Property(b => b.AvailableRates).IsRequired().HasColumnType("jsonb");
+                e.Property(b => b.AccommodationId).IsRequired().HasDefaultValue(0);
                 e.HasIndex(b => b.ServiceSupplierId);
                 e.HasOne(b => b.ServiceSupplier).WithMany(cm => cm.BookingOrders).OnDelete(DeleteBehavior.SetNull);
                 e.HasMany(b => b.RoomOccupancies).WithOne().OnDelete(DeleteBehavior.SetNull);
+                e.HasIndex(b => b.AccommodationId);
             });
         }
 
@@ -367,6 +369,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(rr => rr.SeasonId).IsRequired();
                 e.Property(rr => rr.RoomId).IsRequired();
                 e.Property(rr => rr.RoomType).IsRequired();
+                e.Property(rr => rr.Description).HasColumnType("jsonb");
                 e.HasIndex(rr => rr.SeasonId);
                 e.HasIndex(rr => rr.RoomId);
                 e.HasOne(rr => rr.Room).WithMany(r => r.RoomRates).OnDelete(DeleteBehavior.SetNull);
@@ -427,6 +430,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(r => r.Created).IsRequired();
                 e.Property(r => r.Modified).IsRequired();
                 e.Property(r => r.Images).HasColumnType("jsonb").IsRequired().HasDefaultValueSql("'[]'::jsonb");
+                e.Property(a => a.Pictures).HasColumnType("jsonb");
                 e.HasIndex(r => r.AccommodationId);
                 e.HasOne(r => r.Accommodation).WithMany(a => a.Rooms).OnDelete(DeleteBehavior.SetNull); 
             });

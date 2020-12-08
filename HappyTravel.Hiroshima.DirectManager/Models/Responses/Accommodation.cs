@@ -10,7 +10,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
     public readonly struct Accommodation
     {
         public Accommodation(int id, MultiLanguage<string> name, MultiLanguage<string> address, MultiLanguage<TextualDescription> description, 
-            GeoPoint coordinates, AccommodationStars rating, string checkInTime, string checkOutTime, MultiLanguage<List<Picture>> pictures, 
+            GeoPoint coordinates, AccommodationStars rating, string checkInTime, string checkOutTime, 
             ContactInfo contactInfo, PropertyTypes type, MultiLanguage<List<string>> amenities, MultiLanguage<string> additionalInfo, 
             OccupancyDefinition occupancyDefinition, int locationId, MultiLanguage<List<string>> leisureAndSports, Status status, 
             RateOptions rateOptions, int? floor, int? buildYear, List<int> roomIds)
@@ -23,7 +23,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
             Rating = rating;
             CheckInTime = checkInTime;
             CheckOutTime = checkOutTime;
-            Pictures = pictures;
             ContactInfo = contactInfo;
             Type = type;
             Amenities = amenities;
@@ -54,8 +53,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
         public string CheckInTime { get; }
         
         public string CheckOutTime { get; }
-        
-        public MultiLanguage<List<Picture>> Pictures { get; }
         
         public ContactInfo ContactInfo { get; }
         

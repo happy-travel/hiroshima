@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using HappyTravel.EdoContracts.Extensions;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Money.Models;
-using Newtonsoft.Json;
+
 
 namespace HappyTravel.Hiroshima.Common.Models.Availabilities
 {
@@ -23,7 +24,7 @@ namespace HappyTravel.Hiroshima.Common.Models.Availabilities
         }
 
         
-        public override bool Equals(object? obj) => obj is SeasonDailyPrice other && Equals(other);
+        public override bool Equals(object? obj) => obj is SeasonPriceDetails other && Equals(other);
         
         
         public bool Equals(in SeasonPriceDetails other)
@@ -72,7 +73,6 @@ namespace HappyTravel.Hiroshima.Common.Models.Availabilities
         /// <summary>
         /// Daily prices
         /// </summary>
-        [JsonIgnore]
         public List<SeasonDailyPrice> DailyPrices { get; }
     }
 }

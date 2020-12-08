@@ -19,11 +19,11 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefi
         }
 
         
-        public override int GetHashCode() => HashCode.Combine(Adults, Teenagers, Children, Infants);
-
-        
         public bool Equals(OccupancyConfiguration other) =>
             Adults == other.Adults && Teenagers == other.Teenagers && Children == other.Children &&
             Infants == other.Infants;
+        
+        
+        public override int GetHashCode() => HashCode.Combine(Adults, Teenagers, Children, Infants);
     }
 }

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.GeoData.Enums;
-using HappyTravel.Hiroshima.Common.Constants;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Common.Models.Availabilities;
@@ -33,9 +32,9 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         {
             var accommodations = await ExtractAvailabilityData();
             var groupedAvailableRooms = _roomAvailabilityService.GetGroupedAvailableRooms(availabilityRequest, accommodations);
-
-            return CreateAvailability(availabilityRequest, groupedAvailableRooms, languageCode);
             
+            return CreateAvailability(availabilityRequest, groupedAvailableRooms, languageCode);
+
             
             async Task<List<Accommodation>> ExtractAvailabilityData()
             {
@@ -48,16 +47,14 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                     case LocationTypes.Location:
                     {
                         locationExpression = accommodation
-                            => accommodation.Location.Country.Name.RootElement.GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage)).GetString() ==
-                            location.Country &&
-                            accommodation.Location.Locality.RootElement.GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage)).GetString() ==
-                            location.Locality;
+                            => accommodation.Location.Country.Name.En == location.Country &&
+                            accommodation.Location.Locality.En == location.Locality;
                         break;
                     }
                     case LocationTypes.Accommodation:
                     {
                         locationExpression = accommodation
-                            => accommodation.Name.RootElement.GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage)).GetString() == location.Name;
+                            => accommodation.Name.En == location.Name;
                         break;
                     }
                     case LocationTypes.Unknown:
@@ -67,7 +64,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
-
+                
                 return await GetAvailableAccommodations(availabilityRequest)
                     .Where(locationExpression)
                     .ToListAsync();
@@ -97,7 +94,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             var ratings = AccommodationRatingConverter.Convert(availabilityRequest.Ratings);
             var checkInDate = availabilityRequest.CheckInDate.Date;
             var checkOutDate = availabilityRequest.CheckOutDate.Date;
-
+            
             return _dbContext.Accommodations
                 .Include(accommodation => accommodation.Rooms.Where(room => !room.AvailabilityRestrictions.Any(availabilityRestrictions
                     => checkInDate <= availabilityRestrictions.ToDate && availabilityRestrictions.FromDate <= checkOutDate &&

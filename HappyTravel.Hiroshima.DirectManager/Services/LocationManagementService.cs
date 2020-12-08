@@ -17,6 +17,7 @@ using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using LocationNameNormalizer;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {
@@ -57,8 +58,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     .Skip(skip)
                     .Take(take)
                     .ToListAsync())
-                .Select(accommodation => new EdoContracts.GeoData.Location(accommodation.Name.RootElement.ToString() ?? string.Empty,
-                    accommodation.Location.Locality.RootElement.ToString() ?? string.Empty, accommodation.Location.Country.Name.RootElement.ToString() ?? string.Empty,
+                .Select(accommodation => new EdoContracts.GeoData.Location(JsonConvert.SerializeObject(accommodation.Name),
+                    JsonConvert.SerializeObject(accommodation.Location.Locality), JsonConvert.SerializeObject(accommodation.Location.Country.Name),
                     new GeoPoint(accommodation.Coordinates), default, PredictionSources.Interior, LocationTypes.Accommodation))
                 .ToList(),
             LocationTypes.Location => (await _dbContext.Accommodations.Include(accommodation => accommodation.Location).ThenInclude(location => location.Country)
@@ -67,8 +68,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     .Skip(skip)
                     .Take(take)
                     .ToListAsync())
-                .Select(accommodation => new EdoContracts.GeoData.Location(string.Empty, accommodation.Location.Locality.RootElement.ToString() ?? string.Empty,
-                    accommodation.Location.Country.Name.RootElement.ToString() ?? string.Empty, default, default, PredictionSources.Interior, LocationTypes.Location))
+                .Select(accommodation => new EdoContracts.GeoData.Location(string.Empty, JsonConvert.SerializeObject(accommodation.Location.Locality),
+                    JsonConvert.SerializeObject(accommodation.Location.Country.Name), default, default, PredictionSources.Interior, LocationTypes.Location))
                 .ToList(),
             LocationTypes.Unknown => new List<EdoContracts.GeoData.Location>(0),
             LocationTypes.Destination => new List<EdoContracts.GeoData.Location>(0),
@@ -81,14 +82,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             => _dbContext.Countries.OrderBy(country => country.Code)
                 .Skip(skip)
                 .Take(top)
-                .Select(country => DirectContractsDbContext.GetLangFromJsonb(country.Name, Languages.GetLanguageCode(Languages.DefaultLanguage))
-                    .GetFirstValue())
+                .Select(country => country.Name.En)
                 .ToListAsync();
 
 
         private async Task<(Location location, Country country)> AddLocation(Country country, string localityName, string zoneName)
         {
-            var normalizedLocality = _locationNameNormalizer.GetNormalizedLocalityName(country.Name.GetValue<MultiLanguage<string>>().En, localityName);
+            var normalizedLocality = _locationNameNormalizer.GetNormalizedLocalityName(country.Name.En, localityName);
             
             var location = await GetLocation();
             
@@ -98,11 +98,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             location = new Location
             {
                 CountryCode = country.Code,
-                Locality = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = normalizedLocality}),
+                Locality = new MultiLanguage<string> {En = normalizedLocality},
             };
             
             if (!string.IsNullOrEmpty(zoneName))
-                location.Zone = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> {En = zoneName});
+                location.Zone = new MultiLanguage<string> {En = zoneName};
             
             _dbContext.Locations.Add(location);
             await _dbContext.SaveChangesAsync();
@@ -116,23 +116,19 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             {
                 Expression<Func<Location, bool>> countryAndLocalityExistExpression = l 
                     => l.CountryCode == country.Code &&
-                    l.Locality.RootElement
-                        .GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage))
-                        .GetString() == normalizedLocality;
+                    l.Locality.En == normalizedLocality;
             
                 var location = _dbContext.Locations.Where(countryAndLocalityExistExpression);
                 
                 if (!string.IsNullOrEmpty(zoneName))
                 {
                     return await location.Where(l 
-                        => l.Zone.RootElement
-                            .GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage))
-                            .GetString().ToUpper() == zoneName.ToUpper()).SingleOrDefaultAsync();
+                        => l.Zone.En.ToUpper() == zoneName.ToUpper()).SingleOrDefaultAsync();
                 }
 
                 var locations = await location.ToListAsync();
                 
-                return locations.FirstOrDefault(loc => !loc.Zone.IsNotEmpty());
+                return locations.FirstOrDefault(loc => loc.Zone.GetAll().Any());
             }
         }
 
@@ -140,7 +136,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         private async Task<Result<Country>> GetCountry(string name)
         {
             var country = await _dbContext.Countries.SingleOrDefaultAsync(country
-                => country.Name.RootElement.GetProperty(Languages.GetLanguageCode(Languages.DefaultLanguage)).GetString() == name);
+                => country.Name.En == name);
             
             return country == null
                 ? Result.Failure<Country>($"Failed to retrieve country '{name}'")
@@ -148,7 +144,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Models.Responses.Location Build(Location location, Country country) => new Models.Responses.Location(location.Id, location.CountryCode, country.Name.GetValue<MultiLanguage<string>>().En, location.Locality.GetValue<MultiLanguage<string>>().En, location.Zone.GetValue<MultiLanguage<string>>().En);
+        private Models.Responses.Location Build(Location location, Country country) => new Models.Responses.Location(location.Id, location.CountryCode, country.Name.En, location.Locality.En, location.Zone.En);
 
         
         private readonly DirectContractsDbContext _dbContext;

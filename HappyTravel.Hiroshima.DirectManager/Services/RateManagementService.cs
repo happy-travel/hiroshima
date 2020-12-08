@@ -153,7 +153,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     Currency = rate.Currency,
                     Price = rate.Price,
                     RoomType = rate.RoomType,
-                    Description = JsonDocumentUtilities.CreateJDocument(rate.Description)
+                    Description = rate.Description
                 })
                 .ToList();
 
@@ -168,7 +168,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     rate.BoardBasis,
                     rate.MealPlan,
                     rate.RoomType,
-                    rate.Description.GetValue<MultiLanguage<string>>()))
+                    rate.Description))
                 .ToList();
 
 

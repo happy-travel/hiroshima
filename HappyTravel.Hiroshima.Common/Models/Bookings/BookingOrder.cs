@@ -36,6 +36,8 @@ namespace HappyTravel.Hiroshima.Common.Models.Bookings
         /// </summary>
         public JsonDocument AvailableRates {get; set; }
         
+        public int AccommodationId { get; set; }
+        
         public string LanguageCode { get; set; } = string.Empty;
         
         public int ServiceSupplierId { get; set; }

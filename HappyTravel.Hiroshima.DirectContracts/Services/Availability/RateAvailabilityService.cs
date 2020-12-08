@@ -31,9 +31,9 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                     var firstRate = rates.First();
                     var mealPlan = firstRate.MealPlan;
                     var boardBasis = firstRate.BoardBasis;
-                    room.Description.GetValue<MultiLanguage<string>>().TryGetValueOrDefault(languageCode, out var description);
+                    room.Description.TryGetValueOrDefault(languageCode, out var description);
                     
-                    return new RateDetails(occupationRequest, room, roomType, paymentDetails, cancellationPolicyDetails, mealPlan, boardBasis, new List<TaxDetails>(), new List<string>(), description);
+                    return new RateDetails(occupationRequest, room, roomType, paymentDetails, cancellationPolicyDetails, mealPlan, boardBasis, new List<TaxDetails>(), description);
                 })
                 .ToList();
         
