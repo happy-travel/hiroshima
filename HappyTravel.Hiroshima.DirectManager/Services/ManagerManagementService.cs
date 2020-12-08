@@ -11,9 +11,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class ManagerManagementService : IManagerManagementService
     {
-        public ManagerManagementService(IManagerContextService managerContextService, DirectContractsDbContext dbContext)
+        public ManagerManagementService(IManagerContextService managerContextService, IServiceSupplierContextService serviceSupplierContextService,
+            DirectContractsDbContext dbContext)
         {
             _managerContext = managerContextService;
+            _serviceSupplierContext = serviceSupplierContextService;
             _dbContext = dbContext;
         }
 
@@ -25,20 +27,19 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.ManagerContext>> Get(int managerId)
         {
-            return _managerContext.GetManager()
-                .GetCompany(_dbContext)
-                .EnsureManagerBelongsToCompany(_dbContext, managerId)
+            return _managerContext.GetServiceSupplier()
+                //.Check(serviceSupplier => _serviceSupplierContext.EnsureManagerBelongsToServiceSupplier(managerId))
                 .Map(company => GetManagerById(company.Id, managerId))
                 .Map(Build);
 
 
             async Task<Common.Models.Manager> GetManagerById(int companyId, int managerId)
             {
-                return await _dbContext.Managers.SingleOrDefaultAsync(manager => manager.Id == managerId && manager.CompanyId == companyId);
+                return await _dbContext.Managers.SingleOrDefaultAsync(manager => manager.Id == managerId);
             }
         }
 
-        public Task<Result<Models.Responses.Manager>> Register(Models.Requests.Manager managerRequest, string email)
+        public Task<Result<Models.Responses.ManagerContext>> Register(Models.Requests.Manager managerRequest, string email)
         {
            return CheckIdentityHashNotEmpty()
                 .Ensure(DoesManagerNotExist, "Manager has already been registered")
@@ -187,14 +188,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<Models.Responses.Manager>> ModifyPermissions(int managerId, Models.Requests.ManagerPermissions managerPermissionsRequest)
+        public Task<Result<Models.Responses.ManagerContext>> ModifyPermissions(int managerId, Models.Requests.ManagerPermissions managerPermissionsRequest)
         {
             throw new NotImplementedException();
         }
 
 
-        private Models.Responses.Manager Build(Common.Models.Manager manager) 
-            => new Models.Responses.Manager(manager.FirstName, 
+        private Models.Responses.ManagerContext Build(Common.Models.Manager manager) 
+            => new Models.Responses.ManagerContext(manager.FirstName, 
                 manager.LastName, 
                 manager.Title, 
                 manager.Position,
@@ -226,6 +227,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         private readonly IManagerContextService _managerContext;
+        private readonly IServiceSupplierContextService _serviceSupplierContext;
         private readonly DirectContractsDbContext _dbContext;
     }
 }

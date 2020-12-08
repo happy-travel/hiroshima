@@ -90,7 +90,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// </summary>
         /// <returns></returns>
         [HttpGet("{managerId}")]
-        [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.Manager), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ManagerContext), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetManager([FromRoute] int managerId)
         {
@@ -127,7 +127,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="managerPermissions"></param>  
         /// <returns></returns>
         [HttpPut("managerId/permissions")]
-        [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.Manager), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ManagerContext), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> ModifyManagerPermissions([FromRoute] int managerId, [FromBody] Hiroshima.DirectManager.Models.Requests.ManagerPermissions managerPermissions)
         {

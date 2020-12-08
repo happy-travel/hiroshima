@@ -9,6 +9,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
 {
     public class ManagerPermissions
     {
-        public InCompanyPermissions Permissions { get; set; }
+        public ManagerPermissions Permissions { get; set; }
     }
 }

@@ -96,8 +96,8 @@ namespace HappyTravel.Hiroshima.Data.Extensions
             => await dbContext.Contracts.AnyAsync(c => c.ServiceSupplierId == serviceSupplierId && c.Id == contractId);
 
 
-        public static async Task<bool> DoesManagerBelongToCompany(this DirectContractsDbContext dbContext, int managerId, int companyId)
-            => await dbContext.Managers.SingleOrDefaultAsync(c => c.CompanyId == companyId && c.Id == managerId) != null;
+        public static async Task<bool> DoesManagerBelongToCompany(this DirectContractsDbContext dbContext, int managerId, int serviceSupplierId)
+            => await dbContext.ManagerServiceSupplierRelations.AnyAsync(relation => relation.ServiceSupplierId == serviceSupplierId && relation.ManagerId == managerId);
 
 
         public static IIncludableQueryable<Season, List<SeasonRange>> GetSeasons(this DirectContractsDbContext dbContext)
