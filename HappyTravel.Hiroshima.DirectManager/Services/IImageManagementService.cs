@@ -16,7 +16,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         Task<Result> Update(int accommodationId, int roomId, List<Models.Requests.SlimImage> images);
         Task<Result> Remove(int accommodationId, Guid imageId);
         Task<Result> Remove(int accommodationId, int roomId, Guid imageId);
-        Task<Result> RemoveAll(int companyId, int accommodationId);
-        Task<Result> RemoveAll(int companyId, int accommodationId, int roomId);
+        Task<Result> RemoveAll(int serviceSupplierId, int accommodationId);
+        Task<Result> RemoveAll(int serviceSupplierId, int accommodationId, int roomId);
+        string GetImageUrl(string imageKey);
     }
 }

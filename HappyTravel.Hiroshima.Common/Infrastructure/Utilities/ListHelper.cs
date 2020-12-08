@@ -18,7 +18,7 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure.Utilities
             for (var i = items.Count - 1; i >= 0; i--)
             {
                 var item = items[i];
-                if (condition(item))
+                if (!condition(item))
                     items.RemoveAt(i);
             }
         }

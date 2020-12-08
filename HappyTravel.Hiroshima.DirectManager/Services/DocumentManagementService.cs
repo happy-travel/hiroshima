@@ -8,7 +8,6 @@ using HappyTravel.AmazonS3Client.Services;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
-using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -18,10 +17,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class DocumentManagementService : IDocumentManagementService
     {
-        public DocumentManagementService(IManagerContextService managerContextService,
+        public DocumentManagementService(IManagerContextService managerContextService, IServiceSupplierContextService serviceSupplierContextService,
             DirectContractsDbContext dbContext, IAmazonS3ClientService amazonS3ClientService, IOptions<DocumentManagementServiceOptions> options)
         {
             _managerContext = managerContextService;
+            _serviceSupplierContext = serviceSupplierContextService;
             _dbContext = dbContext;
             _amazonS3ClientService = amazonS3ClientService;
             _bucketName = options.Value.AmazonS3Bucket;
@@ -30,9 +30,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.DocumentFile>> Get(int contractId, Guid documentId)
         {
-            return _managerContext.GetManager()
-                .GetCompany(_dbContext)
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
+            return _managerContext.GetServiceSupplier()
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
                 .Bind(dbDocument => GetDocumentFile());
 
 
@@ -57,16 +56,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.Document>> Add(Models.Requests.Document document)
         {
-            return _managerContext.GetManager()
-                .GetCompany(_dbContext)
-                .EnsureContractBelongsToCompany(_dbContext, document.ContractId)
-                .Bind(company =>
+            return _managerContext.GetServiceSupplier()
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, document.ContractId))
+                .Bind(serviceSupplier =>
                 {
                     var validationResult = ValidationHelper.Validate(document, new DocumentValidator());
 
-                    return validationResult.IsFailure ? Result.Failure<Company>(validationResult.Error) : Result.Success(company);
+                    return validationResult.IsFailure ? Result.Failure<ServiceSupplier>(validationResult.Error) : Result.Success(serviceSupplier);
                 })
-                .Map(company => Create(company.Id, document))
+                .Map(serviceSupplier => Create(serviceSupplier.Id, document))
                 .Map(dbDocument => AddDocument(dbDocument, document.UploadedFile))
                 .Ensure(dbDocument => dbDocument != null, "Error saving document")
                 .Map(dbDocument => Build(dbDocument));
@@ -103,22 +101,23 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result> Remove(int contractId, Guid documentId)
         {
-            return await _managerContext.GetManager()
-                .GetCompany(_dbContext)
-                .Tap(async company => 
+            return await _managerContext.GetServiceSupplier()
+                .Tap(async serviceSupplier => 
                 {
-                    var result = await RemoveDocument(company.Id, contractId, documentId);
-                    return result ? Result.Success(company) : Result.Failure<Company>("Document deletion error"); 
+                    var result = await RemoveDocument(serviceSupplier.Id, contractId, documentId);
+                    return result 
+                        ? Result.Success(serviceSupplier) 
+                        : Result.Failure<ServiceSupplier>("Document deletion error"); 
                 });
         }
 
 
-        public async Task<Result> RemoveAll(int companyId, int contractId)
+        public async Task<Result> RemoveAll(int serviceSupplierId, int contractId)
         {
-            var documents = _dbContext.Documents.Where(document => document.CompanyId == companyId && document.ContractId == contractId);
+            var documents = _dbContext.Documents.Where(document => document.ServiceSupplierId == serviceSupplierId && document.ContractId == contractId);
             foreach (var document in documents)
             {
-                var result = await RemoveDocument(companyId, contractId, document.Id);
+                var result = await RemoveDocument(serviceSupplierId, contractId, document.Id);
                 if (!result)
                     return Result.Failure("Document deletion error");
             }
@@ -126,13 +125,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Document Create(int companyId, Models.Requests.Document document) => new Document
+        private Document Create(int serviceSupplierId, Models.Requests.Document document) => new Document
         {
             Name = document.UploadedFile.FileName,
             ContentType = document.UploadedFile.ContentType,
             Key = string.Empty,
             Created = DateTime.UtcNow,
-            CompanyId = companyId,
+            ServiceSupplierId = serviceSupplierId,
             ContractId = document.ContractId
         };
 
@@ -141,9 +140,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             => new Models.Responses.Document(document.Id, document.Name, document.ContentType, document.Key, document.ContractId);
 
 
-        private async Task<bool> RemoveDocument(int companyId, int contractId, Guid documentId)
+        private async Task<bool> RemoveDocument(int serviceSupplierId, int contractId, Guid documentId)
         {
-            var document = await _dbContext.Documents.SingleOrDefaultAsync(d => d.CompanyId == companyId &&
+            var document = await _dbContext.Documents.SingleOrDefaultAsync(d => d.ServiceSupplierId == serviceSupplierId &&
                 d.ContractId == contractId && d.Id == documentId);
             if (document is null)
                 return false;
@@ -165,6 +164,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         private readonly IManagerContextService _managerContext;
+        private readonly IServiceSupplierContextService _serviceSupplierContext;
         private readonly DirectContractsDbContext _dbContext;
         private readonly IAmazonS3ClientService _amazonS3ClientService;
         private readonly string _bucketName;

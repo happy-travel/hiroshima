@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
 {
-    public class Company
+    public class ServiceSupplier
     {
         [Required]
         public string Name { get; set; }

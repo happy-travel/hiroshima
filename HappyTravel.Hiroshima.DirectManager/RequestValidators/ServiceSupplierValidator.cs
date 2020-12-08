@@ -3,9 +3,9 @@ using HappyTravel.Hiroshima.DirectManager.Models.Requests;
 
 namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
 {
-    public class CompanyRegisterRequestValidator : AbstractValidator<Company>
+    public class ServiceSupplierValidator : AbstractValidator<ServiceSupplier>
     {
-        public CompanyRegisterRequestValidator()
+        public ServiceSupplierValidator()
         {
             RuleFor(company => company.Name).NotEmpty();
             RuleFor(company => company.Address).NotEmpty();

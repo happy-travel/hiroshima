@@ -8,7 +8,6 @@ using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
-using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,24 +15,25 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class RateManagementService : IRateManagementService
     {
-        public RateManagementService(IManagerContextService managerContextService, DirectContractsDbContext dbContext)
+        public RateManagementService(IManagerContextService managerContextService, IServiceSupplierContextService serviceSupplierContextService,
+            DirectContractsDbContext dbContext)
         {
             _dbContext = dbContext;
             _managerContext = managerContextService;
+            _serviceSupplierContext = serviceSupplierContextService;
         }
 
 
         public Task<Result<List<Models.Responses.Rate>>> Get(int contractId, int skip, int top, List<int> roomIds = null, List<int> seasonIds = null)
         {
-            return _managerContext.GetManager()
-                .GetCompany(_dbContext)
-                .Map(company => GetRates(company.Id))
+            return _managerContext.GetServiceSupplier()
+                .Map(serviceSupplier => GetRates(serviceSupplier.Id))
                 .Map(Build);
             
             
-            async Task<List<RoomRate>> GetRates(int companyId)
+            async Task<List<RoomRate>> GetRates(int serviceSupplierId)
             {
-                var contractedAccommodationIds = _dbContext.GetContractedAccommodations(contractId, companyId)
+                var contractedAccommodationIds = _dbContext.GetContractedAccommodations(contractId, serviceSupplierId)
                     .Select(accommodation => accommodation.Id);
             
                 var ratesAndRoomsAndSeasons = _dbContext.RoomRates
@@ -63,11 +63,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public async Task<Result<List<Models.Responses.Rate>>> Add(int contractId, List<Models.Requests.Rate> ratesRequest)
         {
             return await ValidationHelper.Validate(ratesRequest, new RateValidator())
-                .Bind(() => _managerContext.GetManager())
-                .GetCompany(_dbContext)
-                .Ensure(company => ratesRequest.Any(), "Request is empty")
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
-                .Bind(company => CheckIfSeasonIdsAndRoomIdsBelongToContract(company.Id))
+                .Bind(() => _managerContext.GetServiceSupplier())
+                .Ensure(serviceSupplier => ratesRequest.Any(), "Request is empty")
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
+                .Bind(serviceSupplier => CheckIfSeasonIdsAndRoomIdsBelongToContract(serviceSupplier.Id))
                 .Bind(CheckIfAlreadyExists)
                 .Map(() => Create(ratesRequest))
                 .Map(AddRates)
@@ -96,30 +95,29 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
 
 
-            async Task<Result> CheckIfSeasonIdsAndRoomIdsBelongToContract(int companyId)
+            async Task<Result> CheckIfSeasonIdsAndRoomIdsBelongToContract(int serviceSupplierId)
                 => Result.Combine(await _dbContext.CheckIfSeasonsBelongToContract(contractId, ratesRequest.Select(rate => rate.SeasonId).ToList()),
-                    await _dbContext.CheckIfRoomsBelongToContract(contractId, companyId, ratesRequest.Select(rate => rate.RoomId).ToList()));
+                    await _dbContext.CheckIfRoomsBelongToContract(contractId, serviceSupplierId, ratesRequest.Select(rate => rate.RoomId).ToList()));
         }
 
 
         public async Task<Result> Remove(int contractId, List<int> rateIds)
         {
-            return await _managerContext.GetManager()
-                .GetCompany(_dbContext)
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
-                .Bind(company => GetRatesToRemove(contractId, company.Id, rateIds))
+            return await _managerContext.GetServiceSupplier()
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
+                .Bind(serviceSupplier => GetRatesToRemove(contractId, serviceSupplier.Id, rateIds))
                 .Tap(RemoveRates);
         }
 
       
-        private async Task<Result<List<RoomRate>>> GetRatesToRemove(int contractId, int companyId, List<int> rateIds)
+        private async Task<Result<List<RoomRate>>> GetRatesToRemove(int contractId, int serviceSupplierId, List<int> rateIds)
         {
             var roomRates = await _dbContext.RoomRates.Where(rate => rateIds.Contains(rate.Id)).ToListAsync();
             if (roomRates == null || !roomRates.Any())
                 return Result.Success(roomRates);
 
             var checkingResult = Result.Combine(await _dbContext.CheckIfSeasonsBelongToContract(contractId, roomRates.Select(roomRate => roomRate.SeasonId).ToList()),
-                await _dbContext.CheckIfRoomsBelongToContract(contractId, companyId, roomRates.Select(roomRate => roomRate.RoomId).ToList()));
+                await _dbContext.CheckIfRoomsBelongToContract(contractId, serviceSupplierId, roomRates.Select(roomRate => roomRate.RoomId).ToList()));
 
             return checkingResult.IsFailure
                 ? Result.Failure<List<RoomRate>>(checkingResult.Error)
@@ -156,7 +154,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     Currency = rate.Currency,
                     Price = rate.Price,
                     RoomType = rate.RoomType,
-                    Description = JsonDocumentUtilities.CreateJDocument(rate.Description)
+                    Description = rate.Description
                 })
                 .ToList();
 
@@ -171,11 +169,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     rate.BoardBasis,
                     rate.MealPlan,
                     rate.RoomType,
-                    rate.Description.GetValue<MultiLanguage<string>>()))
+                    rate.Description))
                 .ToList();
 
 
         private readonly DirectContractsDbContext _dbContext;
         private readonly IManagerContextService _managerContext;
+        private readonly IServiceSupplierContextService _serviceSupplierContext;
     }
 }

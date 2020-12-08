@@ -25,17 +25,10 @@ namespace HappyTravel.Hiroshima.Common.Models
 
         public string Fax { get; set; } = string.Empty;
 
-        public InCompanyPermissions Permissions { get; set; }
-
-        public bool IsMaster { get; set; }
-
         public DateTime Created { get; set; }
         
         public DateTime Updated { get; set; }
         
         public bool IsActive { get; set; }
-
-        public int CompanyId { get; set; }
-        public Company Company { get; set; }
     }
 }

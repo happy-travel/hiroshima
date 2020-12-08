@@ -20,8 +20,8 @@ namespace HappyTravel.Hiroshima.Common.Models.Availabilities
 
         
         public bool Equals(in SeasonDailyPrice other)
-            => (DailyAmount, DailyAmountWithDiscount, FromDate, ToDate, Discount.Description, Discount.Percent).Equals((other.DailyAmount, other.DailyAmountWithDiscount,
-                other.FromDate, other.ToDate, other.Discount.Description, other.Discount.Percent));
+            => (FromDate, ToDate, DailyAmount, DailyAmountWithDiscount, Discount.Description, Discount.Percent)
+                .Equals((other.FromDate, other.ToDate, other.DailyAmount, other.DailyAmountWithDiscount, other.Discount.Description, other.Discount.Percent));
 
 
         public override int GetHashCode() => HashCode.Combine(DailyAmount, DailyAmountWithDiscount, FromDate, ToDate, Discount.Description, Discount.Percent);

@@ -9,7 +9,6 @@ using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
-using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,9 +16,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class PromotionalOfferManagementService: IPromotionalOfferManagementService
     {
-        public PromotionalOfferManagementService(IManagerContextService managerContextService, DirectContractsDbContext dbContext)
+        public PromotionalOfferManagementService(IManagerContextService managerContextService, IServiceSupplierContextService serviceSupplierContextService, 
+            DirectContractsDbContext dbContext)
         {
             _managerContext = managerContextService;
+            _serviceSupplierContext = serviceSupplierContextService;
             _dbContext = dbContext;
         }
 
@@ -27,11 +28,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.PromotionalOffer>>> Add(int contractId, List<Models.Requests.PromotionalOffer> promotionalOffers)
         {
             return ValidationHelper.Validate(promotionalOffers, new PromotionalOfferValidator())
-                .Bind(() => _managerContext.GetManager())
-                .GetCompany(_dbContext)
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
-                .Bind(company
-                    => _dbContext.CheckIfRoomsBelongToContract(contractId, company.Id, promotionalOffers.Select(offer => offer.RoomId).ToList()))
+                .Bind(() => _managerContext.GetServiceSupplier())
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
+                .Bind(serviceSupplier
+                    => _dbContext.CheckIfRoomsBelongToContract(contractId, serviceSupplier.Id, promotionalOffers.Select(offer => offer.RoomId).ToList()))
                 .Map(AddPromotionalOffers)
                 .Map(Build);
             
@@ -50,10 +50,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         
         public Task<Result<List<Models.Responses.PromotionalOffer>>> Get(int contractId, int skip, int top, List<int> roomIds, DateTime? validFrom = null, DateTime? validTo = null)
         {
-            return _managerContext.GetManager()
-                .GetCompany(_dbContext)
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
-                .Bind(company => _dbContext.CheckIfRoomsBelongToContract(contractId, company.Id, roomIds))
+            return _managerContext.GetServiceSupplier()
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
+                .Bind(serviceSupplier => _dbContext.CheckIfRoomsBelongToContract(contractId, serviceSupplier.Id, roomIds))
                 .Map(GetPromotionalOffers)
                 .Map(Build);
             
@@ -79,14 +78,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result> Remove(int contractId, List<int> promotionalOfferIds)
         {
-            return await _managerContext.GetManager()
-                .GetCompany(_dbContext)
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
-                .Bind(company => GetPromotionalOffersToRemove(company.Id))
+            return await _managerContext.GetServiceSupplier()
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
+                .Bind(serviceSupplier => GetPromotionalOffersToRemove(serviceSupplier.Id))
                 .Tap(RemovePromotionalOffers);
             
             
-            async Task<Result<List<RoomPromotionalOffer>>> GetPromotionalOffersToRemove(int companyId)
+            async Task<Result<List<RoomPromotionalOffer>>> GetPromotionalOffersToRemove(int serviceSupplierId)
             {
                 var promotionalOffers = await _dbContext.PromotionalOffers.Where(offer => promotionalOfferIds.Contains(offer.Id) && offer.ContractId == contractId).ToListAsync();
                 if (promotionalOffers == null || !promotionalOffers.Any())
@@ -100,7 +98,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 
                 
                 Task<Result> CheckIfRoomsBelongToContract() 
-                    => _dbContext.CheckIfRoomsBelongToContract(contractId, companyId, promotionalOffers.Select(offer => offer.RoomId).ToList());
+                    => _dbContext.CheckIfRoomsBelongToContract(contractId, serviceSupplierId, promotionalOffers.Select(offer => offer.RoomId).ToList());
             }
             
             
@@ -119,11 +117,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.PromotionalOfferStopSalePeriod>>> AddStopSalePeriods(int contractId, List<Models.Requests.PromotionalOfferStopSale> stopSalePeriodsRequest)
         {
             return ValidationHelper.Validate(stopSalePeriodsRequest, new PromotionalOfferStopSaleValidator())
-                .Bind(() => _managerContext.GetManager())
-                .GetCompany(_dbContext)
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
-                .Map(company
-                    => _dbContext.CheckIfRoomsBelongToContract(contractId, company.Id, stopSalePeriodsRequest.Select(offer => offer.RoomId).ToList()))
+                .Bind(() => _managerContext.GetServiceSupplier())
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
+                .Map(serviceSupplier
+                    => _dbContext.CheckIfRoomsBelongToContract(contractId, serviceSupplier.Id, stopSalePeriodsRequest.Select(offer => offer.RoomId).ToList()))
                 .Tap(_ => RemovePrevious())
                 .Map(_ => Create(contractId, stopSalePeriodsRequest))
                 .Map(Add)
@@ -154,10 +151,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.PromotionalOfferStopSalePeriod>>> GetStopSalePeriods(int contractId, int skip, int top, List<int> roomIds,
             DateTime? fromDate, DateTime? toDate)
         {
-            return _managerContext.GetManager()
-                .GetCompany(_dbContext)
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
-                .Bind(company => _dbContext.CheckIfRoomsBelongToContract(contractId, company.Id, roomIds))
+            return _managerContext.GetServiceSupplier()
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
+                .Bind(serviceSupplier => _dbContext.CheckIfRoomsBelongToContract(contractId, serviceSupplier.Id, roomIds))
                 .Map(GetStopSalePeriods)
                 .Map(Build);
 
@@ -183,14 +179,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result> RemoveStopSalePeriods(int contractId, List<int> stopSalePeriodIds)
         {
-            return await _managerContext.GetManager()
-                .GetCompany(_dbContext)
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
-                .Bind(company => GetStopSalePeriodsToRemove(company.Id))
+            return await _managerContext.GetServiceSupplier()
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
+                .Bind(serviceSupplier => GetStopSalePeriodsToRemove(serviceSupplier.Id))
                 .Tap(RemoveStopSalePeriods);
 
             
-            async Task<Result<List<PromotionalOfferStopSale>>> GetStopSalePeriodsToRemove(int companyId)
+            async Task<Result<List<PromotionalOfferStopSale>>> GetStopSalePeriodsToRemove(int serviceSupplierId)
             {
                 var stopSales = await _dbContext.PromotionalOfferStopSales.Where(stopSale => stopSalePeriodIds.Contains(stopSale.Id) && stopSale.ContractId == contractId).ToListAsync();
                 if (stopSales == null || !stopSales.Any())
@@ -203,7 +198,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     : Result.Success(stopSales);
 
                 Task<Result> CheckIfRoomsBelongToContract() => 
-                    _dbContext.CheckIfRoomsBelongToContract(contractId, companyId, stopSales.Select(offer => offer.RoomId).ToList());
+                    _dbContext.CheckIfRoomsBelongToContract(contractId, serviceSupplierId, stopSales.Select(offer => offer.RoomId).ToList());
             }
             
             
@@ -228,7 +223,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 ValidFromDate = offer.ValidFrom,
                 ValidToDate = offer.ValidTo,
                 DiscountPercent = offer.DiscountPercent,
-                Description = JsonDocumentUtilities.CreateJDocument(offer.Description),
+                Description = offer.Description,
                 BookingCode = offer.BookingCode
             }).ToList();
 
@@ -237,7 +232,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             => new Models.Responses.PromotionalOffer(promotionalOffer.Id, promotionalOffer.ContractId, promotionalOffer.RoomId, promotionalOffer.BookByDate,
                 promotionalOffer.ValidFromDate,
                 promotionalOffer.ValidToDate, promotionalOffer.DiscountPercent, promotionalOffer.BookingCode,
-                promotionalOffer.Description.GetValue<MultiLanguage<string>>());
+                promotionalOffer.Description);
         
         
         private List<Models.Responses.PromotionalOffer> Build(List<RoomPromotionalOffer> promotionalOffers)
@@ -267,6 +262,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         
         
         private readonly IManagerContextService _managerContext;
+        private readonly IServiceSupplierContextService _serviceSupplierContext;
         private readonly DirectContractsDbContext _dbContext;
     }
 }

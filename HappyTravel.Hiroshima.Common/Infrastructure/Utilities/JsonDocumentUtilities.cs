@@ -7,8 +7,6 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure.Utilities
     {
         public static JsonDocument CreateJDocument<T>(T value, JsonSerializerSettings serializeSettings = null)
         {
-            serializeSettings ??= SerializeSettings;
-
             string serialized;
             if (EqualityComparer<T>.Default.Equals(value, default(T)))
             {
@@ -22,11 +20,5 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure.Utilities
                 
             return JsonDocument.Parse(serialized);
         }
-
-        
-        private static readonly JsonSerializerSettings SerializeSettings = new JsonSerializerSettings
-        {
-            ReferenceLoopHandling  = ReferenceLoopHandling.Ignore
-        };
     }
 }

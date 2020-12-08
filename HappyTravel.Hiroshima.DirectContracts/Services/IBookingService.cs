@@ -5,6 +5,10 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
 {
     public interface IBookingService
     {
+        Task<Result<Common.Models.Bookings.BookingOrder>> Get(string referenceCode);
+        
         Task<Result<Common.Models.Bookings.BookingOrder>> Book (EdoContracts.Accommodations.BookingRequest rooms, EdoContracts.Accommodations.AvailabilityRequest availabilityRequest, string languageCode);
+
+        Task<Result> Cancel(string referenceCode);
     }
 }

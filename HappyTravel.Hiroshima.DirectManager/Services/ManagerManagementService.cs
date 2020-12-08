@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
-using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,12 +18,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<Models.Responses.Manager>> Get()
+        public Task<Result<Models.Responses.ManagerContext>> Get()
             => _managerContext.GetManager()
                 .Map(Build);
 
 
-        public Task<Result<Models.Responses.Manager>> Get(int managerId)
+        public Task<Result<Models.Responses.ManagerContext>> Get(int managerId)
         {
             return _managerContext.GetManager()
                 .GetCompany(_dbContext)
@@ -40,50 +40,26 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.Manager>> Register(Models.Requests.Manager managerRequest, string email)
         {
-           return Result.Success()
-                .Ensure(IdentityHashNotEmpty, "Failed to get the sub claim")
-                .Ensure(DoesManagerNotExist, "Contract manager has already been registered")
+           return CheckIdentityHashNotEmpty()
+                .Ensure(DoesManagerNotExist, "Manager has already been registered")
                 .Bind(() => IsRequestValid(managerRequest))
-                .Map(CreateCompany)
-                .Map(AddCompany)
                 .Map(Create)
                 .Map(Add)
                 .Map(Build);
 
             
-            bool IdentityHashNotEmpty() => !string.IsNullOrEmpty(_managerContext.GetIdentityHash());
+            Result CheckIdentityHashNotEmpty()
+            {
+                return string.IsNullOrEmpty(_managerContext.GetIdentityHash())
+                    ? Result.Failure("Failed to get the sub claim")
+                    : Result.Success();
+            }
             
             
             async Task<bool> DoesManagerNotExist() => !await _managerContext.DoesManagerExist();
 
 
-            Common.Models.Company CreateCompany()
-            {
-                var utcNowDate = DateTime.UtcNow;
-                return new Common.Models.Company
-                {
-                    Name = string.Empty,
-                    Address = string.Empty,
-                    PostalCode = string.Empty,
-                    Phone = string.Empty,
-                    Website = string.Empty,
-                    Created = utcNowDate,
-                    Modified = utcNowDate
-                };
-            }
-
-
-            async Task<Common.Models.Company> AddCompany(Common.Models.Company company)
-            {
-                var entry = _dbContext.Companies.Add(company);
-                await _dbContext.SaveChangesAsync();
-                _dbContext.DetachEntry(entry.Entity);
-
-                return entry.Entity;
-            }
-
-
-            Common.Models.Manager Create(Common.Models.Company company)
+            Common.Models.Manager Create()
             {
                 var utcNowDate = DateTime.UtcNow;
                 return new Common.Models.Manager
@@ -96,9 +72,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     Position = managerRequest.Position,
                     Phone = managerRequest.Phone,
                     Fax = managerRequest.Fax,
-                    Permissions = managerRequest.Permissions,
-                    IsMaster = true,
-                    CompanyId = company.Id,
                     Created = utcNowDate,
                     Updated = utcNowDate,
                     IsActive = true
@@ -117,42 +90,66 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<Models.Responses.Company>> RegisterCompany(Models.Requests.Company companyRequest)
+        public Task<Result<Models.Responses.ServiceSupplier>> RegisterServiceSupplier(Models.Requests.ServiceSupplier serviceSupplierRequest)
         {
             return _managerContext.GetManager()
-                .Ensure(manager => manager.IsMaster, "Manager has no rights to register the company")
-                .GetCompany(_dbContext)
-                .Check(company => IsRequestValid(companyRequest))
-                .Map(ModifyCompany)
-                .Map(Update)
+                .Check(manager => IsRequestValid(serviceSupplierRequest))
+                .Bind(AddServiceSupplierAndRelation)
                 .Map(Build);
 
 
-            Common.Models.Company ModifyCompany(Common.Models.Company company)
+            async Task<Result<Common.Models.ServiceSupplier>> AddServiceSupplierAndRelation(Common.Models.Manager manager)
             {
-                company.Name = companyRequest.Name;
-                company.Address = companyRequest.Address;
-                company.PostalCode = companyRequest.PostalCode;
-                company.Phone = companyRequest.Phone;
-                company.Website = companyRequest.Website;
-                company.Modified = DateTime.UtcNow;
-
-                return company;
-            }
+                return await Result.Success()
+                    .Bind(CreateServiceSupplier)
+                    .Bind(async serviceSupplier => await AddServiceSupplier(serviceSupplier))
+                    .Tap(AddRelation);
 
 
-            async Task<Common.Models.Company> Update(Common.Models.Company company)
-            {
-                var entry = _dbContext.Companies.Update(company);
-                await _dbContext.SaveChangesAsync();
-                _dbContext.DetachEntry(entry.Entity);
+                Result<Common.Models.ServiceSupplier> CreateServiceSupplier()
+                {
+                    var utcNowDate = DateTime.UtcNow;
+                    return new Common.Models.ServiceSupplier
+                    {
+                        Name = string.Empty,
+                        Address = string.Empty,
+                        PostalCode = string.Empty,
+                        Phone = string.Empty,
+                        Website = string.Empty,
+                        Created = utcNowDate,
+                        Modified = utcNowDate
+                    };
+                }
 
-                return entry.Entity;
+                async Task<Result<Common.Models.ServiceSupplier>> AddServiceSupplier(Common.Models.ServiceSupplier serviceSupplier)
+                {
+                    var entry = _dbContext.ServiceSuppliers.Add(serviceSupplier);
+                    await _dbContext.SaveChangesAsync();
+                    _dbContext.DetachEntry(entry.Entity);
+
+                    return entry.Entity;
+                }
+
+                async Task AddRelation(Common.Models.ServiceSupplier serviceSupplier)
+                {
+                    var relation = new Common.Models.ManagerServiceSupplierRelation
+                    {
+                        ManagerId = manager.Id,
+                        ManagerPermissions = Common.Models.Enums.ManagerPermissions.All,
+                        ServiceSupplierId = serviceSupplier.Id,
+                        IsMaster = true,
+                        IsActive = true
+                    };
+
+                    var entry = _dbContext.ManagerServiceSupplierRelations.Add(relation);
+                    await _dbContext.SaveChangesAsync();
+                    _dbContext.DetachEntry(entry.Entity);
+                }
             }
         }
 
 
-        public Task<Result<Models.Responses.Manager>> Modify(Models.Requests.Manager managerRequest)
+        public Task<Result<Models.Responses.ManagerContext>> Modify(Models.Requests.Manager managerRequest)
         {
             return GetManager()
                 .Check(manager => IsRequestValid(managerRequest))
@@ -173,7 +170,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 manager.Position = managerRequest.Position;
                 manager.Phone = managerRequest.Phone;
                 manager.Fax = managerRequest.Fax;
-                manager.Permissions = managerRequest.Permissions;
                 manager.Updated = DateTime.UtcNow;
 
                 return manager;
@@ -205,24 +201,25 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 manager.Email,
                 manager.Phone,
                 manager.Fax,
-                manager.Permissions,
-                manager.IsMaster);
+                1,  // TODO: Now we have only one service supplier. Will be changed in the next task
+                Common.Models.Enums.ManagerPermissions.All, // TODO: Need add ManagerPermissions and IsMaster in next task
+                true);
 
 
-        private Models.Responses.Company Build(Common.Models.Company company)
-            => new Models.Responses.Company(company.Name,
-                company.Address,
-                company.PostalCode,
-                company.Phone,
-                company.Website);
+        private Models.Responses.ServiceSupplier Build(Common.Models.ServiceSupplier serviceSupplier)
+            => new Models.Responses.ServiceSupplier(serviceSupplier.Name,
+                serviceSupplier.Address,
+                serviceSupplier.PostalCode,
+                serviceSupplier.Phone,
+                serviceSupplier.Website);
 
 
-        private Result IsRequestValid(Models.Requests.Company companyRequest)
-            => ValidationHelper.Validate(companyRequest, new CompanyRegisterRequestValidator());
+        private Result IsRequestValid(Models.Requests.ServiceSupplier serviceSupplierRequest)
+            => ValidationHelper.Validate(serviceSupplierRequest, new ServiceSupplierValidator());
 
 
         private Result IsRequestValid(Models.Requests.Manager managerRequest)
-            => ValidationHelper.Validate(managerRequest, new ManagerRegisterRequestValidator());
+            => ValidationHelper.Validate(managerRequest, new ManagerValidator());
 
         private Result IsRequestValid(Models.Requests.ManagerPermissions managerPermissionsRequest)
             => ValidationHelper.Validate(managerPermissionsRequest, new ManagerPermissionsRequestValidator());

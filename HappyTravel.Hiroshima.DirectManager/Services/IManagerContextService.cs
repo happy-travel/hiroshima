@@ -11,5 +11,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         string GetIdentityHash();
 
         Task<bool> DoesManagerExist();
+
+        Task<Result<ServiceSupplier>> GetServiceSupplier();
     }
 }
