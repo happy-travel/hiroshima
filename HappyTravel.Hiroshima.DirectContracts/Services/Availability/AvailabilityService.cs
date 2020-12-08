@@ -18,12 +18,13 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 {
     public class AvailabilityService : IAvailabilityService
     {
-        public AvailabilityService(IRoomAvailabilityService roomAvailabilityService, IRateAvailabilityService rateAvailabilityService, IAvailabilityDataStorage availabilityDataStorage, IAvailabilityIdGenerator availabilityIdGenerator, DirectContractsDbContext dbContext)
+        public AvailabilityService(IRoomAvailabilityService roomAvailabilityService, IRateAvailabilityService rateAvailabilityService, IAvailabilityDataStorage availabilityDataStorage, IAvailabilityIdGenerator availabilityIdGenerator, IRateDetailsSetGenerator rateDetailsSetGenerator, DirectContractsDbContext dbContext)
         {
             _roomAvailabilityService = roomAvailabilityService;
             _rateAvailabilityService = rateAvailabilityService;
             _availabilityDataStorage = availabilityDataStorage;
             _availabilityIdGenerator = availabilityIdGenerator;
+            _rateDetailsSetGenerator = rateDetailsSetGenerator;
             _dbContext = dbContext;
         }
 
@@ -31,7 +32,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         public async Task<Common.Models.Availabilities.Availability> Get(AvailabilityRequest availabilityRequest, string languageCode)
         {
             var accommodations = await ExtractAvailabilityData();
-            var groupedAvailableRooms = _roomAvailabilityService.GetGroupedAvailableRooms(accommodations, availabilityRequest.Rooms);
+            var groupedAvailableRooms = _roomAvailabilityService.GetGroupedAvailableRooms(availabilityRequest, accommodations);
 
             return CreateAvailability(availabilityRequest, groupedAvailableRooms, languageCode);
             
@@ -80,7 +81,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             var accommodations = await GetAvailableAccommodations(availabilityRequest)
                 .Where(accommodation => accommodation.Id.Equals(accommodationId))
                 .ToListAsync();
-            var groupedAvailableRooms = _roomAvailabilityService.GetGroupedAvailableRooms(accommodations, availabilityRequest.Rooms);
+            var groupedAvailableRooms = _roomAvailabilityService.GetGroupedAvailableRooms(availabilityRequest, accommodations);
 
             var availability = CreateAvailability(availabilityRequest, groupedAvailableRooms, languageCode);
 
@@ -98,17 +99,17 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             var checkOutDate = availabilityRequest.CheckOutDate.Date;
 
             return _dbContext.Accommodations
-                .Include(accommodation => accommodation.Rooms.Where(room => !room.RoomAvailabilityRestrictions.Any(availabilityRestrictions
+                .Include(accommodation => accommodation.Rooms.Where(room => !room.AvailabilityRestrictions.Any(availabilityRestrictions
                     => checkInDate <= availabilityRestrictions.ToDate && availabilityRestrictions.FromDate <= checkOutDate &&
                     availabilityRestrictions.Restriction == AvailabilityRestrictions.StopSale)))
-                .ThenInclude(room => room.RoomAllocationRequirements.Where(allocationRequirements
+                .ThenInclude(room => room.AllocationRequirements.Where(allocationRequirements
                     => checkInDate <= allocationRequirements.SeasonRange.EndDate && allocationRequirements.SeasonRange.StartDate <= checkOutDate))
                 .ThenInclude(allocationRequirements => allocationRequirements.SeasonRange)
                 .Include(accommodation => accommodation.Rooms)
-                .ThenInclude(room => room.RoomAvailabilityRestrictions.Where(availabilityRestrictions
+                .ThenInclude(room => room.AvailabilityRestrictions.Where(availabilityRestrictions
                     => checkInDate <= availabilityRestrictions.ToDate && availabilityRestrictions.FromDate <= checkOutDate))
                 .Include(accommodation => accommodation.Rooms)
-                .ThenInclude(room => room.RoomCancellationPolicies.Where(cancellationPolicy
+                .ThenInclude(room => room.CancellationPolicies.Where(cancellationPolicy
                     => cancellationPolicy.Season.SeasonRanges.Any(seasonRange => checkInDate <= seasonRange.EndDate && seasonRange.StartDate <= checkOutDate)))
                 .ThenInclude(cancellationPolicy => cancellationPolicy.Season)
                 .ThenInclude(season => season.SeasonRanges.Where(seasonRange => checkInDate <= seasonRange.EndDate && seasonRange.StartDate <= checkOutDate))
@@ -121,6 +122,8 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                 .Include(accommodation => accommodation.Rooms)
                 .ThenInclude(room => room.RoomPromotionalOffers.Where(promotionalOffer
                     => checkInDate <= promotionalOffer.ValidToDate && promotionalOffer.ValidFromDate <= checkOutDate))
+                .Include(accommodation => accommodation.Rooms)
+                .ThenInclude(room => room.RoomOccupations.Where(roomOccupation => checkInDate <= roomOccupation.FromDate && roomOccupation.ToDate <= checkOutDate))
                 .Include(accommodation => accommodation.Location)
                 .ThenInclude(location => location.Country)
                 .Where(accommodation => ratings.Contains(accommodation.Rating));
@@ -137,15 +140,12 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                     
                 var availableRateDetails = GetAvailableRateDetails(accommodationGroupedRooms);
 
-                var rateDetailsCombinations = ListHelper.GetCombinations(availableRateDetails.Select(rateDetails => rateDetails.Value))
-                    .Distinct()
-                    .ToList();
-
-                if (!rateDetailsCombinations.Any())
+                var rateDetailsSets = _rateDetailsSetGenerator.GenerateSets(availabilityRequest, availableRateDetails);
+                if (!rateDetailsSets.Any())
                     continue;
 
                 var accommodation = accommodationGroupedRooms.First().Value.First().Accommodation;
-                accommodationAvailableRates.Add(accommodation, rateDetailsCombinations.Select(rateDetails => new AvailableRates
+                accommodationAvailableRates.Add(accommodation, rateDetailsSets.Select(rateDetails => new AvailableRates
                 {
                     Id = GenerateRateDetailsId(),
                     AccommodationId = accommodation.Id,
@@ -171,12 +171,13 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             
             Guid GenerateRateDetailsId() => Guid.NewGuid();
         }
-        
-        
+
+
         private readonly IRateAvailabilityService _rateAvailabilityService;
         private readonly IRoomAvailabilityService _roomAvailabilityService;
         private readonly DirectContractsDbContext _dbContext;
         private readonly IAvailabilityDataStorage _availabilityDataStorage;
         private readonly IAvailabilityIdGenerator _availabilityIdGenerator;
+        private readonly IRateDetailsSetGenerator _rateDetailsSetGenerator;
     }
 }

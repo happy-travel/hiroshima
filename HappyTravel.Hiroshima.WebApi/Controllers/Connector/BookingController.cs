@@ -22,10 +22,10 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
 
 
         /// <summary>
-        /// Makes an asynchronous booking request to the Etg api.
+        /// Creates a new booking order
         /// </summary>
         /// <param name="bookingRequest"></param>
-        /// <returns></returns>
+        /// <returns>Booking order details</returns>
         [HttpPost("bookings")]
         [ProducesResponseType(typeof(EdoContracts.Accommodations.Booking), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
@@ -38,6 +38,43 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
             return Ok(bookingDetails);
         }
 
+        
+        /// <summary>
+        /// Cancels the booking order by the reference code
+        /// </summary>
+        /// <param name="referenceCode"></param>
+        /// <returns></returns>
+        [HttpPost("bookings/{referenceCode}/cancel")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> Cancel(string referenceCode)
+        {
+            var (_, isFailure, error) = await _bookingService.Cancel(referenceCode, LanguageCode);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+
+
+        /// <summary>
+        /// Retrieves the booking order's details.
+        /// </summary>
+        /// <param name="referenceCode"></param>
+        /// <returns></returns>
+        [HttpGet("bookings/{referenceCode}")]
+        [ProducesResponseType(typeof(EdoContracts.Accommodations.Booking), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetDetails(string referenceCode)
+        {
+            var (_, isFailure, bookingDetails, error) = await _bookingService.GetDetails(referenceCode, LanguageCode);
+            if (isFailure)
+                return BadRequest(error);
+
+            return Ok(bookingDetails);
+        }
+
+        
 
         private readonly IBookingService _bookingService;
     }
