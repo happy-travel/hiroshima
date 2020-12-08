@@ -58,7 +58,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpPost("service-supplier")]
         [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ServiceSupplier), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> AddCompany([FromBody] Hiroshima.DirectManager.Models.Requests.ServiceSupplier serviceSupplier)
+        public async Task<IActionResult> AddServiceSupplier([FromBody] Hiroshima.DirectManager.Models.Requests.ServiceSupplier serviceSupplier)
         {
             var (_, isFailure, response, error) = await _managerManagementService.RegisterServiceSupplier(serviceSupplier);
             if (isFailure)

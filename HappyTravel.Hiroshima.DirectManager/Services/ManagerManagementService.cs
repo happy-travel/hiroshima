@@ -25,8 +25,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         
         public Task<Result<Models.Responses.ManagerContext>> Register(Models.Requests.Manager managerRequest, string email)
         {
-           return Result.Success()
-                .Ensure(IsIdentityHashNotEmpty, "Failed to get the sub claim")
+           return CheckIdentityHashNotEmpty()
                 .Ensure(DoesManagerNotExist, "Manager has already been registered")
                 .Bind(() => IsRequestValid(managerRequest))
                 .Map(Create)
@@ -34,7 +33,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Map(Build);
 
             
-            bool IsIdentityHashNotEmpty() => !string.IsNullOrEmpty(_managerContext.GetIdentityHash());
+            Result CheckIdentityHashNotEmpty()
+            {
+                return string.IsNullOrEmpty(_managerContext.GetIdentityHash())
+                    ? Result.Failure("Failed to get the sub claim")
+                    : Result.Success();
+            }
             
             
             async Task<bool> DoesManagerNotExist() => !await _managerContext.DoesManagerExist();

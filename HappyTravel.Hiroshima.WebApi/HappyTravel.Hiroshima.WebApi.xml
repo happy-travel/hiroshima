@@ -403,7 +403,7 @@
             <param name="manager"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.AddCompany(HappyTravel.Hiroshima.DirectManager.Models.Requests.ServiceSupplier)">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.AddServiceSupplier(HappyTravel.Hiroshima.DirectManager.Models.Requests.ServiceSupplier)">
             <summary>
             Registers a service supplier
             </summary>
