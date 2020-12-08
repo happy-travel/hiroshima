@@ -26,12 +26,12 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure.Extensions
             if (string.IsNullOrEmpty(json))
                 return default;
 
-            return JsonConvert.DeserializeObject<TResult>(json, SerializeSettings);
+            return JsonConvert.DeserializeObject<TResult>(json);
         }
 
 
         public static bool IsNotEmpty(this JsonDocument jsonDocument)
-            => jsonDocument?.RootElement.ToString() != "{}";
+            => jsonDocument.RootElement.ToString() != "{}";
         
         
         public static TResult GetFirstValue<TResult>(this JsonDocument jsonDocument)
@@ -41,7 +41,7 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure.Extensions
             
             var firstJsonElement = GetFirst(jsonDocument);
             
-            return JsonConvert.DeserializeObject<TResult>(firstJsonElement.ToString(), SerializeSettings);
+            return JsonConvert.DeserializeObject<TResult>(firstJsonElement.ToString());
         }
         
         
@@ -51,11 +51,5 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure.Extensions
             
             return objectEnumerator.FirstOrDefault().Value;
         }
-        
-        
-        private static readonly JsonSerializerSettings SerializeSettings = new JsonSerializerSettings
-        {
-            ReferenceLoopHandling  = ReferenceLoopHandling.Ignore
-        };
     }
 }

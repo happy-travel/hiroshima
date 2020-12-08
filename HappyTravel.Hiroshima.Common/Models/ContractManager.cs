@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Hiroshima.Common.Models
 {
@@ -30,9 +31,13 @@ namespace HappyTravel.Hiroshima.Common.Models
         
         public bool IsActive { get; set; }
         
+        [JsonIgnore]
         public List<Accommodation> Accommodations { get; set; }
         
+        [JsonIgnore]
         public List<Contract> Contracts { get; set; }
+        
+        [JsonIgnore]
         public List<Bookings.BookingOrder> BookingOrders { get; set; }
     }
 }
