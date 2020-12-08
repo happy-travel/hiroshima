@@ -4,7 +4,6 @@ using HappyTravel.EdoContracts.Extensions;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefinitions;
-using HappyTravel.Hiroshima.Common.Models.Bookings;
 using HappyTravel.Hiroshima.Common.Models.Enums;
 using HappyTravel.Hiroshima.Common.Models.Images;
 using NetTopologySuite.Geometries;
@@ -44,9 +43,6 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations
         public MultiLanguage<string> AdditionalInfo { get; set; }
         
         public OccupancyDefinition OccupancyDefinition { get; set; }
-        
-        //todo remove
-        public MultiLanguage<List<Picture>> Pictures { get; set; }
         
         public int ContractManagerId { get; set; }
         

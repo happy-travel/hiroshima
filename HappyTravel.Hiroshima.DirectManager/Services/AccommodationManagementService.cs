@@ -311,9 +311,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 ContractManagerId = contractManagerId,
                 ContactInfo = new ContactInfo
                 {
-                    Emails = new List<string> {accommodation.ContactInfo.Email},
-                    Phones = new List<string> {accommodation.ContactInfo.Phone},
-                    Websites = new List<string> {accommodation.ContactInfo.Website}
+                    Emails = accommodation.ContactInfo.Emails,
+                    Phones = accommodation.ContactInfo.Phones,
+                    Websites = accommodation.ContactInfo.Websites
                 },
                 AdditionalInfo = accommodation.AdditionalInfo,
                 OccupancyDefinition = accommodation.OccupancyDefinition,
@@ -356,7 +356,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 accommodation.Rating,
                 accommodation.CheckInTime,
                 accommodation.CheckOutTime,
-                accommodation.ContactInfo,
+                new Models.Responses.ContactInfo(accommodation.ContactInfo.Emails, accommodation.ContactInfo.Phones, accommodation.ContactInfo.Websites), 
                 accommodation.PropertyType,
                 accommodation.AccommodationAmenities,
                 accommodation.AdditionalInfo,
