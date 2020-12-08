@@ -1,5 +1,6 @@
 ﻿using System;
 using FluentValidation;
+using FluentValidation.Validators;
 using HappyTravel.Hiroshima.DirectManager.Models.Requests;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators.Extensions;
 
@@ -30,19 +31,18 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
             RuleFor(accommodation => accommodation.Type).NotNull().IsInEnum();
             RuleFor(accommodation => accommodation.CheckInTime).NotEmpty().Must(IsValidTimeFormat);
             RuleFor(accommodation => accommodation.CheckOutTime).NotEmpty().Must(IsValidTimeFormat);
-            RuleFor(accommodation => accommodation.ContactInfo)
-                .NotNull()
-                .ChildRules(validator => validator.RuleFor(contactInfo => contactInfo.Email).NotEmpty().EmailAddress())
-                .ChildRules(validator => validator.RuleFor(contactInfo => contactInfo.Phone).NotEmpty().SetValidator(new PhoneNumberValidator()))
-                .ChildRules(validator => validator.RuleFor(contactInfo => contactInfo.Website).SetValidator(new UriValidator()).When(contactInfo => !string.IsNullOrWhiteSpace(contactInfo.Website)));
+            RuleFor(accommodation => accommodation.ContactInfo).NotEmpty();
+            RuleFor(accommodation => accommodation.ContactInfo.Emails)
+                .NotEmpty()
+                .ForEach(action => action.SetValidator(new AspNetCoreCompatibleEmailValidator()));
+            RuleFor(accommodation => accommodation.ContactInfo.Phones)
+                .NotEmpty()
+                .ForEach(action => action.SetValidator(new PhoneNumberValidator()));
+            RuleFor(accommodation => accommodation.ContactInfo.Websites)
+                .NotEmpty()
+                .ForEach(action => action.SetValidator(new UriValidator()));
             RuleFor(accommodation => accommodation.OccupancyDefinition).SetValidator(new OccupancyDefinitionValidator()).NotNull();
             RuleFor(accommodation => accommodation.Amenities).AnyLanguage().When(accommodation => accommodation.Amenities != null);
-            RuleFor(accommodation => accommodation.Pictures)
-                .AnyLanguage()
-                .When(accommodation => accommodation.Pictures != null)
-                .ChildRules(accommodation => accommodation.RuleForEach(pictures => pictures.Ar).SetValidator(new PictureValidator()))
-                .ChildRules(accommodation => accommodation.RuleForEach(pictures => pictures.En).SetValidator(new PictureValidator()))
-                .ChildRules(accommodation => accommodation.RuleForEach(pictures => pictures.Ru).SetValidator(new PictureValidator()));
             RuleFor(accommodation => accommodation.LocationId).NotEmpty();
             RuleFor(accommodation => accommodation.Status).IsInEnum();
             RuleFor(accommodation => accommodation.BuildYear).LessThanOrEqualTo(DateTime.UtcNow.Year).When(accommodation => accommodation.BuildYear != null);
