@@ -15,17 +15,17 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Result<ServiceSupplier> EnsureContractBelongsToServiceSupplier(ServiceSupplier serviceSupplier, int contractId)
+        public async Task<Result<ServiceSupplier>> EnsureContractBelongsToServiceSupplier(ServiceSupplier serviceSupplier, int contractId)
         {
-            return _dbContext.DoesContractBelongToServiceSupplier(contractId, serviceSupplier.Id).Result
+            return await _dbContext.DoesContractBelongToServiceSupplier(contractId, serviceSupplier.Id)
                 ? Result.Success(serviceSupplier)
                 : Result.Failure<ServiceSupplier>($"Invalid contract id '{contractId}'");
         }
 
 
-        public Result<ServiceSupplier> EnsureAccommodationBelongsToServiceSupplier(ServiceSupplier serviceSupplier, int accommodationId)
+        public async Task<Result<ServiceSupplier>> EnsureAccommodationBelongsToServiceSupplier(ServiceSupplier serviceSupplier, int accommodationId)
         {
-            return _dbContext.DoesAccommodationBelongToCompany(accommodationId, serviceSupplier.Id).Result
+            return await _dbContext.DoesAccommodationBelongToCompany(accommodationId, serviceSupplier.Id)
                 ? Result.Success(serviceSupplier)
                 : Result.Failure<ServiceSupplier>($"Invalid accommodation id '{accommodationId}'");
         }
@@ -37,7 +37,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             if (!ifRoomInAccommodationExist)
                 return Result.Failure<ServiceSupplier>($"Invalid room id '{roomId}'");
 
-            return EnsureAccommodationBelongsToServiceSupplier(serviceSupplier, accommodationId);
+            return await EnsureAccommodationBelongsToServiceSupplier(serviceSupplier, accommodationId);
         }
    
 
