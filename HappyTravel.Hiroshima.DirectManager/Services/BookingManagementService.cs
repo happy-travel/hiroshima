@@ -18,27 +18,28 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class BookingManagementService : IBookingManagementService
     {
-        public BookingManagementService(IContractManagerContextService contractManagerContext, DirectContractsDbContext  dbContext)
+        public BookingManagementService(IManagerContextService managerContextService, DirectContractsDbContext  dbContext)
         {
-            _contractManagerContext = contractManagerContext;
+            _managerContext = managerContextService;
             _dbContext = dbContext;
         }
         
         
         public Task<Result<List<Models.Responses.Bookings.BookingOrder>>> GetBookingOrders(Models.Requests.BookingRequest bookingRequest, int skip, int top, string languageCode)
         {
-            return _contractManagerContext.GetContractManager().Ensure(AreAllAccommodationIdsBelongToManager, "Invalid accommodation ids")
+            return _managerContext.GetServiceSupplier()
+                .Ensure(AreAllAccommodationIdsBelongToServiceSupplier, "Invalid accommodation ids")
                 .Map(_ => GetBookings())
                 .Map(bookingOrders => Build(bookingOrders, languageCode));
             
 
-            async Task<bool> AreAllAccommodationIdsBelongToManager(ContractManager contractManager)
+            async Task<bool> AreAllAccommodationIdsBelongToServiceSupplier(ServiceSupplier serviceSupplier)
             {
                 if (!bookingRequest.AccommodationIds.Any())
                     return true;
 
                 var existingIds = await _dbContext.Accommodations
-                    .Where(a => bookingRequest.AccommodationIds.Contains(a.Id) && a.ContractManagerId == contractManager.Id)
+                    .Where(a => bookingRequest.AccommodationIds.Contains(a.Id) && a.ServiceSupplierId == serviceSupplier.Id)
                     .Select(bo => bo.Id)
                     .ToListAsync();
 
@@ -132,7 +133,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
         
         
-        private readonly IContractManagerContextService _contractManagerContext;
+        private readonly IManagerContextService _managerContext;
         private readonly DirectContractsDbContext _dbContext;
     }
 }
