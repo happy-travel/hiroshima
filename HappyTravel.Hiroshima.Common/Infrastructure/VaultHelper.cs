@@ -33,11 +33,11 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure
         {
             var connectionOptions = vaultClient.Get(configuration[pathToConnectionOptions]).Result;
             return string.Format($"{configuration[pathToConnectionString]}",
-                connectionOptions["host"],
+                "localhost", //connectionOptions["host"],
                 connectionOptions["port"],
                 connectionOptions["database"],
-                connectionOptions["userId"],
-                connectionOptions["password"]);
+                "postgres", //connectionOptions["userId"],
+                "ash_419237"); //connectionOptions["password"]);
         }
 
 
