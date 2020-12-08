@@ -10,7 +10,7 @@ using FloxDc.CacheFlow.Extensions;
 using FluentValidation.AspNetCore;
 using HappyTravel.AmazonS3Client.Extensions;
 using HappyTravel.Hiroshima.Common.Infrastructure;
-using HappyTravel.Hiroshima.Common.Infrastructure.Extensions;
+using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.DirectContracts.Extensions;
 using HappyTravel.Hiroshima.DirectManager.Extensions;
@@ -29,8 +29,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace HappyTravel.Hiroshima.WebApi
 {
@@ -45,6 +43,8 @@ namespace HappyTravel.Hiroshima.WebApi
         
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllers().SetJsonOptions();
+            
             using var vaultClient = VaultHelper.CreateVaultClient(Configuration);
             vaultClient.Login(Configuration[Configuration["Vault:Token"]]).GetAwaiter().GetResult();
             var dbConnectionString = VaultHelper.GetDbConnectionString(vaultClient, "DirectContracts:Database:ConnectionOptions", "DirectContracts:Database:ConnectionString", Configuration);
@@ -126,17 +126,6 @@ namespace HappyTravel.Hiroshima.WebApi
             .AddApiExplorer()
             .AddFluentValidation()
             .SetCompatibilityVersion(CompatibilityVersion.Latest);
-        
-            services.AddControllers().AddNewtonsoftJson(options =>
-            {
-                options.SerializerSettings.ContractResolver = new DefaultContractResolver();
-                options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-                options.SerializerSettings.Converters = new List<JsonConverter>
-                {
-                    new Newtonsoft.Json.Converters.StringEnumConverter()
-                };
-                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-            });
             
             services.ConfigureAuthentication(Configuration, HostingEnvironment, vaultClient)
                 .ConfigureHttpClients(Configuration, HostingEnvironment, vaultClient)

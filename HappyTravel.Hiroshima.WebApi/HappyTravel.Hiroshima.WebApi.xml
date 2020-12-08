@@ -29,9 +29,23 @@
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.Connector.BookingController.Book(HappyTravel.EdoContracts.Accommodations.BookingRequest)">
             <summary>
-            Makes an asynchronous booking request to the Etg api.
+            Creates a new booking order
             </summary>
             <param name="bookingRequest"></param>
+            <returns>Booking order details</returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.Connector.BookingController.Cancel(System.String)">
+            <summary>
+            Cancels the booking order by the reference code
+            </summary>
+            <param name="referenceCode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.Connector.BookingController.GetDetails(System.String)">
+            <summary>
+            Retrieves the booking order's details.
+            </summary>
+            <param name="referenceCode"></param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.Connector.LocationsController.GetLocations(System.DateTime,HappyTravel.EdoContracts.GeoData.Enums.LocationTypes,System.Int32,System.Int32)">
@@ -201,6 +215,12 @@
             </summary>
             <param name="contractId"></param>
             <param name="ids">Availability restriction ids</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.BookingManagementController.GetBookings(HappyTravel.Hiroshima.DirectManager.Models.Requests.BookingRequest,System.Int32,System.Int32)">
+            <summary>
+            Retrieves booking orders
+            </summary>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.CancellationPolicyController.AddCancellationPolicies(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.CancellationPolicy})">

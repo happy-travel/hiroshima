@@ -87,9 +87,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public JsonDocument Normalize(JsonDocument amenitiesJson)
+        public MultiLanguage<List<string>> Normalize(MultiLanguage<List<string>> amenities)
         {
-            var allAmenities = amenitiesJson.GetValue<MultiLanguage<List<string>>>().GetAll();
+            var allAmenities = amenities.GetAll();
             var normalizedAmenities = new MultiLanguage<List<string>>();
 
             foreach (var amenity in allAmenities.Where(amenity => !string.IsNullOrEmpty(amenity.languageCode)))
@@ -100,15 +100,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     normalizedAmenities.TrySetValue(amenity.languageCode, amenity.value);
             }
 
-            return JsonDocumentUtilities.CreateJDocument(normalizedAmenities);
+            return normalizedAmenities;
         }
 
 
-        public async Task Update(JsonDocument amenitiesJson)
+        public async Task Update(MultiLanguage<List<string>> amenities)
         {
-            var amenities = amenitiesJson.GetValue<MultiLanguage<List<string>>>().GetAll();
-
-            foreach (var amenity in amenities)
+            foreach (var amenity in amenities.GetAll())
             {
                 if (amenity.value != null)
                 {

@@ -21,10 +21,12 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms
         
         public int ContractId { get; set; }
         
-        public JsonDocument Description { get; set; }
+        public MultiLanguage<string> Description { get; set; }
         
+        [Newtonsoft.Json.JsonIgnore]
         public Room Room { get; set; }
         
+        [Newtonsoft.Json.JsonIgnore]
         public Contract Contract { get; set; }
     }
 }

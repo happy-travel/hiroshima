@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
+using HappyTravel.Hiroshima.Common.Models;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {
@@ -9,7 +10,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     {
         Task<Result<List<Models.Responses.Amenity>>> Get(string languageCode);
         Task<Result> NormalizeAllAmenitiesAndUpdateAmenitiesStore();
-        Task Update(JsonDocument amenities);
-        JsonDocument Normalize(JsonDocument amenities);
+        Task Update(MultiLanguage<List<string>> amenities);
+        MultiLanguage<List<string>> Normalize(MultiLanguage<List<string>> amenities);
     }
 }

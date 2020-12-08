@@ -4,10 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Geography;
-using HappyTravel.Hiroshima.Common.Infrastructure.Extensions;
-using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models;
-using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure;
@@ -314,13 +311,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return new Accommodation
             {
-                Name = JsonDocumentUtilities.CreateJDocument(accommodation.Name),
-                Address = JsonDocumentUtilities.CreateJDocument(accommodation.Address),
+                Name = accommodation.Name,
+                Address = accommodation.Address,
                 Coordinates = _geometryFactory.CreatePoint(new Coordinate(accommodation.Coordinates.Longitude, accommodation.Coordinates.Latitude)),
-                Pictures = JsonDocumentUtilities.CreateJDocument(accommodation.Pictures),
-                AccommodationAmenities = JsonDocumentUtilities.CreateJDocument(accommodation.Amenities),
-                TextualDescription = JsonDocumentUtilities.CreateJDocument(accommodation.Description),
-                LeisureAndSports = JsonDocumentUtilities.CreateJDocument(accommodation.LeisureAndSports),
+                AccommodationAmenities = accommodation.Amenities,
+                TextualDescription = accommodation.Description,
+                LeisureAndSports = accommodation.LeisureAndSports,
                 Rating = accommodation.Rating,
                 ServiceSupplierId = serviceSupplierId,
                 ContactInfo = new ContactInfo
@@ -329,7 +325,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     Phones = new List<string> {accommodation.ContactInfo.Phone},
                     Websites = new List<string> {accommodation.ContactInfo.Website}
                 },
-                AdditionalInfo = JsonDocumentUtilities.CreateJDocument(accommodation.AdditionalInfo),
+                AdditionalInfo = accommodation.AdditionalInfo,
                 OccupancyDefinition = accommodation.OccupancyDefinition,
                 PropertyType = accommodation.Type,
                 CheckInTime = accommodation.CheckInTime,
@@ -363,21 +359,20 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return new Models.Responses.Accommodation(
                 accommodation.Id,
-                accommodation.Name.GetValue<MultiLanguage<string>>(),
-                accommodation.Address.GetValue<MultiLanguage<string>>(),
-                accommodation.TextualDescription.GetValue<MultiLanguage<TextualDescription>>(),
+                accommodation.Name,
+                accommodation.Address,
+                accommodation.TextualDescription,
                  new GeoPoint(accommodation.Coordinates),
                 accommodation.Rating,
                 accommodation.CheckInTime,
                 accommodation.CheckOutTime,
-                accommodation.Pictures.GetValue<MultiLanguage<List<Picture>>>(),
                 accommodation.ContactInfo,
                 accommodation.PropertyType,
-                accommodation.AccommodationAmenities.GetValue<MultiLanguage<List<string>>>(),
-                accommodation.AdditionalInfo.GetValue<MultiLanguage<string>>(),
+                accommodation.AccommodationAmenities,
+                accommodation.AdditionalInfo,
                 accommodation.OccupancyDefinition,
                 accommodation.LocationId,
-                accommodation.LeisureAndSports.GetValue<MultiLanguage<List<string>>>(),
+                accommodation.LeisureAndSports,
                 accommodation.Status,
                 accommodation.RateOptions,
                 accommodation.Floors,
@@ -400,10 +395,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         private Room CreateRoom(int accommodationId, Models.Requests.Room room) => new Room
         {
             AccommodationId = accommodationId,
-            Name = JsonDocumentUtilities.CreateJDocument(room.Name),
-            Description = JsonDocumentUtilities.CreateJDocument(room.Description),
-            Amenities = JsonDocumentUtilities.CreateJDocument(room.Amenities),
-            Pictures = JsonDocumentUtilities.CreateJDocument(room.Pictures),
+            Name = room.Name,
+            Description = room.Description,
+            Amenities = room.Amenities,
             Modified = DateTime.UtcNow,
             OccupancyConfigurations = room.OccupancyConfigurations
         };
@@ -440,10 +434,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         private static Models.Responses.Room Build(Room room)
             => new Models.Responses.Room(
                 room.Id, 
-                room.Name.GetValue<MultiLanguage<string>>(),
-                room.Description.GetValue<MultiLanguage<string>>(), 
-                room.Amenities.GetValue<MultiLanguage<List<string>>>(),
-                room.Pictures.GetValue<MultiLanguage<List<Picture>>>(), 
+                room.Name,
+                room.Description, 
+                room.Amenities,
                 room.OccupancyConfigurations);
 
 

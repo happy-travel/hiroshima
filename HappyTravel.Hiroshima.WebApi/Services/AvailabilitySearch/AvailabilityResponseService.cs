@@ -5,8 +5,9 @@ using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
-using HappyTravel.Hiroshima.Common.Models;
+using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models.Availabilities;
+using HappyTravel.Hiroshima.DirectContracts.Services.Availability;
 using HappyTravel.Money.Helpers;
 using HappyTravel.Money.Models;
 using Accommodation = HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation;
@@ -81,20 +82,20 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
         private SlimAccommodationAvailability CreateSlimAccommodationAvailability(Accommodation accommodation, List<AvailableRates> availableRates, string languageCode)
         {
             var slimAccommodation = _accommodationResponseService.Create(accommodation, languageCode);
-            var roomContractSets = CreateRoomContractSets(availableRates);
+            var roomContractSets = CreateRoomContractSets(availableRates, languageCode);
             var availabilityId = GenerateAvailabilityId();
                 
             return new SlimAccommodationAvailability(slimAccommodation, roomContractSets, availabilityId);
         }
         
 
-        private List<RoomContractSet> CreateRoomContractSets(List<AvailableRates> availableRates)
+        private List<RoomContractSet> CreateRoomContractSets(List<AvailableRates> availableRates, string languageCode)
         {
             var roomContractSets = new List<RoomContractSet>();
 
             foreach (var availableRate in availableRates)
             {
-                var roomContractSet = CreateRoomContractSet(availableRate);
+                var roomContractSet = CreateRoomContractSet(availableRate, languageCode);
                 roomContractSets.Add(roomContractSet);
             }
 
@@ -102,10 +103,10 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
         }
         
 
-        private RoomContractSet CreateRoomContractSet(AvailableRates availableRates)
+        private RoomContractSet CreateRoomContractSet(AvailableRates availableRates, string languageCode)
         {
             var id = availableRates.Id;
-            var roomContracts = CreateRoomContracts(availableRates.Rates);
+            var roomContracts = CreateRoomContracts(availableRates.Rates, languageCode);
             var price = CreatePrice(availableRates.Rates);
             var deadline = CreateDeadline(roomContracts);
             var advancePurchaseRate = false;
@@ -114,11 +115,11 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
         }
 
 
-        private List<RoomContract> CreateRoomContracts(List<RateDetails> rateDetails)
-            => rateDetails.Select(CreateRoomContract).ToList();
+        private List<RoomContract> CreateRoomContracts(List<RateDetails> rateDetails, string languageCode)
+            => rateDetails.Select(rd => CreateRoomContract(rd, languageCode)).ToList();
         
 
-        private RoomContract CreateRoomContract(RateDetails rateDetails)
+        private RoomContract CreateRoomContract(in RateDetails rateDetails, string languageCode)
         {
             var boardBasis = rateDetails.BoardBasis;
             var mealPlan = rateDetails.MealPlan;
@@ -126,9 +127,10 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
             var isAvailableImmediately = false;
             var idDynamic = false;
             var contractDescription = rateDetails.Description;
+            rateDetails.Room.Amenities.TryGetValue(languageCode, out var roomAmenities);
             var remarks = new List<KeyValuePair<string, string>>
             {
-                new KeyValuePair<string,string>($"{nameof(rateDetails.Amenities)}", string.Join(", ", rateDetails.Amenities))
+                new KeyValuePair<string,string>($"{nameof(rateDetails.Room.Amenities)}", string.Join(", ", roomAmenities))
             };
             var dailyPrices = CreateDailyPrices(rateDetails.PaymentDetails);
             var totalPrice = CreatePrice(rateDetails.PaymentDetails, PriceTypes.Room);
@@ -149,7 +151,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
                 return new Deadline();
             
             var policies = cancellationPolicies
-                .Select(cancellationPolicyDetail => new CancellationPolicy(cancellationPolicyDetail.StartDate, Convert.ToDouble(cancellationPolicyDetail.Percent))).ToList();
+                .Select(cancellationPolicyDetail => new CancellationPolicy(cancellationPolicyDetail.FromDate, Convert.ToDouble(cancellationPolicyDetail.Percent))).ToList();
             
             return new Deadline(policies.First().FromDate, policies);
         }
@@ -169,17 +171,9 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
         
         private Price CreatePrice(List<RateDetails> rateDetails)
         {
-            var firstRateDetails = rateDetails.First();
-            var currency = firstRateDetails.PaymentDetails.TotalAmount.Currency;
-            var totalPrice = rateDetails.Sum(rateDetailsItem => rateDetailsItem.PaymentDetails.TotalAmount.Amount);
-
-            var totalPriceWithDiscount = rateDetails.Sum(rateDetailsItem
-                => rateDetailsItem.PaymentDetails.TotalAmount.Amount - rateDetailsItem.PaymentDetails.TotalAmount.Amount * rateDetailsItem.PaymentDetails.Discount.Percent / 100);
-            var totalDiscount = new Discount(MoneyRounder.Truncate(100 - totalPriceWithDiscount * 100 / totalPrice, currency));
+            var price = PriceHelper.GetPrice(rateDetails);
             
-            var moneyAmount = new MoneyAmount(totalPrice, currency);
-            
-            return new Price(moneyAmount, moneyAmount, new List<Discount>{totalDiscount}, PriceTypes.RoomContractSet);           
+            return new Price(price.amount, price.amount, new List<Discount>{price.discount}, PriceTypes.RoomContractSet);           
         }
         
         

@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using HappyTravel.Geography;
+using HappyTravel.Geography.Converters;
 using HappyTravel.Hiroshima.WebApi.Infrastructure.Environments;
 using HappyTravel.Hiroshima.WebApi.Services;
 using HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch;
@@ -10,6 +14,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NetTopologySuite;
+using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using OpenTelemetry;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -96,6 +104,51 @@ namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions
             });
 
             return services;
+        }
+
+
+        public static IMvcBuilder SetJsonOptions(this IMvcBuilder builder)
+        {
+            builder.AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.WriteIndented = false;
+                options.JsonSerializerOptions.IgnoreNullValues = true;
+                options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+                options.JsonSerializerOptions.NumberHandling = JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowNamedFloatingPointLiterals;
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, false));
+                options.JsonSerializerOptions.Converters.Add(new NetTopologySuite.IO.Converters.GeoJsonConverterFactory());
+            });
+
+            var serializationSettings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling  = ReferenceLoopHandling.Ignore,
+                NullValueHandling = NullValueHandling.Ignore,
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                Formatting = Formatting.None,
+                Converters = new List<Newtonsoft.Json.JsonConverter>
+                {
+                    new Newtonsoft.Json.Converters.StringEnumConverter(),
+                    new GeoPointJsonConverter()
+                }
+            };
+            
+            foreach (var converter in GeoJsonSerializer.Create(serializationSettings, new GeometryFactory(new PrecisionModel(), 4326)).Converters)
+            {
+                serializationSettings.Converters.Add(converter);
+            }
+            
+            builder.AddNewtonsoftJson(options=>
+            {
+                options.SerializerSettings.ReferenceLoopHandling = serializationSettings.ReferenceLoopHandling;
+                options.SerializerSettings.NullValueHandling = serializationSettings.NullValueHandling;
+                options.SerializerSettings.ContractResolver = serializationSettings.ContractResolver;
+                options.SerializerSettings.Formatting = serializationSettings.Formatting;
+                options.SerializerSettings.Converters = serializationSettings.Converters;
+            });
+            
+            JsonConvert.DefaultSettings = () => serializationSettings;
+            
+            return builder;
         }
 
 

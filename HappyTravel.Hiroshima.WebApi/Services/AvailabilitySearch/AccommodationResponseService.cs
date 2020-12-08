@@ -5,13 +5,18 @@ using HappyTravel.Hiroshima.Common.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
-using HappyTravel.Hiroshima.WebApi.Controllers.DirectManager;
+using HappyTravel.Hiroshima.DirectManager.Services;
 using PropertyTypes = HappyTravel.EdoContracts.Accommodations.Enums.PropertyTypes;
 
 namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
 {
     public class AccommodationResponseService : IAccommodationResponseService
     {
+        public AccommodationResponseService(IImageManagementService imageManagementService)
+        {
+            _imageManagementService = imageManagementService;
+        }
+        
         public SlimAccommodation Create(Accommodation accommodation, string languageCode)
         {
             var id = accommodation.Id.ToString();
@@ -27,7 +32,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
         
         private string GetName(Accommodation accommodation, string languageCode)
         {
-            accommodation.Name.GetValue<MultiLanguage<string>>().TryGetValueOrDefault(languageCode, out var name);
+            accommodation.Name.TryGetValueOrDefault(languageCode, out var name);
             
             return name;
         }
@@ -35,11 +40,11 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
 
         private SlimLocationInfo GetSlimLocation(Accommodation accommodation, string languageCode)
         {
-            accommodation.Address.GetValue<MultiLanguage<string>>().TryGetValueOrDefault(languageCode, out var address);
-            accommodation.Location.Country.Name.GetValue<MultiLanguage<string>>().TryGetValueOrDefault(languageCode, out var country);
+            accommodation.Address.TryGetValueOrDefault(languageCode, out var address);
+            accommodation.Location.Country.Name.TryGetValueOrDefault(languageCode, out var country);
             var countryCode = accommodation.Location.CountryCode;
-            accommodation.Location.Locality.GetValue<MultiLanguage<string>>().TryGetValueOrDefault(languageCode, out var locality);
-            accommodation.Location.Zone.GetValue<MultiLanguage<string>>().TryGetValueOrDefault(languageCode, out var zone);
+            accommodation.Location.Locality.TryGetValueOrDefault(languageCode, out var locality);
+            accommodation.Location.Zone.TryGetValueOrDefault(languageCode, out var zone);
             var coordinates = new GeoPoint(accommodation.Coordinates);
             
             return new SlimLocationInfo(address, country, countryCode, locality, zone, coordinates);
@@ -52,9 +57,14 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
                return new ImageInfo();
 
             var firstImage = accommodation.Images.First();
+            
+            var firstImageUrl = _imageManagementService.GetImageUrl(firstImage.LargeImageURL);
             firstImage.Description.TryGetValueOrDefault(languageCode, out var caption);
 
-            return new ImageInfo(firstImage.LargeImageURL, caption); 
+            return new ImageInfo(firstImageUrl, caption); 
         }
+        
+        
+        private readonly IImageManagementService _imageManagementService;
     }
 }

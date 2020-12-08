@@ -4,7 +4,7 @@ using HappyTravel.VaultClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace HappyTravel.Hiroshima.Common.Infrastructure
+namespace HappyTravel.Hiroshima.Common.Infrastructure.Utilities
 {
     public static class VaultHelper
     {

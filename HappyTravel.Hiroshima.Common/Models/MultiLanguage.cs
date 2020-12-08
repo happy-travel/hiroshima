@@ -1,6 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text.Json.Serialization;
 using HappyTravel.Hiroshima.Common.Constants;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Hiroshima.Common.Models
 {
@@ -57,19 +61,21 @@ namespace HappyTravel.Hiroshima.Common.Models
             return value;
         }
         
-        
+        [JsonPropertyName("ar")]
         public T Ar
         {
             get => GetValue(DcLanguages.Arabic);
             set => SetValue(DcLanguages.Arabic, value);
         }
         
+        [JsonPropertyName("en")]
         public T En
         {
             get => GetValue(DcLanguages.English);
             set => SetValue(DcLanguages.English, value);
         }
         
+        [JsonPropertyName("ru")]
         public T Ru
         {
             get => GetValue(DcLanguages.Russian);
@@ -77,6 +83,25 @@ namespace HappyTravel.Hiroshima.Common.Models
         }
 
         
+        public override bool Equals(object? obj) => obj is MultiLanguage<T> other && Equals(other);
+
+
+        public bool Equals(MultiLanguage<T> other) 
+            => JsonConvert.SerializeObject(this).Equals(JsonConvert.SerializeObject(other,_serializeSettings));
+
+
+        public override int GetHashCode() => HashCode.Combine(JsonConvert.SerializeObject(this, _serializeSettings));
+            
+       
         private readonly Dictionary<DcLanguages, T> _languageStore = new Dictionary<DcLanguages, T>();
+        
+        
+        private readonly JsonSerializerSettings _serializeSettings = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            NullValueHandling = NullValueHandling.Ignore,
+            MaxDepth = 5,
+            Culture = CultureInfo.InvariantCulture
+        };
     }
 }
