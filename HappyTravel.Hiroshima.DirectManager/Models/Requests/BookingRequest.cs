@@ -6,11 +6,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
 {
     public class BookingRequest
     {
-        public BookingRequest()
-        {
-            
-        }
-        
         public List<BookingStatuses> BookingStatuses { get; set; }
         
         public List<int> AccommodationIds { get; set; } = new List<int>();
