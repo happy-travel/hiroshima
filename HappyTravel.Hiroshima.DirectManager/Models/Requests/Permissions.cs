@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
 {
-    public class ManagerPermissions
+    public class Permissions
     {
-        public ManagerPermissions Permissions { get; set; }
+        public ManagerPermissions ManagerPermissions { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.DirectManager.Services;
@@ -18,20 +19,71 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
             _managerManagementService = managerManagementService;
             _identityHttpClient = identityHttpClient;
         }
-        
-        
+
+
         /// <summary>
-        /// Registers a manager
+        /// Retrieves current manager's data
         /// </summary>
-        /// <param name="manager"></param>
         /// <returns></returns>
-        [HttpPost]
+        [HttpGet]
+        [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ManagerContext), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetManager()
+        {
+            var (_, isFailure, response, error) = await _managerManagementService.Get();
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
+        }
+
+
+        /// <summary>
+        /// Retrieves data for manager ID
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("{managerId}")]
+        [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ManagerContext), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetManager([FromRoute] int managerId)
+        {
+            var (_, isFailure, response, error) = await _managerManagementService.Get(managerId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
+        }
+
+
+        /// <summary>
+        /// Retrieves current manager's service supplers list
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("service-suppliers")]
+        [ProducesResponseType(typeof(List<HappyTravel.Hiroshima.DirectManager.Models.Responses.ServiceSupplier>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetServiceSuppliers()
+        {
+            var (_, isFailure, response, error) = await _managerManagementService.GetServiceSuppliers();
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
+        }
+
+
+        /// <summary>
+        /// Registers master manager with service supplier
+        /// </summary>
+        /// <param name="managerWithServiceSupplier">Master manager with service supplier request</param>
+        /// <returns></returns>
+        [HttpPost("register-master")]
         [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ManagerContext), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> AddManager([FromBody] Hiroshima.DirectManager.Models.Requests.Manager manager)
+        public async Task<IActionResult> RegisterManagerWithServiceSupplier([FromBody] Hiroshima.DirectManager.Models.Requests.ManagerWithServiceSupplier managerWithServiceSupplier)
         {
             var (_, isFailure, response, error) = await GetEmailFromIdentity()
-                .Bind(email => _managerManagementService.Register(manager, email));
+                .Bind(email => _managerManagementService.RegisterWithServiceSupplier(managerWithServiceSupplier, email));
             
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -51,50 +103,46 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
 
         /// <summary>
-        /// Registers a service supplier
+        /// Registers regular manager
+        /// </summary>
+        /// <param name="manager"></param>
+        /// <returns></returns>
+        [HttpPost("register")]
+        [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ManagerContext), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> RegisterInvitedManager([FromBody] Hiroshima.DirectManager.Models.Requests.Manager manager)
+        {
+            var (_, isFailure, response, error) = await GetEmailFromIdentity()
+                .Bind(email => _managerManagementService.RegisterInvited(manager, email));
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
+
+
+            async Task<Result<string>> GetEmailFromIdentity()
+            {
+                var email = await _identityHttpClient.GetEmail();
+
+                return string.IsNullOrEmpty(email)
+                    ? Result.Failure<string>("Failed to get the email claim")
+                    : Result.Success(email);
+            }
+        }
+
+
+        /// <summary>
+        /// Update service supplier data
         /// </summary>
         /// <param name="serviceSupplier"></param>
         /// <returns></returns>
-        [HttpPost("service-supplier")]
+        [HttpPut("service-supplier")]
         [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ServiceSupplier), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> AddServiceSupplier([FromBody] Hiroshima.DirectManager.Models.Requests.ServiceSupplier serviceSupplier)
         {
-            var (_, isFailure, response, error) = await _managerManagementService.RegisterServiceSupplier(serviceSupplier);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok(response);
-        }
-
-
-        /// <summary>
-        /// Retrieves current manager's data
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet]
-        [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ManagerContext), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetManager()
-        {
-            var (_, isFailure, response, error) = await _managerManagementService.Get();
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-            
-            return Ok(response);
-        }
-
-
-        /// <summary>
-        /// Retrieves data for manager ID
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("{managerId}")]
-        [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ManagerContext), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetManager([FromRoute] int managerId)
-        {
-            var (_, isFailure, response, error) = await _managerManagementService.Get(managerId);
+            var (_, isFailure, response, error) = await _managerManagementService.ModifyServiceSupplier(serviceSupplier);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -126,10 +174,10 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="managerId"></param>  
         /// <param name="managerPermissions"></param>  
         /// <returns></returns>
-        [HttpPut("managerId/permissions")]
+        [HttpPut("{managerId}/permissions")]
         [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ManagerContext), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> ModifyManagerPermissions([FromRoute] int managerId, [FromBody] Hiroshima.DirectManager.Models.Requests.ManagerPermissions managerPermissions)
+        public async Task<IActionResult> ModifyManagerPermissions([FromRoute] int managerId, [FromBody] Hiroshima.DirectManager.Models.Requests.Permissions managerPermissions)
         {
             var (_, isFailure, response, error) = await _managerManagementService.ModifyPermissions(managerId, managerPermissions);
             if (isFailure)
