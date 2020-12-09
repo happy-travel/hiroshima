@@ -237,6 +237,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return _managerContext.GetManagerRelation()
                 .Ensure(managerRelation => DoesManagerHasChangeManagerPermission(managerRelation).Value, "The manager does not have enough rights")
+                .Check(managerRelation => IsRequestValid(permissionsRequest))
                 .Bind(managerRelation => UpdatePermissions(managerRelation.ServiceSupplierId))
                 .Map(Build);
 
