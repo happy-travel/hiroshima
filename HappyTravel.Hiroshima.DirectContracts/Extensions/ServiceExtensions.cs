@@ -34,7 +34,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Extensions
             services.AddTransient<IPaymentDetailsService, PaymentDetailsService>();
             services.AddTransient<ICancellationPolicyService, CancellationPolicyService>();
             services.AddTransient<IAvailabilityDataStorage, AvailabilityDataStorage>();
-            services.AddSingleton<IAvailabilityIdGenerator, AvailabilityIdGenerator>();
+            services.AddSingleton<IAvailabilityHashGenerator, AvailabilityHashGenerator>();
             services.AddTransient<IRateDetailsSetGenerator, RateDetailsSetGenerator>();
             
             return services;
