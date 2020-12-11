@@ -75,14 +75,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
         {
             return _contractManagerContext.GetContractManager()
                 .BindWithTransaction(_dbContext, manager 
-                    => TryConfirm(manager).Bind(SendBookingStatusToWebhook));
+                    => Confirm(manager).Bind(SendStatusUpdate));
 
 
-            Task<Result<BookingOrder>> TryConfirm(ContractManager manager) 
+            Task<Result<BookingOrder>> Confirm(ContractManager manager) 
                 => _bookingService.Confirm(bookingId, manager.Id);
 
 
-            Task<Result> SendBookingStatusToWebhook(BookingOrder bookingOrder)
+            Task<Result> SendStatusUpdate(BookingOrder bookingOrder)
                 => _bookingWebhookService.Send(bookingOrder.ReferenceCode, bookingOrder.Status);
         }
         
