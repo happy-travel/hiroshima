@@ -32,7 +32,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpGet]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.Bookings.BookingOrder>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetBookings([FromQuery] DateTime fromDate, [FromQuery] DateTime toDate, [FromQuery] List<BookingStatuses> bookingStatuses, [FromQuery] List<int> accommodationIds, [FromQuery] int skip = 0, [FromQuery] int top = 100)
+        public async Task<IActionResult> Get([FromQuery] DateTime fromDate, [FromQuery] DateTime toDate, [FromQuery] List<BookingStatuses> bookingStatuses, [FromQuery] List<int> accommodationIds, [FromQuery] int skip = 0, [FromQuery] int top = 100)
         {
             var bookingRequest = SetBookingRequest();
             var (_, isFailure, response, error) = await _bookingManagementService.GetBookingOrders(bookingRequest, skip, top, LanguageCode);
@@ -71,7 +71,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpPost("{bookingId}/confirm")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> Get([FromRoute] Guid bookingId)
+        public async Task<IActionResult> Confirm([FromRoute] Guid bookingId)
         {
             var (_, isFailure, error) = await _bookingManagementService.ConfirmBookingOrder(bookingId);
             if (isFailure)

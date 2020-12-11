@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Models.Enums;
@@ -15,8 +17,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
     {
         public BookingWebhookService(BookingWebhookClient bookingWebhookClient, IOptions<BookingWebhookOptions> bookingWebhookOptions)
         {
-            _bookingWebhookOptions = bookingWebhookOptions.Value;
             _bookingWebhookClient = bookingWebhookClient;
+            _bookingWebhookOptions = bookingWebhookOptions.Value;
         }
 
         
@@ -27,6 +29,17 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
             return _bookingWebhookClient.Send(webhookData);
         }
 
+
+        public async Task<Result<BookingWebhookData>> Get(Stream stream)
+        {
+            using var readStream = new StreamReader(stream, Encoding.UTF8);
+            var json = await readStream.ReadToEndAsync();
+            var webhookData = JsonSerializer.Deserialize<BookingWebhookData>(json);
+            
+            return IsWebhookDataValid(webhookData)
+                ? Result.Success(webhookData)
+                : Result.Failure<BookingWebhookData>("Invalid webhook signature");
+        }
         
         private BookingWebhookData CreateWebhookData(string bookingReferenceCode, BookingStatuses bookingStatus)
         {
@@ -39,7 +52,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
                     Status = bookingStatus,
                     ReferenceCode = bookingReferenceCode
                 },
-                Signature = CalculateSignature(timestamp)
+                Signature = CalculateSignature(timestamp),
+                Timestamp = timestamp
             };
         }
         
@@ -55,7 +69,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
         }
 
 
-        public bool IsSignatureValid(string signature, long timestamp)
+        private bool IsWebhookDataValid(BookingWebhookData webhookData) => IsSignatureValid(webhookData.Signature, webhookData.Timestamp);
+        
+        
+        private bool IsSignatureValid(string signature, long timestamp)
         {
             var keyBytes = Encoding.ASCII.GetBytes(_bookingWebhookOptions.Key);
             var messageBytes = Encoding.ASCII.GetBytes(_bookingWebhookOptions.Key + timestamp);

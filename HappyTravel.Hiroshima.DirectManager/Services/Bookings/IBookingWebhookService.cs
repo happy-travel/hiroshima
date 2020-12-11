@@ -1,6 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System.IO;
+using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Enums;
+using HappyTravel.Hiroshima.DirectManager.Models.Webhooks.Bookings;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
 {
@@ -8,6 +11,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
     {
         Task<Result> Send(string bookingReferenceCode, BookingStatuses bookingStatus);
 
-        bool IsSignatureValid(string signature, long timestamp);
+        Task<Result<BookingWebhookData>> Get(Stream stream);
     }
 }
