@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -10,17 +11,20 @@ using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Availabilities;
 using HappyTravel.Hiroshima.Common.Models.Bookings;
 using HappyTravel.Hiroshima.Data;
+using HappyTravel.Hiroshima.DirectContracts.Extensions.FunctionalExtensions;
 using Microsoft.EntityFrameworkCore;
 using PaymentDetails = HappyTravel.Hiroshima.DirectManager.Models.Responses.Bookings.PaymentDetails;
 using RateDetails = HappyTravel.Hiroshima.Common.Models.Availabilities.RateDetails;
 
-namespace HappyTravel.Hiroshima.DirectManager.Services
+namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
 {
     public class BookingManagementService : IBookingManagementService
     {
-        public BookingManagementService(IContractManagerContextService contractManagerContext, DirectContractsDbContext  dbContext)
+        public BookingManagementService(IContractManagerContextService contractManagerContext, DirectContracts.Services.IBookingService bookingService, IBookingWebhookService bookingWebhookService, DirectContractsDbContext dbContext)
         {
+            _bookingService = bookingService;
             _contractManagerContext = contractManagerContext;
+            _bookingWebhookService = bookingWebhookService;
             _dbContext = dbContext;
         }
         
@@ -64,6 +68,22 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     .Take(top)
                     .ToListAsync();
             }
+        }
+
+
+        public Task<Result> ConfirmBookingOrder(Guid bookingId)
+        {
+            return _contractManagerContext.GetContractManager()
+                .BindWithTransaction(_dbContext, manager 
+                    => TryConfirm(manager).Bind(SendBookingStatusToWebhook));
+
+
+            Task<Result<BookingOrder>> TryConfirm(ContractManager manager) 
+                => _bookingService.Confirm(bookingId, manager.Id);
+
+
+            Task<Result> SendBookingStatusToWebhook(BookingOrder bookingOrder)
+                => _bookingWebhookService.Send(bookingOrder.ReferenceCode, bookingOrder.Status);
         }
         
         
@@ -132,7 +152,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
         
         
+        private readonly DirectContracts.Services.IBookingService _bookingService;
         private readonly IContractManagerContextService _contractManagerContext;
         private readonly DirectContractsDbContext _dbContext;
+        private readonly IBookingWebhookService _bookingWebhookService;
     }
 }

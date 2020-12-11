@@ -2,13 +2,13 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Hiroshima.Common.Infrastructure.Extensions.Extensions.FunctionalExensions;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Availabilities;
 using HappyTravel.Hiroshima.Common.Models.Enums;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
+using HappyTravel.Hiroshima.DirectContracts.Extensions.FunctionalExtensions;
 using HappyTravel.Hiroshima.DirectContracts.Services.Availability;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,14 +24,23 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
         }
 
 
-        public async Task<Result<Common.Models.Bookings.BookingOrder>> Get(string referenceCode)
+        public Task<Result<Common.Models.Bookings.BookingOrder>> Get(string referenceCode)
+            => Get(_dbContext.BookingOrders.Where(bo => bo.ReferenceCode.Equals(referenceCode)));
+
+
+        public Task<Result<Common.Models.Bookings.BookingOrder>> Get(Guid bookingId, int managerId)
+            => Get(_dbContext.BookingOrders.Where(bo => bo.Id.Equals(bookingId) && bo.ContractManagerId.Equals(managerId)));
+           
+        
+        private async Task<Result<Common.Models.Bookings.BookingOrder>> Get(IQueryable<Common.Models.Bookings.BookingOrder> source)
         {
-            var bookingOrder = await _dbContext.BookingOrders.SingleOrDefaultAsync(bo => bo.ReferenceCode.Equals(referenceCode));
+            var bookingOrder = await source.SingleOrDefaultAsync();
+            
             return bookingOrder == null
-                ? Result.Failure<Common.Models.Bookings.BookingOrder>($"Failed to retrieve the booking order with the reference code '{referenceCode}'")
+                ? Result.Failure<Common.Models.Bookings.BookingOrder>($"Failed to retrieve the booking order")
                 : Result.Success(bookingOrder);
         }
-
+        
 
         public async Task<Result<Common.Models.Bookings.BookingOrder>> Book(EdoContracts.Accommodations.BookingRequest bookingRequest, EdoContracts.Accommodations.AvailabilityRequest availabilityRequest, string languageCode)
         {
@@ -40,7 +49,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
                     .Map(CreateBookingEntry)
                     .Map(AddBookingEntry)
                     .Bind(AddRoomOccupancy));
-                
+            
             
             async Task<Result<string>> GetRequiredHash()
             {
@@ -163,6 +172,40 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
             }
         }
 
+
+        public Task<Result<Common.Models.Bookings.BookingOrder>> Confirm(Guid bookingId, int managerId)
+        {
+            return Get(bookingId, managerId)
+                .Ensure(IsBookingStatusValid, $"Failed to confirm the booking order with id '{bookingId}'")
+                .Ensure(IsDateValid, "Check-in date less or equal the current date")
+                .Map(bookingOrder => SetStatus(bookingOrder, BookingStatuses.Confirmed));
+            
+            
+            bool IsBookingStatusValid(Common.Models.Bookings.BookingOrder bookingOrder) 
+                => bookingOrder.Status == BookingStatuses.WaitingForConfirmation;
+
+
+            bool IsDateValid(Common.Models.Bookings.BookingOrder bookingOrder) 
+                => DateTime.UtcNow.Date <= bookingOrder.CheckInDate.Date;
+        }
+
+        
+        private Task<Common.Models.Bookings.BookingOrder> SetStatus(Common.Models.Bookings.BookingOrder bookingOrder, BookingStatuses status)
+        {
+            bookingOrder.Modified = DateTime.UtcNow;
+            bookingOrder.Status = status;
+            return Update(bookingOrder);
+        }
+        
+        
+        private async Task<Common.Models.Bookings.BookingOrder> Update(Common.Models.Bookings.BookingOrder bookingOrder)
+        {
+            var entry = _dbContext.BookingOrders.Update(bookingOrder);
+            await _dbContext.SaveChangesAsync();
+            _dbContext.DetachEntry(entry.Entity);
+            return entry.Entity;
+        }
+        
 
         private readonly DirectContractsDbContext _dbContext;
         private readonly IAvailabilityDataStorage _availabilityDataStorage;
