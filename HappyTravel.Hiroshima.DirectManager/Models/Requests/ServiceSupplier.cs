@@ -15,7 +15,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
         [Required]
         public string Address { get; set; }
 
-        [Required]
         public string PostalCode { get; set; }
 
         [Required]

@@ -14,8 +14,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         Task<Result<Models.Responses.ManagerContext>> RegisterWithServiceSupplier(Models.Requests.ManagerWithServiceSupplier managerWithServiceSupplierRequest, string email);
 
-        Task<Result<Models.Responses.ManagerContext>> RegisterInvited(Models.Requests.Manager managerRequest, string email);
-
         Task<Result<Models.Responses.ManagerContext>> Modify(Models.Requests.Manager managerRequest);
 
         Task<Result<Models.Responses.ManagerContext>> ModifyPermissions(int managerId, Models.Requests.Permissions managerPermissionsRequest);

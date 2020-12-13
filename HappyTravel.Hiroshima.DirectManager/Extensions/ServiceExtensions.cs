@@ -23,6 +23,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Extensions
             services.AddTransient<IAmenityService, AmenityService>();
             services.AddScoped<IManagerContextService, ManagerContextService>();
             services.AddTransient<IManagerManagementService, ManagerManagementService>();
+            services.AddTransient<IManagerRegistrationService, ManagerRegistrationService>();
+            services.AddTransient<IManagerInvitationService, ManagerInvitationService>();
+            services.AddTransient<INotificationService, NotificationService>();
             services.AddScoped<ITokenInfoAccessor, TokenInfoAccessor>();
             services.AddTransient<IBookingManagementService, BookingManagementService>();
             services.AddNameNormalizationServices();

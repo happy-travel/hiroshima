@@ -51,6 +51,7 @@ namespace HappyTravel.Hiroshima.WebApi
             var redisEndpoint = Configuration[Configuration["Redis:Endpoint"]];
             var amazonS3DocumentsOptions = VaultHelper.GetOptions(vaultClient, "DirectContracts:AmazonS3:Documents", Configuration);
             var amazonS3ImagesOptions = VaultHelper.GetOptions(vaultClient, "DirectContracts:AmazonS3:Images", Configuration);
+            var mailSenderOptions = VaultHelper.GetOptions(vaultClient, "DirectContracts:Email", Configuration);
 
             services.AddDirectContractsServices(dbConnectionString);
             services.AddDirectManagerServices();
@@ -87,7 +88,11 @@ namespace HappyTravel.Hiroshima.WebApi
                  {
                      options.AmazonS3Bucket = amazonS3ImagesOptions["bucket"];
                      options.AmazonS3RegionEndpoint = amazonS3ImagesOptions["regionEndpoint"];
-                 });
+                 })
+                .Configure<NotificationServiceOptions>(options =>
+                {
+                    options.RegularManagerMailTemplateId = mailSenderOptions["regularManagerRegistrationTemplateId"];
+                });
 
             services.AddHealthChecks()
                 .AddCheck<ControllerResolveHealthCheck>(nameof(ControllerResolveHealthCheck))
@@ -118,7 +123,7 @@ namespace HappyTravel.Hiroshima.WebApi
                 options.Conventions.Insert(0, new LocalizationConvention());
                 options.Conventions.Add(new AuthorizeControllerModelConvention());
                 options.Filters.Add(new MiddlewareFilterAttribute(typeof(LocalizationPipelineFilter)));
-                    options.Filters.Add(typeof(ModelValidationFilter));
+                options.Filters.Add(typeof(ModelValidationFilter));
             })
             .AddAuthorization()
             .AddControllersAsServices()

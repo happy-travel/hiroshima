@@ -12,11 +12,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class ManagerManagementService : IManagerManagementService
     {
-        public ManagerManagementService(IManagerContextService managerContextService, IServiceSupplierContextService serviceSupplierContextService,
-            DirectContractsDbContext dbContext)
+        public ManagerManagementService(IManagerContextService managerContextService, DirectContractsDbContext dbContext)
         {
             _managerContext = managerContextService;
-            _serviceSupplierContext = serviceSupplierContextService;
             _dbContext = dbContext;
         }
 
@@ -84,14 +82,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                  .Bind(AddManager)
                  .Bind(AddServiceSupplierAndRelation)
                  .Map(Build);
-
-
-            Result CheckIdentityHashNotEmpty()
-            {
-                return string.IsNullOrEmpty(_managerContext.GetIdentityHash())
-                    ? Result.Failure("Failed to get the sub claim")
-                    : Result.Success();
-            }
 
 
             async Task<bool> DoesManagerNotExist() => !await _managerContext.DoesManagerExist();
@@ -196,10 +186,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<Models.Responses.ManagerContext>> RegisterInvited(Models.Requests.Manager managerRequest, string email)
-        {
-            throw new NotImplementedException();
-        }
 
 
         public Task<Result<Models.Responses.ManagerContext>> Modify(Models.Requests.Manager managerRequest)
@@ -293,6 +279,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
+        private Result CheckIdentityHashNotEmpty()
+        {
+            return string.IsNullOrEmpty(_managerContext.GetIdentityHash())
+                ? Result.Failure("Manager should have identity")
+                : Result.Success();
+        }
+
+
         private Common.Models.ManagerContext CollectManagerContext(Common.Models.Manager manager, Common.Models.ManagerServiceSupplierRelation managerRelation)
         {
             return new Common.Models.ManagerContext
@@ -362,7 +356,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         private readonly IManagerContextService _managerContext;
-        private readonly IServiceSupplierContextService _serviceSupplierContext;
         private readonly DirectContractsDbContext _dbContext;
     }
 }

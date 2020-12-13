@@ -105,6 +105,19 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
+        public async Task<Result<Manager>> GetMasterManager(int serviceSupplierId)
+        {
+            var managerRelation = await _dbContext.ManagerServiceSupplierRelations
+                .SingleOrDefaultAsync(relation => relation.ServiceSupplierId == serviceSupplierId && relation.IsMaster == true && relation.IsActive == true);
+
+            var manager = await _dbContext.Managers.SingleOrDefaultAsync(manager => manager.Id == managerRelation.ManagerId);
+
+            return manager is null
+                ? Result.Failure<Manager>("Master manager does not exist")
+                : Result.Success(manager);
+        }
+
+
         private readonly DirectContractsDbContext _dbContext;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
     }

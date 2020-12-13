@@ -14,9 +14,11 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
     [Produces("application/json")]
     public class ManagerController : ControllerBase
     {
-        public ManagerController(IManagerManagementService managerManagementService, IdentityHttpClient identityHttpClient)
+        public ManagerController(IManagerManagementService managerManagementService, IManagerRegistrationService managerRegistrationService, 
+            IdentityHttpClient identityHttpClient)
         {
             _managerManagementService = managerManagementService;
+            _managerRegistrationService = managerRegistrationService;
             _identityHttpClient = identityHttpClient;
         }
 
@@ -105,15 +107,15 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <summary>
         /// Registers regular manager
         /// </summary>
-        /// <param name="manager"></param>
+        /// <param name="managerInfo">Invited manager info</param>
         /// <returns></returns>
         [HttpPost("register")]
         [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ManagerContext), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> RegisterInvitedManager([FromBody] Hiroshima.DirectManager.Models.Requests.Manager manager)
+        public async Task<IActionResult> RegisterInvitedManager([FromBody] Hiroshima.DirectManager.Models.Requests.ManagerInfo managerInfo)
         {
             var (_, isFailure, response, error) = await GetEmailFromIdentity()
-                .Bind(email => _managerManagementService.RegisterInvited(manager, email));
+                .Bind(email => _managerRegistrationService.RegisterInvited(managerInfo, "", email));
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -189,5 +191,6 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
         private readonly IdentityHttpClient _identityHttpClient;
         private readonly IManagerManagementService _managerManagementService;
+        private readonly IManagerRegistrationService _managerRegistrationService;
     }
 }

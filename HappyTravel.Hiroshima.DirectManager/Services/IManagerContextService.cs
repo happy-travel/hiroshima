@@ -17,5 +17,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         Task<Result<ManagerServiceSupplierRelation>> GetManagerRelation();
 
         Task<Result<ManagerContext>> GetManagerContext();
+
+        Task<Result<Manager>> GetMasterManager(int serviceSupplierId);
     }
 }
