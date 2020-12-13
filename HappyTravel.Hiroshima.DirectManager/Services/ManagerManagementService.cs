@@ -177,10 +177,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     await _dbContext.SaveChangesAsync();
                     _dbContext.DetachEntry(entry.Entity);
 
-                    return new Common.Models.ManagerContext
-                    {
-
-                    };
+                    return CollectManagerContext(manager, entry.Entity);
                 }
             }
         }
