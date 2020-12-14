@@ -311,9 +311,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private static ManagerContext CollectManagerContext(Manager manager, ManagerServiceSupplierRelation managerRelation)
-        {
-            return new ManagerContext
+        private static ManagerContext CollectManagerContext(Manager manager, ManagerServiceSupplierRelation managerRelation) 
+            => new ManagerContext
             {
                 Id = manager.Id,
                 FirstName = manager.FirstName,
@@ -327,9 +326,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 ManagerPermissions = managerRelation.ManagerPermissions,
                 IsMaster = managerRelation.IsMaster
             };
-        }
-        
-        
+
+
         private static Models.Responses.ManagerContext Build(Common.Models.ManagerContext managerContext)
             => new Models.Responses.ManagerContext(managerContext.FirstName,
                 managerContext.LastName,
