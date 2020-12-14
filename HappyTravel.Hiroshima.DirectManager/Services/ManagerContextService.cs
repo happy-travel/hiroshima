@@ -37,12 +37,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result<ServiceSupplier>> GetServiceSupplier()
         {
-            var manager = GetManager();
-            if (manager.Result.IsFailure)
-                return Result.Failure<ServiceSupplier>(manager.Result.Error);
+            var manager = await GetManager();
+            if (manager.IsFailure)
+                return Result.Failure<ServiceSupplier>(manager.Error);
 
             // TODO: now we find only one service supplier. Need change in next tasks
-            var managerRelation = await _dbContext.ManagerServiceSupplierRelations.SingleOrDefaultAsync(relation => relation.ManagerId == manager.Result.Value.Id);
+            var managerRelation = await _dbContext.ManagerServiceSupplierRelations.SingleOrDefaultAsync(relation => relation.ManagerId == manager.Value.Id);
             if (managerRelation is null)
                 return Result.Failure<ServiceSupplier>("Manager has no relations with service suppliers");
 
