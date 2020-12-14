@@ -4,7 +4,6 @@ using HappyTravel.EdoContracts.Extensions;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefinitions;
-using HappyTravel.Hiroshima.Common.Models.Bookings;
 using HappyTravel.Hiroshima.Common.Models.Enums;
 using HappyTravel.Hiroshima.Common.Models.Images;
 using NetTopologySuite.Geometries;

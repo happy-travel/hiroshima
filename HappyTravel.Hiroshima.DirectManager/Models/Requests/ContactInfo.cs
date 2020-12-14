@@ -1,12 +1,14 @@
 ﻿
+using System.Collections.Generic;
+
 namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
 {
     public class ContactInfo
     {
-        public string Email { get; set; }
+        public List<string> Emails { get; set; }
         
-        public string Phone { get; set; }
+        public List<string> Phones { get; set; } 
         
-        public string Website { get; set; }
+        public List<string> Websites { get; set; }
     }
 }
