@@ -35,7 +35,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Tap(LogSuccess)
                 .Bind(GetMasterManager)
                 .Bind(SendRegistrationMailToMaster)
-                .OnFailure(LogFailed);
+                .OnFailure(LogFailed)
+                .Map(Build);
 
 
             Task<Result<Models.Requests.ManagerInvitation>> GetPendingInvitation() => _managerInvitationService.GetPendingInvitation(invitationCode);
@@ -128,24 +129,35 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
 
 
-            Result<Models.Requests.ManagerInvitation> LogSuccess(Models.Requests.ManagerInvitation managerInvitation)
+            void LogSuccess(ManagerContext managerContext)
             {
-                //_logger.LogAgentRegistrationSuccess($"Manager {email} successfully registered and bound to service supplier ID:'{managerInvitation.ServiceSupplierId}'");
-                return Result.Success(managerInvitation);
+                //_logger.LogAgentRegistrationSuccess($"Manager {email} successfully registered and bound to service supplier ID:'{managerContext.ServiceSupplierId}'");
             }
 
 
-            Task<Result<Common.Models.Manager>> GetMasterManager(Models.Requests.ManagerInvitation managerInvitation)
-                => _managerContext.GetMasterManager(managerInvitation.ServiceSupplierId);
-
-
-            async Task<Result> SendRegistrationMailToMaster(Common.Models.Manager masterManager)
+            async Task<Result<(ManagerContext, Manager)>> GetMasterManager(ManagerContext managerContext)
             {
-                var serviceSupplier = await _dbContext.ServiceSuppliers.SingleOrDefaultAsync(serviceSupplier => serviceSupplier.Id == 1);   // TODO: Need id service supplier
-                if (serviceSupplier is null)
-                    return Result.Failure("Service supplier not found");
+                var masterManager = await _managerContext.GetMasterManager(managerContext.ServiceSupplierId);
+                if (masterManager.IsFailure)
+                    return Result.Failure<(ManagerContext, Manager)>(masterManager.Error);
 
-                return await _notificationService.SendRegistrationConfirmation(masterManager.Email, managerInfoRequest, serviceSupplier.Name);
+                return Result.Success((managerContext, masterManager.Value));
+            }
+
+
+            async Task<Result<ManagerContext>> SendRegistrationMailToMaster((ManagerContext, Manager) registrationData)
+            {
+                var (managerContext, masterManager) = registrationData;
+
+                var serviceSupplier = await _dbContext.ServiceSuppliers.SingleOrDefaultAsync(serviceSupplier => serviceSupplier.Id == managerContext.ServiceSupplierId); 
+                if (serviceSupplier is null)
+                    return Result.Failure<ManagerContext>("Service supplier not found");
+
+                var sendResult = await _notificationService.SendRegistrationConfirmation(masterManager.Email, managerInfoRequest, serviceSupplier.Name);
+                if (sendResult.IsFailure)
+                    return Result.Failure<ManagerContext>(sendResult.Error);
+
+                return Result.Success(managerContext);
             }
 
 
@@ -202,6 +214,19 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 IsMaster = managerRelation.IsMaster
             };
         }
+        
+        
+        private static Models.Responses.ManagerContext Build(Common.Models.ManagerContext managerContext)
+            => new Models.Responses.ManagerContext(managerContext.FirstName,
+        managerContext.LastName,
+        managerContext.Title,
+        managerContext.Position,
+        managerContext.Email,
+        managerContext.Phone,
+        managerContext.Fax,
+        managerContext.ServiceSupplierId,
+        managerContext.ManagerPermissions,
+        managerContext.IsMaster);
 
 
         private readonly IManagerContextService _managerContext;

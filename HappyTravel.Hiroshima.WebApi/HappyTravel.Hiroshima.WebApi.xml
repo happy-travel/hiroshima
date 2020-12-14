@@ -421,11 +421,11 @@
             <param name="managerWithServiceSupplier">Master manager with service supplier request</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.RegisterInvitedManager(HappyTravel.Hiroshima.DirectManager.Models.Requests.Manager)">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.RegisterInvitedManager(HappyTravel.Hiroshima.DirectManager.Models.Requests.ManagerInfo)">
             <summary>
             Registers regular manager
             </summary>
-            <param name="manager"></param>
+            <param name="managerInfo">Invited manager info</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.AddServiceSupplier(HappyTravel.Hiroshima.DirectManager.Models.Requests.ServiceSupplier)">
