@@ -187,7 +187,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                         LastName = managerInfoRequest.LastName,
                         Position = managerInfoRequest.Position,
                         Email = email,
-                        //IdentityHash = HashGenerator.ComputeSha256(externalIdentity),
+                        //IdentityHash = HashGenerator.ComputeSha256(externalIdentity), TODO: Will be done in the next task
                         Created = DateTime.UtcNow
                     };
 

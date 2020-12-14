@@ -1,6 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Models;
-using System;
 using System.Threading.Tasks;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
@@ -11,7 +10,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return Result.Success(new CompanyInfo 
             {
-                Name = "HappyTravelDotCom Travel and Tourism LLC",
+                Name = "HappyTravelDotCom Travel and Tourism LLC",  // TODO: Later we will use Consul for receive this data
                 Address = "B105, Saraya Avenue building",
                 Country = "United Arab Emirates",
                 City = "Dubai",
