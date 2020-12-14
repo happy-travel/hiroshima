@@ -10,6 +10,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         Task<Result<List<Models.Responses.Bookings.BookingOrder>>> GetBookingOrders(Models.Requests.BookingRequest bookingRequest, int skip, int top,
             string languageCode);
 
-        Task<Result> ConfirmBookingOrder(Guid bookingId);
+        Task<Result> ConfirmBooking(Guid bookingId);
+        
+        Task<Result> TryCancel(Guid bookingId);
+        
+        Task<Result> ConfirmCancellation(Guid bookingId);
+        
     }
 }
