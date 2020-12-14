@@ -20,7 +20,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             var identityHash = GetIdentityHash();
 
-            var manager = await _dbContext.Managers.SingleOrDefaultAsync(manager => manager.IsActive && manager.IdentityHash  == identityHash);
+            var manager = await _dbContext.Managers.SingleOrDefaultAsync(manager => manager.IsActive && manager.IdentityHash == identityHash);
 
             return manager is null
                 ? Result.Failure<Manager>("Failed to retrieve a contract manager") 
