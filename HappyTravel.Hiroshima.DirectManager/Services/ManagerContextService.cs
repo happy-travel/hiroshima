@@ -15,6 +15,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             _tokenInfoAccessor = tokenInfoAccessor;
         }
 
+
         public async Task<Result<Manager>> GetManager()
         {
             var identityHash = GetIdentityHash();
