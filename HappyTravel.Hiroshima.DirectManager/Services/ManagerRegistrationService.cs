@@ -39,16 +39,16 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             async Task<bool> DoesManagerNotExist() => !await _managerContext.DoesManagerExist();
 
 
-            async Task<Result<Common.Models.Manager>> AddManager()
+            async Task<Result<Manager>> AddManager()
             {
                 return await Create()
                     .Bind(Add);
 
 
-                Result<Common.Models.Manager> Create()
+                Result<Manager> Create()
                 {
                     var utcNowDate = DateTime.UtcNow;
-                    return new Common.Models.Manager
+                    return new Manager
                     {
                         IdentityHash = _managerContext.GetIdentityHash(),
                         Email = email,
@@ -65,7 +65,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 }
 
 
-                async Task<Result<Common.Models.Manager>> Add(Common.Models.Manager manager)
+                async Task<Result<Manager>> Add(Manager manager)
                 {
                     var entry = _dbContext.Managers.Add(manager);
                     await _dbContext.SaveChangesAsync();
@@ -76,7 +76,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
 
 
-            async Task<Result<Common.Models.ManagerContext>> AddServiceSupplierAndRelation(Common.Models.Manager manager)
+            async Task<Result<ManagerContext>> AddServiceSupplierAndRelation(Manager manager)
             {
                 return await CreateServiceSupplier()
                     .Bind(AddServiceSupplier)
@@ -84,10 +84,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     .Bind(AddRelation);
 
 
-                Result<Common.Models.ServiceSupplier> CreateServiceSupplier()
+                Result<ServiceSupplier> CreateServiceSupplier()
                 {
                     var utcNowDate = DateTime.UtcNow;
-                    return new Common.Models.ServiceSupplier
+                    return new ServiceSupplier
                     {
                         Name = managerRequest.ServiceSupplier.Name,
                         Address = managerRequest.ServiceSupplier.Address,
@@ -100,7 +100,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 }
 
 
-                async Task<Result<Common.Models.ServiceSupplier>> AddServiceSupplier(Common.Models.ServiceSupplier serviceSupplier)
+                async Task<Result<ServiceSupplier>> AddServiceSupplier(ServiceSupplier serviceSupplier)
                 {
                     var entry = _dbContext.ServiceSuppliers.Add(serviceSupplier);
                     await _dbContext.SaveChangesAsync();
@@ -110,20 +110,18 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 }
 
 
-                Result<Common.Models.ManagerServiceSupplierRelation> CreateRelation(Common.Models.ServiceSupplier serviceSupplier)
-                {
-                    return new Common.Models.ManagerServiceSupplierRelation
+                Result<ManagerServiceSupplierRelation> CreateRelation(ServiceSupplier serviceSupplier) 
+                    => new ManagerServiceSupplierRelation
                     {
                         ManagerId = manager.Id,
-                        ManagerPermissions = Common.Models.Enums.ManagerPermissions.All,
+                        ManagerPermissions = ManagerPermissions.All,
                         ServiceSupplierId = serviceSupplier.Id,
                         IsMaster = true,
                         IsActive = true
                     };
-                }
 
 
-                async Task<Result<Common.Models.ManagerContext>> AddRelation(Common.Models.ManagerServiceSupplierRelation managerRelation)
+                async Task<Result<ManagerContext>> AddRelation(ManagerServiceSupplierRelation managerRelation)
                 {
                     var entry = _dbContext.ManagerServiceSupplierRelations.Add(managerRelation);
                     await _dbContext.SaveChangesAsync();
@@ -210,10 +208,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 }
 
 
-                async Task AcceptInvitation()
-                {
-                    await _managerInvitationService.Accept(invitationCode);
-                }
+                async Task AcceptInvitation() => await _managerInvitationService.Accept(invitationCode);
 
 
                 async Task<Result<ManagerContext>> EndTransaction(Result<(IDbContextTransaction, ManagerContext)> invitationData)
@@ -239,10 +234,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
 
 
-            void LogSuccess(ManagerContext managerContext)
-            {
-                _logger.LogManagerRegistrationSuccess($"Manager {email} successfully registered and bound to service supplier ID:'{managerContext.ServiceSupplierId}'");
-            }
+            void LogSuccess(ManagerContext managerContext) 
+                => _logger.LogManagerRegistrationSuccess($"Manager {email} successfully registered and bound to service supplier ID:'{managerContext.ServiceSupplierId}'");
 
 
             async Task<Result<(ManagerContext, Manager)>> GetMasterManager(ManagerContext managerContext)
@@ -271,10 +264,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
 
 
-            void LogFailed(string error)
-            {
-                _logger.LogManagerRegistrationFailed(error);
-            }
+            void LogFailed(string error) => _logger.LogManagerRegistrationFailed(error);
         }
 
 
