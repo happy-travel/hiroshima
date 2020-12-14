@@ -74,117 +74,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<Models.Responses.ManagerContext>> RegisterWithServiceSupplier(Models.Requests.ManagerWithServiceSupplier managerRequest, string email)
-        {
-            return CheckIdentityHashNotEmpty()
-                 .Ensure(DoesManagerNotExist, "Manager has already been registered")
-                 .Bind(() => IsRequestValid(managerRequest))
-                 .Bind(AddManager)
-                 .Bind(AddServiceSupplierAndRelation)
-                 .Map(Build);
-
-
-            async Task<bool> DoesManagerNotExist() => !await _managerContext.DoesManagerExist();
-
-
-            async Task<Result<Common.Models.Manager>> AddManager()
-            {
-                return await Create()
-                    .Bind(Add);
-
-
-                Result<Common.Models.Manager> Create()
-                {
-                    var utcNowDate = DateTime.UtcNow;
-                    return new Common.Models.Manager
-                    {
-                        IdentityHash = _managerContext.GetIdentityHash(),
-                        Email = email,
-                        FirstName = managerRequest.Manager.FirstName,
-                        LastName = managerRequest.Manager.LastName,
-                        Title = managerRequest.Manager.Title,
-                        Position = managerRequest.Manager.Position,
-                        Phone = managerRequest.Manager.Phone,
-                        Fax = managerRequest.Manager.Fax,
-                        Created = utcNowDate,
-                        Updated = utcNowDate,
-                        IsActive = true
-                    };
-                }
-
-
-                async Task<Result<Common.Models.Manager>> Add(Common.Models.Manager manager)
-                {
-                    var entry = _dbContext.Managers.Add(manager);
-                    await _dbContext.SaveChangesAsync();
-                    _dbContext.DetachEntry(entry.Entity);
-
-                    return entry.Entity;
-                }
-            }
-
-
-            async Task<Result<Common.Models.ManagerContext>> AddServiceSupplierAndRelation(Common.Models.Manager manager)
-            {
-                return await CreateServiceSupplier()
-                    .Bind(AddServiceSupplier)
-                    .Bind(serviceSupplier => CreateRelation(serviceSupplier))
-                    .Bind(AddRelation);
-
-
-                Result<Common.Models.ServiceSupplier> CreateServiceSupplier()
-                {
-                    var utcNowDate = DateTime.UtcNow;
-                    return new Common.Models.ServiceSupplier
-                    {
-                        Name = managerRequest.ServiceSupplier.Name,
-                        Address = managerRequest.ServiceSupplier.Address,
-                        PostalCode = managerRequest.ServiceSupplier.PostalCode,
-                        Phone = managerRequest.ServiceSupplier.Phone,
-                        Website = managerRequest.ServiceSupplier.Website,
-                        Created = utcNowDate,
-                        Modified = utcNowDate
-                    };
-                }
-
-
-                async Task<Result<Common.Models.ServiceSupplier>> AddServiceSupplier(Common.Models.ServiceSupplier serviceSupplier)
-                {
-                    var entry = _dbContext.ServiceSuppliers.Add(serviceSupplier);
-                    await _dbContext.SaveChangesAsync();
-                    _dbContext.DetachEntry(entry.Entity);
-
-                    return entry.Entity;
-                }
-
-
-                Result<Common.Models.ManagerServiceSupplierRelation> CreateRelation(Common.Models.ServiceSupplier serviceSupplier)
-                {
-                    return new Common.Models.ManagerServiceSupplierRelation
-                    {
-                        ManagerId = manager.Id,
-                        ManagerPermissions = Common.Models.Enums.ManagerPermissions.All,
-                        ServiceSupplierId = serviceSupplier.Id,
-                        IsMaster = true,
-                        IsActive = true
-                    };
-                }
-
-
-                async Task<Result<Common.Models.ManagerContext>> AddRelation(Common.Models.ManagerServiceSupplierRelation managerRelation)
-                {
-                    var entry = _dbContext.ManagerServiceSupplierRelations.Add(managerRelation);
-                    await _dbContext.SaveChangesAsync();
-                    _dbContext.DetachEntry(entry.Entity);
-
-                    return CollectManagerContext(manager, entry.Entity);
-                }
-            }
-        }
-
-
-
-
         public Task<Result<Models.Responses.ManagerContext>> Modify(Models.Requests.Manager managerRequest)
         {
             return _managerContext.GetManager()
@@ -276,14 +165,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Result CheckIdentityHashNotEmpty()
-        {
-            return string.IsNullOrEmpty(_managerContext.GetIdentityHash())
-                ? Result.Failure("Manager should have identity")
-                : Result.Success();
-        }
-
-
         private Common.Models.ManagerContext CollectManagerContext(Common.Models.Manager manager, Common.Models.ManagerServiceSupplierRelation managerRelation)
         {
             return new Common.Models.ManagerContext
@@ -334,10 +215,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private Result<bool> DoesManagerHasModifyServiceSupplier(Common.Models.ManagerServiceSupplierRelation managerRelation)
             => managerRelation.IsMaster;
-
-
-        private Result IsRequestValid(Models.Requests.ManagerWithServiceSupplier managerRequest)
-            => ValidationHelper.Validate(managerRequest, new ManagerWithServiceSupplierValidator());
 
 
         private Result IsRequestValid(Models.Requests.Manager managerRequest)

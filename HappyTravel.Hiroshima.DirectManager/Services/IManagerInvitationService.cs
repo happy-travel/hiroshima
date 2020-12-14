@@ -8,7 +8,5 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         Task Accept(string invitationCode);
 
         Task<Result<Models.Requests.ManagerInvitation>> GetPendingInvitation(string invitationCode);
-
-
     }
 }

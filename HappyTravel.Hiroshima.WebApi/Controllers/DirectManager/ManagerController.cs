@@ -85,7 +85,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         public async Task<IActionResult> RegisterManagerWithServiceSupplier([FromBody] Hiroshima.DirectManager.Models.Requests.ManagerWithServiceSupplier managerWithServiceSupplier)
         {
             var (_, isFailure, response, error) = await GetEmailFromIdentity()
-                .Bind(email => _managerManagementService.RegisterWithServiceSupplier(managerWithServiceSupplier, email));
+                .Bind(email => _managerRegistrationService.RegisterWithServiceSupplier(managerWithServiceSupplier, email));
             
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
