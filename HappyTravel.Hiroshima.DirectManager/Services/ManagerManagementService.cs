@@ -26,12 +26,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.ManagerContext>> Get(int managerId)
         {
-           return CheckIdentityHashNotEmpty()
-                .Ensure(DoesManagerNotExist, "Manager has already been registered")
-                .Bind(() => IsRequestValid(managerRequest))
-                .Map(Create)
-                .Map(Add)
+            return _managerContext.GetManagerRelation()
+                .Ensure(managerRelation => DoesManagerHasChangeManagerPermission(managerRelation).Value, "The manager does not have enough rights")
+                .Bind(managerRelation => GetManagerContextById(managerId, managerRelation.ServiceSupplierId))
                 .Map(Build);
+
 
             async Task<Result<Common.Models.ManagerContext>> GetManagerContextById(int managerId, int serviceSupplierId)
             {
@@ -79,7 +78,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Models.Responses.ManagerContext>> Modify(Models.Requests.Manager managerRequest)
         {
             return _managerContext.GetManager()
-                .Check(manager => IsRequestValid(managerRequest))
+                .Check(manager => ValidateRequest(managerRequest))
                 .Bind(Update)
                 .Map(Build);
             
@@ -111,7 +110,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return _managerContext.GetManagerRelation()
                 .Ensure(managerRelation => DoesManagerHasChangeManagerPermission(managerRelation).Value, "The manager does not have enough rights")
-                .Check(managerRelation => IsRequestValid(permissionsRequest))
+                .Check(managerRelation => ValidateRequest(permissionsRequest))
                 .Bind(managerRelation => UpdatePermissions(managerRelation.ServiceSupplierId))
                 .Map(Build);
 
@@ -142,7 +141,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return _managerContext.GetManagerRelation()
                 .Ensure(managerRelation => DoesManagerHasModifyServiceSupplier(managerRelation).Value, "The manager does not have enough rights")
-                .Check(managerRelation => IsRequestValid(serviceSupplierRequest))
+                .Check(managerRelation => ValidateRequest(serviceSupplierRequest))
                 .Bind(Modify)
                 .Map(Build);
 
@@ -221,11 +220,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             => ValidationHelper.Validate(managerRequest, new ManagerValidator());
 
 
-        private Result IsRequestValid(Models.Requests.Permissions managerPermissionsRequest)
+        private Result ValidateRequest(Models.Requests.Permissions managerPermissionsRequest)
             => ValidationHelper.Validate(managerPermissionsRequest, new PermissionsRequestValidator());
 
 
-        private Result IsRequestValid(Models.Requests.ServiceSupplier serviceSupplierRequest)
+        private Result ValidateRequest(Models.Requests.ServiceSupplier serviceSupplierRequest)
             => ValidationHelper.Validate(serviceSupplierRequest, new ServiceSupplierValidator());
 
 

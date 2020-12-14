@@ -30,7 +30,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return CheckIdentityHashNotEmpty()
                  .Ensure(DoesManagerNotExist, "Manager has already been registered")
-                 .Bind(() => IsRequestValid(managerRequest))
+                 .Bind(() => ValidateRequest(managerRequest))
                  .Bind(AddManager)
                  .Bind(AddServiceSupplierAndRelation)
                  .Map(Build);
@@ -138,7 +138,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             return CheckIdentityHashNotEmpty()
                 .Bind(GetPendingInvitation)
                 .Ensure(IsEmailUnique, "Manager with this email already exists")
-                .Check(manager => IsRequestValid(managerInfoRequest))
+                .Check(manager => ValidateRequest(managerInfoRequest))
                 .Bind(AddManagerAndRelation)
                 .Tap(LogSuccess)
                 .Bind(GetMasterManager)
@@ -276,11 +276,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Result IsRequestValid(Models.Requests.ManagerWithServiceSupplier managerRequest)
+        private Result ValidateRequest(Models.Requests.ManagerWithServiceSupplier managerRequest)
             => ValidationHelper.Validate(managerRequest, new ManagerWithServiceSupplierValidator());
 
 
-        private Result IsRequestValid(Models.Requests.ManagerInfo managerInfoRequest)
+        private Result ValidateRequest(Models.Requests.ManagerInfo managerInfoRequest)
             => ValidationHelper.Validate(managerInfoRequest, new ManagerInfoValidator());
 
 
