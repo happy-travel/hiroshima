@@ -26,9 +26,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.ManagerContext>> Get(int managerId)
         {
-            return _managerContext.GetManagerRelation()
-                .Ensure(managerRelation => DoesManagerHasChangeManagerPermission(managerRelation).Value, "The manager does not have enough rights")
-                .Bind(managerRelation => GetManagerContextById(managerId, managerRelation.ServiceSupplierId))
+           return CheckIdentityHashNotEmpty()
+                .Ensure(DoesManagerNotExist, "Manager has already been registered")
+                .Bind(() => IsRequestValid(managerRequest))
+                .Map(Create)
+                .Map(Add)
                 .Map(Build);
 
             async Task<Result<Common.Models.ManagerContext>> GetManagerContextById(int managerId, int serviceSupplierId)
@@ -215,7 +217,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             => managerRelation.IsMaster;
 
 
-        private Result IsRequestValid(Models.Requests.Manager managerRequest)
+        private Result ValidateRequest(Models.Requests.Manager managerRequest)
             => ValidationHelper.Validate(managerRequest, new ManagerValidator());
 
 
