@@ -4,6 +4,7 @@ using HappyTravel.Hiroshima.Common.Models.Enums;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
+using HappyTravel.Hiroshima.WebApi.Infrastructure.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
@@ -131,7 +132,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             void LogSuccess(ManagerContext managerContext)
             {
-                //_logger.LogAgentRegistrationSuccess($"Manager {email} successfully registered and bound to service supplier ID:'{managerContext.ServiceSupplierId}'");
+                _logger.LogManagerRegistrationSuccess($"Manager {email} successfully registered and bound to service supplier ID:'{managerContext.ServiceSupplierId}'");
             }
 
 
@@ -163,7 +164,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             void LogFailed(string error)
             {
-                //_logger.LogManagerRegistrationFailed(error);
+                _logger.LogManagerRegistrationFailed(error);
             }
         }
 
