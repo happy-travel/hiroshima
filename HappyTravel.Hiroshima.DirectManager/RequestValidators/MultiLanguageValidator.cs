@@ -17,7 +17,6 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
                case MultiLanguage<TextualDescription> textualDescription when textualDescription.GetValues().Any():
                case MultiLanguage<List<string>> strList when strList.GetValues().Any():
                case MultiLanguage<List<Models.Requests.Room>> roomList when roomList.GetValues().Any():
-               case MultiLanguage<List<Models.Requests.Picture>> pictureList when pictureList.GetValues().Any():
                    return true;
                
                default: return false;
