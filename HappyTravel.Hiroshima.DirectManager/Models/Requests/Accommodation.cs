@@ -23,9 +23,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
         public string CheckInTime { get; set; }
         
         public string CheckOutTime { get; set; }
-        
-        public MultiLanguage<List<Picture>> Pictures { get; set; } = new MultiLanguage<List<Picture>> { En = new List<Picture>()};
-        
+       
         public ContactInfo ContactInfo { get; set; }
         
         public PropertyTypes Type { get; set; }
