@@ -4,12 +4,14 @@ using HappyTravel.Hiroshima.Common.Models;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {
-    public interface IContractManagerContextService
+    public interface IManagerContextService
     {
-        Task<Result<ContractManager>> GetContractManager();
+        Task<Result<Manager>> GetManager();
 
         string GetIdentityHash();
 
-        Task<bool> DoesContractManagerExist();
+        Task<bool> DoesManagerExist();
+
+        Task<Result<ServiceSupplier>> GetServiceSupplier();
     }
 }
