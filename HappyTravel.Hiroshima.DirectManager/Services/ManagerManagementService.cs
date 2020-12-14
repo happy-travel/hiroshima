@@ -27,7 +27,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
            return CheckIdentityHashNotEmpty()
                 .Ensure(DoesManagerNotExist, "Manager has already been registered")
-                .Bind(() => IsRequestValid(managerRequest))
+                .Bind(() => ValidateRequest(managerRequest))
                 .Map(Create)
                 .Map(Add)
                 .Map(Build);
@@ -78,7 +78,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Models.Responses.ServiceSupplier>> RegisterServiceSupplier(Models.Requests.ServiceSupplier serviceSupplierRequest)
         {
             return _managerContext.GetManager()
-                .Check(manager => IsRequestValid(serviceSupplierRequest))
+                .Check(manager => ValidateRequest(serviceSupplierRequest))
                 .Bind(AddServiceSupplierAndRelation)
                 .Map(Build);
 
@@ -137,7 +137,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Models.Responses.ManagerContext>> Modify(Models.Requests.Manager managerRequest)
         {
             return GetManager()
-                .Check(manager => IsRequestValid(managerRequest))
+                .Check(manager => ValidateRequest(managerRequest))
                 .Map(ModifyManager)
                 .Map(Update)
                 .Map(Build);
@@ -193,11 +193,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 serviceSupplier.Website);
 
 
-        private Result IsRequestValid(Models.Requests.ServiceSupplier serviceSupplierRequest)
+        private Result ValidateRequest(Models.Requests.ServiceSupplier serviceSupplierRequest)
             => ValidationHelper.Validate(serviceSupplierRequest, new ServiceSupplierValidator());
 
 
-        private Result IsRequestValid(Models.Requests.Manager managerRequest)
+        private Result ValidateRequest(Models.Requests.Manager managerRequest)
             => ValidationHelper.Validate(managerRequest, new ManagerValidator());
 
 
