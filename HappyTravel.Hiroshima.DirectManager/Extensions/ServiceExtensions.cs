@@ -1,6 +1,7 @@
 ﻿using HappyTravel.Hiroshima.DirectManager.Infrastructure;
 using HappyTravel.Hiroshima.DirectManager.Services;
 using HappyTravel.Hiroshima.DirectManager.Services.Bookings;
+using HappyTravel.MailSender;
 using LocationNameNormalizer.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -27,6 +28,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Extensions
             services.AddTransient<IManagerManagementService, ManagerManagementService>();
             services.AddTransient<IManagerRegistrationService, ManagerRegistrationService>();
             services.AddTransient<IManagerInvitationService, ManagerInvitationService>();
+            services.AddSingleton<IMailSender, SendGridMailSender>();
             services.AddTransient<INotificationService, NotificationService>();
             services.AddScoped<ITokenInfoAccessor, TokenInfoAccessor>();
             services.AddTransient<IBookingManagementService, BookingManagementService>();
