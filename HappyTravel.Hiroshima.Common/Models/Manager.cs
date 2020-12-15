@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
-using Newtonsoft.Json;
+using HappyTravel.Hiroshima.Common.Models.Enums;
 
 namespace HappyTravel.Hiroshima.Common.Models
 {
-    public class ContractManager
+    public class Manager
     {
         public int Id { get; set; }
 
@@ -30,14 +30,8 @@ namespace HappyTravel.Hiroshima.Common.Models
         public DateTime Updated { get; set; }
         
         public bool IsActive { get; set; }
-        
-        [JsonIgnore]
-        public List<Accommodation> Accommodations { get; set; }
-        
-        [JsonIgnore]
-        public List<Contract> Contracts { get; set; }
-        
-        [JsonIgnore]
-        public List<Bookings.BookingOrder> BookingOrders { get; set; }
+
+        public int ServiceSupplierId { get; set; }
+        public ServiceSupplier ServiceSupplier { get; set; }
     }
 }

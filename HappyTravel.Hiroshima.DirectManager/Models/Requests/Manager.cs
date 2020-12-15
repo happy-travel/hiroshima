@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using HappyTravel.Hiroshima.Common.Models.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
 {
-    public class ContractManager
+    public class Manager
     {
         [Required]
         public string FirstName { get; set; }
@@ -19,5 +20,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
         public string Phone { get; set; }
         
         public string Fax { get; set; }
+
+        public ManagerPermissions Permissions { get; set; }
     }
 }

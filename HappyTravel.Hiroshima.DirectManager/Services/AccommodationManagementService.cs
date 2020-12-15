@@ -19,11 +19,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class AccommodationManagementService : IAccommodationManagementService
     {
-        public AccommodationManagementService(IContractManagerContextService contractManagerContext, 
+        public AccommodationManagementService(IManagerContextService managerContextService, 
             IImageManagementService imageManagementService, IAmenityService amenityService,
             DirectContractsDbContext dbContext, GeometryFactory geometryFactory)
         {
-            _contractManagerContext = contractManagerContext;
+            _managerContext = managerContextService;
             _imageManagementService = imageManagementService;
             _amenityService = amenityService;
             _geometryFactory = geometryFactory;
@@ -33,9 +33,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<List<Models.Responses.Accommodation>>> GetAccommodations(int contractId)
         {
-            return _contractManagerContext.GetContractManager()
-                .EnsureContractBelongsToContractManager(_dbContext, contractId)
-                .Map(contractManager => GetContractAccommodations())
+            return _managerContext.GetServiceSupplier()
+                .EnsureContractBelongsToCompany(_dbContext, contractId)
+                .Map(serviceSupplier => GetContractAccommodations())
                 .Map(Build);
 
 
@@ -53,10 +53,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.Accommodation>> Get(int accommodationId)
         {
-            return _contractManagerContext.GetContractManager()
-                .Bind(async contractManager =>
+            return _managerContext.GetServiceSupplier()
+                .EnsureAccommodationBelongsToCompany(_dbContext, accommodationId)
+                .Bind(async serviceSupplier =>
                 {
-                    var accommodation = await GetAccommodationWithRooms(contractManager.Id, accommodationId).SingleOrDefaultAsync();
+                    var accommodation = await GetAccommodationWithRooms(serviceSupplier.Id, accommodationId).SingleOrDefaultAsync();
                     if (accommodation == null)
                         return Result.Failure<Models.Responses.Accommodation>(
                             $"Failed to get an accommodation by {nameof(accommodationId)} '{accommodationId}'");
@@ -68,17 +69,17 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<List<Models.Responses.Accommodation>>> Get(int skip, int top)
         {
-            return _contractManagerContext.GetContractManager()
-                .Map(contractManager => GetContractManagerAccommodationsWithRoomIds(contractManager.Id))
+            return _managerContext.GetServiceSupplier()
+                .Map(serviceSupplier => GetCompanyAccommodationsWithRoomIds(serviceSupplier.Id))
                 .Map(accommodationWithRoomIds =>
                     accommodationWithRoomIds.Select(Build).ToList()
                 );
 
 
-            async Task<List<Accommodation>> GetContractManagerAccommodationsWithRoomIds(int contractManagerId)
+            async Task<List<Accommodation>> GetCompanyAccommodationsWithRoomIds(int serviceSupplierId)
                 => await _dbContext.Accommodations
                     .Include(accommodation => accommodation.Rooms)
-                    .Where(accommodation => accommodation.ContractManagerId == contractManagerId)
+                    .Where(accommodation => accommodation.ServiceSupplierId == serviceSupplierId)
                     .OrderBy(accommodation => accommodation.Id)
                     .Skip(skip)
                     .Take(top)
@@ -89,8 +90,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Models.Responses.Accommodation>> Add(Models.Requests.Accommodation accommodationRequest)
         {
             return ValidationHelper.Validate(accommodationRequest, new AccommodationValidator())
-                .Bind(() => _contractManagerContext.GetContractManager())
-                .Map(contractManager => CreateAccommodation(contractManager.Id, accommodationRequest))
+                .Bind(() => _managerContext.GetServiceSupplier())
+                .Map(serviceSupplier => CreateAccommodation(serviceSupplier.Id, accommodationRequest))
                 .Map(NormalizeAccommodationAmenities)
                 .Map(AddAccommodation)
                 .Tap(AddAccommodationAmenitiesToStoreIfNeeded)
@@ -113,9 +114,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Models.Responses.Accommodation>> Update(int accommodationId, Models.Requests.Accommodation accommodationRequest)
         {
             return ValidationHelper.Validate(accommodationRequest, new AccommodationValidator())
-                .Bind(() => _contractManagerContext.GetContractManager())
-                .EnsureAccommodationBelongsToContractManager(_dbContext, accommodationId)
-                .Map(contractManager => CreateAccommodation(contractManager.Id, accommodationRequest))
+                .Bind(() => _managerContext.GetServiceSupplier())
+                .EnsureAccommodationBelongsToCompany(_dbContext, accommodationId)
+                .Map(serviceSupplier => CreateAccommodation(serviceSupplier.Id, accommodationRequest))
                 .Map(NormalizeAccommodationAmenities)
                 .Map(UpdateAccommodation)
                 .Tap(AddAccommodationAmenitiesToStoreIfNeeded)
@@ -140,18 +141,21 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             //TODO Try to find out why MAP doesn't work here:
             //https://happytravel.atlassian.net/browse/HIR-74
-            return await _contractManagerContext.GetContractManager()
-                .Tap(contractManager => RemoveAccommodationImages(contractManager.Id))
-                .Tap(contractManager => RemoveAccommodationWithRooms(contractManager.Id));
+            return await _managerContext.GetServiceSupplier()
+                .EnsureAccommodationBelongsToCompany(_dbContext, accommodationId)
+                .Tap(serviceSupplier => RemoveAccommodationImages(serviceSupplier.Id))
+                .Tap(serviceSupplier => RemoveAccommodationWithRooms(serviceSupplier.Id));
 
-            async Task<Result> RemoveAccommodationImages(int contractManagerId)
+
+            async Task<Result> RemoveAccommodationImages(int serviceSupplierId)
             {
-                return await _imageManagementService.RemoveAll(contractManagerId, accommodationId);
+                return await _imageManagementService.RemoveAll(serviceSupplierId, accommodationId);
             }
 
-            async Task RemoveAccommodationWithRooms(int contractManagerId)
+
+            async Task RemoveAccommodationWithRooms(int serviceSupplierId)
             {
-                var accommodation = await GetAccommodationWithRooms(contractManagerId, accommodationId).SingleOrDefaultAsync();
+                var accommodation = await GetAccommodationWithRooms(serviceSupplierId, accommodationId).SingleOrDefaultAsync();
 
                 if (accommodation == null)
                     return;
@@ -169,30 +173,32 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         public Task<Result<List<Models.Responses.Room>>> GetRooms(int accommodationId, int skip, int top)
-            => _contractManagerContext.GetContractManager()
-            .Map(async contractManager =>
-            {
-                var rooms = await GetRooms(contractManager.Id, accommodationId)
-                    .OrderBy(room => room.Id).Skip(skip).Take(top)
-                    .ToListAsync();
+            => _managerContext.GetServiceSupplier()
+                .EnsureAccommodationBelongsToCompany(_dbContext, accommodationId)
+                .Map(async serviceSupplier =>
+                {
+                    var rooms = await GetRooms(serviceSupplier.Id, accommodationId)
+                        .OrderBy(room => room.Id).Skip(skip).Take(top)
+                        .ToListAsync();
 
-                return rooms;
-            })
-            .Map(Build);
+                    return rooms;
+                })
+                .Map(Build);
 
 
         public Task<Result<Models.Responses.Room>> GetRoom(int accommodationId, int roomId)
         {
-            return _contractManagerContext.GetContractManager()
-                .Bind(contractManager => GetRoom(contractManager.Id))
+            return _managerContext.GetServiceSupplier()
+                .EnsureAccommodationBelongsToCompany(_dbContext, accommodationId)
+                .Bind(serviceSupplier => GetRoom(serviceSupplier.Id))
                 .Map(Build);
 
 
-            async Task<Result<Room>> GetRoom(int contractManagerId)
+            async Task<Result<Room>> GetRoom(int serviceSupplierId)
             {
                 var room = await _dbContext.GetAccommodations()
                     .Where(accommodation => accommodation.Id == accommodationId &&
-                        accommodation.ContractManagerId == contractManagerId)
+                        accommodation.ServiceSupplierId == serviceSupplierId)
                     .Select(accommodation => accommodation.Rooms.SingleOrDefault(r => r.Id == roomId))
                     .SingleOrDefaultAsync();
 
@@ -206,10 +212,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Models.Responses.Room>> UpdateRoom(int accommodationId, int roomId, Models.Requests.Room roomRequest)
         {
             return ValidateRoom()
-                .Bind(() => _contractManagerContext.GetContractManager())
-                .EnsureAccommodationBelongsToContractManager(_dbContext, accommodationId)
-                .Ensure(contractManager => DoesRoomBelongToAccommodation(accommodationId, roomId), $"The room with {nameof(roomId)} '{roomId}' doesn't belong to the accommodation with {nameof(accommodationId)} '{accommodationId}'")
-                .Map(contractManager => CreateRoom(accommodationId, roomRequest))
+                .Bind(() => _managerContext.GetServiceSupplier())
+                .EnsureAccommodationBelongsToCompany(_dbContext, accommodationId)
+                .Ensure(serviceSupplier => DoesRoomBelongToAccommodation(accommodationId, roomId), $"The room with {nameof(roomId)} '{roomId}' doesn't belong to the accommodation with {nameof(accommodationId)} '{accommodationId}'")
+                .Map(serviceSupplier => CreateRoom(accommodationId, roomRequest))
                 .Map(NormalizeRoomAmenities)
                 .Map(UpdateRoom)
                 .Tap(AddRoomAmenitiesToStoreIfNeeded)
@@ -236,9 +242,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.Room>>> AddRooms(int accommodationId, List<Models.Requests.Room> roomsRequest)
         {
             return ValidationHelper.Validate(roomsRequest, new RoomValidator())
-                .Bind(() => _contractManagerContext.GetContractManager())
-                .EnsureAccommodationBelongsToContractManager(_dbContext, accommodationId)
-                .Map(contractManager => CreateRooms(accommodationId, roomsRequest))
+                .Bind(() => _managerContext.GetServiceSupplier())
+                .EnsureAccommodationBelongsToCompany(_dbContext, accommodationId)
+                .Map(serviceSupplier => CreateRooms(accommodationId, roomsRequest))
                 .Map(NormalizeRoomsAmenities)
                 .Map(AddRooms)
                 .Tap(AddRoomsAmenitiesToStoreIfNeeded)
@@ -261,14 +267,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result> RemoveRooms(int accommodationId, List<int> roomIds)
         {
-            return await _contractManagerContext.GetContractManager()
-                .Map(contractManager => GetValidRooms(contractManager.Id))
+            return await _managerContext.GetServiceSupplier()
+                .EnsureAccommodationBelongsToCompany(_dbContext, accommodationId)
+                .Map(serviceSupplier => GetValidRooms(serviceSupplier.Id))
                 .Tap(Remove);
 
 
-            async Task<List<Room>> GetValidRooms(int contractManagerId)
+            async Task<List<Room>> GetValidRooms(int serviceSupplierId)
             {
-                var rooms = await GetRooms(contractManagerId, accommodationId).ToListAsync();
+                var rooms = await GetRooms(serviceSupplierId, accommodationId).ToListAsync();
                 if (!rooms.Any())
                     return new List<Room>();
 
@@ -287,17 +294,17 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private IQueryable<Room> GetRooms(int contractManagerId, int accommodationId)
+        private IQueryable<Room> GetRooms(int serviceSupplierId, int accommodationId)
             => _dbContext.Rooms
                 .Join(_dbContext.Accommodations, room => room.AccommodationId, accommodation => accommodation.Id,
                     (room, accommodation) => new { room, accommodation })
                 .Where(roomAndAccommodations =>
-                    roomAndAccommodations.accommodation.ContractManagerId == contractManagerId &&
+                    roomAndAccommodations.accommodation.ServiceSupplierId == serviceSupplierId &&
                     roomAndAccommodations.accommodation.Id == accommodationId)
                 .Select(roomAndAccommodation => roomAndAccommodation.room);
 
 
-        private Accommodation CreateAccommodation(int contractManagerId, Models.Requests.Accommodation accommodation)
+        private Accommodation CreateAccommodation(int serviceSupplierId, Models.Requests.Accommodation accommodation)
         {
             return new Accommodation
             {
@@ -308,7 +315,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 TextualDescription = accommodation.Description,
                 LeisureAndSports = accommodation.LeisureAndSports,
                 Rating = accommodation.Rating,
-                ContractManagerId = contractManagerId,
+                ServiceSupplierId = serviceSupplierId,
                 ContactInfo = new ContactInfo
                 {
                     Emails = accommodation.ContactInfo.Emails,
@@ -438,14 +445,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             => await _dbContext.Rooms.Where(room => room.AccommodationId == accommodationId && room.Id == roomId).SingleOrDefaultAsync() != null;
 
 
-        private IQueryable<Accommodation> GetAccommodationWithRooms(int contractManagerId, int accommodationId)
+        private IQueryable<Accommodation> GetAccommodationWithRooms(int serviceSupplierId, int accommodationId)
             => _dbContext.Accommodations
             .Include(accommodation => accommodation.Rooms)
-            .Where(accommodation => accommodation.ContractManagerId == contractManagerId &&
+            .Where(accommodation => accommodation.ServiceSupplierId == serviceSupplierId &&
                 accommodation.Id == accommodationId);
 
 
-        private readonly IContractManagerContextService _contractManagerContext;
+        private readonly IManagerContextService _managerContext;
         private readonly IImageManagementService _imageManagementService;
         private readonly IAmenityService _amenityService;
         private readonly GeometryFactory _geometryFactory;

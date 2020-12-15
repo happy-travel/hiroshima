@@ -28,8 +28,8 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
             => Get(_dbContext.BookingOrders.Where(bo => bo.ReferenceCode.Equals(referenceCode)));
 
 
-        public Task<Result<Common.Models.Bookings.BookingOrder>> Get(Guid bookingId, int managerId)
-            => Get(_dbContext.BookingOrders.Where(bo => bo.Id.Equals(bookingId) && bo.ContractManagerId.Equals(managerId)));
+        public Task<Result<Common.Models.Bookings.BookingOrder>> Get(Guid bookingId, int serviceSupplierId)
+            => Get(_dbContext.BookingOrders.Where(bo => bo.Id.Equals(bookingId) && bo.ServiceSupplierId.Equals(serviceSupplierId)));
            
         
         private async Task<Result<Common.Models.Bookings.BookingOrder>> Get(IQueryable<Common.Models.Bookings.BookingOrder> source)
@@ -97,7 +97,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
                     AvailabilityRequest = JsonDocumentUtilities.CreateJDocument(availabilityRequest),
                     AvailableRates = JsonDocumentUtilities.CreateJDocument(availableRates),
                     LanguageCode = languageCode,
-                    ContractManagerId = accommodation.ContractManagerId,
+                    ServiceSupplierId = accommodation.ServiceSupplierId,
                     AccommodationId = accommodation.Id
                 }, availableRates);
             }
@@ -173,9 +173,9 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
         }
 
 
-        public Task<Result<Common.Models.Bookings.BookingOrder>> Confirm(Guid bookingId, int managerId)
+        public Task<Result<Common.Models.Bookings.BookingOrder>> Confirm(Guid bookingId, int serviceSupplierId)
         {
-            return Get(bookingId, managerId)
+            return Get(bookingId, serviceSupplierId)
                 .Ensure(IsBookingStatusValid, $"Failed to confirm the booking order with id '{bookingId}'")
                 .Ensure(IsDateValid, "Check-in date less or equal the current date")
                 .Map(bookingOrder => SetStatus(bookingOrder, BookingStatuses.Confirmed));
