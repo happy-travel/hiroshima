@@ -1,5 +1,6 @@
 ﻿using HappyTravel.Hiroshima.DirectManager.Infrastructure;
 using HappyTravel.Hiroshima.DirectManager.Services;
+using HappyTravel.Hiroshima.DirectManager.Services.Bookings;
 using LocationNameNormalizer.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,14 +23,16 @@ namespace HappyTravel.Hiroshima.DirectManager.Extensions
             services.AddTransient<IAvailabilityRestrictionsManagementService, AvailabilityRestrictionsManagementService>();
             services.AddTransient<IAmenityService, AmenityService>();
             services.AddScoped<IManagerContextService, ManagerContextService>();
+            services.AddScoped<IServiceSupplierContextService, ServiceSupplierContextService>();
             services.AddTransient<IManagerManagementService, ManagerManagementService>();
             services.AddTransient<IManagerRegistrationService, ManagerRegistrationService>();
             services.AddTransient<IManagerInvitationService, ManagerInvitationService>();
             services.AddTransient<INotificationService, NotificationService>();
             services.AddScoped<ITokenInfoAccessor, TokenInfoAccessor>();
             services.AddTransient<IBookingManagementService, BookingManagementService>();
+            services.AddTransient<IBookingWebhookService, BookingWebhookNotificationsService>();
             services.AddNameNormalizationServices();
-            
+        
             return services;
         }
     }

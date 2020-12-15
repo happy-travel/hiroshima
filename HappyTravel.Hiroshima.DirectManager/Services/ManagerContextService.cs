@@ -20,7 +20,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             var identityHash = GetIdentityHash();
 
-            var manager = await _dbContext.Managers.SingleOrDefaultAsync(manager => manager.IsActive && manager.IdentityHash  == identityHash);
+            var manager = await _dbContext.Managers.SingleOrDefaultAsync(manager => manager.IsActive && manager.IdentityHash == identityHash);
 
             return manager is null
                 ? Result.Failure<Manager>("Failed to retrieve a contract manager") 
@@ -37,12 +37,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result<ServiceSupplier>> GetServiceSupplier()
         {
-            var manager = GetManager();
-            if (manager.Result.IsFailure)
-                return Result.Failure<ServiceSupplier>(manager.Result.Error);
+            var manager = await GetManager();
+            if (manager.IsFailure)
+                return Result.Failure<ServiceSupplier>(manager.Error);
 
-            // TODO: now we find only one service supplier. Need change in next tasks to get service supplier from request
-            var managerRelation = await _dbContext.ManagerServiceSupplierRelations.SingleOrDefaultAsync(relation => relation.ManagerId == manager.Result.Value.Id);
+            // TODO: now we find only one service supplier. Need change in next tasks
+            var managerRelation = await _dbContext.ManagerServiceSupplierRelations.SingleOrDefaultAsync(relation => relation.ManagerId == manager.Value.Id);
             if (managerRelation is null)
                 return Result.Failure<ServiceSupplier>("Manager has no relations with service suppliers");
 

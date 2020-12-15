@@ -48,6 +48,12 @@
             <param name="referenceCode"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.Connector.BookingWebhookController.ProcessBookingWebhookRequest">
+            <summary>
+            Processes a webhook request containing a booking status update
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.Connector.LocationsController.GetLocations(System.DateTime,HappyTravel.EdoContracts.GeoData.Enums.LocationTypes,System.Int32,System.Int32)">
             <summary>
             Retrieves locations for the Edo's updater
@@ -217,10 +223,17 @@
             <param name="ids">Availability restriction ids</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.BookingManagementController.GetBookings(HappyTravel.Hiroshima.DirectManager.Models.Requests.BookingRequest,System.Int32,System.Int32)">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.BookingManagementController.Get(System.DateTime,System.DateTime,System.Collections.Generic.List{HappyTravel.Hiroshima.Common.Models.Enums.BookingStatuses},System.Collections.Generic.List{System.Int32},System.Int32,System.Int32)">
             <summary>
             Retrieves booking orders
             </summary>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.BookingManagementController.Confirm(System.Guid)">
+            <summary>
+            Confirms booking orders that have been booked through the connector API
+            </summary>
+            <param name="bookingId"></param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.CancellationPolicyController.AddCancellationPolicies(System.Int32,System.Collections.Generic.List{HappyTravel.Hiroshima.DirectManager.Models.Requests.CancellationPolicy})">
@@ -430,7 +443,7 @@
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.AddServiceSupplier(HappyTravel.Hiroshima.DirectManager.Models.Requests.ServiceSupplier)">
             <summary>
-            Update service supplier data
+            Updates service supplier data
             </summary>
             <param name="serviceSupplier"></param>
             <returns></returns>

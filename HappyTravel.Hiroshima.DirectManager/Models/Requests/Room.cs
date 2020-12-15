@@ -12,8 +12,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
         
         public MultiLanguage<List<string>> Amenities { get; set; } = new MultiLanguage<List<string>> { En = new List<string>() };
         
-        public MultiLanguage<List<Picture>> Pictures { get; set; } = new MultiLanguage<List<Picture>> { En = new List<Picture>() };
-        
         public List<OccupancyConfiguration> OccupancyConfigurations { get; set; } = new List<OccupancyConfiguration>();
     }
 }

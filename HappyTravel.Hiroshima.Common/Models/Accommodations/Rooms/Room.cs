@@ -50,10 +50,6 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms
 
         public List<SlimImage> Images { get; set; } = new List<SlimImage>();
         
-        //todo remove
-        public MultiLanguage<List<Picture>> Pictures { get; set; }
-        
-        
         public override bool Equals(object? obj) => obj is Room other && Equals(other);
 
 

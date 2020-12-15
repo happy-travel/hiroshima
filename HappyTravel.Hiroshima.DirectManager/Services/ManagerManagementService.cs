@@ -27,9 +27,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Models.Responses.ManagerContext>> Get(int managerId)
         {
             return _managerContext.GetManagerRelation()
-                .Ensure(managerRelation => DoesManagerHasChangeManagerPermission(managerRelation).Value, "The manager does not have enough rights")
+                .Ensure(managerRelation => HasManagerChangeManagerPermission(managerRelation).Value, "The manager does not have enough rights")
                 .Bind(managerRelation => GetManagerContextById(managerId, managerRelation.ServiceSupplierId))
                 .Map(Build);
+
 
             async Task<Result<Common.Models.ManagerContext>> GetManagerContextById(int managerId, int serviceSupplierId)
             {
@@ -77,7 +78,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Models.Responses.ManagerContext>> Modify(Models.Requests.Manager managerRequest)
         {
             return _managerContext.GetManager()
-                .Check(manager => IsRequestValid(managerRequest))
+                .Check(manager => ValidateRequest(managerRequest))
                 .Bind(Update)
                 .Map(Build);
             
@@ -108,8 +109,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Models.Responses.ManagerContext>> ModifyPermissions(int managerId, Models.Requests.Permissions permissionsRequest)
         {
             return _managerContext.GetManagerRelation()
-                .Ensure(managerRelation => DoesManagerHasChangeManagerPermission(managerRelation).Value, "The manager does not have enough rights")
-                .Check(managerRelation => IsRequestValid(permissionsRequest))
+                .Ensure(managerRelation => HasManagerChangeManagerPermission(managerRelation).Value, "The manager does not have enough rights")
+                .Check(managerRelation => ValidateRequest(permissionsRequest))
                 .Bind(managerRelation => UpdatePermissions(managerRelation.ServiceSupplierId))
                 .Map(Build);
 
@@ -139,8 +140,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Models.Responses.ServiceSupplier>> ModifyServiceSupplier(Models.Requests.ServiceSupplier serviceSupplierRequest)
         {
             return _managerContext.GetManagerRelation()
-                .Ensure(managerRelation => DoesManagerHasModifyServiceSupplier(managerRelation).Value, "The manager does not have enough rights")
-                .Check(managerRelation => IsRequestValid(serviceSupplierRequest))
+                .Ensure(managerRelation => HasManagerModifyServiceSupplier(managerRelation).Value, "The manager does not have enough rights")
+                .Check(managerRelation => ValidateRequest(serviceSupplierRequest))
                 .Bind(Modify)
                 .Map(Build);
 
@@ -207,23 +208,23 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             => serviceSuppliers.Select(Build).ToList();
 
 
-        private Result<bool> DoesManagerHasChangeManagerPermission(Common.Models.ManagerServiceSupplierRelation managerRelation)
+        private Result<bool> HasManagerChangeManagerPermission(Common.Models.ManagerServiceSupplierRelation managerRelation)
             => (managerRelation.ManagerPermissions & Common.Models.Enums.ManagerPermissions.ChangeManagerPermissions) == Common.Models.Enums.ManagerPermissions.ChangeManagerPermissions;
 
 
-        private Result<bool> DoesManagerHasModifyServiceSupplier(Common.Models.ManagerServiceSupplierRelation managerRelation)
+        private Result<bool> HasManagerModifyServiceSupplier(Common.Models.ManagerServiceSupplierRelation managerRelation)
             => managerRelation.IsMaster;
 
 
-        private Result IsRequestValid(Models.Requests.Manager managerRequest)
+        private Result ValidateRequest(Models.Requests.Manager managerRequest)
             => ValidationHelper.Validate(managerRequest, new ManagerValidator());
 
 
-        private Result IsRequestValid(Models.Requests.Permissions managerPermissionsRequest)
+        private Result ValidateRequest(Models.Requests.Permissions managerPermissionsRequest)
             => ValidationHelper.Validate(managerPermissionsRequest, new PermissionsRequestValidator());
 
 
-        private Result IsRequestValid(Models.Requests.ServiceSupplier serviceSupplierRequest)
+        private Result ValidateRequest(Models.Requests.ServiceSupplier serviceSupplierRequest)
             => ValidationHelper.Validate(serviceSupplierRequest, new ServiceSupplierValidator());
 
 

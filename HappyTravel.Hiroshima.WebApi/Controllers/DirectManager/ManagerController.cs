@@ -135,7 +135,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
 
         /// <summary>
-        /// Update service supplier data
+        /// Updates service supplier data
         /// </summary>
         /// <param name="serviceSupplier"></param>
         /// <returns></returns>

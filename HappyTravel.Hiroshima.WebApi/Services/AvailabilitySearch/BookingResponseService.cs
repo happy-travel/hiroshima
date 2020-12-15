@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.Hiroshima.Common.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.Common.Models.Availabilities;
 using HappyTravel.Hiroshima.Common.Models.Enums;
@@ -25,6 +27,18 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
         }
 
 
+        public EdoContracts.Accommodations.Booking CreateEmpty(string bookingReferenceCode)
+        {
+            return new EdoContracts.Accommodations.Booking(bookingReferenceCode, 
+                EdoContracts.Accommodations.Enums.BookingStatusCodes.NotFound, 
+                string.Empty,
+                string.Empty,
+                DateTime.MinValue,
+                DateTime.MinValue,
+                EmptySlimRoomOccupation,
+                EdoContracts.Accommodations.Enums.BookingUpdateModes.Synchronous);
+        }
+
         private EdoContracts.Accommodations.Enums.BookingStatusCodes GetStatus(BookingStatuses status) => status switch
         {
             BookingStatuses.Processing => EdoContracts.Accommodations.Enums.BookingStatusCodes.WaitingForResponse,
@@ -35,5 +49,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
             BookingStatuses.Rejected => EdoContracts.Accommodations.Enums.BookingStatusCodes.Cancelled,
             _ => throw new ArgumentOutOfRangeException(nameof(status), status, "Failed to retrieve a booking status")
         };
+        
+        private static readonly List<SlimRoomOccupation> EmptySlimRoomOccupation = new List<SlimRoomOccupation>(0);
     }
 }
