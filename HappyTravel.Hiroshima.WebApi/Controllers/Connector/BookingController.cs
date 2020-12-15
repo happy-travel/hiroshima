@@ -49,7 +49,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Cancel(string referenceCode)
         {
-            var (_, isFailure, error) = await _bookingService.Cancel(referenceCode, LanguageCode);
+            var (_, isFailure, error) = await _bookingService.Cancel(referenceCode);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -67,7 +67,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetDetails(string referenceCode)
         {
-            var (_, isFailure, bookingDetails, error) = await _bookingService.GetDetails(referenceCode, LanguageCode);
+            var (_, isFailure, bookingDetails, error) = await _bookingService.GetDetails(referenceCode);
             if (isFailure)
                 return BadRequest(error);
 
@@ -75,7 +75,6 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
         }
 
         
-
         private readonly IBookingService _bookingService;
     }
 }

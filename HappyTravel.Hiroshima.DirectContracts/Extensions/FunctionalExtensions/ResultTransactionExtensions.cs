@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Data;
 
-namespace HappyTravel.Hiroshima.Common.Infrastructure.Extensions.Extensions.FunctionalExensions
+namespace HappyTravel.Hiroshima.DirectContracts.Extensions.FunctionalExtensions
 {
     public static class ResultTransactionExtensions
     {

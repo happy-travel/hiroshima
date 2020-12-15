@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using HappyTravel.Geography;
 using HappyTravel.Geography.Converters;
+using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
+using HappyTravel.Hiroshima.DirectManager.Infrastructure.HttpClients;
 using HappyTravel.Hiroshima.WebApi.Infrastructure.Environments;
 using HappyTravel.Hiroshima.WebApi.Services;
 using HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch;
@@ -21,6 +24,8 @@ using Newtonsoft.Json.Serialization;
 using OpenTelemetry;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Polly;
+using Polly.Extensions.Http;
 using StackExchange.Redis;
 
 namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions
@@ -50,10 +55,22 @@ namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions
         {
             var (_, authorityUrl) = GetApiNameAndAuthority(configuration, environment, vaultClient);
             services.AddHttpClient<IdentityHttpClient>(client => client.BaseAddress = new Uri(authorityUrl));
-
+            services.AddHttpClient<BookingWebhookClient>()
+                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+                .AddPolicyHandler(GetDefaultRetryPolicy());
+            
             return services;
         }
 
+
+        private static IAsyncPolicy<HttpResponseMessage> GetDefaultRetryPolicy()
+        {
+            var jitter = new Random();
+            return HttpPolicyExtensions.HandleTransientHttpError()
+                .OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound)
+                .WaitAndRetryAsync(6, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)) + TimeSpan.FromMilliseconds(jitter.Next(0, 100)));
+        }
+        
 
         public static IServiceCollection AddServices(this IServiceCollection services)
         {

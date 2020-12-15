@@ -8,13 +8,14 @@ using HappyTravel.Hiroshima.Common.Models.Enums;
 using HappyTravel.Hiroshima.DirectManager.Models.Requests;
 using HappyTravel.Hiroshima.DirectManager.Services;
 using HappyTravel.Hiroshima.WebApi.Infrastructure;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/management/accommodations/bookings")]
+    [Route("api/{v:apiVersion}/contracts/accommodations/bookings")]
     [Produces("application/json")]
     public class BookingManagementController : BaseController
     {
@@ -31,7 +32,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpGet]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.Bookings.BookingOrder>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetBookings([FromQuery] DateTime fromDate, [FromQuery] DateTime toDate, [FromQuery] List<BookingStatuses> bookingStatuses, [FromQuery] List<int> accommodationIds, [FromQuery] int skip = 0, [FromQuery] int top = 100)
+        public async Task<IActionResult> Get([FromQuery] DateTime fromDate, [FromQuery] DateTime toDate, [FromQuery] List<BookingStatuses> bookingStatuses, [FromQuery] List<int> accommodationIds, [FromQuery] int skip = 0, [FromQuery] int top = 100)
         {
             var bookingRequest = SetBookingRequest();
             var (_, isFailure, response, error) = await _bookingManagementService.GetBookingOrders(bookingRequest, skip, top, LanguageCode);
@@ -65,8 +66,26 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
                 };
             }
         }
-        
 
+        
+        /// <summary>
+        /// Confirms booking orders that have been booked through the connector API
+        /// </summary>
+        /// <param name="bookingId"></param>
+        /// <returns></returns>
+        [HttpPost("{bookingId}/confirm")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> Confirm([FromRoute] Guid bookingId)
+        {
+            var (_, isFailure, error) = await _bookingManagementService.ConfirmBookingOrder(bookingId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+            
+            return NoContent();
+        }
+        
+        
         private readonly IBookingManagementService _bookingManagementService;
     }
 }
