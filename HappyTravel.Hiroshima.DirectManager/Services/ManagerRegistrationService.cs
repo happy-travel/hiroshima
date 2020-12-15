@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using HappyTravel.Hiroshima.Common.Infrastructure.Extensions.Extensions.FunctionalExensions;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Enums;
 using HappyTravel.Hiroshima.Data;
@@ -138,8 +139,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             return CheckIdentityHashNotEmpty()
                 .Bind(GetPendingInvitation)
                 .Ensure(IsEmailUnique, "Manager with this email already exists")
-                .Check(manager => ValidateRequest(managerInfoRequest))
-                .Bind(AddManagerAndRelation)
+                .Check(managerInvitation => ValidateRequest(managerInfoRequest))
+                .BindWithTransaction(_dbContext, managerInvitation => Result.Success(managerInvitation)
+                    .Bind(AddManager)
+                    .Bind(AddManagerRelation)
+                    .Tap(AcceptInvitation))
                 .Tap(LogSuccess)
                 .Bind(GetMasterManager)
                 .Bind(SendRegistrationMailToMaster)
@@ -154,82 +158,40 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 => !await _dbContext.Managers.AnyAsync(manager => manager.Email == managerInvitation.Email);
 
 
-            async Task<Result<ManagerContext>> AddManagerAndRelation(Models.Requests.ManagerInvitation managerInvitation)
+
+            async Task<Result<(Models.Requests.ManagerInvitation, Manager)>> AddManager(Models.Requests.ManagerInvitation managerInvitation)
             {
-                return await (await BeginTransaction())
-                    .Bind(transaction => AddManager(transaction, managerInvitation))
-                    .Bind(AddManagerRelation)
-                    .Tap(AcceptInvitation)
-                    .Finally(EndTransaction);
-
-
-                async Task<Result<IDbContextTransaction>> BeginTransaction()
+                var manager = new Manager
                 {
-                    var transaction = _dbContext.Database.CurrentTransaction is null
-                        ? await _dbContext.Database.BeginTransactionAsync()
-                        : null;
+                    Title = managerInfoRequest.Title,
+                    FirstName = managerInfoRequest.FirstName,
+                    LastName = managerInfoRequest.LastName,
+                    Position = managerInfoRequest.Position,
+                    Email = email,
+                    //IdentityHash = HashGenerator.ComputeSha256(externalIdentity), TODO: Will be done in the next task
+                    Created = DateTime.UtcNow
+                };
 
-                    return transaction is null
-                        ? Result.Failure<IDbContextTransaction>("Failed to start transaction")
-                        : Result.Success(transaction);
-                }
+                _dbContext.Managers.Add(manager);
+                await _dbContext.SaveChangesAsync();
 
-
-                async Task<Result<(IDbContextTransaction transaction, Models.Requests.ManagerInvitation, Manager)>> AddManager(IDbContextTransaction transaction, 
-                    Models.Requests.ManagerInvitation managerInvitation)
-                {
-                    var manager = new Manager
-                    {
-                        Title = managerInfoRequest.Title,
-                        FirstName = managerInfoRequest.FirstName,
-                        LastName = managerInfoRequest.LastName,
-                        Position = managerInfoRequest.Position,
-                        Email = email,
-                        //IdentityHash = HashGenerator.ComputeSha256(externalIdentity), TODO: Will be done in the next task
-                        Created = DateTime.UtcNow
-                    };
-
-                    _dbContext.Managers.Add(manager);
-                    await _dbContext.SaveChangesAsync();
-
-                    return Result.Success((transaction, managerInvitation, manager));
-                }
-
-
-                async Task<Result<(IDbContextTransaction, ManagerContext)>> AddManagerRelation((IDbContextTransaction, Models.Requests.ManagerInvitation, Manager) invitationData)
-                {
-                    var (transaction, managerInvitation, manager) = invitationData;
-
-                    var managerRelation = await AddManagerServiceSupplierRelation(manager, ManagerPermissions.All, false, managerInvitation.ServiceSupplierId);
-
-                    var managerContext = CollectManagerContext(manager, managerRelation);
-
-                    return Result.Success((transaction, managerContext));
-                }
-
-
-                async Task AcceptInvitation() => await _managerInvitationService.Accept(invitationCode);
-
-
-                async Task<Result<ManagerContext>> EndTransaction(Result<(IDbContextTransaction, ManagerContext)> invitationData)
-                {
-                    var (transaction, managerContext) = invitationData.Value;
-
-                    try
-                    {
-                        if (invitationData.IsFailure)
-                            return Result.Failure<ManagerContext>(invitationData.Error);
-
-                        await transaction?.CommitAsync();
-
-                        return Result.Success(managerContext);
-                    }
-                    finally
-                    {
-                        transaction?.Dispose();
-                    }
-                }
+                return Result.Success((managerInvitation, manager));
             }
+
+
+            async Task<Result<ManagerContext>> AddManagerRelation((Models.Requests.ManagerInvitation, Manager) invitationData)
+            {
+                var (managerInvitation, manager) = invitationData;
+
+                var managerRelation = await AddManagerServiceSupplierRelation(manager, ManagerPermissions.All, false, managerInvitation.ServiceSupplierId);
+
+                var managerContext = CollectManagerContext(manager, managerRelation);
+
+                return Result.Success(managerContext);
+            }
+
+
+            async Task AcceptInvitation() => await _managerInvitationService.Accept(invitationCode);
 
 
             void LogSuccess(ManagerContext managerContext) 
