@@ -21,10 +21,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
 {
     public class BookingManagementService : IBookingManagementService
     {
-        public BookingManagementService(IContractManagerContextService contractManagerContext, DirectContracts.Services.IBookingService bookingService, IBookingWebhookService bookingWebhookService, DirectContractsDbContext dbContext)
+        public BookingManagementService(IManagerContextService managerContextService, DirectContracts.Services.IBookingService bookingService, IBookingWebhookService bookingWebhookService, DirectContractsDbContext dbContext)
         {
+            _managerContext = managerContextService;
             _bookingService = bookingService;
-            _contractManagerContext = contractManagerContext;
             _bookingWebhookService = bookingWebhookService;
             _dbContext = dbContext;
         }
@@ -32,18 +32,18 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
         
         public Task<Result<List<Models.Responses.Bookings.BookingOrder>>> GetBookingOrders(Models.Requests.BookingRequest bookingRequest, int skip, int top, string languageCode)
         {
-            return _contractManagerContext.GetContractManager().Ensure(AreAllAccommodationIdsBelongToManager, "Invalid accommodation ids")
+            return _managerContext.GetManager().Ensure(AreAllAccommodationIdsBelongToSupplier, "Invalid accommodation ids")
                 .Map(_ => GetBookings())
                 .Map(bookingOrders => Build(bookingOrders, languageCode));
             
 
-            async Task<bool> AreAllAccommodationIdsBelongToManager(ContractManager contractManager)
+            async Task<bool> AreAllAccommodationIdsBelongToSupplier(Manager manager)
             {
                 if (!bookingRequest.AccommodationIds.Any())
                     return true;
 
                 var existingIds = await _dbContext.Accommodations
-                    .Where(a => bookingRequest.AccommodationIds.Contains(a.Id) && a.ContractManagerId == contractManager.Id)
+                    .Where(a => bookingRequest.AccommodationIds.Contains(a.Id) && a.ServiceSupplierId == manager.Id)
                     .Select(bo => bo.Id)
                     .ToListAsync();
 
@@ -74,8 +74,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
 
         public Task<Result> ConfirmBooking(Guid bookingId)
         {
-            return _contractManagerContext.GetContractManager()
-                .Check(manager => CheckIfBookingBelongsToTheManager(manager, bookingId))
+            return _managerContext.GetServiceSupplier()
+                .Check(supplier => CheckIfBookingBelongsToServiceSupplier(supplier, bookingId))
                 .BindWithTransaction(_dbContext, manager 
                     => _bookingService.Confirm(bookingId)
                         .Bind(SendUpdateStatus));
@@ -88,8 +88,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
 
         public Task<Result> ConfirmCancellation(Guid bookingId)
         {
-            return _contractManagerContext.GetContractManager()
-                .Bind(manager => CheckIfBookingBelongsToTheManager(manager, bookingId))
+            return _managerContext.GetServiceSupplier()
+                .Bind(supplier => CheckIfBookingBelongsToServiceSupplier(supplier, bookingId))
                 .Ensure(IsValidStatus, "Failed to confirm the booking order" )
                 .Bind(_ => _bookingService.Cancel(bookingId))
                 .Bind(bookingOrder => _bookingWebhookService.Send(bookingOrder.ReferenceCode, BookingStatuses.Cancelled));
@@ -126,15 +126,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
         }
         
         
-        private async Task<Result<BookingOrder>> CheckIfBookingBelongsToTheManager(ContractManager manager, Guid bookingId)
+        private async Task<Result<BookingOrder>> CheckIfBookingBelongsToServiceSupplier(ServiceSupplier supplier, Guid bookingId)
         {
             var (_, isFailure, bookingOrder, error) = await _bookingService.Get(bookingId);
             if (isFailure)
                 return Result.Failure<BookingOrder>(error);
 
-            return bookingOrder.ContractManagerId == manager.Id
+            return bookingOrder.ServiceSupplierId == supplier.Id
                 ? Result.Success(bookingOrder)
-                : Result.Failure<BookingOrder>("The booking order does not belong to the manager");
+                : Result.Failure<BookingOrder>("The booking order does not belong to the service supplier");
         }
 
         
@@ -194,10 +194,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
             return new Models.Responses.Bookings.BookingOrder(bookingOrder.Id.ToString(), bookingOrder.Status, bookingOrder.ReferenceCode,
                 bookingOrder.CheckInDate, bookingOrder.CheckOutDate, rateDetails, paymentDetails, bookingOrder.AccommodationId, accommodationName);
         }
-
-
+        
+        
+        private readonly IManagerContextService _managerContext;
         private readonly DirectContracts.Services.IBookingService _bookingService;
-        private readonly IContractManagerContextService _contractManagerContext;
         private readonly DirectContractsDbContext _dbContext;
         private readonly IBookingWebhookService _bookingWebhookService;
     }

@@ -97,7 +97,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
                     AvailabilityRequest = JsonDocumentUtilities.CreateJDocument(availabilityRequest),
                     AvailableRates = JsonDocumentUtilities.CreateJDocument(availableRates),
                     LanguageCode = languageCode,
-                    ContractManagerId = accommodation.ContractManagerId,
+                    ServiceSupplierId = accommodation.ServiceSupplierId,
                     AccommodationId = accommodation.Id
                 }, availableRates);
             }

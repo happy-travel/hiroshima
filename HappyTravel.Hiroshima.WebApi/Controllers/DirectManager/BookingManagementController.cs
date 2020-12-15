@@ -68,6 +68,11 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         }
 
         
+        /// <summary>
+        /// Confirms a booking order
+        /// </summary>
+        /// <param name="bookingId"></param>
+        /// <returns></returns>
         [HttpPost("{bookingId}/confirm")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
@@ -81,6 +86,11 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         }
         
         
+        /// <summary>
+        /// Confirms a booking order cancellation
+        /// </summary>
+        /// <param name="bookingId"></param>
+        /// <returns></returns>
         [HttpPost("{bookingId}/cancel")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]

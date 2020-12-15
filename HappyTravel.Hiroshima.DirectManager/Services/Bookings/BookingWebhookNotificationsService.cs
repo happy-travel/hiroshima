@@ -13,9 +13,9 @@ using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
 {
-    public class BookingWebhookService : IBookingWebhookService
+    public class BookingWebhookNotificationsService : IBookingWebhookService
     {
-        public BookingWebhookService(BookingWebhookClient bookingWebhookClient, IOptions<BookingWebhookOptions> bookingWebhookOptions)
+        public BookingWebhookNotificationsService(BookingWebhookClient bookingWebhookClient, IOptions<BookingWebhookOptions> bookingWebhookOptions)
         {
             _bookingWebhookClient = bookingWebhookClient;
             _bookingWebhookOptions = bookingWebhookOptions.Value;
