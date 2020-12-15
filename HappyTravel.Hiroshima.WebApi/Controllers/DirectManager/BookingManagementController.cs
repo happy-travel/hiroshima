@@ -68,6 +68,11 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         }
 
         
+        /// <summary>
+        /// Confirms booking orders that have been booked through the connector API
+        /// </summary>
+        /// <param name="bookingId"></param>
+        /// <returns></returns>
         [HttpPost("{bookingId}/confirm")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]

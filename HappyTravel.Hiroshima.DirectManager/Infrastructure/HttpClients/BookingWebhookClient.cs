@@ -3,18 +3,21 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Hiroshima.DirectManager.Infrastructure.Logging;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.Options;
 using HappyTravel.Hiroshima.DirectManager.Models.Webhooks.Bookings;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Hiroshima.DirectManager.Infrastructure.HttpClients
 {
     public class BookingWebhookClient
     {
-        public BookingWebhookClient(HttpClient httpClient, IOptions<BookingWebhookOptions> options)
+        public BookingWebhookClient(HttpClient httpClient, IOptions<BookingWebhookOptions> options, ILogger<BookingWebhookClient> logger)
         {
             _httpClient = httpClient;
             _options = options.Value;
+            _logger = logger;
         }
 
 
@@ -35,7 +38,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Infrastructure.HttpClients
             }
             catch(Exception ex)
             {
-                return Result.Failure($"{error} {ex}");
+                _logger.LogBookingWebhookClientException(ex);
+                
+                return Result.Failure(error);
             }
 
             return Result.Success();
@@ -44,5 +49,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Infrastructure.HttpClients
 
         private readonly HttpClient _httpClient;
         private readonly BookingWebhookOptions _options;
+        private readonly ILogger<BookingWebhookClient> _logger;
     }
 }

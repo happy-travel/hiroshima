@@ -23,10 +23,14 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
         }
         
         
+        /// <summary>
+        /// Processes a webhook request containing a booking status update
+        /// </summary>
+        /// <returns></returns>
         [ProducesResponseType(typeof(Booking), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [HttpPost("bookings/response")]
-        public async Task<IActionResult> ProcessingResponse()
+        public async Task<IActionResult> ProcessBookingWebhookRequest()
         {
             var webhookDataResult = await _bookingWebhookService.Get(HttpContext.Request.Body);
             if (webhookDataResult.IsFailure)
