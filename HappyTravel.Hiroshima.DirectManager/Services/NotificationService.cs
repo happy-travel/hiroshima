@@ -3,14 +3,14 @@ using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.DirectManager.Models.Requests;
 using HappyTravel.MailSender;
-using System;
+using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class NotificationService : INotificationService
     {
-        public NotificationService(IMailSender mailSender, ICompanyService companyService, NotificationServiceOptions options)
+        public NotificationService(IMailSender mailSender, ICompanyService companyService, IOptions<NotificationServiceOptions> options)
         {
             _mailSender = mailSender;
             _companyService = companyService;
@@ -26,7 +26,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             var companyInfo = await _companyService.Get();
 
-            return await _mailSender.Send<RegistrationDataForMaster>(_options.RegularManagerMailTemplateId, emailMasterManager, new RegistrationDataForMaster
+            return await _mailSender.Send<RegistrationDataForMaster>(_options.Value.RegularManagerMailTemplateId, emailMasterManager, new RegistrationDataForMaster
             {
                 ManagerName = $"{managerInfo.FirstName} {managerInfo.LastName}",
                 Position = position,
@@ -41,6 +41,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private readonly IMailSender _mailSender;
         private readonly ICompanyService _companyService;
-        private readonly NotificationServiceOptions _options;
+        private readonly IOptions<NotificationServiceOptions> _options;
     }
 }
