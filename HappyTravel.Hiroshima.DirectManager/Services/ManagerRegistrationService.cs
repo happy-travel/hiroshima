@@ -1,13 +1,12 @@
 ﻿using CSharpFunctionalExtensions;
-using HappyTravel.Hiroshima.Common.Infrastructure.Extensions.Extensions.FunctionalExensions;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Enums;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
+using HappyTravel.Hiroshima.DirectContracts.Extensions.FunctionalExtensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using HappyTravel.Hiroshima.WebApi.Infrastructure.Logging;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
