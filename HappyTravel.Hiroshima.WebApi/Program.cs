@@ -19,7 +19,12 @@ namespace HappyTravel.Hiroshima.WebApi
             => Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
+                    webBuilder.UseStartup<Startup>()
+                        .UseDefaultServiceProvider(s =>
+                        {
+                            s.ValidateScopes = true;
+                            s.ValidateOnBuild = true;
+                        }); 
                 })
                 .ConfigureLogging((hostingContext, logging) =>
                 {

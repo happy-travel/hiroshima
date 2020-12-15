@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {
-    public class CompanyService
+    public class CompanyService : ICompanyService
     {
         public async Task<Result<CompanyInfo>> Get()
         {
