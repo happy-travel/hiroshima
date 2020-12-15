@@ -14,6 +14,7 @@ using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.DirectContracts.Extensions;
 using HappyTravel.Hiroshima.DirectManager.Extensions;
+using HappyTravel.Hiroshima.DirectManager.Infrastructure.Options;
 using HappyTravel.Hiroshima.DirectManager.Services;
 using HappyTravel.Hiroshima.WebApi.Conventions;
 using HappyTravel.Hiroshima.WebApi.Filters;
@@ -52,6 +53,7 @@ namespace HappyTravel.Hiroshima.WebApi
             var amazonS3DocumentsOptions = VaultHelper.GetOptions(vaultClient, "DirectContracts:AmazonS3:Documents", Configuration);
             var amazonS3ImagesOptions = VaultHelper.GetOptions(vaultClient, "DirectContracts:AmazonS3:Images", Configuration);
             var mailSenderOptions = VaultHelper.GetOptions(vaultClient, "DirectContracts:Email", Configuration);
+            var bookingWebhookOptions = VaultHelper.GetOptions(vaultClient, "DirectContracts:BookingWebhookOptions", Configuration);
 
             services.AddDirectContractsServices(dbConnectionString);
             services.AddDirectManagerServices();
@@ -80,7 +82,7 @@ namespace HappyTravel.Hiroshima.WebApi
                     };
                     options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider {Options = options});
                 })
-                .Configure<DocumentManagementServiceOptions>(options => 
+                .Configure<DocumentManagementServiceOptions>(options =>
                 {
                     options.AmazonS3Bucket = amazonS3DocumentsOptions["bucket"];
                 })
@@ -92,6 +94,11 @@ namespace HappyTravel.Hiroshima.WebApi
                 .Configure<NotificationServiceOptions>(options =>
                 {
                     options.RegularManagerMailTemplateId = mailSenderOptions["regularManagerRegistrationTemplateId"];
+                })
+                .Configure<BookingWebhookOptions>(options =>
+                {
+                    options.Key = bookingWebhookOptions["key"];
+                    options.WebhookUrl = new Uri(bookingWebhookOptions["webhookUrl"]);
                 });
 
             services.AddHealthChecks()

@@ -29,7 +29,7 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure.Utilities
         /// <param name="pathToConnectionString">The path to the connection string template in appsettings.json</param>
         /// <param name="configuration">Represents the application configuration</param>
         /// <returns></returns>
-        public static string GetDbConnectionString(VaultClient.VaultClient vaultClient, string pathToConnectionOptions, string pathToConnectionString, IConfiguration configuration)
+        public static string GetDbConnectionString(IVaultClient vaultClient, string pathToConnectionOptions, string pathToConnectionString, IConfiguration configuration)
         {
             var connectionOptions = vaultClient.Get(configuration[pathToConnectionOptions]).Result;
             return string.Format($"{configuration[pathToConnectionString]}",
@@ -47,7 +47,7 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure.Utilities
         /// <param name="vaultClient">The instance of the Vault client </param>
         /// <param name="path">The path to the secret name in appsettings.json</param>
         /// <param name="configuration">Represents the application configuration</param>
-        public static Dictionary<string, string> GetOptions(VaultClient.VaultClient vaultClient, string path, IConfiguration configuration) 
+        public static Dictionary<string, string> GetOptions(IVaultClient vaultClient, string path, IConfiguration configuration) 
             => vaultClient.Get(configuration[path]).Result;
     }
 }

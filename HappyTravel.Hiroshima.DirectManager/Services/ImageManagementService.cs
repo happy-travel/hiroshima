@@ -159,7 +159,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     var result = await RemoveImage(serviceSupplier.Id, roomId, ImageTypes.RoomImage, imageId);
                     return result 
                         ? Result.Success(serviceSupplier) 
-                        : Result.Failure<Manager>("Image deletion error");
+                        : Result.Failure("Image deletion error");
                 })
                 .Tap(serviceSupplier => RemoveSlimImageFromRoom(roomId, imageId));
         }

@@ -86,10 +86,17 @@ namespace HappyTravel.Hiroshima.WebApi.Services
         }
         
         
-        public Task<Result<EdoContracts.Accommodations.Booking>> GetDetails(string bookingReferenceCode, string languageCode) => throw new System.NotImplementedException();
+        public async Task<Result<EdoContracts.Accommodations.Booking>> GetDetails(string bookingReferenceCode)
+        {
+            var bookingOrder = await _bookingService.Get(bookingReferenceCode);
+            
+            return bookingOrder.IsFailure 
+                ? _bookingResponseService.CreateEmpty(bookingReferenceCode) 
+                : _bookingResponseService.Create(bookingOrder.Value);
+        }
 
 
-        public Task<Result> Cancel(string bookingReferenceCode, string languageCode) 
+        public Task<Result> Cancel(string bookingReferenceCode) 
             => ValidateReferenceCode(bookingReferenceCode)
                 .Bind(() => _bookingService.Cancel(bookingReferenceCode));
 
