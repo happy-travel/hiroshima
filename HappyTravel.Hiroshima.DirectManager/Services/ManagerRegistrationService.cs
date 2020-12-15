@@ -217,14 +217,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                     try
                     {
-                        if (invitationData.IsSuccess)
-                        {
-                            await transaction?.CommitAsync();
-
-                            return Result.Success(managerContext);
-                        }
-                        else
+                        if (invitationData.IsFailure)
                             return Result.Failure<ManagerContext>(invitationData.Error);
+
+                        await transaction?.CommitAsync();
+
+                        return Result.Success(managerContext);
                     }
                     finally
                     {
