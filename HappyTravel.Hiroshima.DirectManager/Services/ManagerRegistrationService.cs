@@ -233,7 +233,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
             void LogSuccess(ManagerContext managerContext) 
-                => _logger.LogManagerRegistrationSuccess($"Manager {email} successfully registered and bound to service supplier ID:'{managerContext.ServiceSupplierId}'");
+                => _logger.LogManagerRegistrationSuccess($"Manager with the {nameof(email)} '{email}' was successfully registered and was bound to the service supplier ID:'{managerContext.ServiceSupplierId}'");
 
 
             async Task<Result<(ManagerContext, Manager)>> GetMasterManager(ManagerContext managerContext)
