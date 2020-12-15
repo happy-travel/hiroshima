@@ -120,10 +120,10 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 
 
         private static MoneyAmount GetDiscountAmount(MoneyAmount moneyAmount, Discount discount, Currencies currency)
-            => new MoneyAmount(MoneyRounder.Truncate(moneyAmount.Amount / 100 * discount.Percent, currency), currency);
+            => new MoneyAmount(MoneyRounder.Truncate(moneyAmount.Amount / 100 * (decimal)discount.Percent, currency), currency);
 
 
-        private static Discount GetDiscount(MoneyAmount totalMoneyAmount, MoneyAmount moneyAmountWithDiscount, string description = null)
-            => new Discount(100 - Math.Truncate(moneyAmountWithDiscount.Amount * 100 / totalMoneyAmount.Amount), description);
+        private static Discount GetDiscount(MoneyAmount totalMoneyAmount, MoneyAmount moneyAmountWithDiscount, string? description = null)
+            => new Discount(Convert.ToDouble(100 - Math.Truncate(moneyAmountWithDiscount.Amount * 100 / totalMoneyAmount.Amount)), description);
     }
 }
