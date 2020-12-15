@@ -27,7 +27,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Extensions
             services.AddScoped<ITokenInfoAccessor, TokenInfoAccessor>();
             services.AddTransient<IBookingManagementService, BookingManagementService>();
             services.AddNameNormalizationServices();
-            
+        
             return services;
         }
     }
