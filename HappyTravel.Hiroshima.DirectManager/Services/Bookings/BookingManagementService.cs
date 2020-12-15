@@ -32,18 +32,18 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
         
         public Task<Result<List<Models.Responses.Bookings.BookingOrder>>> GetBookingOrders(Models.Requests.BookingRequest bookingRequest, int skip, int top, string languageCode)
         {
-            return _managerContext.GetManager().Ensure(AreAllAccommodationIdsBelongToSupplier, "Invalid accommodation ids")
+            return _managerContext.GetServiceSupplier().Ensure(AreAllAccommodationIdsBelongToSupplier, "Invalid accommodation ids")
                 .Map(_ => GetBookings())
                 .Map(bookingOrders => Build(bookingOrders, languageCode));
             
 
-            async Task<bool> AreAllAccommodationIdsBelongToSupplier(Manager manager)
+            async Task<bool> AreAllAccommodationIdsBelongToSupplier(ServiceSupplier supplier)
             {
                 if (!bookingRequest.AccommodationIds.Any())
                     return true;
 
                 var existingIds = await _dbContext.Accommodations
-                    .Where(a => bookingRequest.AccommodationIds.Contains(a.Id) && a.ServiceSupplierId == manager.Id)
+                    .Where(a => bookingRequest.AccommodationIds.Contains(a.Id) && a.ServiceSupplierId == supplier.Id)
                     .Select(bo => bo.Id)
                     .ToListAsync();
 
