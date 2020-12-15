@@ -1,3 +1,30 @@
 ﻿[
-  {"id": 7001, "name": "BookingWebhookClientException", "level": "Error", "source": "BookingWebhookClient", "isException": true}
+  {
+    "id": 7001,
+    "name": "BookingWebhookClientException",
+    "level": "Error",
+    "source": "BookingWebhookClient",
+    "isException": true
+  },
+  {
+    "id": 7002,
+    "name": "InvitationCreated",
+    "level": "Information",
+    "source": "ManagerInvitationService",
+    "isException": false
+  },
+  {
+    "id": 7003,
+    "name": "ManagerRegistrationFailed",
+    "level": "Warning",
+    "source": "ManagerRegistrationService",
+    "isException": false
+  },
+  {
+    "id": 7004,
+    "name": "ManagerRegistrationSuccess",
+    "level": "Information",
+    "source": "ManagerRegistrationService",
+    "isException": false
+  }
 ]
