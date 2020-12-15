@@ -20,7 +20,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             var identityHash = GetIdentityHash();
 
-            var manager = await _dbContext.Managers.SingleOrDefaultAsync(manager => manager.IsActive && manager.IdentityHash  == identityHash);
+            var manager = await _dbContext.Managers.SingleOrDefaultAsync(manager => manager.IsActive && manager.IdentityHash == identityHash);
 
             return manager is null
                 ? Result.Failure<Manager>("Failed to retrieve a contract manager") 
@@ -31,18 +31,22 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public async Task<bool> DoesManagerExist()
             => await _dbContext.Managers.SingleOrDefaultAsync(manager => manager.IdentityHash == GetIdentityHash()) != null;
 
-        
+
         public string GetIdentityHash() => _tokenInfoAccessor.GetIdentityHash();
 
 
         public async Task<Result<ServiceSupplier>> GetServiceSupplier()
         {
-            var manager = GetManager();
-            if (manager.Result.IsFailure)
-                return Result.Failure<ServiceSupplier>(manager.Result.Error);
+            var manager = await GetManager();
+            if (manager.IsFailure)
+                return Result.Failure<ServiceSupplier>(manager.Error);
 
-            var serviceSupplier = await _dbContext.Companies.SingleOrDefaultAsync(serviceSupplier => serviceSupplier.Id == manager.Result.Value.ServiceSupplierId);
+            // TODO: now we find only one service supplier. Need change in next tasks
+            var managerRelation = await _dbContext.ManagerServiceSupplierRelations.SingleOrDefaultAsync(relation => relation.ManagerId == manager.Value.Id);
+            if (managerRelation is null)
+                return Result.Failure<ServiceSupplier>("Manager has no relations with service suppliers");
 
+            var serviceSupplier = await _dbContext.ServiceSuppliers.SingleOrDefaultAsync(serviceSupplier => serviceSupplier.Id == managerRelation.ServiceSupplierId);
             return serviceSupplier is null
                 ? Result.Failure<ServiceSupplier>("Failed to retrieve a service supplier")
                 : Result.Success(serviceSupplier);

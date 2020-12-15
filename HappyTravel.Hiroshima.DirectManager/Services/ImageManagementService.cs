@@ -5,7 +5,6 @@ using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
-using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.Models.Internal;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Imageflow.Fluent;
@@ -25,10 +24,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class ImageManagementService : IImageManagementService
     {
-        public ImageManagementService(IManagerContextService managerContextService,
+        public ImageManagementService(IManagerContextService managerContextService, IServiceSupplierContextService serviceSupplierContextService,
             DirectContractsDbContext dbContext, IAmazonS3ClientService amazonS3ClientService, IOptions<ImageManagementServiceOptions> options)
         {
             _managerContext = managerContextService;
+            _serviceSupplierContext = serviceSupplierContextService;
             _dbContext = dbContext;
             _amazonS3ClientService = amazonS3ClientService;
             _bucketName = options.Value.AmazonS3Bucket;
@@ -40,7 +40,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.SlimImage>>> Get(int accommodationId)
         {
             return _managerContext.GetServiceSupplier()
-                .EnsureAccommodationBelongsToCompany(_dbContext, accommodationId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureAccommodationBelongsToServiceSupplier(serviceSupplier, accommodationId))
                 .Map(async serviceSupplier =>
                 {
                     return await _dbContext.Images
@@ -55,7 +55,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.SlimImage>>> Get(int accommodationId, int roomId)
         {
             return _managerContext.GetServiceSupplier()
-                .EnsureRoomBelongsToCompany(_dbContext, accommodationId, roomId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureRoomBelongsToServiceSupplier(serviceSupplier, accommodationId, roomId))
                 .Map(async serviceSupplier =>
                 {
                     return await _dbContext.Images
@@ -70,7 +70,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Guid>> Add(Models.Requests.AccommodationImage image)
         {
             return _managerContext.GetServiceSupplier()
-                .EnsureAccommodationBelongsToCompany(_dbContext, image.AccommodationId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureAccommodationBelongsToServiceSupplier(serviceSupplier, image.AccommodationId))
                 .Bind(serviceSupplier => Validate(image, serviceSupplier))
                 .Tap(serviceSupplier => ResortImages(serviceSupplier.Id, image.AccommodationId, ImageTypes.AccommodationImage))
                 .Map(serviceSupplier => Create(serviceSupplier.Id, image))
@@ -91,7 +91,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Guid>> Add(Models.Requests.RoomImage image)
         {
             return _managerContext.GetServiceSupplier()
-                .EnsureRoomBelongsToCompany(_dbContext, image.AccommodationId, image.RoomId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureRoomBelongsToServiceSupplier(serviceSupplier, image.AccommodationId, image.RoomId))
                 .Bind(serviceSupplier => Validate(image, serviceSupplier))
                 .Tap(manager => ResortImages(manager.Id, image.RoomId, ImageTypes.RoomImage))
                 .Map(manager => Create(manager.Id, image))
@@ -110,7 +110,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result> Update(int accommodationId, List<Models.Requests.SlimImage> images)
         {
             return _managerContext.GetServiceSupplier()
-                .EnsureAccommodationBelongsToCompany(_dbContext, accommodationId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureAccommodationBelongsToServiceSupplier(serviceSupplier, accommodationId))
                 .Tap(async serviceSupplier => await ArrangeSlimImagesInAccommodation(serviceSupplier.Id, accommodationId, images))
                 .Map(async serviceSupplier =>
                 {
@@ -125,7 +125,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result> Update(int accommodationId, int roomId, List<Models.Requests.SlimImage> images)
         {
             return _managerContext.GetServiceSupplier()
-                .EnsureRoomBelongsToCompany(_dbContext, accommodationId, roomId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureRoomBelongsToServiceSupplier(serviceSupplier, accommodationId, roomId))
                 .Tap(async serviceSupplier => await ArrangeSlimImagesInRoom(roomId, images))
                 .Map(async serviceSupplier =>
                 {
@@ -569,6 +569,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         private const int TargetJpegQuality = 85;
         
         private readonly IManagerContextService _managerContext;
+        private readonly IServiceSupplierContextService _serviceSupplierContext;
         private readonly DirectContractsDbContext _dbContext;
         private readonly IAmazonS3ClientService _amazonS3ClientService;
         private readonly string _bucketName;

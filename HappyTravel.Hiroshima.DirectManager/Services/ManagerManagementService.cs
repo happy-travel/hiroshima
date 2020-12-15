@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Data;
@@ -17,28 +18,32 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<Models.Responses.Manager>> Get()
+        public Task<Result<Models.Responses.ManagerContext>> Get()
             => _managerContext.GetManager()
                 .Map(Build);
         
         
-        public Task<Result<Models.Responses.Manager>> Register(Models.Requests.Manager managerRequest, string email)
+        public Task<Result<Models.Responses.ManagerContext>> Register(Models.Requests.Manager managerRequest, string email)
         {
-           return Result.Success()
-                .Ensure(IdentityHashNotEmpty, "Failed to get the sub claim")
-                .Ensure(ContractManagerNotExist, "Contract manager has already been registered")
-                .Bind(() => IsRequestValid(managerRequest))
+           return CheckIdentityHashNotEmpty()
+                .Ensure(DoesManagerNotExist, "Manager has already been registered")
+                .Bind(() => ValidateRequest(managerRequest))
                 .Map(Create)
                 .Map(Add)
                 .Map(Build);
 
             
-            bool IdentityHashNotEmpty() => !string.IsNullOrEmpty(_managerContext.GetIdentityHash());
+            Result CheckIdentityHashNotEmpty()
+            {
+                return string.IsNullOrEmpty(_managerContext.GetIdentityHash())
+                    ? Result.Failure("Failed to get the sub claim")
+                    : Result.Success();
+            }
             
             
-            async Task<bool> ContractManagerNotExist() => !await _managerContext.DoesManagerExist();
-            
-            
+            async Task<bool> DoesManagerNotExist() => !await _managerContext.DoesManagerExist();
+
+
             Common.Models.Manager Create()
             {
                 var utcNowDate = DateTime.UtcNow;
@@ -61,7 +66,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<Common.Models.Manager> Add(Common.Models.Manager manager)
             {
-                var entry = _dbContext.Add(manager);
+                var entry = _dbContext.Managers.Add(manager);
                 await _dbContext.SaveChangesAsync();
                 _dbContext.DetachEntry(entry.Entity);
 
@@ -69,12 +74,71 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
         }
 
-        
-        public Task<Result<Models.Responses.Manager>> Modify(Models.Requests.Manager managerRequest)
+
+        public Task<Result<Models.Responses.ServiceSupplier>> RegisterServiceSupplier(Models.Requests.ServiceSupplier serviceSupplierRequest)
+        {
+            return _managerContext.GetManager()
+                .Check(manager => ValidateRequest(serviceSupplierRequest))
+                .Bind(AddServiceSupplierAndRelation)
+                .Map(Build);
+
+
+            async Task<Result<Common.Models.ServiceSupplier>> AddServiceSupplierAndRelation(Common.Models.Manager manager)
+            {
+                return await Result.Success()
+                    .Bind(CreateServiceSupplier)
+                    .Bind(async serviceSupplier => await AddServiceSupplier(serviceSupplier))
+                    .Tap(AddRelation);
+
+
+                Result<Common.Models.ServiceSupplier> CreateServiceSupplier()
+                {
+                    var utcNowDate = DateTime.UtcNow;
+                    return new Common.Models.ServiceSupplier
+                    {
+                        Name = string.Empty,
+                        Address = string.Empty,
+                        PostalCode = string.Empty,
+                        Phone = string.Empty,
+                        Website = string.Empty,
+                        Created = utcNowDate,
+                        Modified = utcNowDate
+                    };
+                }
+
+                async Task<Result<Common.Models.ServiceSupplier>> AddServiceSupplier(Common.Models.ServiceSupplier serviceSupplier)
+                {
+                    var entry = _dbContext.ServiceSuppliers.Add(serviceSupplier);
+                    await _dbContext.SaveChangesAsync();
+                    _dbContext.DetachEntry(entry.Entity);
+
+                    return entry.Entity;
+                }
+
+                async Task AddRelation(Common.Models.ServiceSupplier serviceSupplier)
+                {
+                    var relation = new Common.Models.ManagerServiceSupplierRelation
+                    {
+                        ManagerId = manager.Id,
+                        ManagerPermissions = Common.Models.Enums.ManagerPermissions.All,
+                        ServiceSupplierId = serviceSupplier.Id,
+                        IsMaster = true,
+                        IsActive = true
+                    };
+
+                    var entry = _dbContext.ManagerServiceSupplierRelations.Add(relation);
+                    await _dbContext.SaveChangesAsync();
+                    _dbContext.DetachEntry(entry.Entity);
+                }
+            }
+        }
+
+
+        public Task<Result<Models.Responses.ManagerContext>> Modify(Models.Requests.Manager managerRequest)
         {
             return GetManager()
-                .Tap(manager => IsRequestValid(managerRequest))
-                .Map(ModifyContractManager)
+                .Check(manager => ValidateRequest(managerRequest))
+                .Map(ModifyManager)
                 .Map(Update)
                 .Map(Build);
 
@@ -83,7 +147,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 => _managerContext.GetManager();
             
             
-            Common.Models.Manager ModifyContractManager(Common.Models.Manager manager)
+            Common.Models.Manager ModifyManager(Common.Models.Manager manager)
             {
                 manager.FirstName = managerRequest.FirstName;
                 manager.LastName = managerRequest.LastName;
@@ -108,21 +172,34 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private Models.Responses.Manager Build(Common.Models.Manager manager) 
-            => new Models.Responses.Manager(manager.FirstName, 
+        private Models.Responses.ManagerContext Build(Common.Models.Manager manager) 
+            => new Models.Responses.ManagerContext(manager.FirstName, 
                 manager.LastName, 
                 manager.Title, 
                 manager.Position,
                 manager.Email,
                 manager.Phone,
                 manager.Fax,
+                1,  // TODO: Now we have only one service supplier. Will be changed in the next task
                 Common.Models.Enums.ManagerPermissions.All, // TODO: Need add ManagerPermissions and IsMaster in next task
                 true);
 
 
-        private Result IsRequestValid(Models.Requests.Manager managerRequest)
-            => ValidationHelper.Validate(managerRequest, new ManagerRegisterRequestValidator());
-        
+        private Models.Responses.ServiceSupplier Build(Common.Models.ServiceSupplier serviceSupplier)
+            => new Models.Responses.ServiceSupplier(serviceSupplier.Name,
+                serviceSupplier.Address,
+                serviceSupplier.PostalCode,
+                serviceSupplier.Phone,
+                serviceSupplier.Website);
+
+
+        private Result ValidateRequest(Models.Requests.ServiceSupplier serviceSupplierRequest)
+            => ValidationHelper.Validate(serviceSupplierRequest, new ServiceSupplierValidator());
+
+
+        private Result ValidateRequest(Models.Requests.Manager managerRequest)
+            => ValidationHelper.Validate(managerRequest, new ManagerValidator());
+
 
         private readonly IManagerContextService _managerContext;
         private readonly DirectContractsDbContext _dbContext;

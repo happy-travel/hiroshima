@@ -8,7 +8,6 @@ using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Seasons;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
-using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,17 +15,19 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class SeasonManagementService : ISeasonManagementService
     {
-        public SeasonManagementService(DirectContractsDbContext dbContext, IManagerContextService managerContextService)
+        public SeasonManagementService(DirectContractsDbContext dbContext, IManagerContextService managerContextService, 
+            IServiceSupplierContextService serviceSupplierContextService)
         {
             _dbContext = dbContext;
             _managerContext = managerContextService;
+            _serviceSupplierContext = serviceSupplierContextService;
         }
 
 
         public Task<Result<List<Models.Responses.Season>>> Add(int contractId, List<string> names)
         {
             return _managerContext.GetServiceSupplier()
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
                 .Map(serviceSupplier => AddSeasonNames())
                 .Map(Build);
 
@@ -52,7 +53,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.Season>>> Get(int contractId, int skip, int top)
         {
             return _managerContext.GetServiceSupplier()
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
                 .Map(serviceSupplier => GetSeasons())
                 .Map(Build);
 
@@ -67,7 +68,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public async Task<Result> Remove(int contractId, int seasonId)
         {
             return await _managerContext.GetServiceSupplier()
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
                 .Bind(serviceSupplier => GetSeason())
                 .Tap(Remove);
             
@@ -204,7 +205,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.SeasonRange>>> GetSeasonRanges(int contractId, int skip, int top)
         {
             return _managerContext.GetServiceSupplier()
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
                 .Map(serviceSupplier => GetOrderedSeasonRanges(season => season.ContractId == contractId, skip, top)) 
                 .Map(Build);
         }
@@ -213,7 +214,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.SeasonRange>>> GetSeasonRanges(int contractId, int seasonId, int skip, int top)
         {
             return _managerContext.GetServiceSupplier()
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
                 .Map(serviceSupplier => GetOrderedSeasonRanges(season => season.ContractId == contractId && season.Id == seasonId, skip, top))
                 .Map(Build);
         }
@@ -310,6 +311,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         
         
         private readonly IManagerContextService _managerContext;
+        private readonly IServiceSupplierContextService _serviceSupplierContext;
         private readonly DirectContractsDbContext _dbContext;
     }
 }

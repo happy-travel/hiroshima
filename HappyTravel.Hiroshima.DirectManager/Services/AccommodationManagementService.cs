@@ -8,7 +8,6 @@ using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure;
-using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.EntityFrameworkCore;
 using Accommodation = HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation;
@@ -20,10 +19,14 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     public class AccommodationManagementService : IAccommodationManagementService
     {
         public AccommodationManagementService(IManagerContextService managerContextService, 
-            IImageManagementService imageManagementService, IAmenityService amenityService,
-            DirectContractsDbContext dbContext, GeometryFactory geometryFactory)
+            IServiceSupplierContextService serviceSupplierContextService,
+            IImageManagementService imageManagementService, 
+            IAmenityService amenityService,
+            DirectContractsDbContext dbContext, 
+            GeometryFactory geometryFactory)
         {
             _managerContext = managerContextService;
+            _serviceSupplierContext = serviceSupplierContextService;
             _imageManagementService = imageManagementService;
             _amenityService = amenityService;
             _geometryFactory = geometryFactory;
@@ -34,7 +37,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.Accommodation>>> GetAccommodations(int contractId)
         {
             return _managerContext.GetServiceSupplier()
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
+                .Check(serviceSupplier =>_serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
                 .Map(serviceSupplier => GetContractAccommodations())
                 .Map(Build);
 
@@ -54,7 +57,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Models.Responses.Accommodation>> Get(int accommodationId)
         {
             return _managerContext.GetServiceSupplier()
-                .EnsureAccommodationBelongsToCompany(_dbContext, accommodationId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureAccommodationBelongsToServiceSupplier(serviceSupplier, accommodationId))
                 .Bind(async serviceSupplier =>
                 {
                     var accommodation = await GetAccommodationWithRooms(serviceSupplier.Id, accommodationId).SingleOrDefaultAsync();
@@ -115,7 +118,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return ValidationHelper.Validate(accommodationRequest, new AccommodationValidator())
                 .Bind(() => _managerContext.GetServiceSupplier())
-                .EnsureAccommodationBelongsToCompany(_dbContext, accommodationId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureAccommodationBelongsToServiceSupplier(serviceSupplier, accommodationId))
                 .Map(serviceSupplier => CreateAccommodation(serviceSupplier.Id, accommodationRequest))
                 .Map(NormalizeAccommodationAmenities)
                 .Map(UpdateAccommodation)
@@ -142,7 +145,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             //TODO Try to find out why MAP doesn't work here:
             //https://happytravel.atlassian.net/browse/HIR-74
             return await _managerContext.GetServiceSupplier()
-                .EnsureAccommodationBelongsToCompany(_dbContext, accommodationId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureAccommodationBelongsToServiceSupplier(serviceSupplier, accommodationId))
                 .Tap(serviceSupplier => RemoveAccommodationImages(serviceSupplier.Id))
                 .Tap(serviceSupplier => RemoveAccommodationWithRooms(serviceSupplier.Id));
 
@@ -174,7 +177,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<List<Models.Responses.Room>>> GetRooms(int accommodationId, int skip, int top)
             => _managerContext.GetServiceSupplier()
-                .EnsureAccommodationBelongsToCompany(_dbContext, accommodationId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureAccommodationBelongsToServiceSupplier(serviceSupplier, accommodationId))
                 .Map(async serviceSupplier =>
                 {
                     var rooms = await GetRooms(serviceSupplier.Id, accommodationId)
@@ -189,7 +192,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Models.Responses.Room>> GetRoom(int accommodationId, int roomId)
         {
             return _managerContext.GetServiceSupplier()
-                .EnsureAccommodationBelongsToCompany(_dbContext, accommodationId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureAccommodationBelongsToServiceSupplier(serviceSupplier, accommodationId))
                 .Bind(serviceSupplier => GetRoom(serviceSupplier.Id))
                 .Map(Build);
 
@@ -213,7 +216,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return ValidateRoom()
                 .Bind(() => _managerContext.GetServiceSupplier())
-                .EnsureAccommodationBelongsToCompany(_dbContext, accommodationId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureAccommodationBelongsToServiceSupplier(serviceSupplier, accommodationId))
                 .Ensure(serviceSupplier => DoesRoomBelongToAccommodation(accommodationId, roomId), $"The room with {nameof(roomId)} '{roomId}' doesn't belong to the accommodation with {nameof(accommodationId)} '{accommodationId}'")
                 .Map(serviceSupplier => CreateRoom(accommodationId, roomRequest))
                 .Map(NormalizeRoomAmenities)
@@ -243,7 +246,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return ValidationHelper.Validate(roomsRequest, new RoomValidator())
                 .Bind(() => _managerContext.GetServiceSupplier())
-                .EnsureAccommodationBelongsToCompany(_dbContext, accommodationId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureAccommodationBelongsToServiceSupplier(serviceSupplier, accommodationId))
                 .Map(serviceSupplier => CreateRooms(accommodationId, roomsRequest))
                 .Map(NormalizeRoomsAmenities)
                 .Map(AddRooms)
@@ -268,7 +271,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public async Task<Result> RemoveRooms(int accommodationId, List<int> roomIds)
         {
             return await _managerContext.GetServiceSupplier()
-                .EnsureAccommodationBelongsToCompany(_dbContext, accommodationId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureAccommodationBelongsToServiceSupplier(serviceSupplier, accommodationId))
                 .Map(serviceSupplier => GetValidRooms(serviceSupplier.Id))
                 .Tap(Remove);
 
@@ -453,6 +456,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         private readonly IManagerContextService _managerContext;
+        private readonly IServiceSupplierContextService _serviceSupplierContext;
         private readonly IImageManagementService _imageManagementService;
         private readonly IAmenityService _amenityService;
         private readonly GeometryFactory _geometryFactory;
