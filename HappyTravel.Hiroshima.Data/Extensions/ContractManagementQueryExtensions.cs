@@ -92,7 +92,7 @@ namespace HappyTravel.Hiroshima.Data.Extensions
             => await dbContext.Accommodations.AnyAsync(a => a.ServiceSupplierId == serviceSupplierId && a.Id == accommodationId);
 
 
-        public static async Task<bool> DoesContractBelongToCompany(this DirectContractsDbContext dbContext, int contractId, int serviceSupplierId)
+        public static async Task<bool> DoesContractBelongToServiceSupplier(this DirectContractsDbContext dbContext, int contractId, int serviceSupplierId)
             => await dbContext.Contracts.AnyAsync(c => c.ServiceSupplierId == serviceSupplierId && c.Id == contractId);
 
 

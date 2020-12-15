@@ -409,20 +409,27 @@
             <param name="skip"></param>
             <returns>Retrieves country names</returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.AddContractManager(HappyTravel.Hiroshima.DirectManager.Models.Requests.Manager)">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.AddManager(HappyTravel.Hiroshima.DirectManager.Models.Requests.Manager)">
             <summary>
             Registers a manager
             </summary>
             <param name="manager"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.GetContractManager">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.AddServiceSupplier(HappyTravel.Hiroshima.DirectManager.Models.Requests.ServiceSupplier)">
+            <summary>
+            Registers a service supplier
+            </summary>
+            <param name="serviceSupplier"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.GetManager">
             <summary>
             Retrieves current manager's data
             </summary>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.ModifyContractManager(HappyTravel.Hiroshima.DirectManager.Models.Requests.Manager)">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.ModifyManager(HappyTravel.Hiroshima.DirectManager.Models.Requests.Manager)">
             <summary>
             Modifies manager's data
             </summary>

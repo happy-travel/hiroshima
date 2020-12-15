@@ -205,12 +205,9 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(m => m.Created).IsRequired().HasDefaultValueSql("now() at time zone 'utc'");
                 e.Property(m => m.Updated).IsRequired().HasDefaultValueSql("now() at time zone 'utc'");
                 e.Property(m => m.IsActive).IsRequired().HasDefaultValue(false);
-                e.Property(m => m.ServiceSupplierId).IsRequired();
 
                 e.HasIndex(m => m.IdentityHash).IsUnique();
                 e.HasIndex(m => m.Email).IsUnique();
-                e.HasIndex(m => m.ServiceSupplierId);
-                e.HasOne(m => m.ServiceSupplier).WithMany(c => c.Managers).OnDelete(DeleteBehavior.SetNull);
             });
         }
 
@@ -484,7 +481,7 @@ namespace HappyTravel.Hiroshima.Data
         public virtual DbSet<BookingOrder> BookingOrders { get; set; }
         public virtual DbSet<Amenity> Amenities { get; set; }
         public virtual DbSet<RoomCancellationPolicy> RoomCancellationPolicies { get; set; }
-        public virtual DbSet<ServiceSupplier> Companies { get; set; }
+        public virtual DbSet<ServiceSupplier> ServiceSuppliers { get; set; }
         public virtual DbSet<ContractAccommodationRelation> ContractAccommodationRelations { get; set; }
         public virtual DbSet<Manager> Managers { get; set; }
         public virtual DbSet<ManagerServiceSupplierRelation> ManagerServiceSupplierRelations { get; set; }

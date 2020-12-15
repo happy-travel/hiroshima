@@ -30,8 +30,5 @@ namespace HappyTravel.Hiroshima.Common.Models
         public DateTime Updated { get; set; }
         
         public bool IsActive { get; set; }
-
-        public int ServiceSupplierId { get; set; }
-        public ServiceSupplier ServiceSupplier { get; set; }
     }
 }

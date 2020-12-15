@@ -7,7 +7,6 @@ using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure;
-using HappyTravel.Hiroshima.DirectManager.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,10 +14,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class AvailabilityRestrictionsManagementService : IAvailabilityRestrictionsManagementService
     {
-        public AvailabilityRestrictionsManagementService(DirectContractsDbContext dbContext, IManagerContextService managerContextService)
+        public AvailabilityRestrictionsManagementService(DirectContractsDbContext dbContext, IManagerContextService managerContextService, 
+            IServiceSupplierContextService serviceSupplierContextService)
         {
             _dbContext = dbContext;
             _managerContext = managerContextService;
+            _serviceSupplierContext = serviceSupplierContextService;
         }
 
 
@@ -114,7 +115,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public async Task<Result> Remove(int contractId, List<int> availabilityRestrictionIds)
         {
             return await _managerContext.GetServiceSupplier()
-                .EnsureContractBelongsToCompany(_dbContext, contractId)
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
                 .Bind(serviceSupplier => GetAvailabilityRestrictionsToRemove(serviceSupplier.Id))
                 .Map(RemoveAvailabilityRestrictions);
                 
@@ -184,6 +185,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         
         
         private readonly IManagerContextService _managerContext;
+        private readonly IServiceSupplierContextService _serviceSupplierContext;
         private readonly DirectContractsDbContext _dbContext;
     }
 }
