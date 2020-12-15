@@ -7,11 +7,12 @@ namespace HappyTravel.Hiroshima.WebApi.Services
 {
     public class BookingService : IBookingService
     {
-        public BookingService(DirectContracts.Services.IBookingService bookingService, IAvailabilitySearchStorage availabilitySearchStorage, IBookingResponseService bookingResponseService)
+        public BookingService(DirectContracts.Services.IBookingService bookingService, IAvailabilitySearchStorage availabilitySearchStorage, IBookingResponseService bookingResponseService, IAvailabilityIdMatchingService availabilityIdMatchingService)
         {
             _bookingService = bookingService;
             _availabilitySearchStorage = availabilitySearchStorage;
             _bookingResponseService = bookingResponseService;
+            _availabilityIdMatchingService = availabilityIdMatchingService;
         }
         
         
@@ -38,7 +39,9 @@ namespace HappyTravel.Hiroshima.WebApi.Services
             Task<Result<Common.Models.Bookings.BookingOrder>> ProcessBooking(EdoContracts.Accommodations.AvailabilityRequest availabilityRequest)
             {
                return ValidateBookingRequest()
-                    .Bind(() => _bookingService.Book(bookingRequest, availabilityRequest, languageCode)); 
+                   .Bind(GetAccommodationAvailabilityId)
+                    .Bind(accommodationAvailabilityId => _bookingService.Book(new EdoContracts.Accommodations.BookingRequest(accommodationAvailabilityId, bookingRequest.RoomContractSetId, bookingRequest.ReferenceCode, bookingRequest.Rooms, bookingRequest.Features, bookingRequest.RejectIfUnavailable),
+                       availabilityRequest, languageCode)); 
                
 
                Task<Result> ValidateBookingRequest()
@@ -75,6 +78,15 @@ namespace HappyTravel.Hiroshima.WebApi.Services
                    return isFailure
                        ? Result.Success()
                        : Result.Failure<Common.Models.Bookings.BookingOrder>($"The booking order with the reference code '{bookingRequest.ReferenceCode}' already exists");
+               }
+               
+               
+               async Task<Result<string>> GetAccommodationAvailabilityId()
+               {
+                   var accommodationAvailabilityId = await _availabilityIdMatchingService.GetAccommodationAvailabilityId(bookingRequest.AvailabilityId);
+                   return string.IsNullOrEmpty(accommodationAvailabilityId) 
+                       ? Result.Failure<string>("Invalid availability id") 
+                       : Result.Success(accommodationAvailabilityId);
                }
             }
             
@@ -113,7 +125,9 @@ namespace HappyTravel.Hiroshima.WebApi.Services
         private readonly DirectContracts.Services.IBookingService _bookingService;
         private readonly IAvailabilitySearchStorage _availabilitySearchStorage;
         private readonly IBookingResponseService _bookingResponseService;
-
+        private readonly IAvailabilityIdMatchingService _availabilityIdMatchingService;
+        
+        
         private const int BookingReferenceCodeMaxLength = 36;
     }
 }
