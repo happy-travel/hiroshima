@@ -53,6 +53,72 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
+        public async Task<Result<ManagerServiceSupplierRelation>> GetManagerRelation()
+        {
+            var manager = GetManager();
+            if (manager.Result.IsFailure)
+                return Result.Failure<ManagerServiceSupplierRelation>(manager.Result.Error);
+
+            var serviceSupplier = GetServiceSupplier();
+            if (serviceSupplier.Result.IsFailure)
+                return Result.Failure<ManagerServiceSupplierRelation>(serviceSupplier.Result.Error);
+
+            var managerRelation = await _dbContext.ManagerServiceSupplierRelations
+                .SingleOrDefaultAsync(relation => relation.ManagerId == manager.Result.Value.Id && relation.ServiceSupplierId == serviceSupplier.Result.Value.Id);
+            
+            return managerRelation is null
+                ? Result.Failure<ManagerServiceSupplierRelation>("Manager has no relation with service supplier")
+                : Result.Success(managerRelation);
+        }
+
+
+        public async Task<Result<ManagerContext>> GetManagerContext()
+        {
+            var manager = GetManager();
+            if (manager.Result.IsFailure)
+                return Result.Failure<ManagerContext>(manager.Result.Error);
+
+            var serviceSupplier = GetServiceSupplier();
+            if (serviceSupplier.Result.IsFailure)
+                return Result.Failure<ManagerContext>(serviceSupplier.Result.Error);
+
+            var managerRelation = await _dbContext.ManagerServiceSupplierRelations
+                .SingleOrDefaultAsync(relation => relation.ManagerId == manager.Result.Value.Id && relation.ServiceSupplierId == serviceSupplier.Result.Value.Id);
+            if (managerRelation is null)
+                return Result.Failure<ManagerContext>("Manager has no relation with service supplier");
+
+            var managerContext = new ManagerContext
+            {
+                Id = manager.Result.Value.Id,
+                FirstName = manager.Result.Value.FirstName,
+                LastName = manager.Result.Value.LastName,
+                Title = manager.Result.Value.Title,
+                Position = manager.Result.Value.Position,
+                Email = manager.Result.Value.Email,
+                Phone = manager.Result.Value.Phone,
+                Fax = manager.Result.Value.Fax,
+                ServiceSupplierId = managerRelation.ServiceSupplierId,
+                ManagerPermissions = managerRelation.ManagerPermissions,
+                IsMaster = managerRelation.IsMaster
+            };
+
+            return Result.Success(managerContext);
+        }
+
+
+        public async Task<Result<Manager>> GetMasterManager(int serviceSupplierId)
+        {
+            var managerRelation = await _dbContext.ManagerServiceSupplierRelations
+                .SingleOrDefaultAsync(relation => relation.ServiceSupplierId == serviceSupplierId && relation.IsMaster == true && relation.IsActive == true);
+
+            var manager = await _dbContext.Managers.SingleOrDefaultAsync(manager => manager.Id == managerRelation.ManagerId);
+
+            return manager is null
+                ? Result.Failure<Manager>("Master manager does not exist")
+                : Result.Success(manager);
+        }
+
+
         private readonly DirectContractsDbContext _dbContext;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
     }

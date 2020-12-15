@@ -21,6 +21,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
         
         public string Fax { get; set; }
 
-        public ManagerPermissions Permissions { get; set; }
+        public Permissions Permissions { get; set; }
     }
 }
