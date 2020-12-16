@@ -20,6 +20,8 @@ using HappyTravel.Hiroshima.WebApi.Conventions;
 using HappyTravel.Hiroshima.WebApi.Filters;
 using HappyTravel.Hiroshima.WebApi.Infrastructure;
 using HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions;
+using HappyTravel.MailSender.Infrastructure;
+using HappyTravel.MailSender.Models;
 using HappyTravel.StdOutLogger.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -52,6 +54,7 @@ namespace HappyTravel.Hiroshima.WebApi
             var redisEndpoint = Configuration[Configuration["Redis:Endpoint"]];
             var amazonS3DocumentsOptions = VaultHelper.GetOptions(vaultClient, "DirectContracts:AmazonS3:Documents", Configuration);
             var amazonS3ImagesOptions = VaultHelper.GetOptions(vaultClient, "DirectContracts:AmazonS3:Images", Configuration);
+            var mailSenderOptions = VaultHelper.GetOptions(vaultClient, "DirectContracts:Email", Configuration);
             var bookingWebhookOptions = VaultHelper.GetOptions(vaultClient, "DirectContracts:BookingWebhookOptions", Configuration);
 
             services.AddDirectContractsServices(dbConnectionString);
@@ -86,9 +89,19 @@ namespace HappyTravel.Hiroshima.WebApi
                     options.AmazonS3Bucket = amazonS3DocumentsOptions["bucket"];
                 })
                 .Configure<ImageManagementServiceOptions>(options =>
+                 {
+                     options.AmazonS3Bucket = amazonS3ImagesOptions["bucket"];
+                     options.AmazonS3RegionEndpoint = amazonS3ImagesOptions["regionEndpoint"];
+                 })
+                .Configure<SenderOptions>(options =>
                 {
-                    options.AmazonS3Bucket = amazonS3ImagesOptions["bucket"];
-                    options.AmazonS3RegionEndpoint = amazonS3ImagesOptions["regionEndpoint"];
+                    options.ApiKey = mailSenderOptions["apiKey"];
+                    options.BaseUrl = new Uri(mailSenderOptions["publicUrl"]);
+                    options.SenderAddress = new EmailAddress(mailSenderOptions["senderAddress"]);
+                })
+                .Configure<NotificationServiceOptions>(options =>
+                {
+                    options.RegularManagerMailTemplateId = mailSenderOptions["regularManagerRegistrationTemplateId"];
                 })
                 .Configure<BookingWebhookOptions>(options =>
                 {
@@ -125,7 +138,7 @@ namespace HappyTravel.Hiroshima.WebApi
                 options.Conventions.Insert(0, new LocalizationConvention());
                 options.Conventions.Add(new AuthorizeControllerModelConvention());
                 options.Filters.Add(new MiddlewareFilterAttribute(typeof(LocalizationPipelineFilter)));
-                    options.Filters.Add(typeof(ModelValidationFilter));
+                options.Filters.Add(typeof(ModelValidationFilter));
             })
             .AddAuthorization()
             .AddControllersAsServices()
