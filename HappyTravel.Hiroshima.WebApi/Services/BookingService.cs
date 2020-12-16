@@ -101,7 +101,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services
         public Task<Result> Cancel(string bookingReferenceCode) 
             => ValidateReferenceCode(bookingReferenceCode)
             .Bind(() => _bookingService.Get(bookingReferenceCode))
-            .Bind(bookingOrder => _bookingManagementService.TryCancel(bookingOrder.Id));
+            .Bind(bookingOrder => _bookingManagementService.Cancel(bookingOrder.Id));
 
 
         Result ValidateReferenceCode(string bookingReferenceCode) => IsReferenceCodeValid(bookingReferenceCode)

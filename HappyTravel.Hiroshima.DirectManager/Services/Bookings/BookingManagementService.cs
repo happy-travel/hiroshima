@@ -99,7 +99,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
         }
 
         
-        public Task<Result> TryCancel(Guid bookingId)
+        public Task<Result> Cancel(Guid bookingId)
         {
             return _bookingService.Get(bookingId)
                 .Bind(HandleCancellation);

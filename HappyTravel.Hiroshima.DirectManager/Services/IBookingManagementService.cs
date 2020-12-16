@@ -12,7 +12,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         Task<Result> ConfirmBooking(Guid bookingId);
         
-        Task<Result> TryCancel(Guid bookingId);
+        Task<Result> Cancel(Guid bookingId);
         
         Task<Result> ConfirmCancellation(Guid bookingId);
         

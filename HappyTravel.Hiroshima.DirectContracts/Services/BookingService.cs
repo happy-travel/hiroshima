@@ -139,7 +139,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
         public Task<Result<Common.Models.Bookings.BookingOrder>> Confirm(Guid bookingId)
         {
             return Get(bookingId)
-                .Ensure(IsBookingStatusValid, $"Failed to confirm the booking order with id '{bookingId}'")
+                .Ensure(IsBookingStatusValid, $"Failed to confirm the booking order with id '{bookingId}'. Status is invalid")
                 .Check(CheckIfCancellationDateValid)
                 .Map(bookingOrder => SetStatus(bookingOrder, BookingStatuses.Confirmed));
             
