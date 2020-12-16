@@ -71,7 +71,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         
         private readonly struct InternalSlimRateDetails
         {
-            public InternalSlimRateDetails(int roomId, int accommodationId, MoneyAmount totalAmount, decimal discount, BoardBasisTypes boardBasis, List<InternalSlimCancellationPolicies> cancellationPolicies, RoomTypes roomType, RoomOccupationRequest occupationRequest)
+            public InternalSlimRateDetails(int roomId, int accommodationId, MoneyAmount totalAmount, double discount, BoardBasisTypes boardBasis, List<InternalSlimCancellationPolicies> cancellationPolicies, RoomTypes roomType, RoomOccupationRequest occupationRequest)
             {
                 RoomId = roomId;
                 AccommodationId = accommodationId;
@@ -87,7 +87,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             public int RoomId { get; }
             public int AccommodationId { get; }
             public MoneyAmount TotalAmount { get; }
-            public decimal Discount { get; }
+            public double Discount { get; }
             public BoardBasisTypes BoardBasis { get; }
             public List<InternalSlimCancellationPolicies> CancellationPolicies { get; }
             public RoomTypes RoomType { get; }
@@ -97,7 +97,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         
         private readonly struct InternalSlimCancellationPolicies
         {
-            public InternalSlimCancellationPolicies(DateTime fromDate, DateTime toDate, MoneyAmount penaltyAmount, decimal percent)
+            public InternalSlimCancellationPolicies(DateTime fromDate, DateTime toDate, MoneyAmount penaltyAmount, double percent)
             {
                 FromDate = fromDate;
                 ToDate = toDate;
@@ -109,7 +109,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             public DateTime FromDate { get; }
             public DateTime ToDate { get; }
             public MoneyAmount PenaltyAmount { get;  }
-            public decimal Percent { get; }
+            public double Percent { get; }
         }
     }
 }

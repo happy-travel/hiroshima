@@ -8,10 +8,10 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
 {
     public interface IAvailabilityService
     {
-       Task<Result<Availability, ProblemDetails>> Get(AvailabilityRequest request, string languageCode);
+       Task<Result<Availability, ProblemDetails>> GetWideAvailability(AvailabilityRequest request, string languageCode);
 
-       Task<Result<AccommodationAvailability, ProblemDetails>> Get(string availabilityId, string accommodationId, string languageCode);
+       Task<Result<AccommodationAvailability, ProblemDetails>> GetAccommodationAvailability(string availabilityId, string accommodationId, string languageCode);
 
-       Task<Result<RoomContractSetAvailability, ProblemDetails>> Get(string availabilityId, Guid roomContractSetId);
+       Task<Result<RoomContractSetAvailability, ProblemDetails>> GetExactAvailability(string availabilityId, Guid roomContractSetId);
     }
 }

@@ -32,7 +32,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Get([FromBody] AvailabilityRequest request)
         {
-            var (_, isFailure, value, error) = await _availabilityService.Get(request, LanguageCode);
+            var (_, isFailure, value, error) = await _availabilityService.GetWideAvailability(request, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
@@ -51,7 +51,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Get([FromRoute] string accommodationId, [FromRoute] string availabilityId)
         {
-            var (_, isFailure, result, error) = await _availabilityService.Get(availabilityId, accommodationId, LanguageCode);
+            var (_, isFailure, result, error) = await _availabilityService.GetAccommodationAvailability(availabilityId, accommodationId, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
@@ -70,7 +70,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Get([FromRoute] string availabilityId, [FromRoute] Guid roomContractSetId)
         {
-            var (_, isFailure, result, error) = await _availabilityService.Get(availabilityId, roomContractSetId);
+            var (_, isFailure, result, error) = await _availabilityService.GetExactAvailability(availabilityId, roomContractSetId);
             if (isFailure)
                 return BadRequest(error);
 
