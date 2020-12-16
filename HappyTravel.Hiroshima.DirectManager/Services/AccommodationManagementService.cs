@@ -73,13 +73,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<List<Models.Responses.Accommodation>>> Get(int skip, int top)
         {
             return _managerContext.GetServiceSupplier()
-                .Map(serviceSupplier => GetCompanyAccommodationsWithRoomIds(serviceSupplier.Id))
-                .Map(accommodationWithRoomIds =>
-                    accommodationWithRoomIds.Select(Build).ToList()
+                .Map(serviceSupplier => GetAccommodationsWithRooms(serviceSupplier.Id))
+                .Map(accommodations =>
+                    accommodations.Select(Build).ToList()
                 );
 
 
-            async Task<List<Accommodation>> GetCompanyAccommodationsWithRoomIds(int serviceSupplierId)
+            async Task<List<Accommodation>> GetAccommodationsWithRooms(int serviceSupplierId)
                 => await _dbContext.Accommodations
                     .Include(accommodation => accommodation.Rooms)
                     .Where(accommodation => accommodation.ServiceSupplierId == serviceSupplierId)
@@ -378,8 +378,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 accommodation.Floors,
                 accommodation.BuildYear,
                 accommodation.Rooms != null
-                    ? accommodation.Rooms.Select(room => room.Id).ToList()
-                    : new List<int>());
+                    ? accommodation.Rooms.Select(Build).ToList()
+                    : new List<Models.Responses.Room>());
         }
 
 
