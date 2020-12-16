@@ -1,18 +1,20 @@
 ﻿using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.Hiroshima.DirectManager.Services;
 using HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch;
 
 namespace HappyTravel.Hiroshima.WebApi.Services
 {
     public class BookingService : IBookingService
     {
-        public BookingService(DirectContracts.Services.IBookingService bookingService, IAvailabilitySearchStorage availabilitySearchStorage, IBookingResponseService bookingResponseService, IAvailabilityIdMatchingService availabilityIdMatchingService)
+        public BookingService(DirectContracts.Services.IBookingService bookingService, IAvailabilitySearchStorage availabilitySearchStorage, IBookingResponseService bookingResponseService, IBookingManagementService bookingManagementService, IAvailabilityIdMatchingService availabilityIdMatchingService)
         {
             _bookingService = bookingService;
             _availabilitySearchStorage = availabilitySearchStorage;
             _bookingResponseService = bookingResponseService;
             _availabilityIdMatchingService = availabilityIdMatchingService;
+            _bookingManagementService = bookingManagementService;
         }
         
         
@@ -38,10 +40,13 @@ namespace HappyTravel.Hiroshima.WebApi.Services
 
             Task<Result<Common.Models.Bookings.BookingOrder>> ProcessBooking(EdoContracts.Accommodations.AvailabilityRequest availabilityRequest)
             {
-               return ValidateBookingRequest()
-                   .Bind(GetAccommodationAvailabilityId)
-                    .Bind(accommodationAvailabilityId => _bookingService.Book(new EdoContracts.Accommodations.BookingRequest(accommodationAvailabilityId, bookingRequest.RoomContractSetId, bookingRequest.ReferenceCode, bookingRequest.Rooms, bookingRequest.Features, bookingRequest.RejectIfUnavailable),
-                       availabilityRequest, languageCode)); 
+                return ValidateBookingRequest()
+                    .Bind(GetAccommodationAvailabilityId)
+                    .Bind(accommodationAvailabilityId
+                        => _bookingService.Book(
+                            new EdoContracts.Accommodations.BookingRequest(accommodationAvailabilityId, bookingRequest.RoomContractSetId,
+                                bookingRequest.ReferenceCode, bookingRequest.Rooms, bookingRequest.Features, bookingRequest.RejectIfUnavailable),
+                            availabilityRequest, languageCode)); 
                
 
                Task<Result> ValidateBookingRequest()
@@ -110,7 +115,8 @@ namespace HappyTravel.Hiroshima.WebApi.Services
 
         public Task<Result> Cancel(string bookingReferenceCode) 
             => ValidateReferenceCode(bookingReferenceCode)
-                .Bind(() => _bookingService.Cancel(bookingReferenceCode));
+            .Bind(() => _bookingService.Get(bookingReferenceCode))
+            .Bind(bookingOrder => _bookingManagementService.Cancel(bookingOrder.Id));
 
 
         Result ValidateReferenceCode(string bookingReferenceCode) => IsReferenceCodeValid(bookingReferenceCode)
@@ -126,8 +132,8 @@ namespace HappyTravel.Hiroshima.WebApi.Services
         private readonly IAvailabilitySearchStorage _availabilitySearchStorage;
         private readonly IBookingResponseService _bookingResponseService;
         private readonly IAvailabilityIdMatchingService _availabilityIdMatchingService;
-        
-        
+        private readonly IBookingManagementService _bookingManagementService;
+
         private const int BookingReferenceCodeMaxLength = 36;
     }
 }

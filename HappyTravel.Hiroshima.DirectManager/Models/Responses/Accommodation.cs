@@ -13,7 +13,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
             GeoPoint coordinates, AccommodationStars rating, string checkInTime, string checkOutTime, 
             ContactInfo contactInfo, PropertyTypes type, MultiLanguage<List<string>> amenities, MultiLanguage<string> additionalInfo, 
             OccupancyDefinition occupancyDefinition, int locationId, MultiLanguage<List<string>> leisureAndSports, Status status, 
-            RateOptions rateOptions, int? floor, int? buildYear, List<int> roomIds)
+            RateOptions rateOptions, int? floor, int? buildYear, List<Room> rooms)
         {
             Id = id;
             Name = name;
@@ -32,7 +32,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
             RateOptions = rateOptions;
             Status = status;
             LeisureAndSports = leisureAndSports;
-            RoomIds = roomIds;
+            Rooms = rooms;
             Floor = floor;
             BuildYear = buildYear;
         }
@@ -76,6 +76,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 
         public Status Status { get; }
 
-        public List<int> RoomIds { get; }
+        public List<Room> Rooms { get; }
     }
 }

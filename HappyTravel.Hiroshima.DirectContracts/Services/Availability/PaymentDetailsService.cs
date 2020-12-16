@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.EdoContracts.General;
-using HappyTravel.Hiroshima.Common.Infrastructure.Extensions;
-using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Common.Models.Availabilities;
 using HappyTravel.Money.Enums;
@@ -118,7 +116,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                 return description;
             }).ToList();
 
-
+        
         private static MoneyAmount GetDiscountAmount(MoneyAmount moneyAmount, Discount discount, Currencies currency)
             => new MoneyAmount(MoneyRounder.Truncate(moneyAmount.Amount / 100 * (decimal)discount.Percent, currency), currency);
 

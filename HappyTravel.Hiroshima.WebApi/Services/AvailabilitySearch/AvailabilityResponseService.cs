@@ -7,9 +7,6 @@ using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models.Availabilities;
-using HappyTravel.Hiroshima.DirectContracts.Services.Availability;
-using HappyTravel.Money.Helpers;
-using HappyTravel.Money.Models;
 using Accommodation = HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation;
 using Availability = HappyTravel.EdoContracts.Accommodations.Availability;
 

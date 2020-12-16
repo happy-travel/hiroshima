@@ -8,12 +8,14 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
     {
         Task<Result<Common.Models.Bookings.BookingOrder>> Get(string referenceCode);
 
-        Task<Result<Common.Models.Bookings.BookingOrder>> Get(Guid bookingId, int managerId);
+        Task<Result<Common.Models.Bookings.BookingOrder>> Get(Guid bookingId);
 
-        Task<Result<Common.Models.Bookings.BookingOrder>> Confirm(Guid bookingId, int managerId);
-        
         Task<Result<Common.Models.Bookings.BookingOrder>> Book (EdoContracts.Accommodations.BookingRequest rooms, EdoContracts.Accommodations.AvailabilityRequest availabilityRequest, string languageCode);
+        
+        Task<Result<Common.Models.Bookings.BookingOrder>> Confirm(Guid bookingId);
+        
+        Task<Result> MarkAsWaitingForCancellation(Guid bookingId);
 
-        Task<Result> Cancel(string referenceCode);
+        Task<Result<Common.Models.Bookings.BookingOrder>> Cancel(Guid bookingId);
     }
 }

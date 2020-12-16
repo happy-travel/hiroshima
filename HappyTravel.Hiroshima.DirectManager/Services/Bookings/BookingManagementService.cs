@@ -10,6 +10,7 @@ using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Availabilities;
 using HappyTravel.Hiroshima.Common.Models.Bookings;
+using HappyTravel.Hiroshima.Common.Models.Enums;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.DirectContracts.Extensions.FunctionalExtensions;
 using Microsoft.EntityFrameworkCore;
@@ -31,19 +32,18 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
         
         public Task<Result<List<Models.Responses.Bookings.BookingOrder>>> GetBookingOrders(Models.Requests.BookingRequest bookingRequest, int skip, int top, string languageCode)
         {
-            return _managerContext.GetServiceSupplier()
-                .Ensure(AreAllAccommodationIdsBelongToServiceSupplier, "Invalid accommodation ids")
+            return _managerContext.GetServiceSupplier().Ensure(AreAllAccommodationIdsBelongToSupplier, "Invalid accommodation ids")
                 .Map(_ => GetBookings())
                 .Map(bookingOrders => Build(bookingOrders, languageCode));
             
 
-            async Task<bool> AreAllAccommodationIdsBelongToServiceSupplier(ServiceSupplier serviceSupplier)
+            async Task<bool> AreAllAccommodationIdsBelongToSupplier(ServiceSupplier supplier)
             {
                 if (!bookingRequest.AccommodationIds.Any())
                     return true;
 
                 var existingIds = await _dbContext.Accommodations
-                    .Where(a => bookingRequest.AccommodationIds.Contains(a.Id) && a.ServiceSupplierId == serviceSupplier.Id)
+                    .Where(a => bookingRequest.AccommodationIds.Contains(a.Id) && a.ServiceSupplierId == supplier.Id)
                     .Select(bo => bo.Id)
                     .ToListAsync();
 
@@ -72,21 +72,71 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
         }
 
 
-        public Task<Result> ConfirmBookingOrder(Guid bookingId)
+        public Task<Result> ConfirmBooking(Guid bookingId)
         {
             return _managerContext.GetServiceSupplier()
-                .BindWithTransaction(_dbContext, supplier 
-                    => Confirm(supplier).Bind(SendStatusUpdate));
+                .Check(supplier => CheckIfBookingBelongsToServiceSupplier(supplier, bookingId))
+                .BindWithTransaction(_dbContext, manager 
+                    => _bookingService.Confirm(bookingId)
+                        .Bind(SendUpdateStatus));
 
 
-            Task<Result<BookingOrder>> Confirm(ServiceSupplier supplier) 
-                => _bookingService.Confirm(bookingId, supplier.Id);
-
-
-            Task<Result> SendStatusUpdate(BookingOrder bookingOrder)
+            Task<Result> SendUpdateStatus(BookingOrder bookingOrder)
                 => _bookingWebhookService.Send(bookingOrder.ReferenceCode, bookingOrder.Status);
         }
+
+
+        public Task<Result> ConfirmCancellation(Guid bookingId)
+        {
+            return _managerContext.GetServiceSupplier()
+                .Bind(supplier => CheckIfBookingBelongsToServiceSupplier(supplier, bookingId))
+                .Ensure(IsValidStatus, "Failed to confirm the booking order" )
+                .Bind(_ => _bookingService.Cancel(bookingId))
+                .Bind(bookingOrder => _bookingWebhookService.Send(bookingOrder.ReferenceCode, BookingStatuses.Cancelled));
+
+
+            bool IsValidStatus(BookingOrder bookingOrder) => bookingOrder.Status == BookingStatuses.WaitingForCancellation;
+        }
+
         
+        public Task<Result> Cancel(Guid bookingId)
+        {
+            return _bookingService.Get(bookingId)
+                .Bind(HandleCancellation);
+
+
+            async Task<Result> HandleCancellation(BookingOrder bookingOrder)
+            {
+                switch (bookingOrder.Status)
+                {
+                    case BookingStatuses.Processing:
+                    case BookingStatuses.WaitingForCancellation:
+                    case BookingStatuses.Cancelled:
+                        return await _bookingWebhookService.Send(bookingOrder.ReferenceCode, BookingStatuses.Cancelled);
+                    case BookingStatuses.WaitingForConfirmation:
+                        return await _bookingService.Cancel(bookingId)
+                            .Bind(_ => _bookingWebhookService.Send(bookingOrder.ReferenceCode, BookingStatuses.Cancelled));
+                    case BookingStatuses.Confirmed:
+                        return await _bookingService.MarkAsWaitingForCancellation(bookingId)
+                            .Bind(() => _bookingWebhookService.Send(bookingOrder.ReferenceCode, BookingStatuses.Processing));
+                }
+                
+                return Result.Failure("Failed to cancel the booking order");
+            }
+        }
+        
+        
+        private async Task<Result<BookingOrder>> CheckIfBookingBelongsToServiceSupplier(ServiceSupplier supplier, Guid bookingId)
+        {
+            var (_, isFailure, bookingOrder, error) = await _bookingService.Get(bookingId);
+            if (isFailure)
+                return Result.Failure<BookingOrder>(error);
+
+            return bookingOrder.ServiceSupplierId == supplier.Id
+                ? Result.Success(bookingOrder)
+                : Result.Failure<BookingOrder>("The booking order does not belong to the service supplier");
+        }
+
         
         private PaymentDetails BuildPaymentDetails(AvailableRates availableRates)
         {
@@ -95,7 +145,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
         }
 
 
-        private List<Models.Responses.Bookings.RateDetails> BuildRateDetails(List<RateDetails> availableRates, BookingRequest bookingRequest, string languageCode)
+        private List<Models.Responses.Bookings.RateDetails> BuildRateDetails(List<RateDetails> availableRates, BookingRequest bookingRequest,
+            string languageCode)
         {
             var rateDetails = new List<Models.Responses.Bookings.RateDetails>(availableRates.Count);
             for (var i = 0; i < availableRates.Count; i++)
@@ -104,7 +155,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
                 availableRate.Room.Name.TryGetValueOrDefault(languageCode, out var roomName);
                 var roomOccupancy = BuildRoomOccupancy(bookingRequest.Rooms[i]);
                 var paymentDetails = BuildPaymentDetails(availableRate);
-                rateDetails.Add(new Models.Responses.Bookings.RateDetails(availableRate.Room.Id, roomName, roomOccupancy, paymentDetails, availableRate.CancellationPolicies));
+                rateDetails.Add(new Models.Responses.Bookings.RateDetails(availableRate.Room.Id, roomName, roomOccupancy, paymentDetails,
+                    availableRate.CancellationPolicies));
             }
 
             return rateDetails;
@@ -112,11 +164,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
 
 
         private Models.Responses.Bookings.RoomOccupancy BuildRoomOccupancy(SlimRoomOccupation slimRoomOccupation)
-            => new Models.Responses.Bookings.RoomOccupancy(slimRoomOccupation.Type, slimRoomOccupation.Passengers
-                .Select(p=> new Models.Responses.Bookings.Pax(p.FirstName, p.LastName, p.IsLeader, p.Age))
-                .ToList());
-            
-        
+            => new Models.Responses.Bookings.RoomOccupancy(slimRoomOccupation.Type,
+                slimRoomOccupation.Passengers.Select(p => new Models.Responses.Bookings.Pax(p.FirstName, p.LastName, p.IsLeader, p.Age)).ToList());
+
+
         private PaymentDetails BuildPaymentDetails(RateDetails availableRate)
         {
             var totalAmount = availableRate.PaymentDetails.TotalAmount;
@@ -124,11 +175,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
 
             return new PaymentDetails(totalAmount, discount);
         }
-        
-        
-        private List<Models.Responses.Bookings.BookingOrder> Build(List<BookingOrder> bookingOrders, string languageCode) 
-            => bookingOrders.Select(bo => Build(bo, languageCode)).ToList(); 
-        
+
+
+        private List<Models.Responses.Bookings.BookingOrder> Build(List<BookingOrder> bookingOrders, string languageCode)
+            => bookingOrders.Select(bo => Build(bo, languageCode)).ToList();
+
 
         private Models.Responses.Bookings.BookingOrder Build(BookingOrder bookingOrder, string languageCode)
         {
@@ -139,17 +190,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
             accommodation.Name.TryGetValueOrDefault(languageCode, out var accommodationName);
             var rateDetails = BuildRateDetails(availableRates.Rates, bookingRequest, languageCode);
             var paymentDetails = BuildPaymentDetails(availableRates);
-            
-            return new Models.Responses.Bookings.BookingOrder(
-                bookingOrder.Id.ToString(), 
-                bookingOrder.Status, 
-                bookingOrder.ReferenceCode,
-                bookingOrder.CheckInDate, 
-                bookingOrder.CheckOutDate, 
-                rateDetails,
-                paymentDetails,
-                bookingOrder.AccommodationId, 
-                accommodationName);
+
+            return new Models.Responses.Bookings.BookingOrder(bookingOrder.Id.ToString(), bookingOrder.Status, bookingOrder.ReferenceCode,
+                bookingOrder.CheckInDate, bookingOrder.CheckOutDate, rateDetails, paymentDetails, bookingOrder.AccommodationId, accommodationName);
         }
         
         

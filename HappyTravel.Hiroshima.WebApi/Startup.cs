@@ -20,6 +20,8 @@ using HappyTravel.Hiroshima.WebApi.Conventions;
 using HappyTravel.Hiroshima.WebApi.Filters;
 using HappyTravel.Hiroshima.WebApi.Infrastructure;
 using HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions;
+using HappyTravel.MailSender.Infrastructure;
+using HappyTravel.MailSender.Models;
 using HappyTravel.StdOutLogger.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -91,6 +93,12 @@ namespace HappyTravel.Hiroshima.WebApi
                      options.AmazonS3Bucket = amazonS3ImagesOptions["bucket"];
                      options.AmazonS3RegionEndpoint = amazonS3ImagesOptions["regionEndpoint"];
                  })
+                .Configure<SenderOptions>(options =>
+                {
+                    options.ApiKey = mailSenderOptions["apiKey"];
+                    options.BaseUrl = new Uri(mailSenderOptions["publicUrl"]);
+                    options.SenderAddress = new EmailAddress(mailSenderOptions["senderAddress"]);
+                })
                 .Configure<NotificationServiceOptions>(options =>
                 {
                     options.RegularManagerMailTemplateId = mailSenderOptions["regularManagerRegistrationTemplateId"];
