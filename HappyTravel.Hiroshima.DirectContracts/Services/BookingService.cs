@@ -28,8 +28,8 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
             => Get(_dbContext.BookingOrders.Where(bo => bo.ReferenceCode.Equals(referenceCode)));
 
 
-        public Task<Result<Common.Models.Bookings.BookingOrder>> Get(Guid bookingId, int serviceSupplierId)
-            => Get(_dbContext.BookingOrders.Where(bo => bo.Id.Equals(bookingId) && bo.ServiceSupplierId.Equals(serviceSupplierId)));
+        public Task<Result<Common.Models.Bookings.BookingOrder>> Get(Guid bookingId)
+            => Get(_dbContext.BookingOrders.Where(bo => bo.Id.Equals(bookingId)));
            
         
         private async Task<Result<Common.Models.Bookings.BookingOrder>> Get(IQueryable<Common.Models.Bookings.BookingOrder> source)
@@ -136,21 +136,33 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
         }
 
 
-        public async Task<Result> Cancel(string referenceCode)
+        public Task<Result<Common.Models.Bookings.BookingOrder>> Confirm(Guid bookingId)
         {
-            return await Get(referenceCode)
-                .Ensure(BookingCanBeCancelled, $"The booking order '{referenceCode}' has already been cancelled")
+            return Get(bookingId)
+                .Ensure(IsBookingStatusValid, $"Failed to confirm the booking order with id '{bookingId}'. Status is invalid")
+                .Check(CheckIfCancellationDateValid)
+                .Map(bookingOrder => SetStatus(bookingOrder, BookingStatuses.Confirmed));
+            
+            
+            bool IsBookingStatusValid(Common.Models.Bookings.BookingOrder bookingOrder) 
+                => bookingOrder.Status == BookingStatuses.WaitingForConfirmation;
+        }
+        
+        
+        public async Task<Result> MarkAsWaitingForCancellation(Guid bookingId)
+        {
+            return await Get(bookingId)
+                .Check(CheckIfCancellationDateValid)
+                .Map(bookingOrder => SetStatus(bookingOrder, BookingStatuses.WaitingForCancellation));
+        }
+        
+        
+        public async Task<Result<Common.Models.Bookings.BookingOrder>> Cancel(Guid bookingId)
+        {
+            return await Get(bookingId)
+                .Check(CheckIfCancellationDateValid)
                 .BindWithTransaction(_dbContext, bookingOrder => RemoveRoomOccupancies(bookingOrder).Map(ChangeBookingStatus));
 
-
-            bool BookingCanBeCancelled(Common.Models.Bookings.BookingOrder bookingOrder)
-            {
-                //TODO Add cancellation policies checking
-                return bookingOrder.Status == BookingStatuses.Processing || 
-                    bookingOrder.Status == BookingStatuses.WaitingForConfirmation ||
-                    bookingOrder.Status == BookingStatuses.Confirmed && DateTime.UtcNow.Date < bookingOrder.CheckInDate.Date;
-            }
-           
 
             async Task<Result<Common.Models.Bookings.BookingOrder>> RemoveRoomOccupancies(Common.Models.Bookings.BookingOrder bookingOrder)
             {
@@ -160,34 +172,26 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
                 
                 return Result.Success(bookingOrder);
             }
-            
-            
-            async Task ChangeBookingStatus(Common.Models.Bookings.BookingOrder bookingOrder)
-            {
-                bookingOrder.Status = BookingStatuses.WaitingForCancellation;
-                bookingOrder.Modified = DateTime.UtcNow;
-                var entry = _dbContext.BookingOrders.Update(bookingOrder);
-                await _dbContext.SaveChangesAsync();
-                _dbContext.DetachEntry(entry.Entity);
-            }
         }
 
 
-        public Task<Result<Common.Models.Bookings.BookingOrder>> Confirm(Guid bookingId, int serviceSupplierId)
+        private Result CheckIfCancellationDateValid(Common.Models.Bookings.BookingOrder bookingOrder)
+            => DateTime.UtcNow.Date < bookingOrder.CheckInDate.Date
+                ? Result.Success()
+                : Result.Failure($"Can not cancel the booking order '{bookingOrder.ReferenceCode}' with check-in date in the past");
+
+
+        private async Task<Common.Models.Bookings.BookingOrder> ChangeBookingStatus(Common.Models.Bookings.BookingOrder bookingOrder)
         {
-            return Get(bookingId, serviceSupplierId)
-                .Ensure(IsBookingStatusValid, $"Failed to confirm the booking order with id '{bookingId}'")
-                .Ensure(IsDateValid, "Check-in date less or equal the current date")
-                .Map(bookingOrder => SetStatus(bookingOrder, BookingStatuses.Confirmed));
-            
-            
-            bool IsBookingStatusValid(Common.Models.Bookings.BookingOrder bookingOrder) 
-                => bookingOrder.Status == BookingStatuses.WaitingForConfirmation;
+            bookingOrder.Status = BookingStatuses.WaitingForCancellation;
+            bookingOrder.Modified = DateTime.UtcNow;
+            var entry = _dbContext.BookingOrders.Update(bookingOrder);
+            await _dbContext.SaveChangesAsync();
+            _dbContext.DetachEntry(entry.Entity);
 
-
-            bool IsDateValid(Common.Models.Bookings.BookingOrder bookingOrder) 
-                => DateTime.UtcNow.Date <= bookingOrder.CheckInDate.Date;
+            return entry.Entity;
         }
+        
 
         
         private Task<Common.Models.Bookings.BookingOrder> SetStatus(Common.Models.Bookings.BookingOrder bookingOrder, BookingStatuses status)
