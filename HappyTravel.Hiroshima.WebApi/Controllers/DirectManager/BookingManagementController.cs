@@ -69,7 +69,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
         
         /// <summary>
-        /// Confirms booking orders that have been booked through the connector API
+        /// Confirms a booking order
         /// </summary>
         /// <param name="bookingId"></param>
         /// <returns></returns>
@@ -78,13 +78,30 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Confirm([FromRoute] Guid bookingId)
         {
-            var (_, isFailure, error) = await _bookingManagementService.ConfirmBookingOrder(bookingId);
+            var (_, isFailure, error) = await _bookingManagementService.ConfirmBooking(bookingId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
             
             return NoContent();
         }
         
+        
+        /// <summary>
+        /// Confirms a booking order cancellation
+        /// </summary>
+        /// <param name="bookingId"></param>
+        /// <returns></returns>
+        [HttpPost("{bookingId}/cancel")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> ConfirmCancellation([FromRoute] Guid bookingId)
+        {
+            var (_, isFailure, error) = await _bookingManagementService.ConfirmCancellation(bookingId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+            
+            return NoContent();
+        }
         
         private readonly IBookingManagementService _bookingManagementService;
     }
