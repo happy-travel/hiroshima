@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using HappyTravel.EdoContracts.Accommodations;
+using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.GeoData.Enums;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
@@ -90,7 +91,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         
         private IQueryable<Accommodation> GetAvailableAccommodations(AvailabilityRequest availabilityRequest)
         {
-            var roomTypes = availabilityRequest.Rooms.Select(room => room.Type).ToList();
+            var roomTypes = GetRoomTypes(availabilityRequest);
             var ratings = AccommodationRatingConverter.Convert(availabilityRequest.Ratings);
             var checkInDate = availabilityRequest.CheckInDate.Date;
             var checkOutDate = availabilityRequest.CheckOutDate.Date;
@@ -125,7 +126,17 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                 .ThenInclude(location => location.Country)
                 .Where(accommodation => ratings.Contains(accommodation.Rating));
         }
-
+            
+        
+        private List<RoomTypes> GetRoomTypes(AvailabilityRequest availabilityRequest)
+        {
+            var roomTypes = availabilityRequest.Rooms.Select(room => room.Type).ToList();
+            if (roomTypes.All(rt => rt == RoomTypes.NotSpecified))
+                roomTypes = Enum.GetValues(typeof(RoomTypes)).Cast<RoomTypes>().ToList();
+            
+            return roomTypes;
+        }
+        
         
         private Common.Models.Availabilities.Availability CreateAvailability(AvailabilityRequest availabilityRequest, List<Dictionary<RoomOccupationRequest, List<Room>>> groupedAvailableRooms, string languageCode)
         {
@@ -161,7 +172,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
             Dictionary<RoomOccupationRequest, List<RateDetails>> GetAvailableRateDetails(Dictionary<RoomOccupationRequest, List<Room>> occupationRequestRoomsStore)
                 => occupationRequestRoomsStore
                     .ToDictionary(occupationRequestRooms => occupationRequestRooms.Key, occupationRequestRooms => _rateAvailabilityService.GetAvailableRates(occupationRequestRooms.Key, occupationRequestRooms.Value.ToList(), availabilityRequest.CheckInDate, availabilityRequest.CheckOutDate, languageCode));
-           
+            
             
             string GenerateAvailability() => Guid.NewGuid().ToString("N");
             
