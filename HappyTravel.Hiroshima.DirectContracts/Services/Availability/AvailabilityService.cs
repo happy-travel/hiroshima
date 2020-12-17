@@ -130,7 +130,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         
         private List<RoomTypes> GetRoomTypes(AvailabilityRequest availabilityRequest)
         {
-            var roomTypes = availabilityRequest.Rooms.Select(room => room.Type).ToList();
+            var roomTypes = availabilityRequest.Rooms.Select(room => room.Type).Distinct().ToList();
             if (roomTypes.All(rt => rt == RoomTypes.NotSpecified))
                 roomTypes = Enum.GetValues(typeof(RoomTypes)).Cast<RoomTypes>().ToList();
             
