@@ -335,7 +335,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 Modified = DateTime.UtcNow,
                 Status = accommodation.Status,
                 Floors = accommodation.Floors,
-                BuildYear = accommodation.BuildYear
+                BuildYear = accommodation.BuildYear,
+                PostalCode = accommodation.PostalCode
             };
         }
 
@@ -377,6 +378,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 accommodation.RateOptions,
                 accommodation.Floors,
                 accommodation.BuildYear,
+                accommodation.PostalCode,
                 accommodation.Rooms != null
                     ? accommodation.Rooms.Select(Build).ToList()
                     : new List<Models.Responses.Room>());
