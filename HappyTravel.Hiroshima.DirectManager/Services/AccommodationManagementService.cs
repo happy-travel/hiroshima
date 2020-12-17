@@ -90,6 +90,20 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
+        public async Task<Result<Accommodation>> GetInternal(int accommodationId)
+        {
+            var accommodation = await _dbContext.Accommodations
+                .Include(a => a.Location)
+                .ThenInclude(location => location.Country)
+                .Include(a => a.Rooms)
+                .SingleOrDefaultAsync(a => a.Id == accommodationId);
+
+            return accommodation != null
+                ? Result.Success(accommodation)
+                : Result.Failure<Accommodation>("Failed to retrieve the accommodation");
+        }
+
+
         public Task<Result<Models.Responses.Accommodation>> Add(Models.Requests.Accommodation accommodationRequest)
         {
             return ValidationHelper.Validate(accommodationRequest, new AccommodationValidator())
@@ -146,7 +160,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             //https://happytravel.atlassian.net/browse/HIR-74
             return await _managerContext.GetServiceSupplier()
                 .Check(serviceSupplier => _serviceSupplierContext.EnsureAccommodationBelongsToServiceSupplier(serviceSupplier, accommodationId))
-                .Tap(serviceSupplier => RemoveAccommodationImages(serviceSupplier.Id))
+                .Check(serviceSupplier => RemoveAccommodationImages(serviceSupplier.Id))
                 .Tap(serviceSupplier => RemoveAccommodationWithRooms(serviceSupplier.Id));
 
 

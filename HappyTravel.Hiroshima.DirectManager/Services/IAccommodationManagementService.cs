@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Hiroshima.Common.Models.Accommodations;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {
@@ -11,6 +12,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         Task<Result<List<Models.Responses.Accommodation>>> Get(int skip, int top);
 
         Task<Result<List<Models.Responses.Accommodation>>> GetAccommodations(int contractId);
+
+        Task<Result<Accommodation>> GetInternal(int accommodationId);
        
         Task<Result<Models.Responses.Accommodation>> Add(Models.Requests.Accommodation accommodation);
         

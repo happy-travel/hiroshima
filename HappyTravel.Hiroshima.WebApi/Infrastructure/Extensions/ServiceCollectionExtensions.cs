@@ -82,6 +82,7 @@ namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions
             services.AddTransient<IAvailabilitySearchStorage, AvailabilitySearchStorage>();
             services.AddTransient<IBookingResponseService, BookingResponseService>();
             services.AddTransient<IAvailabilityIdMatchingService, AvailabilityIdMatchingService>();
+            services.AddTransient<IAccommodationDataService, AccommodationDataService>();
             
             return services;
         }

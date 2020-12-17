@@ -1,9 +1,11 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.Hiroshima.WebApi.Infrastructure.Attributes;
+using HappyTravel.Hiroshima.WebApi.Services;
 using HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,9 +18,10 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
     [Produces("application/json")]
     public class AccommodationsController : BaseController
     {
-        public AccommodationsController(IAvailabilityService availabilityService)
+        public AccommodationsController(IAvailabilityService availabilityService, IAccommodationDataService accommodationDataService)
         {
             _availabilityService = availabilityService;
+            _accommodationDataService = accommodationDataService;
         }
 
 
@@ -78,6 +81,25 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
         }
         
         
+        /// <summary>
+        /// Retrieves an accommodation details
+        /// </summary>
+        /// <param name="accommodationId">Accommodation id</param>
+        /// <returns></returns>
+        [HttpGet("{accommodationId}")]
+        [ProducesResponseType(typeof(Accommodation), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetAccommodationDetails([Required] [FromRoute] string accommodationId)
+        {
+            var (_, isFailure, accommodationDetails, problemDetails) = await _accommodationDataService.GetAccommodationDetails(Convert.ToInt32(accommodationId), LanguageCode);
+            if (isFailure)
+                return BadRequest(problemDetails);
+
+            return Ok(accommodationDetails);
+        }
+        
+        
         private readonly IAvailabilityService _availabilityService;
+        private readonly IAccommodationDataService _accommodationDataService;
     }
 }

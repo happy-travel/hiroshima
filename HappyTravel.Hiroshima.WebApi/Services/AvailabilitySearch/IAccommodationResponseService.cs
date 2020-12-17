@@ -5,6 +5,8 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
 {
     public interface IAccommodationResponseService
     {
-        SlimAccommodation Create(Accommodation accommodation, string languageCode);
+        SlimAccommodation CreateSlim(Accommodation accommodation, string languageCode);
+
+        EdoContracts.Accommodations.Accommodation Create(Accommodation accommodation, string languageCode);
     }
 }

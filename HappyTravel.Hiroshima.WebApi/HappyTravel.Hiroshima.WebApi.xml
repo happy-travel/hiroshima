@@ -27,6 +27,13 @@
             <param name="roomContractSetId"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.Connector.AccommodationsController.GetAccommodationDetails(System.String)">
+            <summary>
+            Retrieves an accommodation details
+            </summary>
+            <param name="accommodationId">Accommodation id</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.Connector.BookingController.Book(HappyTravel.EdoContracts.Accommodations.BookingRequest)">
             <summary>
             Creates a new booking order
