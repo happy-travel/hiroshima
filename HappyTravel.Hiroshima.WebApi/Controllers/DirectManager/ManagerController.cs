@@ -144,7 +144,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpPost("invitations/send")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> InviteMaanager([FromBody] Hiroshima.DirectManager.Models.Requests.SendManagerInvitation managerInvitation)
+        public async Task<IActionResult> InviteManager([FromBody] Hiroshima.DirectManager.Models.Requests.SendManagerInvitation managerInvitation)
         {
             var (_, isFailure, error) = await _managerInvitationService.Send(managerInvitation);
             if (isFailure)
