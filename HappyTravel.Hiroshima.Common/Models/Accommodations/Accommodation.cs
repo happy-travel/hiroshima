@@ -38,7 +38,7 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations
         
         public int? Floors { get; set; }
         
-        public string ZipCode { get; set; }
+        public string PostalCode { get; set; }
         
         public MultiLanguage<List<string>> AccommodationAmenities { get; set; }
         

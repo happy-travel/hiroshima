@@ -44,7 +44,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
         
         public Status Status { get; set; }
 
-        public string ZipCode { get; set; } = string.Empty;
+        public string PostalCode { get; set; } = string.Empty;
         
         public int LocationId { get; set; }
     }
