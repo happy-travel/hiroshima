@@ -116,6 +116,45 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public async Task<Result> Resend(string invitationCode)
         {
             throw new NotImplementedException();
+
+            return await _managerContext.GetManagerRelation()
+                .Ensure(managerRelation => HasManagerInvitationManagerPermission(managerRelation).Value, "The manager does not have enough rights")
+                .Bind(managerRelation => GetExistingInvitation())
+                .Bind(SendInvitationMail)
+                .Bind(DisableExistingInvitation);
+
+
+            async Task<Result<ManagerInvitation>> GetExistingInvitation()
+            {
+                var invitation = await _dbContext.ManagerInvitations.SingleOrDefaultAsync(i => i.CodeHash == invitationCode);
+
+                return invitation ?? Result.Failure<ManagerInvitation>($"Invitation with Code {invitationCode} not found");
+            }
+
+
+            async Task<Result<ManagerInvitation>> SendInvitationMail(ManagerInvitation invitationData)
+            {
+                var serviceSupplier = await _managerContext.GetServiceSupplier();
+                if (serviceSupplier.IsFailure)
+                    return Result.Failure<ManagerInvitation>(serviceSupplier.Error);
+
+                //await _notificationService.SendInvitation(sendManagerInvitation, serviceSupplier.Value.Name);
+
+                return invitationData;
+            }
+
+
+            async Task<Result> DisableExistingInvitation(ManagerInvitation existingInvitation)
+            {
+                if (existingInvitation is null)
+                {
+                    return Result.Failure("Old invitation can not be null");
+                }
+
+                existingInvitation.IsResent = true;
+                await _dbContext.SaveChangesAsync();
+                return Result.Success();
+            }
         }
 
 

@@ -137,7 +137,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
 
         /// <summary>
-        ///     Invite regular manager by e-mail.
+        ///     Sends an invite to a regular manager
         /// </summary>
         /// <param name="managerInvitation">Regular manager registration request.</param>
         /// <returns></returns>
