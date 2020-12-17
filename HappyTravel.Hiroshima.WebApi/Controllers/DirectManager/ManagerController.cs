@@ -161,7 +161,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpPost("invitations/{invitationCode}/resend")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> Resend([FromRoute] string invitationCode)
+        public async Task<IActionResult> ResendInvite([FromRoute] string invitationCode)
         {
             var (_, isFailure, error) = await _managerInvitationService.Resend(invitationCode);
             if (isFailure)

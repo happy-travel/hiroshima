@@ -450,12 +450,12 @@
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.InviteMaanager(HappyTravel.Hiroshima.DirectManager.Models.Requests.SendManagerInvitation)">
             <summary>
-                Invite regular manager by e-mail.
+                Sends an invite to a regular manager
             </summary>
             <param name="managerInvitation">Regular manager registration request.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.Resend(System.String)">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.ResendInvite(System.String)">
             <summary>
                Resend manager invitation
             </summary>
