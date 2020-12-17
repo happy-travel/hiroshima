@@ -26,7 +26,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public async Task<Result> Send(Models.Requests.ManagerInvitationInfo sendManagerInvitation)
+        public async Task<Result> Send(Models.Requests.ManagerInvitationInfo managerInvitationInfo)
         {
             return await _managerContext.GetManagerRelation()
                 .Ensure(managerRelation => HasManagerInvitationManagerPermission(managerRelation).Value, "The manager does not have enough rights")
@@ -42,7 +42,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 if (serviceSupplier.IsFailure)
                     return Result.Failure<(ManagerServiceSupplierRelation, string)>(serviceSupplier.Error);
                  
-                await _notificationService.SendInvitation(sendManagerInvitation, serviceSupplier.Value.Name);
+                await _notificationService.SendInvitation(managerInvitationInfo, serviceSupplier.Value.Name);
 
                 return invitationData;
             }
@@ -55,11 +55,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 var managerInvitation = new ManagerInvitation
                 {
                     CodeHash = invitationCode,
-                    FirstName = sendManagerInvitation.FirstName,
-                    LastName = sendManagerInvitation.LastName,
-                    Title = sendManagerInvitation.Title,
-                    Position = sendManagerInvitation.Position,
-                    Email = sendManagerInvitation.Email,
+                    FirstName = managerInvitationInfo.FirstName,
+                    LastName = managerInvitationInfo.LastName,
+                    Title = managerInvitationInfo.Title,
+                    Position = managerInvitationInfo.Position,
+                    Email = managerInvitationInfo.Email,
                     ManagerId = managerRelation.ManagerId,
                     ServiceSupplierId = managerRelation.ServiceSupplierId,
                     Created = DateTime.UtcNow,
@@ -76,13 +76,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public async Task<Result<string>> Create(Models.Requests.ManagerInvitationInfo sendManagerInvitation)
+        public async Task<Result<string>> Create(Models.Requests.ManagerInvitationInfo managerInvitationInfo)
         {
             return await _managerContext.GetManagerRelation()
                 .Ensure(managerRelation => HasManagerInvitationManagerPermission(managerRelation).Value, "The manager does not have enough rights")
                 .Bind(GenerateInvitationCode)
                 .Bind(SaveInvitation)
-                .Tap(invitationCode => LogInvitationCreated(sendManagerInvitation.Email));
+                .Tap(invitationCode => LogInvitationCreated(managerInvitationInfo.Email));
 
 
             async Task<Result<string>> SaveInvitation((ManagerServiceSupplierRelation, string) invitationData)
@@ -92,11 +92,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 var managerInvitation = new ManagerInvitation
                 {
                     CodeHash = invitationCode,
-                    FirstName = sendManagerInvitation.FirstName,
-                    LastName = sendManagerInvitation.LastName,
-                    Title = sendManagerInvitation.Title,
-                    Position = sendManagerInvitation.Position,
-                    Email = sendManagerInvitation.Email,
+                    FirstName = managerInvitationInfo.FirstName,
+                    LastName = managerInvitationInfo.LastName,
+                    Title = managerInvitationInfo.Title,
+                    Position = managerInvitationInfo.Position,
+                    Email = managerInvitationInfo.Email,
                     ManagerId = managerRelation.ManagerId,
                     ServiceSupplierId = managerRelation.ServiceSupplierId,
                     Created = DateTime.UtcNow,
@@ -138,7 +138,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 if (serviceSupplier.IsFailure)
                     return Result.Failure<ManagerInvitation>(serviceSupplier.Error);
 
-                //await _notificationService.SendInvitation(sendManagerInvitation, serviceSupplier.Value.Name);
+                //await _notificationService.SendInvitation(managerInvitationInfo, serviceSupplier.Value.Name);
 
                 return invitationData;
             }
