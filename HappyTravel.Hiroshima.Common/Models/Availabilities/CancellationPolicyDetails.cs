@@ -5,7 +5,7 @@ namespace HappyTravel.Hiroshima.Common.Models.Availabilities
 {
     public readonly struct CancellationPolicyDetails
     {
-        public CancellationPolicyDetails(DateTime fromDate, DateTime toDate, MoneyAmount penaltyAmount, decimal percent, string description = null)
+        public CancellationPolicyDetails(DateTime fromDate, DateTime toDate, MoneyAmount penaltyAmount, double percent, string? description = null)
         {
             FromDate = fromDate;
             ToDate = toDate;
@@ -27,7 +27,7 @@ namespace HappyTravel.Hiroshima.Common.Models.Availabilities
         public DateTime FromDate { get; }
         public DateTime ToDate { get; }
         public MoneyAmount PenaltyAmount { get; }
-        public decimal Percent { get; }
+        public double Percent { get; }
         public string Description { get; }
     }
 }

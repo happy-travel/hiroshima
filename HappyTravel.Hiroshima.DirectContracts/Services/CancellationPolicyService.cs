@@ -20,7 +20,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
                 var endDate = checkInDate.Date.AddDays(-cancellationPolicyDataItem.DaysPriorToArrival.FromDay);
 
                 MoneyAmount pricePenalty;
-                decimal percent;
+                double percent;
                 if (cancellationPolicyDataItem.PenaltyType == PolicyPenaltyTypes.Percent)
                 {
                     pricePenalty = CalculatePercentPenaltyPrice(cancellationPolicyDataItem.PenaltyCharge, paymentDetails);
@@ -29,7 +29,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
                 else
                 {
                     pricePenalty = CalculateNightsPenaltyPrice((int) cancellationPolicyDataItem.PenaltyCharge, paymentDetails);
-                    percent = Math.Truncate(Convert.ToDecimal((checkOutDate - checkInDate).Days / 100) * cancellationPolicyDataItem.PenaltyCharge);
+                    percent = Math.Truncate((double) (checkOutDate - checkInDate).Days / 100 * cancellationPolicyDataItem.PenaltyCharge);
                 }
                   
                 var cancellationDetails = new CancellationPolicyDetails(startDate, endDate, pricePenalty, percent);
@@ -40,8 +40,8 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
         }
         
 
-        private MoneyAmount CalculatePercentPenaltyPrice(decimal percentToCharge, PaymentDetails paymentDetails)
-            => new MoneyAmount(MoneyRounder.Ceil(paymentDetails.TotalAmount.Amount * percentToCharge / 100, paymentDetails.TotalAmount.Currency), paymentDetails.TotalAmount.Currency);
+        private MoneyAmount CalculatePercentPenaltyPrice(double percentToCharge, PaymentDetails paymentDetails)
+            => new MoneyAmount(MoneyRounder.Ceil(paymentDetails.TotalAmount.Amount * (decimal) percentToCharge / 100, paymentDetails.TotalAmount.Currency), paymentDetails.TotalAmount.Currency);
 
 
         private MoneyAmount CalculateNightsPenaltyPrice(int nightsToCharge, PaymentDetails paymentDetails)

@@ -11,15 +11,16 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
     public class AvailabilityService : IAvailabilityService
     {
        public AvailabilityService(
-            HappyTravel.Hiroshima.DirectContracts.Services.Availability.IAvailabilityService availabilityService, IAvailabilitySearchStorage availabilitySearchStorage, IAvailabilityResponseService availabilityResponseService)
+            HappyTravel.Hiroshima.DirectContracts.Services.Availability.IAvailabilityService availabilityService, IAvailabilitySearchStorage availabilitySearchStorage, IAvailabilityResponseService availabilityResponseService, IAvailabilityIdMatchingService availabilityIdMatchingService)
         {
             _availabilityService = availabilityService;
             _availabilityResponseService = availabilityResponseService;
             _availabilitySearchStorage = availabilitySearchStorage;
+            _availabilityIdMatchingService = availabilityIdMatchingService;
         }
 
 
-        public async Task<Result<Availability, ProblemDetails>> Get(AvailabilityRequest availabilityRequest, string languageCode)
+        public async Task<Result<Availability, ProblemDetails>> GetWideAvailability(AvailabilityRequest availabilityRequest, string languageCode)
         {
             var availability = await _availabilityService.Get(availabilityRequest, languageCode);
             if (!availability.AvailableRates.Any())
@@ -32,7 +33,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
         }
 
 
-        public async Task<Result<AccommodationAvailability, ProblemDetails>> Get(string availabilityId, string accommodationId, string languageCode)
+        public async Task<Result<AccommodationAvailability, ProblemDetails>> GetAccommodationAvailability(string availabilityId, string accommodationId, string languageCode)
         {
             var availabilityRequest = await _availabilitySearchStorage.GetAvailabilityRequest(availabilityId);
             
@@ -47,21 +48,18 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
             if (!availability.AvailableRates.Any())
                 return _availabilityResponseService.CreateEmptyAccommodationAvailability(availabilityRequest);
 
+            await _availabilityIdMatchingService.SetAccommodationAvailabilityId(availabilityId, availability.Id);
+            availability.Id = availabilityId;
+            
             var availabilityResult = _availabilityResponseService.CreateAccommodationAvailability(availabilityRequest, availability, languageCode);
 
-            await Task.WhenAll(_availabilitySearchStorage.AddAccommodationAvailability(availabilityResult), 
-                ReplaceAvailabilityRequest(availabilityId, availabilityResult.AvailabilityId, availabilityRequest));
+            await _availabilitySearchStorage.AddAccommodationAvailability(availabilityResult);
 
             return availabilityResult;
-            
-            
-            Task ReplaceAvailabilityRequest(string previousAvailabilityId, string currentAvailabilityId, AvailabilityRequest availabilityRequest)
-                => Task.WhenAll(_availabilitySearchStorage.RemoveAvailabilityRequest(previousAvailabilityId),
-                    _availabilitySearchStorage.AddAvailabilityRequest(currentAvailabilityId, availabilityRequest));
         }
 
  
-        public async Task<Result<RoomContractSetAvailability, ProblemDetails>> Get(string availabilityId, Guid roomContractSetId)
+        public async Task<Result<RoomContractSetAvailability, ProblemDetails>> GetExactAvailability(string availabilityId, Guid roomContractSetId)
         {
             var accommodationAvailability = await _availabilitySearchStorage.GetAccommodationAvailability(availabilityId);
             if (string.IsNullOrEmpty(accommodationAvailability.AvailabilityId))
@@ -76,5 +74,6 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
         private readonly IAvailabilityResponseService _availabilityResponseService;
         private readonly HappyTravel.Hiroshima.DirectContracts.Services.Availability.IAvailabilityService _availabilityService;
         private readonly IAvailabilitySearchStorage _availabilitySearchStorage;
+        private readonly IAvailabilityIdMatchingService _availabilityIdMatchingService;
     }
 }

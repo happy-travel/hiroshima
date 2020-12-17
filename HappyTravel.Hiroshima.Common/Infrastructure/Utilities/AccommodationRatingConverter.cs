@@ -21,23 +21,18 @@ namespace HappyTravel.Hiroshima.Common.Infrastructure.Utilities
         };
 
 
-        public static IEnumerable<AccommodationStars> Convert(AccommodationRatings ratings)
-        {
-            if (ratings == AccommodationRatings.Unknown || ratings == 0)
-                return Enum.GetValues(typeof(AccommodationStars)).Cast<AccommodationStars>();
-
-            return ratings
-                .GetFlags<AccommodationRatings>()
-                .Select(rating => rating switch
-                {
-                    AccommodationRatings.NotRated => AccommodationStars.NotRated,
-                    AccommodationRatings.OneStar => AccommodationStars.OneStar,
-                    AccommodationRatings.TwoStars => AccommodationStars.TwoStars,
-                    AccommodationRatings.ThreeStars => AccommodationStars.ThreeStars,
-                    AccommodationRatings.FourStars => AccommodationStars.FourStars,
-                    AccommodationRatings.FiveStars => AccommodationStars.FiveStars,
-                    _ => throw new ArgumentException($"Invalid value {rating}", nameof(rating))
-                });
-        }
+        public static IEnumerable<AccommodationStars> Convert(AccommodationRatings ratings) 
+            => ratings
+            .GetFlags<AccommodationRatings>()
+            .Select(rating => rating switch
+            {
+                AccommodationRatings.NotRated => AccommodationStars.NotRated,
+                AccommodationRatings.OneStar => AccommodationStars.OneStar,
+                AccommodationRatings.TwoStars => AccommodationStars.TwoStars,
+                AccommodationRatings.ThreeStars => AccommodationStars.ThreeStars,
+                AccommodationRatings.FourStars => AccommodationStars.FourStars,
+                AccommodationRatings.FiveStars => AccommodationStars.FiveStars,
+                _ => throw new ArgumentException($"Invalid value {rating}", nameof(rating))
+            });
     }
 }

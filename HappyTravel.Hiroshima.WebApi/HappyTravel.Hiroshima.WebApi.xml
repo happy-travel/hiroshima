@@ -231,7 +231,14 @@
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.BookingManagementController.Confirm(System.Guid)">
             <summary>
-            Confirms booking orders that have been booked through the connector API
+            Confirms a booking order
+            </summary>
+            <param name="bookingId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.BookingManagementController.ConfirmCancellation(System.Guid)">
+            <summary>
+            Confirms a booking order cancellation
             </summary>
             <param name="bookingId"></param>
             <returns></returns>

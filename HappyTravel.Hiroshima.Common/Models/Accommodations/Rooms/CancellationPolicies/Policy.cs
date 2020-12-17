@@ -20,6 +20,6 @@
         /// <summary>
         /// In nights number or percentage
         /// </summary>
-        public decimal PenaltyCharge { get; set; }
+        public double PenaltyCharge { get; set; }
     }
 }

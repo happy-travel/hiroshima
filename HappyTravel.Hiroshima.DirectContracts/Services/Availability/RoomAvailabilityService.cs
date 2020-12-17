@@ -30,7 +30,8 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 
                 var availableRooms = accommodation.Rooms
                     .Where(room => AvailabilityHelper.IsRoomAvailableByAllotment(availabilityRequest, room))
-                    .Where(room => !DoesRoomHaveStopSaleAvailabilityRestriction(room)).ToList();
+                    .Where(room => !DoesRoomHaveStopSaleAvailabilityRestriction(room))
+                    .Where(room => room.RoomRates.Any()).ToList();
                 
                 foreach (var occupationRequestItem in occupationRequest)
                 {

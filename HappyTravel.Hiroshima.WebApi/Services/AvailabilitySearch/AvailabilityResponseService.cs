@@ -7,9 +7,6 @@ using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models.Availabilities;
-using HappyTravel.Hiroshima.DirectContracts.Services.Availability;
-using HappyTravel.Money.Helpers;
-using HappyTravel.Money.Models;
 using Accommodation = HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation;
 using Availability = HappyTravel.EdoContracts.Accommodations.Availability;
 
@@ -107,11 +104,11 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
         {
             var id = availableRates.Id;
             var roomContracts = CreateRoomContracts(availableRates.Rates, languageCode);
-            var price = CreatePrice(availableRates.Rates);
+            var contractRate = CreateContractRate(availableRates.Rates);
             var deadline = CreateDeadline(roomContracts);
             var advancePurchaseRate = false;
             
-            return new RoomContractSet(id, price, deadline, roomContracts, advancePurchaseRate);
+            return new RoomContractSet(id, contractRate, deadline, roomContracts, advancePurchaseRate);
         }
 
 
@@ -132,8 +129,8 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
             {
                 new KeyValuePair<string,string>($"{nameof(rateDetails.Room.Amenities)}", string.Join(", ", roomAmenities))
             };
-            var dailyPrices = CreateDailyPrices(rateDetails.PaymentDetails);
-            var totalPrice = CreatePrice(rateDetails.PaymentDetails, PriceTypes.Room);
+            var dailyContractRates = CreateDailyContractRates(rateDetails.PaymentDetails);
+            var totalContractRate = CreateContractRate(rateDetails.PaymentDetails, PriceTypes.Room);
             var adultsNumber = rateDetails.OccupationRequest.AdultsNumber;
             var childrenAges = rateDetails.OccupationRequest.ChildrenAges;
             var isExtraBedNeeded = rateDetails.OccupationRequest.IsExtraBedNeeded;
@@ -141,7 +138,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
             var deadline = CreateDeadline(rateDetails.CancellationPolicies);
             var isAdvancePurchaseRate = false;
             
-            return new RoomContract(boardBasis, mealPlan, contractTypeCode, isAvailableImmediately, idDynamic, contractDescription, remarks, dailyPrices, totalPrice, adultsNumber, childrenAges, roomType, isExtraBedNeeded, deadline, isAdvancePurchaseRate);
+            return new RoomContract(boardBasis, mealPlan, contractTypeCode, isAvailableImmediately, idDynamic, contractDescription, remarks, dailyContractRates, totalContractRate, adultsNumber, childrenAges, roomType, isExtraBedNeeded, deadline, isAdvancePurchaseRate);
         }
 
 
@@ -161,26 +158,26 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
             => roomContracts.Select(roomContract => roomContract.Deadline).OrderBy(roomContract => roomContract.Date).FirstOrDefault();
         
         
-        private Price CreatePrice(PaymentDetails paymentDetails, PriceTypes priceType)
+        private Rate CreateContractRate(PaymentDetails paymentDetails, PriceTypes priceType)
         {
             var discounts = new List<Discount> {paymentDetails.Discount};
             
-            return new Price(paymentDetails.TotalAmount, paymentDetails.TotalAmount, discounts, priceType);           
+            return new Rate(paymentDetails.TotalAmount, paymentDetails.TotalAmount, discounts, priceType);           
         }
         
         
-        private Price CreatePrice(List<RateDetails> rateDetails)
+        private Rate CreateContractRate(List<RateDetails> rateDetails)
         {
             var price = PriceHelper.GetPrice(rateDetails);
             
-            return new Price(price.amount, price.amount, new List<Discount>{price.discount}, PriceTypes.RoomContractSet);           
+            return new Rate(price.amount, price.amount, new List<Discount>{price.discount}, PriceTypes.RoomContractSet);           
         }
         
         
-        private List<DailyPrice> CreateDailyPrices(in PaymentDetails paymentDetails) 
+        private List<DailyRate> CreateDailyContractRates(in PaymentDetails paymentDetails) 
             => paymentDetails.SeasonPrices.SelectMany(seasonPriceDetails => seasonPriceDetails.DailyPrices)
             .OrderBy(dailyPrice => dailyPrice.FromDate)
-            .Select(dailyPrice => new DailyPrice(dailyPrice.FromDate, dailyPrice.ToDate, dailyPrice.DailyAmount, dailyPrice.DailyAmount))
+            .Select(dailyPrice => new DailyRate(dailyPrice.FromDate, dailyPrice.ToDate, dailyPrice.DailyAmount, dailyPrice.DailyAmount))
             .ToList();
 
 
