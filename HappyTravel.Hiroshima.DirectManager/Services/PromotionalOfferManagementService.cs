@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Hiroshima.Common.Infrastructure.Extensions;
-using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
-using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
@@ -47,7 +44,58 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
         }
 
-        
+
+        public Task<Result<Models.Responses.PromotionalOffer>> Modify(int contractId, int promotionalOfferId, Models.Requests.PromotionalOffer promotionalOfferRequest)
+        {
+            return ValidationHelper.Validate(promotionalOfferRequest, new PromotionalOfferValidator())
+                .Bind(() => _managerContext.GetServiceSupplier())
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
+                .Bind(_ => Update());
+
+
+            Task<Result<Models.Responses.PromotionalOffer>> Update()
+            {
+                return GetPromotionalOffer().Bind(UpdateDbEntry).Bind(UpdateDb).Map(Build);
+
+
+                async Task<Result<RoomPromotionalOffer>> GetPromotionalOffer()
+                {
+                    var promotionalOffer = await _dbContext.PromotionalOffers
+                        .SingleOrDefaultAsync(rpo => rpo.Id == promotionalOfferId && rpo.ContractId == contractId);
+
+                    return promotionalOffer == null
+                        ? Result.Failure<RoomPromotionalOffer>("Failed to retrieve the promotional offer")
+                        : Result.Success(promotionalOffer);
+                }
+
+
+                Result<RoomPromotionalOffer> UpdateDbEntry(RoomPromotionalOffer promotionalOffer)
+                {
+                    promotionalOffer.RoomId = promotionalOfferRequest.RoomId;
+                    promotionalOffer.DiscountPercent = promotionalOfferRequest.DiscountPercent;
+                    promotionalOffer.BookByDate = promotionalOfferRequest.BookByDate;
+                    promotionalOffer.BookingCode = promotionalOfferRequest.BookingCode;
+                    promotionalOffer.ValidFromDate = promotionalOfferRequest.ValidFrom;
+                    promotionalOffer.ValidToDate = promotionalOfferRequest.ValidTo;
+                    promotionalOffer.Description = promotionalOfferRequest.Description;
+
+                    return promotionalOffer;
+                }
+
+
+                async Task<Result<RoomPromotionalOffer>> UpdateDb(RoomPromotionalOffer roomPromotionalOffer)
+                {
+                    var entry = _dbContext.PromotionalOffers.Update(roomPromotionalOffer);
+                    await _dbContext.SaveChangesAsync();
+
+                    _dbContext.DetachEntry(entry.Entity);
+
+                    return entry.Entity;
+                }
+            }
+        }
+
+
         public Task<Result<List<Models.Responses.PromotionalOffer>>> Get(int contractId, int skip, int top, List<int> roomIds, DateTime? validFrom = null, DateTime? validTo = null)
         {
             return _managerContext.GetServiceSupplier()
@@ -229,9 +277,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         private Models.Responses.PromotionalOffer Build(RoomPromotionalOffer promotionalOffer)
-            => new Models.Responses.PromotionalOffer(promotionalOffer.Id, promotionalOffer.ContractId, promotionalOffer.RoomId, promotionalOffer.BookByDate,
+            => new Models.Responses.PromotionalOffer(
+                promotionalOffer.Id, 
+                promotionalOffer.ContractId, 
+                promotionalOffer.RoomId, 
+                promotionalOffer.BookByDate,
                 promotionalOffer.ValidFromDate,
-                promotionalOffer.ValidToDate, promotionalOffer.DiscountPercent, promotionalOffer.BookingCode,
+                promotionalOffer.ValidToDate, 
+                promotionalOffer.DiscountPercent, 
+                promotionalOffer.BookingCode,
                 promotionalOffer.Description);
         
         

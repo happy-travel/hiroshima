@@ -242,9 +242,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             };
 
 
-        
-
-
         private Result Validate(List<Models.Requests.AllocationRequirement> allocationRequirements)
             => ValidationHelper.Validate(allocationRequirements, new AllocationRequirementsValidator());
 
