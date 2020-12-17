@@ -18,7 +18,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public async Task<Result> SendInvitation(SendManagerInvitation managerInvitation, string serviceSupplierName)
+        public async Task<Result> SendInvitation(ManagerInvitationInfo managerInvitation, string serviceSupplierName)
         {
             var companyInfo = await _companyService.Get();
 

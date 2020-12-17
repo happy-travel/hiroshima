@@ -448,7 +448,7 @@
             <param name="managerInfo">Invited manager info</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.InviteMaanager(HappyTravel.Hiroshima.DirectManager.Models.Requests.SendManagerInvitation)">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.InviteManager(HappyTravel.Hiroshima.DirectManager.Models.Requests.ManagerInvitationInfo)">
             <summary>
                 Sends an invite to a regular manager
             </summary>
@@ -461,7 +461,7 @@
             </summary>
             <param name="invitationCode">Invitation code</param>>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.CreateInvitation(HappyTravel.Hiroshima.DirectManager.Models.Requests.SendManagerInvitation)">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.CreateInvitation(HappyTravel.Hiroshima.DirectManager.Models.Requests.ManagerInvitationInfo)">
             <summary>
                 Creates invitation for regular manager.
             </summary>

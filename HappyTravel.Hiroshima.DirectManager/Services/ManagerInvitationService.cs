@@ -26,7 +26,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public async Task<Result> Send(Models.Requests.SendManagerInvitation sendManagerInvitation)
+        public async Task<Result> Send(Models.Requests.ManagerInvitationInfo sendManagerInvitation)
         {
             return await _managerContext.GetManagerRelation()
                 .Ensure(managerRelation => HasManagerInvitationManagerPermission(managerRelation).Value, "The manager does not have enough rights")
@@ -76,7 +76,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public async Task<Result<string>> Create(Models.Requests.SendManagerInvitation sendManagerInvitation)
+        public async Task<Result<string>> Create(Models.Requests.ManagerInvitationInfo sendManagerInvitation)
         {
             return await _managerContext.GetManagerRelation()
                 .Ensure(managerRelation => HasManagerInvitationManagerPermission(managerRelation).Value, "The manager does not have enough rights")

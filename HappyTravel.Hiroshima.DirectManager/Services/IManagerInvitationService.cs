@@ -5,9 +5,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public interface IManagerInvitationService
     {
-        Task<Result> Send(Models.Requests.SendManagerInvitation managerInvitation);
+        Task<Result> Send(Models.Requests.ManagerInvitationInfo managerInvitation);
 
-        Task<Result<string>> Create(Models.Requests.SendManagerInvitation managerInvitation);
+        Task<Result<string>> Create(Models.Requests.ManagerInvitationInfo managerInvitation);
 
         Task<Result> Resend(string invitationCode);
 

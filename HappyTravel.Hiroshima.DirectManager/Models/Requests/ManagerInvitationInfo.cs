@@ -2,7 +2,7 @@
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
 {
-    public class SendManagerInvitation : ManagerInfo
+    public class ManagerInvitationInfo : ManagerInfo
     {
         [Required]
         public string Email { get; set; }
