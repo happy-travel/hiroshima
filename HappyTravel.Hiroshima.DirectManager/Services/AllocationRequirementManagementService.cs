@@ -2,12 +2,12 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
 using Microsoft.EntityFrameworkCore;
+using ServiceSupplier = HappyTravel.Hiroshima.Common.Models.ServiceSupplier;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {
@@ -78,6 +78,56 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
         }
 
+        
+        public Task<Result<Models.Responses.AllocationRequirement>> Modify(int contractId, int allocationRequirementId, Models.Requests.AllocationRequirement allocationRequirementRequest)
+        {
+            return ValidationHelper.Validate(allocationRequirementRequest, new AllocationRequirementsValidator())
+                .Bind(() => _managerContext.GetServiceSupplier())
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
+                .Bind(_ => Update());
+
+
+            Task<Result<Models.Responses.AllocationRequirement>> Update()
+            {
+                return GetAllocationRequirement().Bind(UpdateDbEntry).Bind(UpdateDb).Map(Build);
+
+
+                async Task<Result<RoomAllocationRequirement>> GetAllocationRequirement()
+                {
+                    var allocationRequirement = await _dbContext.RoomAllocationRequirements.Include(ar => ar.SeasonRange)
+                        .ThenInclude(sr => sr.Season)
+                        .SingleOrDefaultAsync(ar => ar.Id == allocationRequirementId && ar.SeasonRange.Season.ContractId == contractId);
+
+                    return allocationRequirement == null
+                        ? Result.Failure<RoomAllocationRequirement>("Failed to retrieve the allocation requirement")
+                        : Result.Success(allocationRequirement);
+                }
+
+
+                Result<RoomAllocationRequirement> UpdateDbEntry(RoomAllocationRequirement allocationRequirement)
+                {
+                    allocationRequirement.RoomId = allocationRequirementRequest.RoomId;
+                    allocationRequirement.SeasonRangeId = allocationRequirementRequest.SeasonRangeId;
+                    allocationRequirement.ReleaseDays = allocationRequirementRequest.ReleaseDays;
+                    allocationRequirement.Allotment = allocationRequirementRequest.Allotment;
+                    allocationRequirement.MinimumLengthOfStay = allocationRequirementRequest.MinimumLengthOfStay;
+                    
+                    return allocationRequirement;
+                }
+
+
+                async Task<Result<RoomAllocationRequirement>> UpdateDb(RoomAllocationRequirement allocationRequirement)
+                {
+                    var entry = _dbContext.RoomAllocationRequirements.Update(allocationRequirement);
+                    await _dbContext.SaveChangesAsync();
+
+                    _dbContext.DetachEntry(entry.Entity);
+
+                    return entry.Entity;
+                }
+            }
+        }
+        
 
         public Task<Result<List<Models.Responses.AllocationRequirement>>> Get(int contractId, int skip, int top, List<int> roomIds = null, List<int> seasonIds = null, List<int> seasonRangeIds = null)
         {
@@ -166,7 +216,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 await _dbContext.SaveChangesAsync();
             }
         }
-        
+
 
         private List<Models.Responses.AllocationRequirement> Build(List<RoomAllocationRequirement> allocationRequirement)
             => allocationRequirement.Select(Build).ToList();
@@ -190,6 +240,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 Allotment = requirement.Allotment,
                 MinimumLengthOfStay = requirement.MinimumLengthOfStay
             };
+
+
+        
 
 
         private Result Validate(List<Models.Requests.AllocationRequirement> allocationRequirements)
