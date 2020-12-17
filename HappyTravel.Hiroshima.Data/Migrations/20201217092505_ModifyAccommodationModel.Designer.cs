@@ -10,6 +10,7 @@ using HappyTravel.Hiroshima.Common.Models.Images;
 using HappyTravel.Hiroshima.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -17,9 +18,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Hiroshima.Data.Migrations
 {
     [DbContext(typeof(DirectContractsDbContext))]
-    partial class DirectContractsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201217092505_ModifyAccommodationModel")]
+    partial class ModifyAccommodationModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -99,10 +101,6 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
-                    b.Property<string>("PostalCode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<int>("PropertyType")
                         .HasColumnType("integer");
 
@@ -122,6 +120,10 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.Property<MultiLanguage<TextualDescription>>("TextualDescription")
                         .IsRequired()
                         .HasColumnType("jsonb");
+
+                    b.Property<string>("ZipCode")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
