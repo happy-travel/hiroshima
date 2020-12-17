@@ -45,11 +45,11 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="contractId"></param>
         /// <param name="allocationRequirementId"></param>
         /// <param name="allocationRequirement"></param>
-        /// <returns>Room allocation requirement</returns>
+        /// <returns>Modified allocation requirement</returns>
         [HttpPut("contracts/{contractId}/allocation-requirements/{allocationRequirementId}")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.AllocationRequirement>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> ModifyAllocationRequirements([FromRoute] int contractId, [FromRoute] int allocationRequirementId, [FromBody] Hiroshima.DirectManager.Models.Requests.AllocationRequirement allocationRequirement)
+        public async Task<IActionResult> ModifyAllocationRequirement([FromRoute] int contractId, [FromRoute] int allocationRequirementId, [FromBody] Hiroshima.DirectManager.Models.Requests.AllocationRequirement allocationRequirement)
         {
             var (_, isFailure, response, error) = await _allocationRequirementManagementService.Modify(contractId, allocationRequirementId, allocationRequirement);
             if (isFailure)
