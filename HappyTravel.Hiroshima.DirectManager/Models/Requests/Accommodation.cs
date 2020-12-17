@@ -43,6 +43,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Requests
         public RateOptions RateOptions { get; set; } = new RateOptions {SingleAdultAndChildBookings = SingleAdultAndChildBookings.ApplyAdultRate};
         
         public Status Status { get; set; }
+
+        public string ZipCode { get; set; } = string.Empty;
         
         public int LocationId { get; set; }
     }

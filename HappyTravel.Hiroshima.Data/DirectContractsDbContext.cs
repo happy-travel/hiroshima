@@ -88,6 +88,7 @@ namespace HappyTravel.Hiroshima.Data
                 e.Property(a => a.Created).IsRequired();
                 e.Property(a => a.Modified).IsRequired();
                 e.Property(a => a.Floors);
+                e.Property(a => a.ZipCode);
                 e.Property(a => a.BuildYear);
                 e.Property(a => a.Images).HasColumnType("jsonb").IsRequired().HasDefaultValueSql("'[]'::jsonb");
                 e.HasIndex(a => a.Coordinates).HasMethod("GIST");
