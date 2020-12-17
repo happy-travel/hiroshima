@@ -6,6 +6,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public interface INotificationService
     {
+        Task<Result> SendInvitation(SendManagerInvitation managerInvitation, string serviceSupplierName);
+
         Task<Result> SendRegistrationConfirmation(string emailMasterManager, ManagerInfo managerInfo, string serviceSupplierName);
     }
 }

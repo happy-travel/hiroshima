@@ -1065,17 +1065,6 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                     b.Navigation("Country");
                 });
 
-            modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.Manager", b =>
-                {
-                    b.HasOne("HappyTravel.Hiroshima.Common.Models.ServiceSupplier", "ServiceSupplier")
-                        .WithMany("Managers")
-                        .HasForeignKey("ServiceSupplierId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
-
-                    b.Navigation("ServiceSupplier");
-                });
-
             modelBuilder.Entity("HappyTravel.Hiroshima.Common.Models.RoomOccupancy", b =>
                 {
                     b.HasOne("HappyTravel.Hiroshima.Common.Models.Bookings.BookingOrder", null)

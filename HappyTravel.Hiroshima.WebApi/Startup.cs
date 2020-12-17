@@ -101,12 +101,17 @@ namespace HappyTravel.Hiroshima.WebApi
                 })
                 .Configure<NotificationServiceOptions>(options =>
                 {
-                    options.RegularManagerMailTemplateId = mailSenderOptions["regularManagerRegistrationTemplateId"];
+                    options.ManagerInvitationMailTemplateId = mailSenderOptions["regularManagerInvitationTemplateId"];
+                    options.ManagerRegistrationMailTemplateId = mailSenderOptions["regularManagerRegistrationTemplateId"];
                 })
                 .Configure<BookingWebhookOptions>(options =>
                 {
                     options.Key = bookingWebhookOptions["key"];
                     options.WebhookUrl = new Uri(bookingWebhookOptions["webhookUrl"]);
+                })
+                .Configure<ManagerInvitationOptions>(options =>
+                {
+                    options.InvitationExpirationPeriod = TimeSpan.FromDays(7);
                 });
 
             services.AddHealthChecks()

@@ -18,6 +18,23 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
+        public async Task<Result> SendInvitation(SendManagerInvitation managerInvitation, string serviceSupplierName)
+        {
+            var companyInfo = await _companyService.Get();
+
+            return await _mailSender.Send(_options.Value.ManagerRegistrationMailTemplateId, managerInvitation.Email, new RegistrationDataForMaster
+            {
+                ManagerName = $"{managerInvitation.FirstName} {managerInvitation.LastName}",
+                Position = managerInvitation.Position,
+                Title = managerInvitation.Title,
+                ServiceSupplierName = serviceSupplierName,
+                CompanyInfo = companyInfo.IsFailure
+                    ? new CompanyInfo()
+                    : companyInfo.Value
+            });
+        }
+
+
         public async Task<Result> SendRegistrationConfirmation(string emailMasterManager, ManagerInfo managerInfo, string serviceSupplierName)
         {
             var position = managerInfo.Position;
@@ -26,7 +43,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             var companyInfo = await _companyService.Get();
 
-            return await _mailSender.Send<RegistrationDataForMaster>(_options.Value.RegularManagerMailTemplateId, emailMasterManager, new RegistrationDataForMaster
+            return await _mailSender.Send(_options.Value.ManagerRegistrationMailTemplateId, emailMasterManager, new RegistrationDataForMaster
             {
                 ManagerName = $"{managerInfo.FirstName} {managerInfo.LastName}",
                 Position = position,
