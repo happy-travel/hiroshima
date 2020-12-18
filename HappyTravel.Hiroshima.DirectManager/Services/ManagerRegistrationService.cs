@@ -160,15 +160,18 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<Result<(Models.Responses.ManagerInvitation, Manager)>> AddManager(Models.Responses.ManagerInvitation managerInvitation)
             {
+                var utcNowDate = DateTime.UtcNow;
                 var manager = new Manager
                 {
-                    Title = managerInfoRequest.Title,
+                    IdentityHash = _managerContext.GetIdentityHash(),
+                    Email = email,
                     FirstName = managerInfoRequest.FirstName,
                     LastName = managerInfoRequest.LastName,
+                    Title = managerInfoRequest.Title,
                     Position = managerInfoRequest.Position,
-                    Email = email,
-                    IdentityHash = _managerContext.GetIdentityHash(), 
-                    Created = DateTime.UtcNow
+                    Created = utcNowDate,
+                    Updated = utcNowDate,
+                    IsActive = true
                 };
 
                 _dbContext.Managers.Add(manager);
