@@ -171,6 +171,15 @@
             <param name="allocationRequirements"></param>
             <returns>List of room allocation requirements</returns>
         </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AllocationRequirementsManagementController.ModifyAllocationRequirement(System.Int32,System.Int32,HappyTravel.Hiroshima.DirectManager.Models.Requests.AllocationRequirement)">
+            <summary>
+            Modifies a room allocation requirement
+            </summary>
+            <param name="contractId"></param>
+            <param name="allocationRequirementId"></param>
+            <param name="allocationRequirement"></param>
+            <returns>Modified allocation requirement</returns>
+        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.AllocationRequirementsManagementController.GetAllocationRequirements(System.Int32,System.Int32,System.Int32,System.Collections.Generic.List{System.Int32},System.Collections.Generic.List{System.Int32},System.Collections.Generic.List{System.Int32})">
             <summary>
             Retrieves room's allocation requirements. Query is used to filter requirements by room, season, season range
@@ -524,6 +533,15 @@
             <param name="promotionalOffers"></param>
             <returns>List of promotional offers</returns>
         </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.PromotionalOfferManagementController.ModifyPromotionalOffer(System.Int32,System.Int32,HappyTravel.Hiroshima.DirectManager.Models.Requests.PromotionalOffer)">
+            <summary>
+            Modifies a promotional offer
+            </summary>
+            <param name="contractId"></param>
+            <param name="promotionalOfferId"></param>
+            <param name="promotionalOffer"></param>
+            <returns>Modified promotional offer</returns>
+        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.PromotionalOfferManagementController.RemovePromotionalOffers(System.Int32,System.Collections.Generic.List{System.Int32})">
             <summary>
             Removes contracted promotional offer by ID
@@ -567,6 +585,15 @@
             <param name="contractId"></param>
             <param name="rates"></param>
             <returns>List of rates</returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.RateManagementController.ModifyRate(System.Int32,System.Int32,HappyTravel.Hiroshima.DirectManager.Models.Requests.Rate)">
+            <summary>
+            Modifies contract rate
+            </summary>
+            <param name="contractId"></param>
+            <param name="rateId"></param>
+            <param name="rate"></param>
+            <returns>Modified rate</returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.RateManagementController.GetRates(System.Int32,System.Int32,System.Int32,System.Collections.Generic.List{System.Int32},System.Collections.Generic.List{System.Int32})">
             <summary>

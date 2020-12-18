@@ -29,7 +29,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpPost("contracts/{contractId}/allocation-requirements")]
         [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.AllocationRequirement>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> AddAllocationRequirements(int contractId, [FromBody] List<Hiroshima.DirectManager.Models.Requests.AllocationRequirement> allocationRequirements)
+        public async Task<IActionResult> AddAllocationRequirements([FromRoute] int contractId, [FromBody] List<Hiroshima.DirectManager.Models.Requests.AllocationRequirement> allocationRequirements)
         {
             var (_, isFailure, response, error) = await _allocationRequirementManagementService.Add(contractId, allocationRequirements);
             if (isFailure)
@@ -38,6 +38,26 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
             return Ok(response);
         }
 
+
+        /// <summary>
+        /// Modifies a room allocation requirement
+        /// </summary>
+        /// <param name="contractId"></param>
+        /// <param name="allocationRequirementId"></param>
+        /// <param name="allocationRequirement"></param>
+        /// <returns>Modified allocation requirement</returns>
+        [HttpPut("contracts/{contractId}/allocation-requirements/{allocationRequirementId}")]
+        [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.AllocationRequirement>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> ModifyAllocationRequirement([FromRoute] int contractId, [FromRoute] int allocationRequirementId, [FromBody] Hiroshima.DirectManager.Models.Requests.AllocationRequirement allocationRequirement)
+        {
+            var (_, isFailure, response, error) = await _allocationRequirementManagementService.Modify(contractId, allocationRequirementId, allocationRequirement);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
+        }
+        
 
         /// <summary>
         /// Retrieves room's allocation requirements. Query is used to filter requirements by room, season, season range

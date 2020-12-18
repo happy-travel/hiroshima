@@ -41,6 +41,26 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
 
         /// <summary>
+        /// Modifies contract rate
+        /// </summary>
+        /// <param name="contractId"></param>
+        /// <param name="rateId"></param>
+        /// <param name="rate"></param>
+        /// <returns>Modified rate</returns>
+        [HttpPut("contracts/{contractId}/rates/{rateId}")]
+        [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.Rate>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> ModifyRate([FromRoute] int contractId, [FromRoute] int rateId, [FromBody] Rate rate)
+        { 
+            var (_, isFailure, response, error) = await _rateManagementService.Modify(contractId, rateId, rate);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
+        }
+        
+        
+        /// <summary>
         /// Retrieves contract rates
         /// </summary>
         /// <param name="contractId"></param>
