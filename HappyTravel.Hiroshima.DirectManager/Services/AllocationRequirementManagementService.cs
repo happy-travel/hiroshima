@@ -121,8 +121,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     var entry = _dbContext.RoomAllocationRequirements.Update(allocationRequirement);
                     await _dbContext.SaveChangesAsync();
 
-                    _dbContext.DetachEntry(entry.Entity);
-
                     return entry.Entity;
                 }
             }
