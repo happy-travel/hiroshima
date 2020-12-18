@@ -98,7 +98,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                         .ThenInclude(sr => sr.Season)
                         .SingleOrDefaultAsync(ar => ar.Id == allocationRequirementId && ar.SeasonRange.Season.ContractId == contractId);
 
-                    return allocationRequirement == null
+                    return allocationRequirement is null
                         ? Result.Failure<RoomAllocationRequirement>("Failed to retrieve the allocation requirement")
                         : Result.Success(allocationRequirement);
                 }

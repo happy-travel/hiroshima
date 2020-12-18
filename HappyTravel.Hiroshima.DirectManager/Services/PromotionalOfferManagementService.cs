@@ -63,7 +63,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     var promotionalOffer = await _dbContext.PromotionalOffers
                         .SingleOrDefaultAsync(rpo => rpo.Id == promotionalOfferId && rpo.ContractId == contractId);
 
-                    return promotionalOffer == null
+                    return promotionalOffer is null
                         ? Result.Failure<RoomPromotionalOffer>("Failed to retrieve the promotional offer")
                         : Result.Success(promotionalOffer);
                 }

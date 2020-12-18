@@ -162,7 +162,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     var roomRate = await _dbContext.RoomRates.Include(rr => rr.Season)
                         .SingleOrDefaultAsync(rr => rr.Id == rateId && rr.Season.ContractId == contractId);
 
-                    return roomRate == null ? Result.Failure<RoomRate>("Failed to retrieve the room rate") : Result.Success(roomRate);
+                    return roomRate is null
+                        ? Result.Failure<RoomRate>("Failed to retrieve the room rate") 
+                        : Result.Success(roomRate);
                 }
 
 
