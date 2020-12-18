@@ -167,7 +167,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     LastName = managerInfoRequest.LastName,
                     Position = managerInfoRequest.Position,
                     Email = email,
-                    IdentityHash = _managerContext.GetIdentityHash(),
+                    IdentityHash = _managerContext.GetIdentityHash(), 
                     Created = DateTime.UtcNow
                 };
 
