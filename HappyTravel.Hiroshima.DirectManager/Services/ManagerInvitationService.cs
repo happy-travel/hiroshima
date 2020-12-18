@@ -38,20 +38,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Tap(managerInvitation => LogInvitationCreated(managerInvitationInfo.Email));
 
 
-            async Task<Result<ManagerInvitation>> SendInvitationMail(ManagerInvitation managerInvitation)
-            {
-                var serviceSupplier = await _managerContext.GetServiceSupplier();
-                if (serviceSupplier.IsFailure)
-                    return Result.Failure<ManagerInvitation>(serviceSupplier.Error);
-                 
-                var sendingResult = await _notificationService.SendInvitation(managerInvitation, serviceSupplier.Value.Name);
-                if (sendingResult.IsFailure)
-                    return Result.Failure<ManagerInvitation>(sendingResult.Error);
-
-                return Result.Success(managerInvitation);
-            }
-
-
             async Task<Result<ManagerInvitation>> SaveInvitation((ManagerServiceSupplierRelation, string) invitationData)
             {
                 var (managerRelation, invitationCode) = invitationData;
@@ -134,18 +120,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
 
 
-            async Task<Result<ManagerInvitation>> SendInvitationMail(ManagerInvitation managerInvitation)
-            {
-                var serviceSupplier = await _managerContext.GetServiceSupplier();
-                if (serviceSupplier.IsFailure)
-                    return Result.Failure<ManagerInvitation>(serviceSupplier.Error);
-
-                await _notificationService.SendInvitation(managerInvitation, serviceSupplier.Value.Name);
-
-                return managerInvitation;
-            }
-
-
             async Task<Result> DisableExistingInvitation(ManagerInvitation existingInvitation)
             {
                 existingInvitation.IsResent = true;
@@ -217,6 +191,20 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             var managerInvitation = await _dbContext.ManagerInvitations.SingleOrDefaultAsync(c => c.CodeHash == invitationCode);
 
             return managerInvitation ?? Maybe<ManagerInvitation>.None;
+        }
+
+
+        private async Task<Result<ManagerInvitation>> SendInvitationMail(ManagerInvitation managerInvitation)
+        {
+            var serviceSupplier = await _managerContext.GetServiceSupplier();
+            if (serviceSupplier.IsFailure)
+                return Result.Failure<ManagerInvitation>(serviceSupplier.Error);
+
+            var sendingResult = await _notificationService.SendInvitation(managerInvitation, serviceSupplier.Value.Name);
+            if (sendingResult.IsFailure)
+                return Result.Failure<ManagerInvitation>(sendingResult.Error);
+
+            return Result.Success(managerInvitation);
         }
 
 

@@ -21,7 +21,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             var companyInfo = await _companyService.Get();
 
-            return await _mailSender.Send(_options.Value.ManagerRegistrationMailTemplateId, managerInvitation.Email, new RegistrationDataForMaster
+            return await _mailSender.Send(_options.Value.ManagerInvitationMailTemplateId, managerInvitation.Email, new RegistrationDataForMaster
             {
                 ManagerName = $"{managerInvitation.FirstName} {managerInvitation.LastName}",
                 Position = managerInvitation.Position,
