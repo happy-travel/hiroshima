@@ -3,22 +3,25 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Models.Enums;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.HttpClients;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.Options;
 using HappyTravel.Hiroshima.DirectManager.Models.Webhooks.Bookings;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
 {
     public class BookingWebhookNotificationsService : IBookingWebhookService
     {
-        public BookingWebhookNotificationsService(BookingWebhookClient bookingWebhookClient, IOptions<BookingWebhookOptions> bookingWebhookOptions)
+        public BookingWebhookNotificationsService(BookingWebhookClient bookingWebhookClient, IOptions<BookingWebhookOptions> bookingWebhookOptions, IOptions<JsonOptions> jsonOptions)
         {
             _bookingWebhookClient = bookingWebhookClient;
             _bookingWebhookOptions = bookingWebhookOptions.Value;
+            _jsonOptions = jsonOptions.Value;
         }
 
         
@@ -34,7 +37,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
         {
             using var readStream = new StreamReader(stream, Encoding.UTF8);
             var json = await readStream.ReadToEndAsync();
-            var webhookData = JsonSerializer.Deserialize<BookingWebhookData>(json);
+            if (string.IsNullOrEmpty(json))
+                return Result.Failure<BookingWebhookData>("Request body is empty");
+                    
+            var webhookData = JsonSerializer.Deserialize<BookingWebhookData>(json, _jsonOptions.JsonSerializerOptions) ;
             
             return IsWebhookDataValid(webhookData)
                 ? Result.Success(webhookData)
@@ -82,7 +88,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
             
             return signature.Equals(calculatedSignature);
         }
-        
+
         
         private long CalculateTimestamp() => new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
         
@@ -90,8 +96,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
         private static string ConvertHashToString(byte[] hash) =>
             BitConverter.ToString(hash).Replace("-", "").ToLower();
 
-                
+        
         private readonly BookingWebhookOptions _bookingWebhookOptions;
         private readonly BookingWebhookClient _bookingWebhookClient;
+        private readonly JsonOptions _jsonOptions;
     }
 }
