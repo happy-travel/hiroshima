@@ -457,7 +457,7 @@
             <param name="managerWithServiceSupplier">Master manager with service supplier request</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.RegisterInvitedManager(HappyTravel.Hiroshima.DirectManager.Models.Requests.ManagerInfo)">
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.RegisterInvitedManager(HappyTravel.Hiroshima.DirectManager.Models.Requests.ManagerInfoWithCode)">
             <summary>
             Registers regular manager
             </summary>
@@ -481,14 +481,14 @@
             <summary>
                 Creates invitation for regular manager.
             </summary>
-            <param name="request">Regular manager registration request.</param>
+            <param name="managerInvitation">Regular manager registration request.</param>
             <returns>Invitation code.</returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.GetInvitationData(System.String)">
             <summary>
                 Gets invitation data.
             </summary>
-            <param name="code">Invitation code.</param>
+            <param name="invitationCode">Invitation code.</param>
             <returns>Invitation data, including pre-filled registration information.</returns>
         </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.AddServiceSupplier(HappyTravel.Hiroshima.DirectManager.Models.Requests.ServiceSupplier)">

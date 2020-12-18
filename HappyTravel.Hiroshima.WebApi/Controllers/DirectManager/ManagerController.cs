@@ -114,10 +114,10 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [HttpPost("register")]
         [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ManagerContext), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> RegisterInvitedManager([FromBody] Hiroshima.DirectManager.Models.Requests.ManagerInfo managerInfo)
+        public async Task<IActionResult> RegisterInvitedManager([FromBody] Hiroshima.DirectManager.Models.Requests.ManagerInfoWithCode managerInfo)
         {
             var (_, isFailure, response, error) = await GetEmailFromIdentity()
-                .Bind(email => _managerRegistrationService.RegisterInvited(managerInfo, "", email));
+                .Bind(email => _managerRegistrationService.RegisterInvited(managerInfo, email));
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -174,7 +174,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <summary>
         ///     Creates invitation for regular manager.
         /// </summary>
-        /// <param name="request">Regular manager registration request.</param>
+        /// <param name="managerInvitation">Regular manager registration request.</param>
         /// <returns>Invitation code.</returns>
         [HttpPost("invitations/generate")]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
@@ -192,7 +192,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <summary>
         ///     Gets invitation data.
         /// </summary>
-        /// <param name="code">Invitation code.</param>
+        /// <param name="invitationCode">Invitation code.</param>
         /// <returns>Invitation data, including pre-filled registration information.</returns>
         [HttpGet("invitations/{invitationCode}")]
         [ProducesResponseType(typeof(ManagerInvitation), (int)HttpStatusCode.OK)]

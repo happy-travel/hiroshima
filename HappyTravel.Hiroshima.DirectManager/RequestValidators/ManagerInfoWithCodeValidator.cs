@@ -8,13 +8,14 @@ using System.Threading.Tasks;
 
 namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
 {
-    public class ManagerInfoValidator : AbstractValidator<ManagerInfo>
+    public class ManagerInfoWithCodeValidator : AbstractValidator<ManagerInfoWithCode>
     {
-        public ManagerInfoValidator()
+        public ManagerInfoWithCodeValidator()
         {
             RuleFor(managerInfo => managerInfo.FirstName).NotEmpty();
             RuleFor(managerInfo => managerInfo.LastName).NotEmpty();
             RuleFor(managerInfo => managerInfo.Title).NotEmpty();
+            RuleFor(managerInfo => managerInfo.InvitationCode).NotEmpty();
         }
     }
 }
