@@ -1,7 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Hiroshima.Common.Models;
-using HappyTravel.Hiroshima.DirectManager.Models.Requests;
 using HappyTravel.MailSender;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
@@ -18,7 +17,24 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public async Task<Result> SendRegistrationConfirmation(string emailMasterManager, ManagerInfo managerInfo, string serviceSupplierName)
+        public async Task<Result> SendInvitation(ManagerInvitation managerInvitation, string serviceSupplierName)
+        {
+            var companyInfo = await _companyService.Get();
+
+            return await _mailSender.Send(_options.Value.ManagerRegistrationMailTemplateId, managerInvitation.Email, new RegistrationDataForMaster
+            {
+                ManagerName = $"{managerInvitation.FirstName} {managerInvitation.LastName}",
+                Position = managerInvitation.Position,
+                Title = managerInvitation.Title,
+                ServiceSupplierName = serviceSupplierName,
+                CompanyInfo = companyInfo.IsFailure
+                    ? new CompanyInfo()
+                    : companyInfo.Value
+            });
+        }
+
+
+        public async Task<Result> SendRegistrationConfirmation(string emailMasterManager, Models.Requests.ManagerInfo managerInfo, string serviceSupplierName)
         {
             var position = managerInfo.Position;
             if (string.IsNullOrWhiteSpace(position))
@@ -26,7 +42,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             var companyInfo = await _companyService.Get();
 
-            return await _mailSender.Send<RegistrationDataForMaster>(_options.Value.RegularManagerMailTemplateId, emailMasterManager, new RegistrationDataForMaster
+            return await _mailSender.Send(_options.Value.ManagerRegistrationMailTemplateId, emailMasterManager, new RegistrationDataForMaster
             {
                 ManagerName = $"{managerInfo.FirstName} {managerInfo.LastName}",
                 Position = position,
