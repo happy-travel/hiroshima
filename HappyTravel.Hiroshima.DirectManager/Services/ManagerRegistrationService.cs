@@ -133,7 +133,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public Task<Result<Models.Responses.ManagerContext>> RegisterInvited(Models.Requests.ManagerInfo managerInfoRequest, string invitationCode, string email)
+        public Task<Result<Models.Responses.ManagerContext>> RegisterInvited(Models.Requests.ManagerInfoWithCode managerInfoRequest, string email)
         {
             return CheckIdentityHashNotEmpty()
                 .Bind(GetPendingInvitation)
@@ -150,7 +150,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Map(Build);
 
 
-            Task<Result<Models.Responses.ManagerInvitation>> GetPendingInvitation() => _managerInvitationService.GetPendingInvitation(invitationCode);
+            Task<Result<Models.Responses.ManagerInvitation>> GetPendingInvitation() => _managerInvitationService.GetPendingInvitation(managerInfoRequest.InvitationCode);
 
 
             async Task<bool> IsEmailUnique(Models.Responses.ManagerInvitation managerInvitation)
@@ -167,7 +167,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     LastName = managerInfoRequest.LastName,
                     Position = managerInfoRequest.Position,
                     Email = email,
-                    //IdentityHash = HashGenerator.ComputeSha256(externalIdentity), TODO: Will be done in the next task
+                    IdentityHash = _managerContext.GetIdentityHash(),
                     Created = DateTime.UtcNow
                 };
 
@@ -190,7 +190,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
 
 
-            async Task AcceptInvitation() => await _managerInvitationService.Accept(invitationCode);
+            async Task AcceptInvitation() => await _managerInvitationService.Accept(managerInfoRequest.InvitationCode);
 
 
             void LogSuccess(ManagerContext managerContext) 
@@ -239,8 +239,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             => ValidationHelper.Validate(managerRequest, new ManagerWithServiceSupplierValidator());
 
 
-        private Result ValidateRequest(Models.Requests.ManagerInfo managerInfoRequest)
-            => ValidationHelper.Validate(managerInfoRequest, new ManagerInfoValidator());
+        private Result ValidateRequest(Models.Requests.ManagerInfoWithCode managerInfoRequest)
+            => ValidationHelper.Validate(managerInfoRequest, new ManagerInfoWithCodeValidator());
 
 
         private async Task<ManagerServiceSupplierRelation> AddManagerServiceSupplierRelation(Manager manager, ManagerPermissions managerPermissions, bool isMaster, int serviceSupplierId)
