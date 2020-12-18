@@ -144,6 +144,56 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
+        public Task<Result<Models.Responses.Rate>> Modify(int contractId, int rateId, Models.Requests.Rate rateRequest)
+        {
+            return ValidationHelper.Validate(rateRequest, new RateValidator())
+                .Bind(() => _managerContext.GetServiceSupplier())
+                .Check(serviceSupplier => _serviceSupplierContext.EnsureContractBelongsToServiceSupplier(serviceSupplier, contractId))
+                .Bind(_ => Update());
+
+
+            Task<Result<Models.Responses.Rate>> Update()
+            {
+                return GetRoomRate().Bind(UpdateDbEntry).Bind(UpdateDb).Map(Build);
+
+
+                async Task<Result<RoomRate>> GetRoomRate()
+                {
+                    var roomRate = await _dbContext.RoomRates.Include(rr => rr.Season)
+                        .SingleOrDefaultAsync(rr => rr.Id == rateId && rr.Season.ContractId == contractId);
+
+                    return roomRate is null
+                        ? Result.Failure<RoomRate>("Failed to retrieve the room rate") 
+                        : Result.Success(roomRate);
+                }
+
+
+                Result<RoomRate> UpdateDbEntry(RoomRate roomRate)
+                {
+                    roomRate.RoomId = rateRequest.RoomId;
+                    roomRate.SeasonId = rateRequest.SeasonId;
+                    roomRate.Price = rateRequest.Price;
+                    roomRate.Currency = rateRequest.Currency;
+                    roomRate.BoardBasis = rateRequest.BoardBasis;
+                    roomRate.MealPlan = rateRequest.MealPlan;
+                    roomRate.RoomType = rateRequest.RoomType;
+                    roomRate.Description = rateRequest.Description;
+
+                    return roomRate;
+                }
+
+
+                async Task<Result<RoomRate>> UpdateDb(RoomRate roomRate)
+                {
+                    var entry = _dbContext.RoomRates.Update(roomRate);
+                    await _dbContext.SaveChangesAsync();
+
+                    return entry.Entity;
+                }
+            }
+        }
+
+
         private List<RoomRate> Create(List<Models.Requests.Rate> rates)
             => rates.Select(rate => new RoomRate
                 {
@@ -160,19 +210,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         private List<Models.Responses.Rate> Build(List<RoomRate> rates)
-            => rates.Select(rate => new Models.Responses.Rate(
-                    rate.Id,
-                    rate.RoomId,
-                    rate.SeasonId,
-                    rate.Price,
-                    rate.Currency,
-                    rate.BoardBasis,
-                    rate.MealPlan,
-                    rate.RoomType,
-                    rate.Description))
+            => rates.Select(Build)
                 .ToList();
 
 
+        private Models.Responses.Rate Build(RoomRate rate)
+            => new Models.Responses.Rate(rate.Id, rate.RoomId, rate.SeasonId, rate.Price, rate.Currency, rate.BoardBasis, rate.MealPlan, rate.RoomType,
+                rate.Description);
+        
+        
         private readonly DirectContractsDbContext _dbContext;
         private readonly IManagerContextService _managerContext;
         private readonly IServiceSupplierContextService _serviceSupplierContext;

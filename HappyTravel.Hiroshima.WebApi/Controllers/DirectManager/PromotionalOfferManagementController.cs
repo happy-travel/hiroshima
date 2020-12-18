@@ -61,6 +61,26 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
             return Ok(response);
         }
+
+
+        /// <summary>
+        /// Modifies a promotional offer
+        /// </summary>
+        /// <param name="contractId"></param>
+        /// <param name="promotionalOfferId"></param>
+        /// <param name="promotionalOffer"></param>
+        /// <returns>Modified promotional offer</returns>
+        [HttpPut("contracts/{contractId}/promotional-offers/{promotionalOfferId}")]
+        [ProducesResponseType(typeof(List<Hiroshima.DirectManager.Models.Responses.PromotionalOffer>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> ModifyPromotionalOffer([FromRoute] int contractId, [FromRoute] int promotionalOfferId, [FromBody] Hiroshima.DirectManager.Models.Requests.PromotionalOffer promotionalOffer)
+        {
+            var (_, isFailure, response, error) = await _promotionalOfferManagementService.Modify(contractId, promotionalOfferId, promotionalOffer);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
+        }
         
         
         /// <summary>
