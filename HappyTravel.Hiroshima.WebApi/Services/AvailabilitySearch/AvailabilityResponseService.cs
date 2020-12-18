@@ -78,7 +78,7 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
         
         private SlimAccommodationAvailability CreateSlimAccommodationAvailability(Accommodation accommodation, List<AvailableRates> availableRates, string languageCode)
         {
-            var slimAccommodation = _accommodationResponseService.Create(accommodation, languageCode);
+            var slimAccommodation = _accommodationResponseService.CreateSlim(accommodation, languageCode);
             var roomContractSets = CreateRoomContractSets(availableRates, languageCode);
             var availabilityId = GenerateAvailabilityId();
                 
