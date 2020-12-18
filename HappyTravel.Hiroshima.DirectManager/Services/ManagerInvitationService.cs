@@ -119,8 +119,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result> Resend(string invitationCode)
         {
-            throw new NotImplementedException();
-
             return await _managerContext.GetManagerRelation()
                 .Ensure(managerRelation => HasManagerInvitationManagerPermission(managerRelation).Value, "The manager does not have enough rights")
                 .Bind(managerRelation => GetExistingInvitation())
@@ -150,11 +148,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<Result> DisableExistingInvitation(ManagerInvitation existingInvitation)
             {
-                if (existingInvitation is null)
-                {
-                    return Result.Failure("Old invitation can not be null");
-                }
-
                 existingInvitation.IsResent = true;
                 await _dbContext.SaveChangesAsync();
                 return Result.Success();
@@ -178,9 +171,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.ManagerInvitation>> GetPendingInvitation(string invitationCode)
         {
-            return GetInvitation(invitationCode).ToResult("Could not find invitation")
-                .Ensure(IsNotAccepted, "Already accepted")
-                .Ensure(IsNotResent, "Already resent")
+            return GetInvitation(invitationCode).ToResult($"Could not find invitation with code '{invitationCode}'")
+                .Ensure(IsNotAccepted, "Invitation already accepted")
+                .Ensure(IsNotResent, "Invitation already resent")
                 .Ensure(InvitationIsActual, "Invitation expired")
                 .Map(Build);
 
