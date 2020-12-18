@@ -171,7 +171,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.ManagerInvitation>> GetPendingInvitation(string invitationCode)
         {
-            return GetInvitation(invitationCode).ToResult($"Could not find invitation with code '{invitationCode}'")
+            return GetInvitation(invitationCode).ToResult("Could not find invitation")
                 .Ensure(IsNotAccepted, "Invitation already accepted")
                 .Ensure(IsNotResent, "Invitation already resent")
                 .Ensure(InvitationIsActual, "Invitation expired")
@@ -208,7 +208,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             var byteArray = new byte[64];
             provider.GetBytes(byteArray);
 
-            return Result.Success((managerInvitation, Base64UrlEncoder.Encode(byteArray)));
+            return (managerInvitation, Base64UrlEncoder.Encode(byteArray));
         }
 
 
