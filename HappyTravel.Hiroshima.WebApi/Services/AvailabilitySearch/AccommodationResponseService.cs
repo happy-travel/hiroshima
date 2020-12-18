@@ -6,7 +6,6 @@ using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
-using HappyTravel.Hiroshima.DirectManager.Services;
 using ContactInfo = HappyTravel.EdoContracts.Accommodations.Internals.ContactInfo;
 using PropertyTypes = HappyTravel.EdoContracts.Accommodations.Enums.PropertyTypes;
 using TextualDescription = HappyTravel.EdoContracts.Accommodations.Internals.TextualDescription;
@@ -15,11 +14,6 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
 {
     public class AccommodationResponseService : IAccommodationResponseService
     {
-        public AccommodationResponseService(IImageManagementService imageManagementService)
-        {
-            _imageManagementService = imageManagementService;
-        }
-        
         public SlimAccommodation CreateSlim(Accommodation accommodation, string languageCode)
         {
             var id = accommodation.Id.ToString();
@@ -157,14 +151,11 @@ namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
                return new ImageInfo();
 
             var firstImage = accommodation.Images.First();
-            
-            var firstImageUrl = _imageManagementService.GetImageUrl(firstImage.LargeImageURL);
+
+            var firstImageUrl = firstImage.LargeImageURL;
             firstImage.Description.TryGetValueOrDefault(languageCode, out var caption);
 
             return new ImageInfo(firstImageUrl, caption); 
         }
-        
-        
-        private readonly IImageManagementService _imageManagementService;
     }
 }
