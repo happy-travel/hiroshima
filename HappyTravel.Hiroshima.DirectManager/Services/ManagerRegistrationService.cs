@@ -150,15 +150,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Map(Build);
 
 
-            Task<Result<Models.Requests.ManagerInvitation>> GetPendingInvitation() => _managerInvitationService.GetPendingInvitation(invitationCode);
+            Task<Result<Models.Responses.ManagerInvitation>> GetPendingInvitation() => _managerInvitationService.GetPendingInvitation(invitationCode);
 
 
-            async Task<bool> IsEmailUnique(Models.Requests.ManagerInvitation managerInvitation)
+            async Task<bool> IsEmailUnique(Models.Responses.ManagerInvitation managerInvitation)
                 => !await _dbContext.Managers.AnyAsync(manager => manager.Email == managerInvitation.Email);
 
 
 
-            async Task<Result<(Models.Requests.ManagerInvitation, Manager)>> AddManager(Models.Requests.ManagerInvitation managerInvitation)
+            async Task<Result<(Models.Responses.ManagerInvitation, Manager)>> AddManager(Models.Responses.ManagerInvitation managerInvitation)
             {
                 var manager = new Manager
                 {
@@ -178,7 +178,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
 
 
-            async Task<Result<ManagerContext>> AddManagerRelation((Models.Requests.ManagerInvitation, Manager) invitationData)
+            async Task<Result<ManagerContext>> AddManagerRelation((Models.Responses.ManagerInvitation, Manager) invitationData)
             {
                 var (managerInvitation, manager) = invitationData;
 
@@ -277,7 +277,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             };
 
 
-        private static Models.Responses.ManagerContext Build(Common.Models.ManagerContext managerContext)
+        private static Models.Responses.ManagerContext Build(ManagerContext managerContext)
             => new Models.Responses.ManagerContext(managerContext.FirstName,
                 managerContext.LastName,
                 managerContext.Title,

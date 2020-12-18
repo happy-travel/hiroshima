@@ -448,6 +448,33 @@
             <param name="managerInfo">Invited manager info</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.InviteManager(HappyTravel.Hiroshima.DirectManager.Models.Requests.ManagerInvitationInfo)">
+            <summary>
+                Sends an invite to a regular manager
+            </summary>
+            <param name="managerInvitation">Regular manager registration request.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.ResendInvite(System.String)">
+            <summary>
+               Resend manager invitation
+            </summary>
+            <param name="invitationCode">Invitation code</param>>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.CreateInvitation(HappyTravel.Hiroshima.DirectManager.Models.Requests.ManagerInvitationInfo)">
+            <summary>
+                Creates invitation for regular manager.
+            </summary>
+            <param name="request">Regular manager registration request.</param>
+            <returns>Invitation code.</returns>
+        </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.GetInvitationData(System.String)">
+            <summary>
+                Gets invitation data.
+            </summary>
+            <param name="code">Invitation code.</param>
+            <returns>Invitation data, including pre-filled registration information.</returns>
+        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.AddServiceSupplier(HappyTravel.Hiroshima.DirectManager.Models.Requests.ServiceSupplier)">
             <summary>
             Updates service supplier data

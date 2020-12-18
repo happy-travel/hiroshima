@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Hiroshima.DirectManager.Models.Responses;
 using HappyTravel.Hiroshima.DirectManager.Services;
 using HappyTravel.Hiroshima.WebApi.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
@@ -15,10 +16,11 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
     public class ManagerController : ControllerBase
     {
         public ManagerController(IManagerManagementService managerManagementService, IManagerRegistrationService managerRegistrationService, 
-            IdentityHttpClient identityHttpClient)
+            IManagerInvitationService managerInvitationService, IdentityHttpClient identityHttpClient)
         {
             _managerManagementService = managerManagementService;
             _managerRegistrationService = managerRegistrationService;
+            _managerInvitationService = managerInvitationService;
             _identityHttpClient = identityHttpClient;
         }
 
@@ -135,6 +137,78 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
 
         /// <summary>
+        ///     Sends an invite to a regular manager
+        /// </summary>
+        /// <param name="managerInvitation">Regular manager registration request.</param>
+        /// <returns></returns>
+        [HttpPost("invitations/send")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> InviteManager([FromBody] Hiroshima.DirectManager.Models.Requests.ManagerInvitationInfo managerInvitation)
+        {
+            var (_, isFailure, error) = await _managerInvitationService.Send(managerInvitation);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+
+
+        /// <summary>
+        ///    Resend manager invitation
+        /// </summary>
+        /// <param name="invitationCode">Invitation code</param>>
+        [HttpPost("invitations/{invitationCode}/resend")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> ResendInvite([FromRoute] string invitationCode)
+        {
+            var (_, isFailure, error) = await _managerInvitationService.Resend(invitationCode);
+            if (isFailure)
+                return BadRequest(error);
+
+            return NoContent();
+        }
+
+
+        /// <summary>
+        ///     Creates invitation for regular manager.
+        /// </summary>
+        /// <param name="request">Regular manager registration request.</param>
+        /// <returns>Invitation code.</returns>
+        [HttpPost("invitations/generate")]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> CreateInvitation([FromBody] Hiroshima.DirectManager.Models.Requests.ManagerInvitationInfo managerInvitation)
+        {
+            var (_, isFailure, invitationCode, error) = await _managerInvitationService.Create(managerInvitation);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(invitationCode);
+        }
+
+
+        /// <summary>
+        ///     Gets invitation data.
+        /// </summary>
+        /// <param name="code">Invitation code.</param>
+        /// <returns>Invitation data, including pre-filled registration information.</returns>
+        [HttpGet("invitations/{invitationCode}")]
+        [ProducesResponseType(typeof(ManagerInvitation), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetInvitationData(string invitationCode)
+        {
+            var (_, isFailure, invitationInfo, error) = await _managerInvitationService.GetPendingInvitation(invitationCode);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(invitationInfo);
+        }
+
+
+        /// <summary>
         /// Updates service supplier data
         /// </summary>
         /// <param name="serviceSupplier"></param>
@@ -192,5 +266,6 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         private readonly IdentityHttpClient _identityHttpClient;
         private readonly IManagerManagementService _managerManagementService;
         private readonly IManagerRegistrationService _managerRegistrationService;
+        private readonly IManagerInvitationService _managerInvitationService;
     }
 }

@@ -2,6 +2,7 @@
 {
     public class NotificationServiceOptions
     {
-        public string RegularManagerMailTemplateId { get; set; }
+        public string ManagerInvitationMailTemplateId { get; set; }
+        public string ManagerRegistrationMailTemplateId { get; set; }
     }
 }
