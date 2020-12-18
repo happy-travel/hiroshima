@@ -56,15 +56,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<Result<List<Common.Models.ServiceSupplier>>> Get(Common.Models.Manager manager)
             {
-                var managerRelations = await _dbContext.ManagerServiceSupplierRelations
-                    .Where(relation => relation.ManagerId == manager.Id)
-                    .Select(relation => relation.ServiceSupplierId)
-                    .ToListAsync();
-                if (!managerRelations.Any())
-                    return Result.Failure<List<Common.Models.ServiceSupplier>>("Manager relations not found");
-
                 var serviceSuppliers = await _dbContext.ServiceSuppliers
-                    .Join(managerRelations, ss => ss.Id, r => r, 
+                    .Join(_dbContext.ManagerServiceSupplierRelations.Where(r => r.ManagerId == manager.Id), ss => ss.Id, r => r.ServiceSupplierId,
                         (ss, r) => new Common.Models.ServiceSupplier { Id = ss.Id, Name = ss.Name, Address = ss.Address, PostalCode = ss.PostalCode, Phone = ss.Phone, Website = ss.Website })
                     .ToListAsync();
                 if (!serviceSuppliers.Any())

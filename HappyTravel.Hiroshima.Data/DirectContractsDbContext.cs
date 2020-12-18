@@ -60,6 +60,7 @@ namespace HappyTravel.Hiroshima.Data
             AddSeasonRanges(modelBuilder);
             AddSeasons(modelBuilder);
             AddRoomOccupancies(modelBuilder);
+            AddManagerInvitations(modelBuilder);
         }
         
 
@@ -476,6 +477,24 @@ namespace HappyTravel.Hiroshima.Data
                 e.HasOne(a => a.Room).WithMany(r => r.RoomOccupations).OnDelete(DeleteBehavior.SetNull);
             });
         }
+
+
+        private void AddManagerInvitations(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ManagerInvitation>(e =>
+            {
+                e.ToTable("ManagerInvitations");
+                e.HasKey(mi => mi.CodeHash);
+                e.Property(mi => mi.FirstName).IsRequired();
+                e.Property(mi => mi.LastName).IsRequired();
+                e.Property(mi => mi.Title).IsRequired();
+                e.Property(mi => mi.Position).IsRequired();
+                e.Property(mi => mi.Email).IsRequired();
+                e.Property(mi => mi.Created).IsRequired();
+                e.Property(mi => mi.IsAccepted).IsRequired().HasDefaultValue(false); 
+                e.Property(mi => mi.IsResent).IsRequired().HasDefaultValue(false);
+            });
+        }
         
 
         public virtual DbSet<Accommodation> Accommodations { get; set; }
@@ -500,5 +519,6 @@ namespace HappyTravel.Hiroshima.Data
         public virtual DbSet<SeasonRange> SeasonRanges { get; set; }
         public virtual DbSet<Season> Seasons { get; set; }
         public virtual DbSet<RoomOccupancy> RoomOccupancies { get; set; }
+        public virtual DbSet<ManagerInvitation> ManagerInvitations { get; set; }
     }
 }
