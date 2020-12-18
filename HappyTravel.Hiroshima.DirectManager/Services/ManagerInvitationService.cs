@@ -2,6 +2,7 @@
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
+using HappyTravel.Hiroshima.DirectContracts.Extensions.FunctionalExtensions;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -31,24 +32,27 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             return await _managerContext.GetManagerRelation()
                 .Ensure(managerRelation => HasManagerInvitationManagerPermission(managerRelation).Value, "The manager does not have enough rights")
                 .Bind(GenerateInvitationCode)
-                .Bind(SendInvitationMail)
-                .Bind(SaveInvitation)
-                .Tap(LogInvitationCreated);
+                .BindWithTransaction(_dbContext, managerData => Result.Success(managerData)
+                    .Bind(SaveInvitation)
+                    .Bind(SendInvitationMail))
+                .Tap(managerInvitation => LogInvitationCreated(managerInvitationInfo.Email));
 
 
-            async Task<Result<(ManagerServiceSupplierRelation, string)>> SendInvitationMail((ManagerServiceSupplierRelation, string) invitationData)
+            async Task<Result<ManagerInvitation>> SendInvitationMail(ManagerInvitation managerInvitation)
             {
                 var serviceSupplier = await _managerContext.GetServiceSupplier();
                 if (serviceSupplier.IsFailure)
-                    return Result.Failure<(ManagerServiceSupplierRelation, string)>(serviceSupplier.Error);
+                    return Result.Failure<ManagerInvitation>(serviceSupplier.Error);
                  
-                await _notificationService.SendInvitation(managerInvitationInfo, serviceSupplier.Value.Name);
+                var sendingResult = await _notificationService.SendInvitation(managerInvitation, serviceSupplier.Value.Name);
+                if (sendingResult.IsFailure)
+                    return Result.Failure<ManagerInvitation>(sendingResult.Error);
 
-                return invitationData;
+                return Result.Success(managerInvitation);
             }
 
 
-            async Task<Result<string>> SaveInvitation((ManagerServiceSupplierRelation, string) invitationData)
+            async Task<Result<ManagerInvitation>> SaveInvitation((ManagerServiceSupplierRelation, string) invitationData)
             {
                 var (managerRelation, invitationCode) = invitationData;
 
@@ -71,7 +75,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 await _dbContext.SaveChangesAsync();
                 _dbContext.DetachEntry(entry.Entity);
 
-                return invitationCode;
+                return managerInvitation;
             }
         }
 
@@ -132,15 +136,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
 
 
-            async Task<Result<ManagerInvitation>> SendInvitationMail(ManagerInvitation invitationData)
+            async Task<Result<ManagerInvitation>> SendInvitationMail(ManagerInvitation managerInvitation)
             {
                 var serviceSupplier = await _managerContext.GetServiceSupplier();
                 if (serviceSupplier.IsFailure)
                     return Result.Failure<ManagerInvitation>(serviceSupplier.Error);
 
-                //await _notificationService.SendInvitation(managerInvitationInfo, serviceSupplier.Value.Name);
+                await _notificationService.SendInvitation(managerInvitation, serviceSupplier.Value.Name);
 
-                return invitationData;
+                return managerInvitation;
             }
 
 
@@ -224,7 +228,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         private void LogInvitationCreated(string email)
-            => _logger.LogInvitationCreated($"The invitation created for the manager with email '{email}'");
+        {
+            _logger.LogInvitationCreated($"The invitation created for the manager with email '{email}'");
+        }
 
 
         private static Result<bool> HasManagerInvitationManagerPermission(ManagerServiceSupplierRelation managerRelation)

@@ -1,7 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Hiroshima.Common.Models;
-using HappyTravel.Hiroshima.DirectManager.Models.Requests;
 using HappyTravel.MailSender;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
@@ -18,7 +17,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public async Task<Result> SendInvitation(ManagerInvitationInfo managerInvitation, string serviceSupplierName)
+        public async Task<Result> SendInvitation(ManagerInvitation managerInvitation, string serviceSupplierName)
         {
             var companyInfo = await _companyService.Get();
 
@@ -35,7 +34,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public async Task<Result> SendRegistrationConfirmation(string emailMasterManager, ManagerInfo managerInfo, string serviceSupplierName)
+        public async Task<Result> SendRegistrationConfirmation(string emailMasterManager, Models.Requests.ManagerInfo managerInfo, string serviceSupplierName)
         {
             var position = managerInfo.Position;
             if (string.IsNullOrWhiteSpace(position))
