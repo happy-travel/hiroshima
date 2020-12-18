@@ -77,8 +77,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
             return _managerContext.GetServiceSupplier()
                 .Check(supplier => CheckIfBookingBelongsToServiceSupplier(supplier, bookingId))
                 .BindWithTransaction(_dbContext, manager 
-                    => _bookingService.Confirm(bookingId)
-                        .Bind(SendUpdateStatus));
+                    => _bookingService.Confirm(bookingId))
+                .Bind(SendUpdateStatus);
 
 
             Task<Result> SendUpdateStatus(BookingOrder bookingOrder)

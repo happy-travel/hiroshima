@@ -5,7 +5,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using HappyTravel.Geography;
 using HappyTravel.Geography.Converters;
-using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.HttpClients;
 using HappyTravel.Hiroshima.WebApi.Infrastructure.Environments;
 using HappyTravel.Hiroshima.WebApi.Services;
@@ -133,7 +132,7 @@ namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions
                 options.JsonSerializerOptions.WriteIndented = false;
                 options.JsonSerializerOptions.IgnoreNullValues = true;
                 options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-                options.JsonSerializerOptions.NumberHandling = JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowNamedFloatingPointLiterals;
+                options.JsonSerializerOptions.NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals | JsonNumberHandling.AllowReadingFromString;
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, false));
                 options.JsonSerializerOptions.Converters.Add(new NetTopologySuite.IO.Converters.GeoJsonConverterFactory());
             });
@@ -155,6 +154,7 @@ namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions
             {
                 serializationSettings.Converters.Add(converter);
             }
+            
             
             builder.AddNewtonsoftJson(options=>
             {
