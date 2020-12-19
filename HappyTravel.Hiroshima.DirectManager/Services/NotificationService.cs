@@ -1,6 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Hiroshima.Common.Models;
+using HappyTravel.Hiroshima.DirectManager.Models.Mailing;
 using HappyTravel.MailSender;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
@@ -21,8 +21,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             var companyInfo = await _companyService.Get();
 
-            return await _mailSender.Send(_options.Value.ManagerInvitationMailTemplateId, managerInvitation.Email, new RegistrationDataForMaster
+            return await _mailSender.Send(_options.Value.ManagerInvitationMailTemplateId, managerInvitation.Email, new InvitationData
             {
+                InvitationCode = managerInvitation.InvitationCode,
+                ManagerEmail = managerInvitation.Email,
                 ManagerName = $"{managerInvitation.FirstName} {managerInvitation.LastName}",
                 Position = managerInvitation.Position,
                 Title = managerInvitation.Title,

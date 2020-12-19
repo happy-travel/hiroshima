@@ -8,7 +8,7 @@ namespace HappyTravel.Hiroshima.Common.Models
 {
     public class ManagerInvitation
     {
-        public string CodeHash { get; set; } = string.Empty;
+        public string InvitationCode { get; set; } = string.Empty;
 
         public string FirstName { get; set; } = string.Empty;
 
