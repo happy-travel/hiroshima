@@ -44,7 +44,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                 var managerInvitation = new ManagerInvitation
                 {
-                    CodeHash = invitationCode,
+                    InvitationCode = invitationCode,
                     FirstName = managerInvitationInfo.FirstName,
                     LastName = managerInvitationInfo.LastName,
                     Title = managerInvitationInfo.Title,
@@ -81,7 +81,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                 var managerInvitation = new ManagerInvitation
                 {
-                    CodeHash = invitationCode,
+                    InvitationCode = invitationCode,
                     FirstName = managerInvitationInfo.FirstName,
                     LastName = managerInvitationInfo.LastName,
                     Title = managerInvitationInfo.Title,
@@ -114,7 +114,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<Result<ManagerInvitation>> GetExistingInvitation()
             {
-                var invitation = await _dbContext.ManagerInvitations.SingleOrDefaultAsync(i => i.CodeHash == invitationCode);
+                var invitation = await _dbContext.ManagerInvitations.SingleOrDefaultAsync(i => i.InvitationCode == invitationCode);
 
                 return invitation ?? Result.Failure<ManagerInvitation>($"Invitation with Code {invitationCode} not found");
             }
@@ -188,7 +188,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private async Task<Maybe<ManagerInvitation>> GetInvitation(string invitationCode)
         {
-            var managerInvitation = await _dbContext.ManagerInvitations.SingleOrDefaultAsync(c => c.CodeHash == invitationCode);
+            var managerInvitation = await _dbContext.ManagerInvitations.SingleOrDefaultAsync(c => c.InvitationCode == invitationCode);
 
             return managerInvitation ?? Maybe<ManagerInvitation>.None;
         }

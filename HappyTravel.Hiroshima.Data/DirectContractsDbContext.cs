@@ -484,7 +484,7 @@ namespace HappyTravel.Hiroshima.Data
             modelBuilder.Entity<ManagerInvitation>(e =>
             {
                 e.ToTable("ManagerInvitations");
-                e.HasKey(mi => mi.CodeHash);
+                e.HasKey(mi => mi.InvitationCode);
                 e.Property(mi => mi.FirstName).IsRequired();
                 e.Property(mi => mi.LastName).IsRequired();
                 e.Property(mi => mi.Title).IsRequired();
