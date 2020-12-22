@@ -35,18 +35,21 @@ namespace HappyTravel.Hiroshima.Data.Migrations
                 name: "MainImage",
                 table: "Images",
                 type: "jsonb",
+                defaultValueSql: "'{}'::jsonb",
                 nullable: false);
 
             migrationBuilder.AddColumn<OriginalImageDetails>(
                 name: "OriginalImageDetails",
                 table: "Images",
                 type: "jsonb",
+                defaultValueSql: "'{}'::jsonb",
                 nullable: false);
 
             migrationBuilder.AddColumn<ImageDetails>(
                 name: "SmallImage",
                 table: "Images",
                 type: "jsonb",
+                defaultValueSql: "'{}'::jsonb",
                 nullable: false);
         }
 
