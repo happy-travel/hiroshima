@@ -172,10 +172,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 .Map(managerRelation => GetNotAcceptedInvitations(managerRelation.ServiceSupplierId))
                 .Map(Build);
 
+
             async Task<List<ManagerInvitation>> GetNotAcceptedInvitations(int serviceSupplierId)
             {
                 return await _dbContext.ManagerInvitations
-                    .Where(managerInvitation => managerInvitation.ServiceSupplierId == serviceSupplierId && managerInvitation.IsAccepted == false)
+                    .Where(invitation => invitation.ServiceSupplierId == serviceSupplierId && invitation.IsAccepted == false && invitation.IsResent == false)
                     .ToListAsync();
             }
         }
