@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
@@ -13,31 +11,20 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
 {
     public class AvailabilityHashGenerator : IAvailabilityHashGenerator
     {
+        public AvailabilityHashGenerator(ISha256HashGenerator hashGenerator)
+        {
+            _hashGenerator = hashGenerator;
+        }
+        
+        
         public string Generate(List<RateDetails> rateDetails)
         {
             var bytes = JsonSerializer.SerializeToUtf8Bytes(rateDetails.Select(Convert), _jsonSerializerOptions);
             
-            return ComputeSha256Hash(bytes);
+            return _hashGenerator.Generate(bytes);
         }
-
-       
-        private string ComputeSha256Hash(byte[] bytes)
-        {
-            byte[] hash;
-            lock (Locker)
-            {
-                hash = _sha256Managed.ComputeHash(bytes);
-            }
-            var stringBuilder = new StringBuilder();  
-            foreach (var b in hash)
-            {
-                stringBuilder.Append(b.ToString("x2"));
-            }
-
-            return stringBuilder.ToString();
-        }
-
-
+    
+        
         private InternalSlimRateDetails Convert(RateDetails rateDetails)
             => new InternalSlimRateDetails
             (
@@ -57,17 +44,14 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
                 rateDetails.OccupationRequest
             );
 
-
-        private readonly SHA256Managed _sha256Managed = new SHA256Managed();
+        
+        private readonly ISha256HashGenerator _hashGenerator;
+        
         private readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions
         {
             WriteIndented = false,
             IgnoreNullValues = true
         };
-        
-        
-        private static readonly object Locker = new object();
-        
         
         private readonly struct InternalSlimRateDetails
         {
