@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
@@ -172,6 +173,12 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     managerInvitation.ManagerId,
                     managerInvitation.ServiceSupplierId);
             }
+        }
+
+
+        public Task<Result<List<Models.Responses.ManagerInvitation>>> GetServiceSupplierInvitations()
+        {
+            throw new NotImplementedException();
         }
 
 

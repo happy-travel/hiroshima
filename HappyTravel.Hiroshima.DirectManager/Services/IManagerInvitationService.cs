@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
@@ -14,5 +15,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         Task Accept(string invitationCode);
 
         Task<Result<Models.Responses.ManagerInvitation>> GetPendingInvitation(string invitationCode);
+
+        Task<Result<List<Models.Responses.ManagerInvitation>>> GetServiceSupplierInvitations();
     }
 }
