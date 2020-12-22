@@ -11,7 +11,10 @@ using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
 using HappyTravel.Hiroshima.Common.Models.Availabilities;
 using HappyTravel.Hiroshima.Data;
+using HappyTravel.Hiroshima.Data.Models;
+using HappyTravel.Hiroshima.DirectContracts.Extensions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Accommodation = HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation;
 
 namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
@@ -93,36 +96,15 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services.Availability
         {
             var roomTypes = GetRoomTypes(availabilityRequest);
             var ratings = AccommodationRatingConverter.Convert(availabilityRequest.Ratings);
-            var checkInDate = availabilityRequest.CheckInDate.Date;
-            var checkOutDate = availabilityRequest.CheckOutDate.Date;
-            
+
             return _dbContext.ContractAccommodationRelations
-                .Include(relation => relation.Accommodation)
-                    .ThenInclude(accommodation => accommodation.Rooms.Where(room => !room.AvailabilityRestrictions.Any(availabilityRestrictions => checkInDate <= availabilityRestrictions.ToDate && availabilityRestrictions.FromDate <= checkOutDate && availabilityRestrictions.Restriction == AvailabilityRestrictions.StopSale)))
-                        .ThenInclude(room => room.AllocationRequirements.Where(allocationRequirements => checkInDate <= allocationRequirements.SeasonRange.EndDate && allocationRequirements.SeasonRange.StartDate <= checkOutDate))
-                             .ThenInclude(allocationRequirements => allocationRequirements.SeasonRange)
-                .Include(relation => relation.Accommodation)
-                    .ThenInclude(accommodation => accommodation.Rooms)
-                        .ThenInclude(room => room.AvailabilityRestrictions.Where(availabilityRestrictions => checkInDate <= availabilityRestrictions.ToDate && availabilityRestrictions.FromDate <= checkOutDate))
-                .Include(accommodation => accommodation.Accommodation)
-                    .ThenInclude(accommodation => accommodation.Rooms)
-                        .ThenInclude(room => room.CancellationPolicies.Where(cancellationPolicy => cancellationPolicy.Season.SeasonRanges.Any(seasonRange => checkInDate <= seasonRange.EndDate && seasonRange.StartDate <= checkOutDate)))
-                            .ThenInclude(cancellationPolicy => cancellationPolicy.Season)
-                                .ThenInclude(season => season.SeasonRanges.Where(seasonRange => checkInDate <= seasonRange.EndDate && seasonRange.StartDate <= checkOutDate))
-                .Include(relation => relation.Accommodation)
-                    .ThenInclude(accommodation => accommodation.Rooms)
-                        .ThenInclude(room => room.RoomRates.Where(rate => roomTypes.Contains(rate.RoomType) && rate.Season.SeasonRanges.Any(seasonRange => checkInDate <= seasonRange.EndDate && seasonRange.StartDate <= checkOutDate)))
-                            .ThenInclude(rate => rate.Season)
-                                .ThenInclude(season => season.SeasonRanges.Where(seasonRange => checkInDate <= seasonRange.EndDate && seasonRange.StartDate <= checkOutDate))
-                .Include(relation => relation.Accommodation)
-                    .ThenInclude(accommodation => accommodation.Rooms)
-                        .ThenInclude(room => room.RoomPromotionalOffers.Where(promotionalOffer => checkInDate <= promotionalOffer.ValidToDate && promotionalOffer.ValidFromDate <= checkOutDate))
-                .Include(relation => relation.Accommodation)
-                    .ThenInclude(accommodation => accommodation.Rooms)
-                        .ThenInclude(room => room.RoomOccupations.Where(roomOccupation => checkInDate <= roomOccupation.FromDate && roomOccupation.ToDate <= checkOutDate))    
-                .Include(relation => relation.Accommodation)
-                    .ThenInclude(accommodation => accommodation.Location)
-                        .ThenInclude(location => location.Country)
+                .IncludeAllocationRequirements(availabilityRequest)
+                .IncludeAvailabilityRestrictions(availabilityRequest)
+                .IncludeCancellationPolicies(availabilityRequest)
+                .IncludeRates(availabilityRequest, roomTypes)
+                .IncludePromotionalOffers(availabilityRequest)
+                .IncludeRoomOccupations(availabilityRequest)
+                .IncludeLocation()
                 .Select(relation => relation.Accommodation)
                 .Where(accommodation => ratings.Contains(accommodation.Rating));
         }
