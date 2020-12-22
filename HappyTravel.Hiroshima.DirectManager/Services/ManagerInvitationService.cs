@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
@@ -161,24 +162,22 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             bool InvitationIsActual(ManagerInvitation managerInvitation) 
                 => managerInvitation.Created + _options.Value.InvitationExpirationPeriod > DateTime.UtcNow;
-
-
-            Models.Responses.ManagerInvitation Build(ManagerInvitation managerInvitation)
-            {
-                return new Models.Responses.ManagerInvitation(managerInvitation.FirstName, 
-                    managerInvitation.LastName, 
-                    managerInvitation.Title,
-                    managerInvitation.Position,
-                    managerInvitation.Email,
-                    managerInvitation.ManagerId,
-                    managerInvitation.ServiceSupplierId);
-            }
         }
 
 
-        public Task<Result<List<Models.Responses.ManagerInvitation>>> GetServiceSupplierInvitations()
+        public async Task<Result<List<Models.Responses.ManagerInvitation>>> GetServiceSupplierInvitations()
         {
-            throw new NotImplementedException();
+            return await _managerContext.GetManagerRelation()
+                .Ensure(managerRelation => HasManagerInvitationManagerPermission(managerRelation).Value, "The manager does not have enough rights")
+                .Map(managerRelation => GetNotAcceptedInvitations(managerRelation.ServiceSupplierId))
+                .Map(Build);
+
+            async Task<List<ManagerInvitation>> GetNotAcceptedInvitations(int serviceSupplierId)
+            {
+                return await _dbContext.ManagerInvitations
+                    .Where(managerInvitation => managerInvitation.ServiceSupplierId == serviceSupplierId && managerInvitation.IsAccepted == false)
+                    .ToListAsync();
+            }
         }
 
 
@@ -223,6 +222,22 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private static Result<bool> HasManagerInvitationManagerPermission(ManagerServiceSupplierRelation managerRelation)
             => (managerRelation.ManagerPermissions & Common.Models.Enums.ManagerPermissions.ManagerInvitation) == Common.Models.Enums.ManagerPermissions.ManagerInvitation;
+
+
+        private static List<Models.Responses.ManagerInvitation> Build(List<ManagerInvitation> managerInvitations)
+            => managerInvitations.Select(Build).ToList();
+
+
+        private static Models.Responses.ManagerInvitation Build(ManagerInvitation managerInvitation)
+        {
+            return new Models.Responses.ManagerInvitation(managerInvitation.FirstName,
+                managerInvitation.LastName,
+                managerInvitation.Title,
+                managerInvitation.Position,
+                managerInvitation.Email,
+                managerInvitation.ManagerId,
+                managerInvitation.ServiceSupplierId);
+        }
 
 
         private readonly IManagerContextService _managerContext;
