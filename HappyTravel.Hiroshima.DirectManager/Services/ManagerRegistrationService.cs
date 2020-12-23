@@ -50,7 +50,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     var utcNowDate = DateTime.UtcNow;
                     return new Manager
                     {
-                        IdentityHash = _managerContext.GetIdentityHash(),
+                        IdentityHash = _managerContext.GetHash(),
                         Email = email,
                         FirstName = managerRequest.Manager.FirstName,
                         LastName = managerRequest.Manager.LastName,
@@ -163,7 +163,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 var utcNowDate = DateTime.UtcNow;
                 var manager = new Manager
                 {
-                    IdentityHash = _managerContext.GetIdentityHash(),
+                    IdentityHash = _managerContext.GetHash(),
                     Email = email,
                     FirstName = managerInfoRequest.FirstName,
                     LastName = managerInfoRequest.LastName,
@@ -232,7 +232,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private Result CheckIdentityHashNotEmpty()
         {
-            return string.IsNullOrEmpty(_managerContext.GetIdentityHash())
+            return string.IsNullOrEmpty(_managerContext.GetHash())
                 ? Result.Failure("Manager should have identity")
                 : Result.Success();
         }

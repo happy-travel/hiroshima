@@ -8,7 +8,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     {
         Task<Result<Manager>> GetManager();
 
-        string GetIdentityHash();
+        string GetHash();
 
         Task<bool> DoesManagerExist();
 
