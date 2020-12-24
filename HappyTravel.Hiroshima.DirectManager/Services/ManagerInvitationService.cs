@@ -109,12 +109,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return await _managerContext.GetManagerRelation()
                 .Ensure(managerRelation => HasManagerInvitationManagerPermission(managerRelation).Value, "The manager does not have enough rights")
-                .Bind(managerRelation => GetExistingInvitation())
-                .Bind(SendInvitationMail)
-                .Bind(DisableExistingInvitation);
+                .Bind(managerRelation => GetExistingInvitation(invitationCode))
+                .BindWithTransaction(_dbContext, managerInvitation => DisableExistingInvitation(managerInvitation)
+                    .Bind(CreateNewInvitation)
+                    .Bind(SaveInvitation)
+                    .Bind(SendInvitationMail))
+                .Tap(managerInvitation => LogInvitationCreated(managerInvitation.Email));
 
 
-            async Task<Result<ManagerInvitation>> GetExistingInvitation()
+            async Task<Result<ManagerInvitation>> GetExistingInvitation(string invitationCode)
             {
                 var invitation = await _dbContext.ManagerInvitations.SingleOrDefaultAsync(i => i.InvitationCode == invitationCode);
 
@@ -122,11 +125,41 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
 
 
-            async Task<Result> DisableExistingInvitation(ManagerInvitation existingInvitation)
+            async Task<Result<ManagerInvitation>> DisableExistingInvitation(ManagerInvitation existingInvitation)
             {
                 existingInvitation.IsResent = true;
                 await _dbContext.SaveChangesAsync();
-                return Result.Success();
+                
+                return existingInvitation;
+            }
+
+
+            Result<ManagerInvitation> CreateNewInvitation(ManagerInvitation existingInvitation)
+            {
+                return new ManagerInvitation
+                {
+                    InvitationCode = GenerateInvitationCode(),
+                    FirstName = existingInvitation.FirstName,
+                    LastName = existingInvitation.LastName,
+                    Title = existingInvitation.Title,
+                    Position = existingInvitation.Position,
+                    Email = existingInvitation.Email,
+                    ManagerId = existingInvitation.ManagerId,
+                    ServiceSupplierId = existingInvitation.ServiceSupplierId,
+                    Created = DateTime.UtcNow,
+                    IsAccepted = false,
+                    IsResent = false
+                };
+            }
+
+
+            async Task<Result<ManagerInvitation>> SaveInvitation(ManagerInvitation managerInvitation)
+            {
+                var entry = _dbContext.ManagerInvitations.Add(managerInvitation);
+                await _dbContext.SaveChangesAsync();
+                _dbContext.DetachEntry(entry.Entity);
+
+                return entry.Entity;
             }
         }
 
@@ -182,6 +215,17 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
+        private string GenerateInvitationCode()
+        {
+            using var provider = new RNGCryptoServiceProvider();
+
+            var byteArray = new byte[64];
+            provider.GetBytes(byteArray);
+
+            return Base64UrlEncoder.Encode(byteArray);
+        }
+
+
         private Result<(ManagerServiceSupplierRelation, string)> GenerateInvitationCode(ManagerServiceSupplierRelation managerInvitation)
         {
             using var provider = new RNGCryptoServiceProvider();
@@ -211,7 +255,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             if (sendingResult.IsFailure)
                 return Result.Failure<ManagerInvitation>(sendingResult.Error);
 
-            return Result.Success(managerInvitation);
+            return managerInvitation;
         }
 
 
