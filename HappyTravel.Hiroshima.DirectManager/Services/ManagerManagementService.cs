@@ -122,6 +122,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 if (managerRelation is null)
                     return Result.Failure<Common.Models.ManagerContext>($"Manager with ID {managerId} has no relation with service supplier");
 
+                if (managerRelation.IsMaster)
+                    return Result.Failure<Common.Models.ManagerContext>("You cannot change the rights of the master manager");
+
                 var manager = await _dbContext.Managers.SingleOrDefaultAsync(manager => manager.Id == managerId);
                 if (manager is null)
                     return Result.Failure<Common.Models.ManagerContext>($"Manager with ID {managerId} not found");
