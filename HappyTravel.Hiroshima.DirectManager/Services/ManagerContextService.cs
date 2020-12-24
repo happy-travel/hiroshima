@@ -2,6 +2,7 @@
 using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Data;
+using HappyTravel.Hiroshima.DirectContracts.Services;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,18 +10,19 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class ManagerContextService : IManagerContextService
     {
-        public ManagerContextService(DirectContractsDbContext dbContext, ITokenInfoAccessor tokenInfoAccessor)
+        public ManagerContextService(DirectContractsDbContext dbContext, ITokenInfoAccessor tokenInfoAccessor, ISha256HashGenerator sha256HashGenerator)
         {
             _dbContext = dbContext;
             _tokenInfoAccessor = tokenInfoAccessor;
+            _sha256HashGenerator = sha256HashGenerator;
         }
 
 
         public async Task<Result<Manager>> GetManager()
         {
-            var identityHash = GetIdentityHash();
+            var hash = GetHash();
 
-            var manager = await _dbContext.Managers.SingleOrDefaultAsync(manager => manager.IsActive && manager.IdentityHash == identityHash);
+            var manager = await _dbContext.Managers.SingleOrDefaultAsync(manager => manager.IsActive && manager.IdentityHash == hash);
 
             return manager is null
                 ? Result.Failure<Manager>("Failed to retrieve a contract manager") 
@@ -29,10 +31,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
         public async Task<bool> DoesManagerExist()
-            => await _dbContext.Managers.SingleOrDefaultAsync(manager => manager.IdentityHash == GetIdentityHash()) != null;
+            => await _dbContext.Managers.SingleOrDefaultAsync(manager => manager.IdentityHash == GetHash()) != null;
 
 
-        public string GetIdentityHash() => _tokenInfoAccessor.GetIdentityHash();
+        public string GetHash() => _sha256HashGenerator.Generate(_tokenInfoAccessor.GetIdentityHash());
 
 
         public async Task<Result<ServiceSupplier>> GetServiceSupplier()
@@ -121,5 +123,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private readonly DirectContractsDbContext _dbContext;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
+        private readonly ISha256HashGenerator _sha256HashGenerator;
     }
 }
