@@ -9,6 +9,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
@@ -31,38 +33,10 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return await _managerContext.GetManagerRelation()
                 .Ensure(managerRelation => HasManagerInvitationManagerPermission(managerRelation).Value, "The manager does not have enough rights")
-                .Bind(GenerateInvitationCode)
-                .BindWithTransaction(_dbContext, managerData => Result.Success(managerData)
+                .BindWithTransaction(_dbContext, managerRelation => CreateInvitation(managerInvitationInfo, managerRelation)
                     .Bind(SaveInvitation)
                     .Bind(SendInvitationMail))
-                .Tap(managerInvitation => LogInvitationCreated(managerInvitationInfo.Email));
-
-
-            async Task<Result<ManagerInvitation>> SaveInvitation((ManagerServiceSupplierRelation, string) invitationData)
-            {
-                var (managerRelation, invitationCode) = invitationData;
-
-                var managerInvitation = new ManagerInvitation
-                {
-                    InvitationCode = invitationCode,
-                    FirstName = managerInvitationInfo.FirstName,
-                    LastName = managerInvitationInfo.LastName,
-                    Title = managerInvitationInfo.Title,
-                    Position = managerInvitationInfo.Position,
-                    Email = managerInvitationInfo.Email,
-                    ManagerId = managerRelation.ManagerId,
-                    ServiceSupplierId = managerRelation.ServiceSupplierId,
-                    Created = DateTime.UtcNow,
-                    IsAccepted = false,
-                    IsResent = false
-                };
-
-                var entry = _dbContext.ManagerInvitations.Add(managerInvitation);
-                await _dbContext.SaveChangesAsync();
-                _dbContext.DetachEntry(entry.Entity);
-
-                return managerInvitation;
-            }
+                .Tap(managerInvitation => LogInvitationCreated(managerInvitation.Email));
         }
 
 
@@ -70,36 +44,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return await _managerContext.GetManagerRelation()
                 .Ensure(managerRelation => HasManagerInvitationManagerPermission(managerRelation).Value, "The manager does not have enough rights")
-                .Bind(GenerateInvitationCode)
+                .Bind(managerRelation => CreateInvitation(managerInvitationInfo, managerRelation))
                 .Bind(SaveInvitation)
-                .Tap(invitationCode => LogInvitationCreated(managerInvitationInfo.Email));
+                .Tap(managerInvitation => LogInvitationCreated(managerInvitation.Email))
+                .Bind(GetInvitationCode);
 
-
-            async Task<Result<string>> SaveInvitation((ManagerServiceSupplierRelation, string) invitationData)
-            {
-                var (managerRelation, invitationCode) = invitationData;
-
-                var managerInvitation = new ManagerInvitation
-                {
-                    InvitationCode = invitationCode,
-                    FirstName = managerInvitationInfo.FirstName,
-                    LastName = managerInvitationInfo.LastName,
-                    Title = managerInvitationInfo.Title,
-                    Position = managerInvitationInfo.Position,
-                    Email = managerInvitationInfo.Email,
-                    ManagerId = managerRelation.ManagerId,
-                    ServiceSupplierId = managerRelation.ServiceSupplierId,
-                    Created = DateTime.UtcNow,
-                    IsAccepted = false,
-                    IsResent = false
-                };
-
-                var entry = _dbContext.ManagerInvitations.Add(managerInvitation);
-                await _dbContext.SaveChangesAsync();
-                _dbContext.DetachEntry(entry.Entity);
-
-                return invitationCode;
-            }
+            static Result<string> GetInvitationCode(ManagerInvitation managerInvitation)
+                => managerInvitation.InvitationCode;
         }
 
 
@@ -107,12 +58,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             return await _managerContext.GetManagerRelation()
                 .Ensure(managerRelation => HasManagerInvitationManagerPermission(managerRelation).Value, "The manager does not have enough rights")
-                .Bind(managerRelation => GetExistingInvitation())
-                .Bind(SendInvitationMail)
-                .Bind(DisableExistingInvitation);
+                .Bind(managerRelation => GetExistingInvitation(invitationCode))
+                .BindWithTransaction(_dbContext, managerInvitation => DisableExistingInvitation(managerInvitation)
+                    .Bind(CreateNewInvitation)
+                    .Bind(SaveInvitation)
+                    .Bind(SendInvitationMail))
+                .Tap(managerInvitation => LogInvitationCreated(managerInvitation.Email));
 
 
-            async Task<Result<ManagerInvitation>> GetExistingInvitation()
+            async Task<Result<ManagerInvitation>> GetExistingInvitation(string invitationCode)
             {
                 var invitation = await _dbContext.ManagerInvitations.SingleOrDefaultAsync(i => i.InvitationCode == invitationCode);
 
@@ -120,11 +74,31 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             }
 
 
-            async Task<Result> DisableExistingInvitation(ManagerInvitation existingInvitation)
+            async Task<Result<ManagerInvitation>> DisableExistingInvitation(ManagerInvitation existingInvitation)
             {
                 existingInvitation.IsResent = true;
                 await _dbContext.SaveChangesAsync();
-                return Result.Success();
+                
+                return existingInvitation;
+            }
+
+
+            Result<ManagerInvitation> CreateNewInvitation(ManagerInvitation existingInvitation)
+            {
+                return new ManagerInvitation
+                {
+                    InvitationCode = GenerateInvitationCode(),
+                    FirstName = existingInvitation.FirstName,
+                    LastName = existingInvitation.LastName,
+                    Title = existingInvitation.Title,
+                    Position = existingInvitation.Position,
+                    Email = existingInvitation.Email,
+                    ManagerId = existingInvitation.ManagerId,
+                    ServiceSupplierId = existingInvitation.ServiceSupplierId,
+                    Created = DateTime.UtcNow,
+                    IsAccepted = false,
+                    IsResent = false
+                };
             }
         }
 
@@ -160,29 +134,57 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             bool InvitationIsActual(ManagerInvitation managerInvitation) 
                 => managerInvitation.Created + _options.Value.InvitationExpirationPeriod > DateTime.UtcNow;
+        }
 
 
-            Models.Responses.ManagerInvitation Build(ManagerInvitation managerInvitation)
+        public async Task<Result<List<Models.Responses.ManagerInvitation>>> GetServiceSupplierInvitations()
+        {
+            return await _managerContext.GetManagerRelation()
+                .Ensure(managerRelation => HasManagerInvitationManagerPermission(managerRelation).Value, "The manager does not have enough rights")
+                .Map(managerRelation => GetNotAcceptedInvitations(managerRelation.ServiceSupplierId))
+                .Map(Build);
+
+
+            async Task<List<ManagerInvitation>> GetNotAcceptedInvitations(int serviceSupplierId)
             {
-                return new Models.Responses.ManagerInvitation(managerInvitation.FirstName, 
-                    managerInvitation.LastName, 
-                    managerInvitation.Title,
-                    managerInvitation.Position,
-                    managerInvitation.Email,
-                    managerInvitation.ManagerId,
-                    managerInvitation.ServiceSupplierId);
+                return await _dbContext.ManagerInvitations
+                    .Where(invitation => invitation.ServiceSupplierId == serviceSupplierId && invitation.IsAccepted == false && invitation.IsResent == false)
+                    .ToListAsync();
             }
         }
 
 
-        private Result<(ManagerServiceSupplierRelation, string)> GenerateInvitationCode(ManagerServiceSupplierRelation managerInvitation)
+        private static Result<bool> HasManagerInvitationManagerPermission(ManagerServiceSupplierRelation managerRelation)
+            => (managerRelation.ManagerPermissions & Common.Models.Enums.ManagerPermissions.ManagerInvitation) == Common.Models.Enums.ManagerPermissions.ManagerInvitation;
+
+
+        private Result<ManagerInvitation> CreateInvitation(Models.Requests.ManagerInvitationInfo managerInvitationInfo, ManagerServiceSupplierRelation managerRelation)
+        {
+            return new ManagerInvitation
+            {
+                InvitationCode = GenerateInvitationCode(),
+                FirstName = managerInvitationInfo.FirstName,
+                LastName = managerInvitationInfo.LastName,
+                Title = managerInvitationInfo.Title,
+                Position = managerInvitationInfo.Position,
+                Email = managerInvitationInfo.Email,
+                ManagerId = managerRelation.ManagerId,
+                ServiceSupplierId = managerRelation.ServiceSupplierId,
+                Created = DateTime.UtcNow,
+                IsAccepted = false,
+                IsResent = false
+            };
+        }
+
+
+        private string GenerateInvitationCode()
         {
             using var provider = new RNGCryptoServiceProvider();
 
             var byteArray = new byte[64];
             provider.GetBytes(byteArray);
 
-            return (managerInvitation, Base64UrlEncoder.Encode(byteArray));
+            return Base64UrlEncoder.Encode(byteArray);
         }
 
 
@@ -191,6 +193,16 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             var managerInvitation = await _dbContext.ManagerInvitations.SingleOrDefaultAsync(c => c.InvitationCode == invitationCode);
 
             return managerInvitation ?? Maybe<ManagerInvitation>.None;
+        }
+
+
+        private async Task<Result<ManagerInvitation>> SaveInvitation(ManagerInvitation managerInvitation)
+        {
+            var entry = _dbContext.ManagerInvitations.Add(managerInvitation);
+            await _dbContext.SaveChangesAsync();
+            _dbContext.DetachEntry(entry.Entity);
+
+            return entry.Entity;
         }
 
 
@@ -204,7 +216,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             if (sendingResult.IsFailure)
                 return Result.Failure<ManagerInvitation>(sendingResult.Error);
 
-            return Result.Success(managerInvitation);
+            return managerInvitation;
         }
 
 
@@ -214,8 +226,20 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        private static Result<bool> HasManagerInvitationManagerPermission(ManagerServiceSupplierRelation managerRelation)
-            => (managerRelation.ManagerPermissions & Common.Models.Enums.ManagerPermissions.ManagerInvitation) == Common.Models.Enums.ManagerPermissions.ManagerInvitation;
+        private static List<Models.Responses.ManagerInvitation> Build(List<ManagerInvitation> managerInvitations)
+            => managerInvitations.Select(Build).ToList();
+
+
+        private static Models.Responses.ManagerInvitation Build(ManagerInvitation managerInvitation)
+        {
+            return new Models.Responses.ManagerInvitation(managerInvitation.FirstName,
+                managerInvitation.LastName,
+                managerInvitation.Title,
+                managerInvitation.Position,
+                managerInvitation.Email,
+                managerInvitation.ManagerId,
+                managerInvitation.ServiceSupplierId);
+        }
 
 
         private readonly IManagerContextService _managerContext;

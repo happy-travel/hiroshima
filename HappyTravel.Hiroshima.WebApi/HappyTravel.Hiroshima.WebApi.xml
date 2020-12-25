@@ -491,6 +491,12 @@
             <param name="invitationCode">Invitation code.</param>
             <returns>Invitation data, including pre-filled registration information.</returns>
         </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.GetServiceSupplierInvitations">
+            <summary>
+               Gets not accepted invitations list for service supplier
+            </summary>
+            <returns>List not accepted invitations for service supplier</returns>
+        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.AddServiceSupplier(HappyTravel.Hiroshima.DirectManager.Models.Requests.ServiceSupplier)">
             <summary>
             Updates service supplier data

@@ -11,7 +11,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/management/manager")]
+    [Route("api/{v:apiVersion}/management")]
     [Produces("application/json")]
     public class ManagerController : ControllerBase
     {
@@ -29,7 +29,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// Retrieves current manager's data
         /// </summary>
         /// <returns></returns>
-        [HttpGet]
+        [HttpGet("manager")]
         [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ManagerContext), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetManager()
@@ -46,7 +46,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// Retrieves data for manager ID
         /// </summary>
         /// <returns></returns>
-        [HttpGet("{managerId}")]
+        [HttpGet("manager/{managerId}")]
         [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ManagerContext), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetManager([FromRoute] int managerId)
@@ -63,7 +63,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// Retrieves current manager's service supplers list
         /// </summary>
         /// <returns></returns>
-        [HttpGet("service-suppliers")]
+        [HttpGet("manager/service-suppliers")]
         [ProducesResponseType(typeof(List<HappyTravel.Hiroshima.DirectManager.Models.Responses.ServiceSupplier>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetServiceSuppliers()
@@ -81,7 +81,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// </summary>
         /// <param name="managerWithServiceSupplier">Master manager with service supplier request</param>
         /// <returns></returns>
-        [HttpPost("register-master")]
+        [HttpPost("manager/register-master")]
         [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ManagerContext), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> RegisterManagerWithServiceSupplier([FromBody] Hiroshima.DirectManager.Models.Requests.ManagerWithServiceSupplier managerWithServiceSupplier)
@@ -111,7 +111,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// </summary>
         /// <param name="managerInfo">Invited manager info</param>
         /// <returns></returns>
-        [HttpPost("register")]
+        [HttpPost("manager/register")]
         [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ManagerContext), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> RegisterInvitedManager([FromBody] Hiroshima.DirectManager.Models.Requests.ManagerInfoWithCode managerInfo)
@@ -141,7 +141,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// </summary>
         /// <param name="managerInvitation">Regular manager registration request.</param>
         /// <returns></returns>
-        [HttpPost("invitations/send")]
+        [HttpPost("manager/invitations/send")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> InviteManager([FromBody] Hiroshima.DirectManager.Models.Requests.ManagerInvitationInfo managerInvitation)
@@ -158,7 +158,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         ///    Resend manager invitation
         /// </summary>
         /// <param name="invitationCode">Invitation code</param>>
-        [HttpPost("invitations/{invitationCode}/resend")]
+        [HttpPost("manager/invitations/{invitationCode}/resend")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> ResendInvite([FromRoute] string invitationCode)
@@ -176,7 +176,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// </summary>
         /// <param name="managerInvitation">Regular manager registration request.</param>
         /// <returns>Invitation code.</returns>
-        [HttpPost("invitations/generate")]
+        [HttpPost("manager/invitations/generate")]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> CreateInvitation([FromBody] Hiroshima.DirectManager.Models.Requests.ManagerInvitationInfo managerInvitation)
@@ -194,7 +194,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// </summary>
         /// <param name="invitationCode">Invitation code.</param>
         /// <returns>Invitation data, including pre-filled registration information.</returns>
-        [HttpGet("invitations/{invitationCode}")]
+        [HttpGet("manager/invitations/{invitationCode}")]
         [ProducesResponseType(typeof(ManagerInvitation), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetInvitationData(string invitationCode)
@@ -209,11 +209,27 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
 
 
         /// <summary>
+        ///    Gets not accepted invitations list for service supplier
+        /// </summary>
+        /// <returns>List not accepted invitations for service supplier</returns>
+        [HttpGet("service-supplier/invitations")]
+        [ProducesResponseType(typeof(List<ManagerInvitation>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<List<ManagerInvitation>>> GetServiceSupplierInvitations()
+        {
+            var (_, isFailure, response, error) = await _managerInvitationService.GetServiceSupplierInvitations();
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(response);
+        }
+
+
+        /// <summary>
         /// Updates service supplier data
         /// </summary>
         /// <param name="serviceSupplier"></param>
         /// <returns></returns>
-        [HttpPut("service-supplier")]
+        [HttpPut("manager/service-supplier")]
         [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ServiceSupplier), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> AddServiceSupplier([FromBody] Hiroshima.DirectManager.Models.Requests.ServiceSupplier serviceSupplier)
@@ -231,7 +247,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// </summary>
         /// <param name="manager"></param>  
         /// <returns></returns>
-        [HttpPut]
+        [HttpPut("manager")]
         [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ManagerContext), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> ModifyManager([FromBody] Hiroshima.DirectManager.Models.Requests.Manager manager)
@@ -250,7 +266,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="managerId"></param>  
         /// <param name="managerPermissions"></param>  
         /// <returns></returns>
-        [HttpPut("{managerId}/permissions")]
+        [HttpPut("manager/{managerId}/permissions")]
         [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ManagerContext), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> ModifyManagerPermissions([FromRoute] int managerId, [FromBody] Hiroshima.DirectManager.Models.Requests.Permissions managerPermissions)

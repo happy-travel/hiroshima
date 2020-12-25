@@ -27,7 +27,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Models.Responses.ManagerContext>> Get(int managerId)
         {
             return _managerContext.GetManagerRelation()
-                .Ensure(managerRelation => HasManagerChangeManagerPermission(managerRelation).Value, "The manager does not have enough rights")
+                .Ensure(managerRelation => HasManagerChangeManagerPermission(managerRelation), "The manager does not have enough rights")
                 .Bind(managerRelation => GetManagerContextById(managerId, managerRelation.ServiceSupplierId))
                 .Map(Build);
 
@@ -102,10 +102,17 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Models.Responses.ManagerContext>> ModifyPermissions(int managerId, Models.Requests.Permissions permissionsRequest)
         {
             return _managerContext.GetManagerRelation()
-                .Ensure(managerRelation => HasManagerChangeManagerPermission(managerRelation).Value, "The manager does not have enough rights")
+                .Ensure(managerRelation => HasManagerChangeManagerPermission(managerRelation), "The manager does not have enough rights")
+                .Ensure(managerRelation => DoesManagerChangeNotHisRights(managerRelation), "The manager cannot change his rights")
                 .Check(managerRelation => ValidateRequest(permissionsRequest))
                 .Bind(managerRelation => UpdatePermissions(managerRelation.ServiceSupplierId))
                 .Map(Build);
+
+
+            bool DoesManagerChangeNotHisRights(Common.Models.ManagerServiceSupplierRelation managerRelation)
+            {
+                return managerRelation.ManagerId != managerId;
+            }
 
 
             async Task<Result<Common.Models.ManagerContext>> UpdatePermissions(int serviceSupplierId)
@@ -114,6 +121,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     .SingleOrDefaultAsync(relation => relation.ManagerId == managerId && relation.ServiceSupplierId == serviceSupplierId);
                 if (managerRelation is null)
                     return Result.Failure<Common.Models.ManagerContext>($"Manager with ID {managerId} has no relation with service supplier");
+
+                if (managerRelation.IsMaster)
+                    return Result.Failure<Common.Models.ManagerContext>("You cannot change the rights of the master manager");
 
                 var manager = await _dbContext.Managers.SingleOrDefaultAsync(manager => manager.Id == managerId);
                 if (manager is null)
@@ -133,7 +143,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public Task<Result<Models.Responses.ServiceSupplier>> ModifyServiceSupplier(Models.Requests.ServiceSupplier serviceSupplierRequest)
         {
             return _managerContext.GetManagerRelation()
-                .Ensure(managerRelation => HasManagerModifyServiceSupplier(managerRelation).Value, "The manager does not have enough rights")
+                .Ensure(managerRelation => HasManagerModifyServiceSupplier(managerRelation), "The manager does not have enough rights")
                 .Check(managerRelation => ValidateRequest(serviceSupplierRequest))
                 .Bind(Modify)
                 .Map(Build);
@@ -201,11 +211,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             => serviceSuppliers.Select(Build).ToList();
 
 
-        private Result<bool> HasManagerChangeManagerPermission(Common.Models.ManagerServiceSupplierRelation managerRelation)
+        private bool HasManagerChangeManagerPermission(Common.Models.ManagerServiceSupplierRelation managerRelation)
             => (managerRelation.ManagerPermissions & Common.Models.Enums.ManagerPermissions.ChangeManagerPermissions) == Common.Models.Enums.ManagerPermissions.ChangeManagerPermissions;
 
 
-        private Result<bool> HasManagerModifyServiceSupplier(Common.Models.ManagerServiceSupplierRelation managerRelation)
+        private bool HasManagerModifyServiceSupplier(Common.Models.ManagerServiceSupplierRelation managerRelation)
             => managerRelation.IsMaster;
 
 
