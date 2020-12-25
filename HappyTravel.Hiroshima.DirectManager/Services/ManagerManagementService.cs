@@ -167,8 +167,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 return serviceSupplier;
             }
         }
-
-
+        
+     
         private Common.Models.ManagerContext CollectManagerContext(Common.Models.Manager manager, Common.Models.ManagerServiceSupplierRelation managerRelation) 
             => new Common.Models.ManagerContext
             {

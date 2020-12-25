@@ -230,12 +230,26 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
+        public Task<Result> TransferMaster(int managerId)
+        {
+            return _managerContext.GetManagerRelation()
+                .Ensure(managerRelation => HasManagerIsMaster(managerRelation), "The manager does not have enough rights")
+                .BindWithTransaction(_dbContext, managerRelation => CreateInvitation(managerInvitationInfo, managerRelation)
+                    .Bind(SaveInvitation)
+                    .Bind(SendInvitationMail));
+        }
+
+
         private Result CheckIdentityHashNotEmpty()
         {
             return string.IsNullOrEmpty(_managerContext.GetHash())
                 ? Result.Failure("Manager should have identity")
                 : Result.Success();
         }
+
+
+        private bool HasManagerIsMaster(Common.Models.ManagerServiceSupplierRelation managerRelation)
+            => managerRelation.IsMaster;
 
 
         private Result ValidateRequest(Models.Requests.ManagerWithServiceSupplier managerRequest)
