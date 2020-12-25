@@ -17,7 +17,5 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         Task<Result<Models.Responses.ManagerContext>> ModifyPermissions(int managerId, Models.Requests.Permissions managerPermissionsRequest);
 
         Task<Result<Models.Responses.ServiceSupplier>> ModifyServiceSupplier(Models.Requests.ServiceSupplier companyRequest);
-
-        Task<Result> TransferMaster(int managerId);
     }
 }

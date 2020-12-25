@@ -9,5 +9,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         Task<Result> SendInvitation(ManagerInvitation managerInvitation, string serviceSupplierName);
 
         Task<Result> SendRegistrationConfirmation(string emailMasterManager, Models.Requests.ManagerInfo managerInfo, string serviceSupplierName);
+
+        Task<Result> SendWelcomeToNewMaster(Manager manager, string serviceSupplierName);
     }
 }

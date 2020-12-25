@@ -57,6 +57,23 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
+        public async Task<Result> SendWelcomeToNewMaster(Manager manager, string serviceSupplierName)
+        {
+            var companyInfo = await _companyService.Get();
+
+            return await _mailSender.Send(_options.Value.ManagerRegistrationMailTemplateId, manager.Email, new RegistrationDataForMaster
+            {
+                ManagerName = $"{manager.FirstName} {manager.LastName}",
+                Position = manager.Position,
+                Title = manager.Title,
+                ServiceSupplierName = serviceSupplierName,
+                CompanyInfo = companyInfo.IsFailure
+                    ? new CompanyInfo()
+                    : companyInfo.Value
+            });
+        }
+
+
         private readonly IMailSender _mailSender;
         private readonly ICompanyService _companyService;
         private readonly IOptions<NotificationServiceOptions> _options;

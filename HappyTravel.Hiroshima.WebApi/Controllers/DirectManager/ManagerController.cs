@@ -289,11 +289,11 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> TransferMasterManagerPermissions([FromRoute] int managerId)
         {
-            var (_, isFailure, response, error) = await _managerManagementService.TransferMaster(managerId);
+            var (_, isFailure, error) = await _managerRegistrationService.TransferMaster(managerId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return Ok(response);
+            return NoContent();
         }
 
 
