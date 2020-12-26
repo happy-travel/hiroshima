@@ -27,10 +27,9 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             List<Models.Requests.AvailabilityRestriction> availabilityRestrictions)
         {
             return _managerContext.GetServiceSupplier()
-                .Tap(serviceSupplier => Validate(serviceSupplier.Id, contractId, availabilityRestrictions))
+                .Check(serviceSupplier => Validate(serviceSupplier.Id, contractId, availabilityRestrictions))
                 .Map(serviceSupplier => Replace())
                 .Map(Build);
-
             
             
             async Task<List<RoomAvailabilityRestriction>> Replace()
@@ -136,6 +135,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     ? Result.Failure<List<RoomAvailabilityRestriction>>(checkingResult.Error) 
                     : Result.Success(availabilityRestrictions);
             }
+
                 
             async Task RemoveAvailabilityRestrictions(List<RoomAvailabilityRestriction> availabilityRestrictions)
             {

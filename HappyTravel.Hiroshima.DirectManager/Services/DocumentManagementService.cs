@@ -102,7 +102,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         public async Task<Result> Remove(int contractId, Guid documentId)
         {
             return await _managerContext.GetServiceSupplier()
-                .Tap(async serviceSupplier => 
+                .Check(async serviceSupplier => 
                 {
                     var result = await RemoveDocument(serviceSupplier.Id, contractId, documentId);
                     return result 
