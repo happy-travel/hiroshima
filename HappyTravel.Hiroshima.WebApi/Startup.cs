@@ -101,9 +101,9 @@ namespace HappyTravel.Hiroshima.WebApi
                 })
                 .Configure<NotificationServiceOptions>(options =>
                 {
-                    options.ManagerInvitationMailTemplateId = mailSenderOptions["regularManagerInvitationTemplateId"];
-                    options.ManagerRegistrationMailTemplateId = mailSenderOptions["regularManagerRegistrationTemplateId"];
-                    options.NewMasterManagerWelcomeMailTemplateId = mailSenderOptions["newMasterManagerWelcomeTemplateId"];
+                    options.ManagerInvitationMessageTemplateId = mailSenderOptions["regularManagerInvitationTemplateId"];
+                    options.ManagerRegistrationMessageTemplateId = mailSenderOptions["regularManagerRegistrationTemplateId"];
+                    options.NewMasterManagerWelcomeMessageTemplateId = mailSenderOptions["newMasterManagerWelcomeTemplateId"];
                 })
                 .Configure<BookingWebhookOptions>(options =>
                 {

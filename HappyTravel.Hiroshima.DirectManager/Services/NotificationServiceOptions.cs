@@ -2,8 +2,8 @@
 {
     public class NotificationServiceOptions
     {
-        public string ManagerInvitationMailTemplateId { get; set; }
-        public string ManagerRegistrationMailTemplateId { get; set; }
-        public string NewMasterManagerWelcomeMailTemplateId { get; set; }
+        public string ManagerInvitationMessageTemplateId { get; set; }
+        public string ManagerRegistrationMessageTemplateId { get; set; }
+        public string NewMasterManagerWelcomeMessageTemplateId { get; set; }
     }
 }
