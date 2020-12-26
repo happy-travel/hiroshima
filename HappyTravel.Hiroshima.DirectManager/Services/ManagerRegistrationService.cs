@@ -280,7 +280,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 if (serviceSupplier is null)
                     return Result.Failure<ManagerContext>("Service supplier not found");
 
-                var sendResult = await _notificationService.SendWelcomeToNewMaster(manager, serviceSupplier.Name);
+                var sendResult = await _notificationService.SendWelcomeMessageToNewMaster(manager, serviceSupplier.Name);
                 if (sendResult.IsFailure)
                     return Result.Failure<ManagerContext>(sendResult.Error);
 

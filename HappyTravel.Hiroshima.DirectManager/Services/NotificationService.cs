@@ -57,7 +57,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
-        public async Task<Result> SendWelcomeToNewMaster(Manager manager, string serviceSupplierName)
+        public async Task<Result> SendWelcomeMessageToNewMaster(Manager manager, string serviceSupplierName)
         {
             var companyInfo = await _companyService.Get();
 

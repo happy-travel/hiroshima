@@ -285,7 +285,7 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         /// <param name="managerId"></param>  
         /// <returns></returns>
         [HttpPut("manager/{managerId}/transfer-master")]
-        [ProducesResponseType(typeof(HappyTravel.Hiroshima.DirectManager.Models.Responses.ManagerContext), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> TransferMasterManagerPermissions([FromRoute] int managerId)
         {
