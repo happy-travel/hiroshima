@@ -21,7 +21,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         {
             var companyInfo = await _companyService.Get();
 
-            return await _mailSender.Send(_options.Value.ManagerInvitationMailTemplateId, managerInvitation.Email, new InvitationData
+            return await _mailSender.Send(_options.Value.ManagerInvitationMessageTemplateId, managerInvitation.Email, new InvitationData
             {
                 InvitationCode = managerInvitation.InvitationCode,
                 ManagerEmail = managerInvitation.Email,
@@ -44,11 +44,28 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             var companyInfo = await _companyService.Get();
 
-            return await _mailSender.Send(_options.Value.ManagerRegistrationMailTemplateId, emailMasterManager, new RegistrationDataForMaster
+            return await _mailSender.Send(_options.Value.ManagerRegistrationMessageTemplateId, emailMasterManager, new RegistrationDataForMaster
             {
                 ManagerName = $"{managerInfo.FirstName} {managerInfo.LastName}",
                 Position = position,
                 Title = managerInfo.Title,
+                ServiceSupplierName = serviceSupplierName,
+                CompanyInfo = companyInfo.IsFailure
+                    ? new CompanyInfo()
+                    : companyInfo.Value
+            });
+        }
+
+
+        public async Task<Result> SendWelcomeMessageToNewMaster(Manager manager, string serviceSupplierName)
+        {
+            var companyInfo = await _companyService.Get();
+
+            return await _mailSender.Send(_options.Value.NewMasterManagerWelcomeMessageTemplateId, manager.Email, new RegistrationDataForMaster
+            {
+                ManagerName = $"{manager.FirstName} {manager.LastName}",
+                Position = manager.Position,
+                Title = manager.Title,
                 ServiceSupplierName = serviceSupplierName,
                 CompanyInfo = companyInfo.IsFailure
                     ? new CompanyInfo()

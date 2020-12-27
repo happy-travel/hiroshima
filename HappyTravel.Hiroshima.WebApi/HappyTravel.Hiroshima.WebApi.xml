@@ -519,6 +519,13 @@
             <param name="managerPermissions"></param>  
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.ManagerController.TransferMasterManagerPermissions(System.Int32)">
+            <summary>
+            Transfer master manager rights to regular manager
+            </summary>
+            <param name="managerId"></param>  
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Hiroshima.WebApi.Controllers.DirectManager.PromotionalOfferManagementController.GetPromotionalOffers(System.Int32,System.Int32,System.Int32,System.Collections.Generic.List{System.Int32},System.Nullable{System.DateTime},System.Nullable{System.DateTime})">
             <summary>
             Retrieves contracted promotional offers

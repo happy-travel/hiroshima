@@ -230,12 +230,75 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         }
 
 
+        public Task<Result> TransferMaster(int managerId)
+        {
+            return _managerContext.GetManagerRelation()
+                .Ensure(managerRelation => HasManagerIsMaster(managerRelation), "The manager does not have enough rights")
+                .BindWithTransaction(_dbContext, managerRelation => RemoveMasterPermissions(managerRelation)
+                    .Bind(SetMasterAndAllPermissions)
+                    .Bind(SendWelcomeMail));
+
+
+            async Task<Result<ManagerServiceSupplierRelation>> RemoveMasterPermissions(ManagerServiceSupplierRelation managerRelation)
+            {
+                managerRelation.IsMaster = false;
+                _dbContext.ManagerServiceSupplierRelations.Update(managerRelation);
+                await _dbContext.SaveChangesAsync();
+
+                return managerRelation;
+            }
+
+
+            async Task<Result<ManagerServiceSupplierRelation>> SetMasterAndAllPermissions(ManagerServiceSupplierRelation managerRelation)
+            {
+                var newMasterManagerRelation = await _dbContext.ManagerServiceSupplierRelations
+                    .SingleOrDefaultAsync(mssr => mssr.ManagerId == managerId && mssr.ServiceSupplierId == managerRelation.ServiceSupplierId);
+                if (newMasterManagerRelation is null)
+                    return Result.Failure<ManagerServiceSupplierRelation>("Manager with ID {managerId} not found in the service supplier");
+                if (!newMasterManagerRelation.IsActive)
+                    return Result.Failure<ManagerServiceSupplierRelation>("Manager with ID {managerId} is not active in the service supplier");
+
+                newMasterManagerRelation.IsMaster = true;
+                newMasterManagerRelation.ManagerPermissions = ManagerPermissions.All;
+                _dbContext.ManagerServiceSupplierRelations.Update(newMasterManagerRelation);
+                await _dbContext.SaveChangesAsync();
+
+                return newMasterManagerRelation;
+            }
+
+
+            async Task<Result> SendWelcomeMail(ManagerServiceSupplierRelation managerRelation)
+            {
+                var manager = await _dbContext.Managers.SingleOrDefaultAsync(manager => manager.Id == managerRelation.ManagerId);
+                if (manager is null)
+                    return Result.Failure<ManagerContext>("Manager with ID {managerId} not found");
+                if (!manager.IsActive)
+                    return Result.Failure<ManagerContext>("Manager with ID {managerId} not active");
+
+                var serviceSupplier = await _dbContext.ServiceSuppliers
+                    .SingleOrDefaultAsync(serviceSupplier => serviceSupplier.Id == managerRelation.ServiceSupplierId);
+                if (serviceSupplier is null)
+                    return Result.Failure<ManagerContext>("Service supplier not found");
+
+                var sendResult = await _notificationService.SendWelcomeMessageToNewMaster(manager, serviceSupplier.Name);
+                if (sendResult.IsFailure)
+                    return Result.Failure<ManagerContext>(sendResult.Error);
+
+                return Result.Success();
+            }
+        }
+
+
         private Result CheckIdentityHashNotEmpty()
         {
             return string.IsNullOrEmpty(_managerContext.GetHash())
                 ? Result.Failure("Manager should have identity")
                 : Result.Success();
         }
+
+
+        private bool HasManagerIsMaster(Common.Models.ManagerServiceSupplierRelation managerRelation)
+            => managerRelation.IsMaster;
 
 
         private Result ValidateRequest(Models.Requests.ManagerWithServiceSupplier managerRequest)

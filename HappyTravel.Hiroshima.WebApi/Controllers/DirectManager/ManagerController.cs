@@ -279,6 +279,24 @@ namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
         }
 
 
+        /// <summary>
+        /// Transfer master manager rights to regular manager
+        /// </summary>
+        /// <param name="managerId"></param>  
+        /// <returns></returns>
+        [HttpPut("manager/{managerId}/transfer-master")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> TransferMasterManagerPermissions([FromRoute] int managerId)
+        {
+            var (_, isFailure, error) = await _managerRegistrationService.TransferMaster(managerId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+
+
         private readonly IdentityHttpClient _identityHttpClient;
         private readonly IManagerManagementService _managerManagementService;
         private readonly IManagerRegistrationService _managerRegistrationService;
