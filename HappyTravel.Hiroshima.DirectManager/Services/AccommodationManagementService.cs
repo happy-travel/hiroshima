@@ -108,7 +108,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.Accommodation>> Add(Models.Requests.Accommodation accommodationRequest)
         {
-            return ValidationHelper.Validate(accommodationRequest, new AccommodationValidator())
+            return ValidationHelper.Validate(accommodationRequest, new AccommodationValidator(_dateTimeProvider))
                 .Bind(() => _managerContext.GetServiceSupplier())
                 .Map(serviceSupplier => CreateAccommodation(serviceSupplier.Id, accommodationRequest))
                 .Map(NormalizeAccommodationAmenities)
@@ -132,7 +132,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.Accommodation>> Update(int accommodationId, Models.Requests.Accommodation accommodationRequest)
         {
-            return ValidationHelper.Validate(accommodationRequest, new AccommodationValidator())
+            return ValidationHelper.Validate(accommodationRequest, new AccommodationValidator(_dateTimeProvider))
                 .Bind(() => _managerContext.GetServiceSupplier())
                 .Check(serviceSupplier => _serviceSupplierContext.EnsureAccommodationBelongsToServiceSupplier(serviceSupplier, accommodationId))
                 .Map(serviceSupplier => CreateAccommodation(serviceSupplier.Id, accommodationRequest))

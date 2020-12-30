@@ -1,6 +1,7 @@
 ﻿using System;
 using FluentValidation;
 using FluentValidation.Validators;
+using HappyTravel.Hiroshima.Common.Infrastructure;
 using HappyTravel.Hiroshima.DirectManager.Models.Requests;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators.Extensions;
 
@@ -8,7 +9,7 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
 {
     public class AccommodationValidator : AbstractValidator<Accommodation>
     {
-        public AccommodationValidator()
+        public AccommodationValidator(IDateTimeProvider dateTimeProvider)
         {
             RuleFor(accommodation => accommodation.Name).NotNull().AnyLanguage()
                 .ChildRules(validator => validator.RuleFor(name => name.Ar).NotEmpty().When(name => name.Ar != null))
@@ -45,7 +46,7 @@ namespace HappyTravel.Hiroshima.DirectManager.RequestValidators
             RuleFor(accommodation => accommodation.Amenities).AnyLanguage().When(accommodation => accommodation.Amenities != null);
             RuleFor(accommodation => accommodation.LocationId).NotEmpty();
             RuleFor(accommodation => accommodation.Status).IsInEnum();
-            RuleFor(accommodation => accommodation.BuildYear).LessThanOrEqualTo(DateTime.UtcNow.Year).When(accommodation => accommodation.BuildYear != null);
+            RuleFor(accommodation => accommodation.BuildYear).LessThanOrEqualTo(dateTimeProvider.UtcNow().Year).When(accommodation => accommodation.BuildYear != null);
             RuleFor(accommodation => accommodation.Floors).GreaterThan(0).When(accommodation => accommodation.Floors != null);
             RuleFor(accommodation => accommodation.LeisureAndSports)
                 .AnyLanguage()
