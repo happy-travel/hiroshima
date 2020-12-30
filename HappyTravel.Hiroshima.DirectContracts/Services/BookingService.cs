@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Hiroshima.Common.Infrastructure;
 using HappyTravel.Hiroshima.Common.Infrastructure.Utilities;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Availabilities;
@@ -16,10 +17,11 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
 {
     public class BookingService : IBookingService
     {
-        public BookingService(IAvailabilityDataStorage availabilityDataStorage, IAvailabilityService availabilityService, DirectContractsDbContext dbContext)
+        public BookingService(IAvailabilityDataStorage availabilityDataStorage, IAvailabilityService availabilityService, IDateTimeProvider dateTimeProvider, DirectContractsDbContext dbContext)
         {
             _availabilityDataStorage = availabilityDataStorage;
             _availabilityService = availabilityService;
+            _dateTimeProvider = dateTimeProvider;
             _dbContext = dbContext;
         }
 
@@ -83,7 +85,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
             (Common.Models.Bookings.BookingOrder, AvailableRates) CreateBookingEntry(AvailableRates availableRates)
             {
                 var accommodation = availableRates.Rates.First().Room.Accommodation;
-                var utcNow = DateTime.UtcNow;
+                var utcNow = _dateTimeProvider.UtcNow();
             
                 return (new Common.Models.Bookings.BookingOrder
                 {
@@ -115,8 +117,8 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
             
             async Task<Result<Common.Models.Bookings.BookingOrder>> AddRoomOccupancy((Common.Models.Bookings.BookingOrder bookingOrder, AvailableRates availableRates) bookingOrderAndAvailableRates)
             {
-                var utcNow = DateTime.UtcNow;
-                
+                var utcNow = _dateTimeProvider.UtcNow();
+
                 foreach (var roomId in bookingOrderAndAvailableRates.availableRates.Rates.Select(rd => rd.Room.Id))
                 {
                     _dbContext.RoomOccupancies.Add(new RoomOccupancy
@@ -176,7 +178,7 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
 
 
         private Result CheckIfCancellationDateValid(Common.Models.Bookings.BookingOrder bookingOrder)
-            => DateTime.UtcNow.Date < bookingOrder.CheckInDate.Date
+            => _dateTimeProvider.UtcToday() < bookingOrder.CheckInDate.Date
                 ? Result.Success()
                 : Result.Failure($"Can not cancel the booking order '{bookingOrder.ReferenceCode}' with check-in date in the past");
 
@@ -184,19 +186,18 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
         private async Task<Common.Models.Bookings.BookingOrder> ChangeBookingStatus(Common.Models.Bookings.BookingOrder bookingOrder)
         {
             bookingOrder.Status = BookingStatuses.WaitingForCancellation;
-            bookingOrder.Modified = DateTime.UtcNow;
+            bookingOrder.Modified = _dateTimeProvider.UtcNow();
             var entry = _dbContext.BookingOrders.Update(bookingOrder);
             await _dbContext.SaveChangesAsync();
             _dbContext.DetachEntry(entry.Entity);
 
             return entry.Entity;
         }
-        
 
         
         private Task<Common.Models.Bookings.BookingOrder> SetStatus(Common.Models.Bookings.BookingOrder bookingOrder, BookingStatuses status)
         {
-            bookingOrder.Modified = DateTime.UtcNow;
+            bookingOrder.Modified = _dateTimeProvider.UtcNow();
             bookingOrder.Status = status;
             return Update(bookingOrder);
         }
@@ -209,8 +210,9 @@ namespace HappyTravel.Hiroshima.DirectContracts.Services
             _dbContext.DetachEntry(entry.Entity);
             return entry.Entity;
         }
-        
 
+
+        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly DirectContractsDbContext _dbContext;
         private readonly IAvailabilityDataStorage _availabilityDataStorage;
         private readonly IAvailabilityService _availabilityService;

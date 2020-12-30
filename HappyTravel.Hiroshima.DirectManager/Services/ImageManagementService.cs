@@ -18,14 +18,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Hiroshima.Common.Models.Images;
 using HappyTravel.Hiroshima.Common.Models.Enums;
-using System.Text.Json;
+using HappyTravel.Hiroshima.Common.Infrastructure;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class ImageManagementService : IImageManagementService
     {
         public ImageManagementService(IManagerContextService managerContextService, IServiceSupplierContextService serviceSupplierContextService,
-            DirectContractsDbContext dbContext, IAmazonS3ClientService amazonS3ClientService, IOptions<ImageManagementServiceOptions> options)
+            DirectContractsDbContext dbContext, IAmazonS3ClientService amazonS3ClientService, IOptions<ImageManagementServiceOptions> options,
+            IDateTimeProvider dateTimeProvider)
         {
             _managerContext = managerContextService;
             _serviceSupplierContext = serviceSupplierContextService;
@@ -34,6 +35,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             _bucketName = options.Value.AmazonS3Bucket;
             var amazonS3RegionEndpoint = options.Value.AmazonS3RegionEndpoint;
             _basePathToAmazon = $"https://{_bucketName}.s3-{amazonS3RegionEndpoint}.amazonaws.com";
+            _dateTimeProvider = dateTimeProvider;
         }
 
 
@@ -215,7 +217,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 OriginalContentType = image.UploadedFile.ContentType
             },
             ServiceSupplierId = serviceSupplierId,
-            Created = DateTime.UtcNow,
+            Created = _dateTimeProvider.UtcNow(),
             Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> { Ar = string.Empty, En = string.Empty, Ru = string.Empty } )
         };
 
@@ -230,7 +232,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 OriginalContentType = image.UploadedFile.ContentType
             },
             ServiceSupplierId = serviceSupplierId,
-            Created = DateTime.UtcNow,
+            Created = _dateTimeProvider.UtcNow(),
             Description = JsonDocumentUtilities.CreateJDocument(new MultiLanguage<string> { Ar = string.Empty, En = string.Empty, Ru = string.Empty })
         };
 
@@ -568,6 +570,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         private readonly IServiceSupplierContextService _serviceSupplierContext;
         private readonly DirectContractsDbContext _dbContext;
         private readonly IAmazonS3ClientService _amazonS3ClientService;
+        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly string _bucketName;
         private readonly string _basePathToAmazon;
     }

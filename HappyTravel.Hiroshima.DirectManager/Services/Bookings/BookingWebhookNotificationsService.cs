@@ -3,9 +3,9 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Hiroshima.Common.Infrastructure;
 using HappyTravel.Hiroshima.Common.Models.Enums;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.HttpClients;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.Options;
@@ -17,14 +17,16 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
 {
     public class BookingWebhookNotificationsService : IBookingWebhookService
     {
-        public BookingWebhookNotificationsService(BookingWebhookClient bookingWebhookClient, IOptions<BookingWebhookOptions> bookingWebhookOptions, IOptions<JsonOptions> jsonOptions)
+        public BookingWebhookNotificationsService(BookingWebhookClient bookingWebhookClient, IOptions<BookingWebhookOptions> bookingWebhookOptions, IOptions<JsonOptions> jsonOptions, 
+            IDateTimeProvider dateTimeProvider)
         {
             _bookingWebhookClient = bookingWebhookClient;
             _bookingWebhookOptions = bookingWebhookOptions.Value;
             _jsonOptions = jsonOptions.Value;
+            _dateTimeProvider = dateTimeProvider;
         }
 
-        
+
         public Task<Result> Send(string bookingReferenceCode, BookingStatuses bookingStatus)
         {
             var webhookData = CreateWebhookData(bookingReferenceCode, bookingStatus);
@@ -90,7 +92,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
         }
 
         
-        private long CalculateTimestamp() => new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
+        private long CalculateTimestamp() => new DateTimeOffset(_dateTimeProvider.UtcNow()).ToUnixTimeSeconds();
         
         
         private static string ConvertHashToString(byte[] hash) =>
@@ -100,5 +102,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services.Bookings
         private readonly BookingWebhookOptions _bookingWebhookOptions;
         private readonly BookingWebhookClient _bookingWebhookClient;
         private readonly JsonOptions _jsonOptions;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }

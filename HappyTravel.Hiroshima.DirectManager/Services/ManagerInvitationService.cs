@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using HappyTravel.Hiroshima.Common.Infrastructure;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
@@ -19,13 +20,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     public class ManagerInvitationService : IManagerInvitationService
     {
         public ManagerInvitationService(IManagerContextService managerContextService, INotificationService notificationService, 
-            DirectContractsDbContext dbContext, ILogger<ManagerInvitationService> logger, IOptions<ManagerInvitationOptions> options)
+            DirectContractsDbContext dbContext, ILogger<ManagerInvitationService> logger, IOptions<ManagerInvitationOptions> options,
+            IDateTimeProvider dateTimeProvider)
         {
             _managerContext = managerContextService;
             _notificationService = notificationService;
             _dbContext = dbContext;
             _logger = logger;
             _options = options;
+            _dateTimeProvider = dateTimeProvider;
         }
 
 
@@ -95,7 +98,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                     Email = existingInvitation.Email,
                     ManagerId = existingInvitation.ManagerId,
                     ServiceSupplierId = existingInvitation.ServiceSupplierId,
-                    Created = DateTime.UtcNow,
+                    Created = _dateTimeProvider.UtcNow(),
                     IsAccepted = false,
                     IsResent = false
                 };
@@ -133,7 +136,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
 
             bool InvitationIsActual(ManagerInvitation managerInvitation) 
-                => managerInvitation.Created + _options.Value.InvitationExpirationPeriod > DateTime.UtcNow;
+                => managerInvitation.Created + _options.Value.InvitationExpirationPeriod > _dateTimeProvider.UtcNow();
         }
 
 
@@ -170,7 +173,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 Email = managerInvitationInfo.Email,
                 ManagerId = managerRelation.ManagerId,
                 ServiceSupplierId = managerRelation.ServiceSupplierId,
-                Created = DateTime.UtcNow,
+                Created = _dateTimeProvider.UtcNow(),
                 IsAccepted = false,
                 IsResent = false
             };
@@ -247,5 +250,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         private readonly DirectContractsDbContext _dbContext;
         private readonly ILogger<ManagerInvitationService> _logger;
         private readonly IOptions<ManagerInvitationOptions> _options;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }
