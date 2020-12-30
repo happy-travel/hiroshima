@@ -8,7 +8,7 @@ namespace HappyTravel.Hiroshima.Common.Models.Images
 {
     public class ImageKeys
     {
-        public string MainImage { get; set; }
-        public string SmallImage { get; set; }
+        public string MainImage { get; set; } = string.Empty;
+        public string SmallImage { get; set; } = string.Empty;
     }
 }
