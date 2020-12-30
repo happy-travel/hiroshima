@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using HappyTravel.Hiroshima.Common.Infrastructure;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Enums;
 using HappyTravel.Hiroshima.Data;
@@ -16,13 +17,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     public class ManagerRegistrationService : IManagerRegistrationService
     {
         public ManagerRegistrationService(IManagerContextService managerContextService, IManagerInvitationService managerInvitationService, 
-            INotificationService notificationService, DirectContractsDbContext dbContext, ILogger<ManagerRegistrationService> logger)
+            INotificationService notificationService, DirectContractsDbContext dbContext, ILogger<ManagerRegistrationService> logger,
+            IDateTimeProvider dateTimeProvider)
         {
             _managerContext = managerContextService;
             _managerInvitationService = managerInvitationService;
             _notificationService = notificationService;
             _dbContext = dbContext;
             _logger = logger;
+            _dateTimeProvider = dateTimeProvider;
         }
 
 
@@ -47,7 +50,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                 Result<Manager> Create()
                 {
-                    var utcNowDate = DateTime.UtcNow;
+                    var utcNowDate = _dateTimeProvider.UtcNow();
                     return new Manager
                     {
                         IdentityHash = _managerContext.GetHash(),
@@ -86,7 +89,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
                 Result<ServiceSupplier> CreateServiceSupplier()
                 {
-                    var utcNowDate = DateTime.UtcNow;
+                    var utcNowDate = _dateTimeProvider.UtcNow();
                     return new ServiceSupplier
                     {
                         Name = managerRequest.ServiceSupplier.Name,
@@ -160,7 +163,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<Result<(Models.Responses.ManagerInvitation, Manager)>> AddManager(Models.Responses.ManagerInvitation managerInvitation)
             {
-                var utcNowDate = DateTime.UtcNow;
+                var utcNowDate = _dateTimeProvider.UtcNow();
                 var manager = new Manager
                 {
                     IdentityHash = _managerContext.GetHash(),
@@ -361,5 +364,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         private readonly INotificationService _notificationService;
         private readonly DirectContractsDbContext _dbContext;
         private readonly ILogger<ManagerRegistrationService> _logger;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }

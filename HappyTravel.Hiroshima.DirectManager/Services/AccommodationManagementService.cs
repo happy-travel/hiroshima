@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -13,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Accommodation = HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation;
 using NetTopologySuite.Geometries;
 using Room = HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.Room;
+using HappyTravel.Hiroshima.Common.Infrastructure;
 
 namespace HappyTravel.Hiroshima.DirectManager.Services
 {
@@ -23,7 +23,8 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             IImageManagementService imageManagementService, 
             IAmenityService amenityService,
             DirectContractsDbContext dbContext, 
-            GeometryFactory geometryFactory)
+            GeometryFactory geometryFactory,
+            IDateTimeProvider dateTimeProvider)
         {
             _managerContext = managerContextService;
             _serviceSupplierContext = serviceSupplierContextService;
@@ -31,6 +32,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             _amenityService = amenityService;
             _geometryFactory = geometryFactory;
             _dbContext = dbContext;
+            _dateTimeProvider = dateTimeProvider;
         }
 
 
@@ -106,7 +108,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.Accommodation>> Add(Models.Requests.Accommodation accommodationRequest)
         {
-            return ValidationHelper.Validate(accommodationRequest, new AccommodationValidator())
+            return ValidationHelper.Validate(accommodationRequest, new AccommodationValidator(_dateTimeProvider))
                 .Bind(() => _managerContext.GetServiceSupplier())
                 .Map(serviceSupplier => CreateAccommodation(serviceSupplier.Id, accommodationRequest))
                 .Map(NormalizeAccommodationAmenities)
@@ -117,7 +119,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
             async Task<Accommodation> AddAccommodation(Accommodation accommodation)
             {
-                accommodation.Created = DateTime.UtcNow;
+                accommodation.Created = _dateTimeProvider.UtcNow();
 
                 var entry = _dbContext.Accommodations.Add(accommodation);
                 await _dbContext.SaveChangesAsync();
@@ -130,7 +132,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public Task<Result<Models.Responses.Accommodation>> Update(int accommodationId, Models.Requests.Accommodation accommodationRequest)
         {
-            return ValidationHelper.Validate(accommodationRequest, new AccommodationValidator())
+            return ValidationHelper.Validate(accommodationRequest, new AccommodationValidator(_dateTimeProvider))
                 .Bind(() => _managerContext.GetServiceSupplier())
                 .Check(serviceSupplier => _serviceSupplierContext.EnsureAccommodationBelongsToServiceSupplier(serviceSupplier, accommodationId))
                 .Map(serviceSupplier => CreateAccommodation(serviceSupplier.Id, accommodationRequest))
@@ -270,7 +272,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 
             async Task<List<Room>> AddRooms(List<Room> rooms)
             {
-                var utcNow = DateTime.UtcNow;
+                var utcNow = _dateTimeProvider.UtcNow();
                 rooms.ForEach(room => room.Created = utcNow);
 
                 _dbContext.Rooms.AddRange(rooms);
@@ -346,7 +348,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 CheckOutTime = accommodation.CheckOutTime,
                 LocationId = accommodation.LocationId,
                 RateOptions = accommodation.RateOptions,
-                Modified = DateTime.UtcNow,
+                Modified = _dateTimeProvider.UtcNow(),
                 Status = accommodation.Status,
                 Floors = accommodation.Floors,
                 BuildYear = accommodation.BuildYear,
@@ -414,7 +416,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             Name = room.Name,
             Description = room.Description,
             Amenities = room.Amenities,
-            Modified = DateTime.UtcNow,
+            Modified = _dateTimeProvider.UtcNow(),
             OccupancyConfigurations = room.OccupancyConfigurations
         };
 
@@ -477,5 +479,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         private readonly IAmenityService _amenityService;
         private readonly GeometryFactory _geometryFactory;
         private readonly DirectContractsDbContext _dbContext;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }

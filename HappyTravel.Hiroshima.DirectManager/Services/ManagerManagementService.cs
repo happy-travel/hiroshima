@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Hiroshima.Common.Infrastructure;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
 using HappyTravel.Hiroshima.DirectManager.RequestValidators;
@@ -12,10 +13,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 {
     public class ManagerManagementService : IManagerManagementService
     {
-        public ManagerManagementService(IManagerContextService managerContextService, DirectContractsDbContext dbContext)
+        public ManagerManagementService(IManagerContextService managerContextService, DirectContractsDbContext dbContext, IDateTimeProvider dateTimeProvider)
         {
             _managerContext = managerContextService;
             _dbContext = dbContext;
+            _dateTimeProvider = dateTimeProvider;
         }
 
 
@@ -84,7 +86,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 manager.Position = managerRequest.Position;
                 manager.Phone = managerRequest.Phone;
                 manager.Fax = managerRequest.Fax;
-                manager.Updated = DateTime.UtcNow;
+                manager.Updated = _dateTimeProvider.UtcNow();
 
                 var entry = _dbContext.Managers.Update(manager);
                 await _dbContext.SaveChangesAsync();
@@ -159,7 +161,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 serviceSupplier.PostalCode = serviceSupplierRequest.PostalCode;
                 serviceSupplier.Phone = serviceSupplierRequest.Phone;
                 serviceSupplier.Website = serviceSupplierRequest.Website;
-                serviceSupplier.Modified = DateTime.UtcNow;
+                serviceSupplier.Modified = _dateTimeProvider.UtcNow();
 
                 _dbContext.ServiceSuppliers.Update(serviceSupplier);
                 await _dbContext.SaveChangesAsync();
@@ -233,5 +235,6 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         private readonly IManagerContextService _managerContext;
         private readonly DirectContractsDbContext _dbContext;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }

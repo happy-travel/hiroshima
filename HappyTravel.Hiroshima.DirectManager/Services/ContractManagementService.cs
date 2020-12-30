@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Hiroshima.Common.Infrastructure;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
 using HappyTravel.Hiroshima.Common.Models.Seasons;
@@ -18,12 +19,13 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     {
         public ContractManagementService(IManagerContextService managerContextService, IServiceSupplierContextService serviceSupplierContextService,
             IDocumentManagementService documentManagementService,
-            DirectContractsDbContext dbContext)
+            DirectContractsDbContext dbContext, IDateTimeProvider dateTimeProvider)
         {
             _managerContext = managerContextService;
             _serviceSupplierContext = serviceSupplierContextService;
             _documentManagementService = documentManagementService;
             _dbContext = dbContext;
+            _dateTimeProvider = dateTimeProvider;
         }
 
 
@@ -99,7 +101,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             
            async Task<Contract> Add(Contract dbContract)
             {
-                dbContract.Created = DateTime.UtcNow;
+                dbContract.Created = _dateTimeProvider.UtcNow();
                 var entry = _dbContext.Contracts.Add(dbContract);
                 await _dbContext.SaveChangesAsync();
                 
@@ -295,7 +297,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
                 Description = contract.Description,
                 ValidFrom = contract.ValidFrom.Date,
                 ValidTo = contract.ValidTo.Date,
-                Modified = DateTime.UtcNow,
+                Modified = _dateTimeProvider.UtcNow(),
                 ServiceSupplierId = serviceSupplierId
             };
         
@@ -368,6 +370,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         private readonly IDocumentManagementService _documentManagementService;
         private readonly IServiceSupplierContextService _serviceSupplierContext;
         private readonly DirectContractsDbContext _dbContext;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
 
         private class ContractAccommodationRelationAndAccommodation

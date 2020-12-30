@@ -1,4 +1,5 @@
 ﻿using System;
+using HappyTravel.Hiroshima.Common.Infrastructure;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.DirectContracts.Services;
 using HappyTravel.Hiroshima.DirectContracts.Services.Availability;
@@ -37,7 +38,8 @@ namespace HappyTravel.Hiroshima.DirectContracts.Extensions
             services.AddSingleton<ISha256HashGenerator, Sha256HashGenerator>();
             services.AddTransient<IAvailabilityHashGenerator, AvailabilityHashGenerator>();
             services.AddTransient<IRateDetailsSetGenerator, RateDetailsSetGenerator>();
-            
+            services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
+
             return services;
         }
     }

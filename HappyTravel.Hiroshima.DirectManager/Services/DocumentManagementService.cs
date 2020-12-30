@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Amazon.S3;
 using CSharpFunctionalExtensions;
 using HappyTravel.AmazonS3Client.Services;
+using HappyTravel.Hiroshima.Common.Infrastructure;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Data;
 using HappyTravel.Hiroshima.Data.Extensions;
@@ -18,13 +19,15 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
     public class DocumentManagementService : IDocumentManagementService
     {
         public DocumentManagementService(IManagerContextService managerContextService, IServiceSupplierContextService serviceSupplierContextService,
-            DirectContractsDbContext dbContext, IAmazonS3ClientService amazonS3ClientService, IOptions<DocumentManagementServiceOptions> options)
+            DirectContractsDbContext dbContext, IAmazonS3ClientService amazonS3ClientService, IOptions<DocumentManagementServiceOptions> options, 
+            IDateTimeProvider dateTimeProvider)
         {
             _managerContext = managerContextService;
             _serviceSupplierContext = serviceSupplierContextService;
             _dbContext = dbContext;
             _amazonS3ClientService = amazonS3ClientService;
             _bucketName = options.Value.AmazonS3Bucket;
+            _dateTimeProvider = dateTimeProvider;
         }
 
 
@@ -130,7 +133,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
             Name = document.UploadedFile.FileName,
             ContentType = document.UploadedFile.ContentType,
             Key = string.Empty,
-            Created = DateTime.UtcNow,
+            Created = _dateTimeProvider.UtcNow(),
             ServiceSupplierId = serviceSupplierId,
             ContractId = document.ContractId
         };
@@ -167,6 +170,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
         private readonly IServiceSupplierContextService _serviceSupplierContext;
         private readonly DirectContractsDbContext _dbContext;
         private readonly IAmazonS3ClientService _amazonS3ClientService;
+        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly string _bucketName;
     }
 }
