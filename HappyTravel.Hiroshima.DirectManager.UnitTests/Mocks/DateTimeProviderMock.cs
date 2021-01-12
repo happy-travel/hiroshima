@@ -1,5 +1,4 @@
-﻿//using HappyTravel.Hiroshima.
-using HappyTravel.Hiroshima.Common.Infrastructure;
+﻿using HappyTravel.Hiroshima.Common.Infrastructure;
 using System;
 
 namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Mocks
