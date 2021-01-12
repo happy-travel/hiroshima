@@ -1,6 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Infrastructure;
 using HappyTravel.Hiroshima.Common.Models;
+using HappyTravel.Hiroshima.Common.Models.Accommodations;
+using HappyTravel.Hiroshima.Common.Models.Enums;
+using HappyTravel.Hiroshima.DirectContracts.Services;
 using HappyTravel.Hiroshima.DirectManager.Services;
 using HappyTravel.Hiroshima.DirectManager.UnitTests.Mocks;
 using NetTopologySuite.Geometries;
@@ -18,10 +21,11 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
             var dbContextMock = DirectContractsDbContextFactoryMock.Create();
             dbContextMock.Setup(x => x.ServiceSuppliers).Returns(DbSetMockProvider.GetDbSetMock(_serviceSuppliers));
             dbContextMock.Setup(x => x.Managers).Returns(DbSetMockProvider.GetDbSetMock(_managers));
-            //dbContextMock.Setup(x => x.ManagerServiceSupplierRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
+            dbContextMock.Setup(x => x.ManagerServiceSupplierRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
             //dbContextMock.Setup(x => x.Accommodations).Returns(DbSetMockProvider.GetDbSetMock(_accommodations));
 
-            _accommodationManagementService = new AccommodationManagementService(new ManagerContextServiceMock(dbContextMock.Object), 
+            _accommodationManagementService = new AccommodationManagementService(
+                new ManagerContextService(dbContextMock.Object, new TokenInfoAccessorMock(), new Sha256HashGenerator()), 
                 new ServiceSupplierContextService(dbContextMock.Object),
                 new ImageManagementServiceMock(),
                 new AmenityService(dbContextMock.Object),
@@ -126,6 +130,130 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
                 Created = DateTime.Now,
                 Updated = DateTime.Now,
                 IsActive = true
+            }
+        };
+
+        private readonly IEnumerable<ManagerServiceSupplierRelation> _relations = new[]
+        {
+            new ManagerServiceSupplierRelation
+            {
+                ManagerId = 1,
+                ManagerPermissions = Common.Models.Enums.ManagerPermissions.All,
+                ServiceSupplierId = 1,
+                IsMaster = true,
+                IsActive = true
+            },
+            new ManagerServiceSupplierRelation
+            {
+                ManagerId = 2,
+                ManagerPermissions = Common.Models.Enums.ManagerPermissions.All,
+                ServiceSupplierId = 1,
+                IsMaster = false,
+                IsActive = true
+            },
+            new ManagerServiceSupplierRelation
+            {
+                ManagerId = 3,
+                ManagerPermissions = Common.Models.Enums.ManagerPermissions.All,
+                ServiceSupplierId = 1,
+                IsMaster = false,
+                IsActive = false
+            },
+            new ManagerServiceSupplierRelation
+            {
+                ManagerId = 4,
+                ManagerPermissions = Common.Models.Enums.ManagerPermissions.All,
+                ServiceSupplierId = 2,
+                IsMaster = true,
+                IsActive = true
+            }
+        };
+
+        private readonly IEnumerable<Accommodation> _accommodations = new[]
+{
+            new Accommodation
+            {
+                Id = 1,
+                Name = new MultiLanguage<string>(),
+                Address = new MultiLanguage<string>(),
+                TextualDescription = new MultiLanguage<TextualDescription>(),
+                LeisureAndSports = new MultiLanguage<List<string>>(),
+                Coordinates = new Point(0.0, 0.0),
+                Rating = AccommodationStars.FiveStars,
+                CheckInTime= string.Empty,
+                CheckOutTime = string.Empty,
+                ContactInfo = new ContactInfo(),
+                PropertyType = PropertyTypes.Hotels,
+                BuildYear = null,
+                Floors = 2,
+                PostalCode = string.Empty,
+                AccommodationAmenities = new MultiLanguage<List<string>>(),
+                AdditionalInfo = new MultiLanguage<string>(),
+                OccupancyDefinition = new Common.Models.Accommodations.Rooms.OccupancyDefinitions.OccupancyDefinition(),
+                ServiceSupplierId = 1,
+                LocationId = 1,
+                //public ServiceSupplier ServiceSupplier { get; set; }
+                //public Locations.Location Location { get; set; }
+                RateOptions = new RateOptions { SingleAdultAndChildBookings = SingleAdultAndChildBookings.ApplyAdultRate },
+                Status = Status.Active,
+                Created = DateTime.Now,
+                Modified = DateTime.Now
+            },
+            new Accommodation
+            {
+                Id = 2,
+                Name = new MultiLanguage<string>(),
+                Address = new MultiLanguage<string>(),
+                TextualDescription = new MultiLanguage<TextualDescription>(),
+                LeisureAndSports = new MultiLanguage<List<string>>(),
+                Coordinates = new Point(0.0, 0.0),
+                Rating = AccommodationStars.FiveStars,
+                CheckInTime= string.Empty,
+                CheckOutTime = string.Empty,
+                ContactInfo = new ContactInfo(),
+                PropertyType = PropertyTypes.Hotels,
+                BuildYear = null,
+                Floors = 2,
+                PostalCode = string.Empty,
+                AccommodationAmenities = new MultiLanguage<List<string>>(),
+                AdditionalInfo = new MultiLanguage<string>(),
+                OccupancyDefinition = new Common.Models.Accommodations.Rooms.OccupancyDefinitions.OccupancyDefinition(),
+                ServiceSupplierId = 1,
+                LocationId = 1,
+                //public ServiceSupplier ServiceSupplier { get; set; }
+                //public Locations.Location Location { get; set; }
+                RateOptions = new RateOptions { SingleAdultAndChildBookings = SingleAdultAndChildBookings.ApplyAdultRate },
+                Status = Status.Active,
+                Created = DateTime.Now,
+                Modified = DateTime.Now
+            },
+            new Accommodation
+            {
+                Id = 3,
+                Name = new MultiLanguage<string>(),
+                Address = new MultiLanguage<string>(),
+                TextualDescription = new MultiLanguage<TextualDescription>(),
+                LeisureAndSports = new MultiLanguage<List<string>>(),
+                Coordinates = new Point(0.0, 0.0),
+                Rating = AccommodationStars.FiveStars,
+                CheckInTime= string.Empty,
+                CheckOutTime = string.Empty,
+                ContactInfo = new ContactInfo(),
+                PropertyType = PropertyTypes.Hotels,
+                BuildYear = null,
+                Floors = 2,
+                PostalCode = string.Empty,
+                AccommodationAmenities = new MultiLanguage<List<string>>(),
+                AdditionalInfo = new MultiLanguage<string>(),
+                OccupancyDefinition = new Common.Models.Accommodations.Rooms.OccupancyDefinitions.OccupancyDefinition(),
+                ServiceSupplierId = 1,
+                LocationId = 1,
+                //public ServiceSupplier ServiceSupplier { get; set; }
+                //public Locations.Location Location { get; set; }
+                RateOptions = new RateOptions { SingleAdultAndChildBookings = SingleAdultAndChildBookings.ApplyAdultRate },
+                Status = Status.Active,
+                Created = DateTime.Now,
+                Modified = DateTime.Now
             }
         };
 
