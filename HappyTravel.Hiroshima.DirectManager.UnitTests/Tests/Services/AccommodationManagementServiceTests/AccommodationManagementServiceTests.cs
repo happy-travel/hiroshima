@@ -2,7 +2,11 @@
 using HappyTravel.Hiroshima.Common.Infrastructure;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
+using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms;
+using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.CancellationPolicies;
+using HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefinitions;
 using HappyTravel.Hiroshima.Common.Models.Enums;
+using HappyTravel.Hiroshima.Common.Models.Images;
 using HappyTravel.Hiroshima.DirectContracts.Services;
 using HappyTravel.Hiroshima.DirectManager.Services;
 using HappyTravel.Hiroshima.DirectManager.UnitTests.Mocks;
@@ -14,7 +18,7 @@ using Xunit;
 
 namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.AccommodationManagementServiceTests
 {
-    public class AccommodationManagementServiceTests
+    public class AccommodationManagementServiceTests : IDisposable
     {
         public AccommodationManagementServiceTests()
         {
@@ -23,6 +27,7 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
             dbContextMock.Setup(x => x.Managers).Returns(DbSetMockProvider.GetDbSetMock(_managers));
             dbContextMock.Setup(x => x.ManagerServiceSupplierRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
             dbContextMock.Setup(x => x.Accommodations).Returns(DbSetMockProvider.GetDbSetMock(_accommodations));
+            dbContextMock.Setup(x => x.Rooms).Returns(DbSetMockProvider.GetDbSetMock(_rooms));
 
             _accommodationManagementService = new AccommodationManagementService(
                 new ManagerContextService(dbContextMock.Object, new TokenInfoAccessorMock(), new Sha256HashGenerator()), 
@@ -31,7 +36,7 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
                 new AmenityService(dbContextMock.Object),
                 dbContextMock.Object, 
                 new GeometryFactory(),
-                new DefaultDateTimeProvider());
+                _dateTimeProvider);
         }
 
 
@@ -53,8 +58,8 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
                 PostalCode = string.Empty,
                 Phone = "+971 (123) 4567890",
                 Website = string.Empty,
-                Created = DateTime.Now,
-                Modified = DateTime.Now
+                Created = _dateTimeProvider.UtcNow(),
+                Modified = _dateTimeProvider.UtcNow()
             },
             new ServiceSupplier
             {
@@ -64,8 +69,8 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
                 PostalCode = string.Empty,
                 Phone = "+971 (321) 4567890",
                 Website = string.Empty,
-                Created = DateTime.Now,
-                Modified = DateTime.Now
+                Created = _dateTimeProvider.UtcNow(),
+                Modified = _dateTimeProvider.UtcNow()
             }
         };
 
@@ -82,8 +87,8 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
                 Email = "email1",
                 Phone = "+971 (111) 1111111",
                 Fax = string.Empty,
-                Created = DateTime.Now,
-                Updated = DateTime.Now,
+                Created = _dateTimeProvider.UtcNow(),
+                Updated = _dateTimeProvider.UtcNow(),
                 IsActive = true
             },
             new Manager
@@ -97,8 +102,8 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
                 Email = "email2",
                 Phone = "+971 (222) 2222222",
                 Fax = string.Empty,
-                Created = DateTime.Now,
-                Updated = DateTime.Now,
+                Created = _dateTimeProvider.UtcNow(),
+                Updated = _dateTimeProvider.UtcNow(),
                 IsActive = true
             },
             new Manager
@@ -112,8 +117,8 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
                 Email = "email3",
                 Phone = "+971 (333) 3333333",
                 Fax = string.Empty,
-                Created = DateTime.Now,
-                Updated = DateTime.Now,
+                Created = _dateTimeProvider.UtcNow(),
+                Updated = _dateTimeProvider.UtcNow(),
                 IsActive = true
             },
             new Manager
@@ -127,8 +132,8 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
                 Email = "email4",
                 Phone = "+971 (444) 4444444",
                 Fax = string.Empty,
-                Created = DateTime.Now,
-                Updated = DateTime.Now,
+                Created = _dateTimeProvider.UtcNow(),
+                Updated = _dateTimeProvider.UtcNow(),
                 IsActive = true
             }
         };
@@ -194,8 +199,8 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
                 LocationId = 1,
                 RateOptions = new RateOptions { SingleAdultAndChildBookings = SingleAdultAndChildBookings.ApplyAdultRate },
                 Status = Status.Active,
-                Created = DateTime.Now,
-                Modified = DateTime.Now
+                Created = _dateTimeProvider.UtcNow(),
+                Modified = _dateTimeProvider.UtcNow()
             },
             new Accommodation
             {
@@ -220,8 +225,8 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
                 LocationId = 1,
                 RateOptions = new RateOptions { SingleAdultAndChildBookings = SingleAdultAndChildBookings.ApplyAdultRate },
                 Status = Status.Active,
-                Created = DateTime.Now,
-                Modified = DateTime.Now
+                Created = _dateTimeProvider.UtcNow(),
+                Modified = _dateTimeProvider.UtcNow()
             },
             new Accommodation
             {
@@ -246,12 +251,59 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
                 LocationId = 1,
                 RateOptions = new RateOptions { SingleAdultAndChildBookings = SingleAdultAndChildBookings.ApplyAdultRate },
                 Status = Status.Active,
-                Created = DateTime.Now,
-                Modified = DateTime.Now
+                Created = _dateTimeProvider.UtcNow(),
+                Modified = _dateTimeProvider.UtcNow()
+            }
+        };
+
+        private readonly IEnumerable<Room> _rooms = new[]
+        {
+            new Room
+            {
+                Id = 1,
+                AccommodationId = 1,
+                Name = new MultiLanguage<string>(),
+                Description = new MultiLanguage<string>(),
+                Amenities = new MultiLanguage<List<string>> { En = new List<string>() },
+                Created = _dateTimeProvider.UtcNow(),
+                Modified = _dateTimeProvider.UtcNow(),
+                OccupancyConfigurations = new List<OccupancyConfiguration>(),
+                CancellationPolicies = new List<RoomCancellationPolicy>(),
+                Images = new List<SlimImage>()
+            },
+            new Room
+            {
+                Id = 2,
+                AccommodationId = 1,
+                Name = new MultiLanguage<string>(),
+                Description = new MultiLanguage<string>(),
+                Amenities = new MultiLanguage<List<string>> { En = new List<string>() },
+                Created = _dateTimeProvider.UtcNow(),
+                Modified = _dateTimeProvider.UtcNow(),
+                OccupancyConfigurations = new List<OccupancyConfiguration>(),
+                CancellationPolicies = new List<RoomCancellationPolicy>(),
+                Images = new List<SlimImage>()
+            },
+            new Room
+            {
+                Id = 3,
+                AccommodationId = 2,
+                Name = new MultiLanguage<string>(),
+                Description = new MultiLanguage<string>(),
+                Amenities = new MultiLanguage<List<string>> { En = new List<string>() },
+                Created = _dateTimeProvider.UtcNow(),
+                Modified = _dateTimeProvider.UtcNow(),
+                OccupancyConfigurations = new List<OccupancyConfiguration>(),
+                CancellationPolicies = new List<RoomCancellationPolicy>(),
+                Images = new List<SlimImage>()
             }
         };
 
 
+        public void Dispose() { }
+
+
+        private static readonly IDateTimeProvider _dateTimeProvider = new DefaultDateTimeProvider();
         private readonly AccommodationManagementService _accommodationManagementService;
     }
 }
