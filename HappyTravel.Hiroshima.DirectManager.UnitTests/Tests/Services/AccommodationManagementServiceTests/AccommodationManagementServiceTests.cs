@@ -192,8 +192,6 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
                 OccupancyDefinition = new Common.Models.Accommodations.Rooms.OccupancyDefinitions.OccupancyDefinition(),
                 ServiceSupplierId = 1,
                 LocationId = 1,
-                //public ServiceSupplier ServiceSupplier { get; set; }
-                //public Locations.Location Location { get; set; }
                 RateOptions = new RateOptions { SingleAdultAndChildBookings = SingleAdultAndChildBookings.ApplyAdultRate },
                 Status = Status.Active,
                 Created = DateTime.Now,
@@ -220,8 +218,6 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
                 OccupancyDefinition = new Common.Models.Accommodations.Rooms.OccupancyDefinitions.OccupancyDefinition(),
                 ServiceSupplierId = 1,
                 LocationId = 1,
-                //public ServiceSupplier ServiceSupplier { get; set; }
-                //public Locations.Location Location { get; set; }
                 RateOptions = new RateOptions { SingleAdultAndChildBookings = SingleAdultAndChildBookings.ApplyAdultRate },
                 Status = Status.Active,
                 Created = DateTime.Now,
@@ -248,8 +244,6 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
                 OccupancyDefinition = new Common.Models.Accommodations.Rooms.OccupancyDefinitions.OccupancyDefinition(),
                 ServiceSupplierId = 2,
                 LocationId = 1,
-                //public ServiceSupplier ServiceSupplier { get; set; }
-                //public Locations.Location Location { get; set; }
                 RateOptions = new RateOptions { SingleAdultAndChildBookings = SingleAdultAndChildBookings.ApplyAdultRate },
                 Status = Status.Active,
                 Created = DateTime.Now,
