@@ -22,7 +22,7 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
             dbContextMock.Setup(x => x.ServiceSuppliers).Returns(DbSetMockProvider.GetDbSetMock(_serviceSuppliers));
             dbContextMock.Setup(x => x.Managers).Returns(DbSetMockProvider.GetDbSetMock(_managers));
             dbContextMock.Setup(x => x.ManagerServiceSupplierRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
-            //dbContextMock.Setup(x => x.Accommodations).Returns(DbSetMockProvider.GetDbSetMock(_accommodations));
+            dbContextMock.Setup(x => x.Accommodations).Returns(DbSetMockProvider.GetDbSetMock(_accommodations));
 
             _accommodationManagementService = new AccommodationManagementService(
                 new ManagerContextService(dbContextMock.Object, new TokenInfoAccessorMock(), new Sha256HashGenerator()), 
@@ -38,7 +38,7 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
         [Fact]
         public async Task Manager_cannot_get_accommodation_from_another_service_supplier()
         {
-            var (_, isFailure, _, _) = await _accommodationManagementService.Get(1);
+            var (_, isFailure, _, _) = await _accommodationManagementService.Get(accommodationId: 3);
             Assert.True(isFailure);
         }
 
@@ -74,7 +74,7 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
             new Manager
             {
                 Id = 1,
-                IdentityHash = "identityHash1",
+                IdentityHash = "7c2352a82f3275241bd574995259b4b691331b61d4c303f11af2940a6cb104cb",  // _identityHash = "94e53dea-313e-4e30-a8fb-6af1202a8ca6"
                 FirstName = "firstName1",
                 LastName = "lastName1",
                 Title = "title1",
@@ -89,7 +89,7 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
             new Manager
             {
                 Id = 2,
-                IdentityHash = "identityHash2",
+                IdentityHash = "89df0261017f15699147f2172c6b40bae4971887b4085dc1e2ca2e3ba6bd9e5c",
                 FirstName = "firstName2",
                 LastName = "lastName2",
                 Title = "title2",
@@ -104,7 +104,7 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
             new Manager
             {
                 Id = 3,
-                IdentityHash = "identityHash3",
+                IdentityHash = "50e8e915a487d1d36e5bc0ab27ff5641cb087aa55cd10fa11e70d207b8c8c9de",
                 FirstName = "firstName3",
                 LastName = "lastName3",
                 Title = "title3",
@@ -119,7 +119,7 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
             new Manager
             {
                 Id = 4,
-                IdentityHash = "identityHash4",
+                IdentityHash = "0417fff728f9edd239bdbb8e80b8535919af8abe57a941d21ef2866d475b9009",
                 FirstName = "firstName4",
                 LastName = "lastName4",
                 Title = "title4",
@@ -246,7 +246,7 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
                 AccommodationAmenities = new MultiLanguage<List<string>>(),
                 AdditionalInfo = new MultiLanguage<string>(),
                 OccupancyDefinition = new Common.Models.Accommodations.Rooms.OccupancyDefinitions.OccupancyDefinition(),
-                ServiceSupplierId = 1,
+                ServiceSupplierId = 2,
                 LocationId = 1,
                 //public ServiceSupplier ServiceSupplier { get; set; }
                 //public Locations.Location Location { get; set; }
