@@ -93,7 +93,7 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
             Assert.Equal(expectedAccommodation.AdditionalInfo, actualAccommodation.AdditionalInfo);
             //Assert.Equal(expectedAccommodation.OccupancyDefinition, actualAccommodation.OccupancyDefinition);
             Assert.Equal(expectedAccommodation.LocationId, actualAccommodation.LocationId);
-            //Assert.Equal(expectedAccommodation.RateOptions, actualAccommodation.RateOptions);
+            Assert.Equal(expectedAccommodation.RateOptions, actualAccommodation.RateOptions);
             Assert.Equal(expectedAccommodation.Status, actualAccommodation.Status);
             Assert.Equal(expectedAccommodation.Rooms, actualAccommodation.Rooms);
         }
