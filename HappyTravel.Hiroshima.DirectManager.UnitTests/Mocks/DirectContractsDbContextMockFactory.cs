@@ -4,7 +4,7 @@ using Moq;
 
 namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Mocks
 {
-    public class DirectContractsDbContextFactoryMock
+    public class DirectContractsDbContextMockFactory
     {
         public static Mock<DirectContractsDbContext> Create()
         {

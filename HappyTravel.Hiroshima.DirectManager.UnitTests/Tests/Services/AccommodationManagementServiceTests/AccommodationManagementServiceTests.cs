@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using HappyTravel.Geography;
 using HappyTravel.Hiroshima.Common.Infrastructure;
 using HappyTravel.Hiroshima.Common.Models;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
@@ -22,7 +23,7 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
     {
         public AccommodationManagementServiceTests()
         {
-            var dbContextMock = DirectContractsDbContextFactoryMock.Create();
+            var dbContextMock = DirectContractsDbContextMockFactory.Create();
             dbContextMock.Setup(x => x.ServiceSuppliers).Returns(DbSetMockProvider.GetDbSetMock(_serviceSuppliers));
             dbContextMock.Setup(x => x.Managers).Returns(DbSetMockProvider.GetDbSetMock(_managers));
             dbContextMock.Setup(x => x.ManagerServiceSupplierRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
@@ -41,9 +42,68 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
 
 
         [Fact]
+        public async Task Found_accommodation_must_match()
+        {
+            var expectedAccommodation = new Models.Responses.Accommodation(1,
+                new MultiLanguage<string> { En = "name1" },
+                new MultiLanguage<string> { En = "address1" },
+                new MultiLanguage<TextualDescription> { En = new TextualDescription { Type = EdoContracts.Accommodations.Enums.TextualDescriptionTypes.General, Description = "description1" } },
+                new GeoPoint(1.0, 1.0),
+                AccommodationStars.FourStars,
+                "checkInTime1", 
+                "checkOutTime1",
+                new Models.Responses.ContactInfo(new List<string> { "email1" }, new List<string> { "phone1" }, new List<string> { "website1" }),
+                PropertyTypes.Hotels,
+                new MultiLanguage<List<string>> { En = new List<string> { "amenity1-1", "amenity1-2" } },
+                new MultiLanguage<string> { En = "additionalInfo1" },
+                new OccupancyDefinition
+                {
+                    Infant = new AgeRange { LowerBound = 0, UpperBound = 3 },
+                    Child = new AgeRange { LowerBound = 3, UpperBound = 10 },
+                    Teenager = new AgeRange { LowerBound = 10, UpperBound = 18 },
+                    Adult = new AgeRange { LowerBound = 18, UpperBound = 140 }
+                }, 
+                1,
+                new MultiLanguage<List<string>> { En = new List<string> { "leisure1", "sport1" } },
+                Status.Active,
+                new RateOptions { SingleAdultAndChildBookings = SingleAdultAndChildBookings.ApplyAdultRate }, 
+                2,
+                null, 
+                "070000", 
+                new List<Models.Responses.Room>());
+
+            var (isSuccess, _, actualAccommodation, _) = await _accommodationManagementService.Get(accommodationId: 1);
+
+            Assert.True(isSuccess);
+            Assert.Equal(expectedAccommodation.Id, actualAccommodation.Id);
+            Assert.Equal(expectedAccommodation.Name, actualAccommodation.Name);
+            Assert.Equal(expectedAccommodation.Address, actualAccommodation.Address);
+            Assert.Equal(expectedAccommodation.Description, actualAccommodation.Description);
+            Assert.Equal(expectedAccommodation.LeisureAndSports, actualAccommodation.LeisureAndSports);
+            Assert.Equal(expectedAccommodation.Coordinates, actualAccommodation.Coordinates);
+            Assert.Equal(expectedAccommodation.Rating, actualAccommodation.Rating);
+            Assert.Equal(expectedAccommodation.CheckInTime, actualAccommodation.CheckInTime);
+            Assert.Equal(expectedAccommodation.CheckOutTime, actualAccommodation.CheckOutTime);
+            Assert.Equal(expectedAccommodation.ContactInfo, actualAccommodation.ContactInfo);
+            Assert.Equal(expectedAccommodation.Type, actualAccommodation.Type);
+            Assert.Equal(expectedAccommodation.BuildYear, actualAccommodation.BuildYear);
+            Assert.Equal(expectedAccommodation.Floors, actualAccommodation.Floors);
+            Assert.Equal(expectedAccommodation.PostalCode, actualAccommodation.PostalCode);
+            Assert.Equal(expectedAccommodation.Amenities, actualAccommodation.Amenities);
+            Assert.Equal(expectedAccommodation.AdditionalInfo, actualAccommodation.AdditionalInfo);
+            Assert.Equal(expectedAccommodation.OccupancyDefinition, actualAccommodation.OccupancyDefinition);
+            Assert.Equal(expectedAccommodation.LocationId, actualAccommodation.LocationId);
+            Assert.Equal(expectedAccommodation.RateOptions, actualAccommodation.RateOptions);
+            Assert.Equal(expectedAccommodation.Status, actualAccommodation.Status);
+            Assert.Equal(expectedAccommodation.Rooms, actualAccommodation.Rooms);
+        }
+
+
+        [Fact]
         public async Task Manager_cannot_get_accommodation_from_another_service_supplier()
         {
             var (_, isFailure, _, _) = await _accommodationManagementService.Get(accommodationId: 3);
+            
             Assert.True(isFailure);
         }
 
@@ -179,22 +239,28 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
             new Accommodation
             {
                 Id = 1,
-                Name = new MultiLanguage<string>(),
-                Address = new MultiLanguage<string>(),
-                TextualDescription = new MultiLanguage<TextualDescription>(),
-                LeisureAndSports = new MultiLanguage<List<string>>(),
-                Coordinates = new Point(0.0, 0.0),
-                Rating = AccommodationStars.FiveStars,
-                CheckInTime= string.Empty,
-                CheckOutTime = string.Empty,
-                ContactInfo = new ContactInfo(),
+                Name = new MultiLanguage<string> { En = "name1" },
+                Address = new MultiLanguage<string> { En = "address1" },
+                TextualDescription = new MultiLanguage<TextualDescription> { En = new TextualDescription { Type = EdoContracts.Accommodations.Enums.TextualDescriptionTypes.General, Description = "description1" } },
+                LeisureAndSports = new MultiLanguage<List<string>> { En = new List<string> { "leisure1", "sport1" } },
+                Coordinates = new Point(1.0, 1.0),
+                Rating = AccommodationStars.FourStars,
+                CheckInTime = "checkInTime1",
+                CheckOutTime = "checkOutTime1",
+                ContactInfo = new ContactInfo { Emails = new List<string> { "email1"}, Faxes = new List<string> { "fax1"}, Phones = new List<string> { "phone1" }, Websites = new List<string> { "website1" } },
                 PropertyType = PropertyTypes.Hotels,
                 BuildYear = null,
                 Floors = 2,
-                PostalCode = string.Empty,
-                AccommodationAmenities = new MultiLanguage<List<string>>(),
-                AdditionalInfo = new MultiLanguage<string>(),
-                OccupancyDefinition = new Common.Models.Accommodations.Rooms.OccupancyDefinitions.OccupancyDefinition(),
+                PostalCode = "070000",
+                AccommodationAmenities = new MultiLanguage<List<string>> { En = new List<string> { "amenity1-1", "amenity1-2" } },
+                AdditionalInfo = new MultiLanguage<string> { En = "additionalInfo1" },
+                OccupancyDefinition = new OccupancyDefinition 
+                { 
+                    Infant = new AgeRange { LowerBound = 0, UpperBound = 3 },
+                    Child = new AgeRange { LowerBound = 3, UpperBound = 10 },
+                    Teenager = new AgeRange { LowerBound = 10, UpperBound = 18 },
+                    Adult = new AgeRange { LowerBound = 18, UpperBound = 140 } 
+                },
                 ServiceSupplierId = 1,
                 LocationId = 1,
                 RateOptions = new RateOptions { SingleAdultAndChildBookings = SingleAdultAndChildBookings.ApplyAdultRate },
@@ -220,7 +286,7 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
                 PostalCode = string.Empty,
                 AccommodationAmenities = new MultiLanguage<List<string>>(),
                 AdditionalInfo = new MultiLanguage<string>(),
-                OccupancyDefinition = new Common.Models.Accommodations.Rooms.OccupancyDefinitions.OccupancyDefinition(),
+                OccupancyDefinition = new OccupancyDefinition(),
                 ServiceSupplierId = 1,
                 LocationId = 1,
                 RateOptions = new RateOptions { SingleAdultAndChildBookings = SingleAdultAndChildBookings.ApplyAdultRate },
@@ -246,7 +312,7 @@ namespace HappyTravel.Hiroshima.DirectManager.UnitTests.Tests.Services.Accommoda
                 PostalCode = string.Empty,
                 AccommodationAmenities = new MultiLanguage<List<string>>(),
                 AdditionalInfo = new MultiLanguage<string>(),
-                OccupancyDefinition = new Common.Models.Accommodations.Rooms.OccupancyDefinitions.OccupancyDefinition(),
+                OccupancyDefinition = new OccupancyDefinition(),
                 ServiceSupplierId = 2,
                 LocationId = 1,
                 RateOptions = new RateOptions { SingleAdultAndChildBookings = SingleAdultAndChildBookings.ApplyAdultRate },
