@@ -20,7 +20,11 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 
 
         public override bool Equals(object? obj)
-            => obj is ContactInfo other && Emails.SequenceEqual(other.Emails) && Phones.SequenceEqual(other.Phones) && Websites.SequenceEqual(other.Websites);
+            => obj is ContactInfo other && Equals(other);
+
+
+        public bool Equals(ContactInfo other)
+            => Emails.SequenceEqual(other.Emails) && Phones.SequenceEqual(other.Phones) && Websites.SequenceEqual(other.Websites);
 
 
         public override int GetHashCode() => HashCode.Combine(Emails, Phones, Websites);
