@@ -19,8 +19,11 @@ namespace HappyTravel.Hiroshima.Common.Models.Accommodations.Rooms.OccupancyDefi
                 return false;
 
             var isInfantEquals = (Infant == null && other.Infant == null) || (Infant != null && other.Infant != null && Infant.Equals(other.Infant));
+            
             var isChildEquals = (Child == null && other.Child == null) || (Child != null && other.Child != null && Child.Equals(other.Child));
+            
             var isTeenagerEquals = (Teenager == null && other.Teenager == null) || (Teenager != null && other.Teenager != null && Teenager.Equals(other.Teenager));
+            
             return isInfantEquals && isChildEquals && isTeenagerEquals && Adult.Equals(other.Adult);
         }
 
