@@ -87,7 +87,7 @@ namespace HappyTravel.Hiroshima.Common.Models
 
 
         public bool Equals(MultiLanguage<T> other) 
-            => JsonConvert.SerializeObject(this).Equals(JsonConvert.SerializeObject(other,_serializeSettings));
+            => JsonConvert.SerializeObject(this, _serializeSettings).Equals(JsonConvert.SerializeObject(other,_serializeSettings));
 
 
         public override int GetHashCode() => HashCode.Combine(JsonConvert.SerializeObject(this, _serializeSettings));

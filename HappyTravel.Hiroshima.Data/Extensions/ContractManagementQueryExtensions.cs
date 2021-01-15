@@ -88,7 +88,7 @@ namespace HappyTravel.Hiroshima.Data.Extensions
             .Select(accommodationAndRelationAndContract => accommodationAndRelationAndContract.accommodationAndRelation.accommodation);
 
 
-        public static async Task<bool> DoesAccommodationBelongToCompany(this DirectContractsDbContext dbContext, int accommodationId, int serviceSupplierId)
+        public static async Task<bool> DoesAccommodationBelongToServiceSupplier(this DirectContractsDbContext dbContext, int accommodationId, int serviceSupplierId)
             => await dbContext.Accommodations.AnyAsync(a => a.ServiceSupplierId == serviceSupplierId && a.Id == accommodationId);
 
 

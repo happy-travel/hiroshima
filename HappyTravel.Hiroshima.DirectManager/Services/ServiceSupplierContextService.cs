@@ -25,7 +25,7 @@ namespace HappyTravel.Hiroshima.DirectManager.Services
 
         public async Task<Result<ServiceSupplier>> EnsureAccommodationBelongsToServiceSupplier(ServiceSupplier serviceSupplier, int accommodationId)
         {
-            return await _dbContext.DoesAccommodationBelongToCompany(accommodationId, serviceSupplier.Id)
+            return await _dbContext.DoesAccommodationBelongToServiceSupplier(accommodationId, serviceSupplier.Id)
                 ? Result.Success(serviceSupplier)
                 : Result.Failure<ServiceSupplier>($"Invalid accommodation id '{accommodationId}'");
         }

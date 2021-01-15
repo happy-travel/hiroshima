@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
 {
@@ -15,5 +17,16 @@ namespace HappyTravel.Hiroshima.DirectManager.Models.Responses
         public List<string> Emails { get; }
         public List<string> Phones { get; } 
         public List<string> Websites { get; }
+
+
+        public override bool Equals(object? obj)
+            => obj is ContactInfo other && Equals(other);
+
+
+        public bool Equals(ContactInfo other)
+            => Emails.SequenceEqual(other.Emails) && Phones.SequenceEqual(other.Phones) && Websites.SequenceEqual(other.Websites);
+
+
+        public override int GetHashCode() => HashCode.Combine(Emails, Phones, Websites);
     }
 }
