@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure;
 using IdentityModel.Client;
 
-namespace HappyTravel.Hiroshima.WebApi.Infrastructure
+namespace HappyTravel.Hiroshima.Api.Infrastructure
 {
     public class IdentityHttpClient
     {

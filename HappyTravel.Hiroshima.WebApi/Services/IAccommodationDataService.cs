@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 
-namespace HappyTravel.Hiroshima.WebApi.Services
+namespace HappyTravel.Hiroshima.Api.Services
 {
     public interface IAccommodationDataService
     {

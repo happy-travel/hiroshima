@@ -6,9 +6,9 @@ using System.Text.Json.Serialization;
 using HappyTravel.Geography;
 using HappyTravel.Geography.Converters;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.HttpClients;
-using HappyTravel.Hiroshima.WebApi.Infrastructure.Environments;
-using HappyTravel.Hiroshima.WebApi.Services;
-using HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch;
+using HappyTravel.Hiroshima.Api.Infrastructure.Environments;
+using HappyTravel.Hiroshima.Api.Services;
+using HappyTravel.Hiroshima.Api.Services.AvailabilitySearch;
 using HappyTravel.VaultClient;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
@@ -27,7 +27,7 @@ using Polly;
 using Polly.Extensions.Http;
 using StackExchange.Redis;
 
-namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions
+namespace HappyTravel.Hiroshima.Api.Infrastructure.Extensions
 {
     public static class ServiceCollectionExtensions
     {

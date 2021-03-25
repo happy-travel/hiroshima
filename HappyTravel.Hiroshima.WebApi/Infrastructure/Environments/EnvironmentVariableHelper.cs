@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
-namespace HappyTravel.Hiroshima.WebApi.Infrastructure.Environments
+namespace HappyTravel.Hiroshima.Api.Infrastructure.Environments
 {
     public static class EnvironmentVariableHelper
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.Authorization;
 
-namespace HappyTravel.Hiroshima.WebApi.Conventions
+namespace HappyTravel.Hiroshima.Api.Conventions
 {
     public class AuthorizeControllerModelConvention: IControllerModelConvention
     {

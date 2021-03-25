@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
+namespace HappyTravel.Hiroshima.Api.Services.AvailabilitySearch
 {
     public interface IAvailabilityIdMatchingService
     {

@@ -2,9 +2,9 @@
 using CSharpFunctionalExtensions;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.Hiroshima.DirectManager.Services;
-using HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch;
+using HappyTravel.Hiroshima.Api.Services.AvailabilitySearch;
 
-namespace HappyTravel.Hiroshima.WebApi.Services
+namespace HappyTravel.Hiroshima.Api.Services
 {
     public class BookingService : IBookingService
     {

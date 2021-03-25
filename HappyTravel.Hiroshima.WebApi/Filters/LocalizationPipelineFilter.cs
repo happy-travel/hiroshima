@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Options;
 
-namespace HappyTravel.Hiroshima.WebApi.Filters
+namespace HappyTravel.Hiroshima.Api.Filters
 {
     public class LocalizationPipelineFilter
     {

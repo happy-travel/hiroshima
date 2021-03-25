@@ -7,11 +7,11 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Hiroshima.Common.Models.Enums;
 using HappyTravel.Hiroshima.DirectManager.Models.Requests;
 using HappyTravel.Hiroshima.DirectManager.Services;
-using HappyTravel.Hiroshima.WebApi.Infrastructure;
+using HappyTravel.Hiroshima.Api.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.Hiroshima.WebApi.Controllers.DirectManager
+namespace HappyTravel.Hiroshima.Api.Controllers.DirectManager
 {
     [ApiController]
     [ApiVersion("1.0")]

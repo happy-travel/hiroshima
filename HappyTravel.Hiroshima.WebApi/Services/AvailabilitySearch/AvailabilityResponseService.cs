@@ -10,7 +10,7 @@ using HappyTravel.Hiroshima.Common.Models.Availabilities;
 using Accommodation = HappyTravel.Hiroshima.Common.Models.Accommodations.Accommodation;
 using Availability = HappyTravel.EdoContracts.Accommodations.Availability;
 
-namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
+namespace HappyTravel.Hiroshima.Api.Services.AvailabilitySearch
 {
     public class AvailabilityResponseService : IAvailabilityResponseService
     {

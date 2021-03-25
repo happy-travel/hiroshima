@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 
-namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
+namespace HappyTravel.Hiroshima.Api.Services.AvailabilitySearch
 {
     public class AvailabilityIdMatchingService : IAvailabilityIdMatchingService
     {

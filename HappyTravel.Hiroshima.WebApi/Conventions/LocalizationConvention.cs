@@ -1,9 +1,9 @@
 ﻿using System.Linq;
-using HappyTravel.Hiroshima.WebApi.Infrastructure.Attributes;
+using HappyTravel.Hiroshima.Api.Infrastructure.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 
-namespace HappyTravel.Hiroshima.WebApi.Conventions
+namespace HappyTravel.Hiroshima.Api.Conventions
 {
     public class LocalizationConvention : IApplicationModelConvention
     {

@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using HappyTravel.EdoContracts.Accommodations;
 
-namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
+namespace HappyTravel.Hiroshima.Api.Services.AvailabilitySearch
 {
     public interface IAvailabilitySearchStorage
     {

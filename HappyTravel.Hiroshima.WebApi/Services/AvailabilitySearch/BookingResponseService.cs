@@ -5,7 +5,7 @@ using HappyTravel.Hiroshima.Common.Infrastructure.Extensions;
 using HappyTravel.Hiroshima.Common.Models.Availabilities;
 using HappyTravel.Hiroshima.Common.Models.Enums;
 
-namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
+namespace HappyTravel.Hiroshima.Api.Services.AvailabilitySearch
 {
     public class BookingResponseService : IBookingResponseService
     {

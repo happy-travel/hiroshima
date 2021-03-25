@@ -16,10 +16,10 @@ using HappyTravel.Hiroshima.DirectContracts.Extensions;
 using HappyTravel.Hiroshima.DirectManager.Extensions;
 using HappyTravel.Hiroshima.DirectManager.Infrastructure.Options;
 using HappyTravel.Hiroshima.DirectManager.Services;
-using HappyTravel.Hiroshima.WebApi.Conventions;
-using HappyTravel.Hiroshima.WebApi.Filters;
-using HappyTravel.Hiroshima.WebApi.Infrastructure;
-using HappyTravel.Hiroshima.WebApi.Infrastructure.Extensions;
+using HappyTravel.Hiroshima.Api.Conventions;
+using HappyTravel.Hiroshima.Api.Filters;
+using HappyTravel.Hiroshima.Api.Infrastructure;
+using HappyTravel.Hiroshima.Api.Infrastructure.Extensions;
 using HappyTravel.MailSender.Infrastructure;
 using HappyTravel.MailSender.Models;
 using HappyTravel.StdOutLogger.Extensions;
@@ -33,7 +33,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 
-namespace HappyTravel.Hiroshima.WebApi
+namespace HappyTravel.Hiroshima.Api
 {
     public class Startup
     {

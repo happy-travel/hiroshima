@@ -4,12 +4,12 @@ using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.Hiroshima.WebApi.Infrastructure.Attributes;
-using HappyTravel.Hiroshima.WebApi.Services;
-using HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch;
+using HappyTravel.Hiroshima.Api.Infrastructure.Attributes;
+using HappyTravel.Hiroshima.Api.Services;
+using HappyTravel.Hiroshima.Api.Services.AvailabilitySearch;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
+namespace HappyTravel.Hiroshima.Api.Controllers.Connector
 {
     [ApiController]
     [IgnoreLocalizationConvention]

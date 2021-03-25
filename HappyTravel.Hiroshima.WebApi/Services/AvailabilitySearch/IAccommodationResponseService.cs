@@ -1,7 +1,7 @@
 ﻿using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.Hiroshima.Common.Models.Accommodations;
 
-namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
+namespace HappyTravel.Hiroshima.Api.Services.AvailabilitySearch
 {
     public interface IAccommodationResponseService
     {

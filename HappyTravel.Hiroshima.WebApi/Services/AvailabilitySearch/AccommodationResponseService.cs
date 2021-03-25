@@ -10,7 +10,7 @@ using ContactInfo = HappyTravel.EdoContracts.Accommodations.Internals.ContactInf
 using PropertyTypes = HappyTravel.EdoContracts.Accommodations.Enums.PropertyTypes;
 using TextualDescription = HappyTravel.EdoContracts.Accommodations.Internals.TextualDescription;
 
-namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
+namespace HappyTravel.Hiroshima.Api.Services.AvailabilitySearch
 {
     public class AccommodationResponseService : IAccommodationResponseService
     {

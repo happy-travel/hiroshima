@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace HappyTravel.Hiroshima.WebApi.Filters
+namespace HappyTravel.Hiroshima.Api.Filters
 {
     public class ModelValidationFilter : IActionFilter
     {

@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.Hiroshima.WebApi.Controllers
+namespace HappyTravel.Hiroshima.Api.Controllers
 {
     public abstract class BaseController : ControllerBase
     {

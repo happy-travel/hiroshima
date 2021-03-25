@@ -3,10 +3,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.Hiroshima.WebApi.Infrastructure;
+using HappyTravel.Hiroshima.Api.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
+namespace HappyTravel.Hiroshima.Api.Services.AvailabilitySearch
 {
     public class AvailabilityService : IAvailabilityService
     {

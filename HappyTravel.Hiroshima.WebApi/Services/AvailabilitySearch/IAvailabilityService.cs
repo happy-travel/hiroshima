@@ -4,7 +4,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
+namespace HappyTravel.Hiroshima.Api.Services.AvailabilitySearch
 {
     public interface IAvailabilityService
     {

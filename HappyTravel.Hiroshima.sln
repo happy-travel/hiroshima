@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29230.47
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HappyTravel.Hiroshima.Data", "HappyTravel.Hiroshima.Data\HappyTravel.Hiroshima.Data.csproj", "{7529CAA9-F2BC-45DD-9F2B-33B5459980E9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HappyTravel.Hiroshima.WebApi", "HappyTravel.Hiroshima.WebApi\HappyTravel.Hiroshima.WebApi.csproj", "{E5AE75CE-70CE-4001-93F9-45695D11B8E8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HappyTravel.Hiroshima.Api", "HappyTravel.Hiroshima.WebApi\HappyTravel.Hiroshima.Api.csproj", "{E5AE75CE-70CE-4001-93F9-45695D11B8E8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HappyTravel.Hiroshima.DirectContracts", "HappyTravel.Hiroshima.DirectContracts\HappyTravel.Hiroshima.DirectContracts.csproj", "{92898D68-8FBF-4DD0-94D1-7A4196247277}"
 EndProject

@@ -2,7 +2,7 @@
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.Hiroshima.WebApi.Infrastructure
+namespace HappyTravel.Hiroshima.Api.Infrastructure
 {
     public static class ProblemDetailsBuilder
     {

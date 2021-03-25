@@ -1,11 +1,11 @@
-using HappyTravel.Hiroshima.WebApi.Infrastructure.Environments;
+using HappyTravel.Hiroshima.Api.Infrastructure.Environments;
 using HappyTravel.StdOutLogger.Extensions;
 using HappyTravel.StdOutLogger.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace HappyTravel.Hiroshima.WebApi
+namespace HappyTravel.Hiroshima.Api
 {
     public class Program
     {

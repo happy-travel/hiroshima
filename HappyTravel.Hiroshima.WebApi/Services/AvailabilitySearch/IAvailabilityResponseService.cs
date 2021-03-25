@@ -1,7 +1,7 @@
 ﻿using System;
 using HappyTravel.Hiroshima.Common.Models.Availabilities;
 
-namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
+namespace HappyTravel.Hiroshima.Api.Services.AvailabilitySearch
 {
     public interface IAvailabilityResponseService
     {

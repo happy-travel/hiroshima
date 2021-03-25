@@ -4,7 +4,7 @@ using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.EdoContracts.Accommodations;
 
-namespace HappyTravel.Hiroshima.WebApi.Services.AvailabilitySearch
+namespace HappyTravel.Hiroshima.Api.Services.AvailabilitySearch
 {
     public class AvailabilitySearchStorage : IAvailabilitySearchStorage
     {

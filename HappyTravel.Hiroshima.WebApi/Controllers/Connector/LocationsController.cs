@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 using HappyTravel.EdoContracts.GeoData;
 using HappyTravel.EdoContracts.GeoData.Enums;
 using HappyTravel.Hiroshima.DirectManager.Services;
-using HappyTravel.Hiroshima.WebApi.Infrastructure.Attributes;
+using HappyTravel.Hiroshima.Api.Infrastructure.Attributes;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.Hiroshima.WebApi.Controllers.Connector
+namespace HappyTravel.Hiroshima.Api.Controllers.Connector
 {
     [ApiController]
     [IgnoreLocalizationConvention]
