@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>..\HappyTravel.Hiroshima.WebApi\HappyTravel.Hiroshima.WebApi.xml</DocumentationFile>
+    <DocumentationFile>..\HappyTravel.Hiroshima.Api\HappyTravel.Hiroshima.Api.xml</DocumentationFile>
     <NoWarn>1701;1702;1591</NoWarn>
   </PropertyGroup>
   
@@ -65,7 +65,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="HappyTravel.Hiroshima.WebApi.xml">
+    <None Update="HappyTravel.Hiroshima.Api.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
