@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.29230.47
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HappyTravel.Hiroshima.Data", "HappyTravel.Hiroshima.Data\HappyTravel.Hiroshima.Data.csproj", "{7529CAA9-F2BC-45DD-9F2B-33B5459980E9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HappyTravel.Hiroshima.Api", "HappyTravel.Hiroshima.WebApi\HappyTravel.Hiroshima.Api.csproj", "{E5AE75CE-70CE-4001-93F9-45695D11B8E8}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HappyTravel.Hiroshima.DirectContracts", "HappyTravel.Hiroshima.DirectContracts\HappyTravel.Hiroshima.DirectContracts.csproj", "{92898D68-8FBF-4DD0-94D1-7A4196247277}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HappyTravel.Hiroshima.Common", "HappyTravel.Hiroshima.Common\HappyTravel.Hiroshima.Common.csproj", "{964E83D4-D281-4C20-A4B6-9BAB2A0272A7}"
@@ -14,6 +12,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HappyTravel.Hiroshima.DirectManager", "HappyTravel.Hiroshima.DirectManager\HappyTravel.Hiroshima.DirectManager.csproj", "{0485D3BB-823E-4DB2-B0AA-0C002303FE5F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HappyTravel.Hiroshima.DirectManager.UnitTests", "HappyTravel.Hiroshima.DirectManager.UnitTests\HappyTravel.Hiroshima.DirectManager.UnitTests.csproj", "{2BB4E3C4-9B0F-4D32-9357-678B20CFA4EE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HappyTravel.Hiroshima.Api", "HappyTravel.Hiroshima.Api\HappyTravel.Hiroshima.Api.csproj", "{0F908BC4-AD83-43EE-85EE-F1D1149AE6C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,10 +25,6 @@ Global
 		{7529CAA9-F2BC-45DD-9F2B-33B5459980E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7529CAA9-F2BC-45DD-9F2B-33B5459980E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7529CAA9-F2BC-45DD-9F2B-33B5459980E9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E5AE75CE-70CE-4001-93F9-45695D11B8E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E5AE75CE-70CE-4001-93F9-45695D11B8E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E5AE75CE-70CE-4001-93F9-45695D11B8E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E5AE75CE-70CE-4001-93F9-45695D11B8E8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{92898D68-8FBF-4DD0-94D1-7A4196247277}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{92898D68-8FBF-4DD0-94D1-7A4196247277}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{92898D68-8FBF-4DD0-94D1-7A4196247277}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -45,6 +41,10 @@ Global
 		{2BB4E3C4-9B0F-4D32-9357-678B20CFA4EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2BB4E3C4-9B0F-4D32-9357-678B20CFA4EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2BB4E3C4-9B0F-4D32-9357-678B20CFA4EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F908BC4-AD83-43EE-85EE-F1D1149AE6C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F908BC4-AD83-43EE-85EE-F1D1149AE6C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F908BC4-AD83-43EE-85EE-F1D1149AE6C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F908BC4-AD83-43EE-85EE-F1D1149AE6C2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
