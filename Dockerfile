@@ -13,17 +13,17 @@ WORKDIR /src/app
 
 COPY . .
 
-RUN dotnet restore HappyTravel.Hiroshima.WebApi
+RUN dotnet restore HappyTravel.Hiroshima.Api
 
-RUN dotnet build -c Release HappyTravel.Hiroshima.WebApi
+RUN dotnet build -c Release HappyTravel.Hiroshima.Api
 
 FROM build AS publish
 
-RUN dotnet publish -c Release -o /app/release HappyTravel.Hiroshima.WebApi
+RUN dotnet publish -c Release -o /app/release HappyTravel.Hiroshima.Api
 
 FROM base AS final
 
 WORKDIR /app
 COPY --from=publish /app/release .
 
-ENTRYPOINT ["dotnet", "HappyTravel.Hiroshima.WebApi.dll"]
+ENTRYPOINT ["dotnet", "HappyTravel.Hiroshima.Api.dll"]
