@@ -10,7 +10,7 @@ trigger:
       - pull_request
 
 steps:
-- name: Test application 
+- name: Test application
   image: mcr.microsoft.com/dotnet/sdk:5.0
   environment:
     GITHUB_TOKEN:
@@ -55,7 +55,7 @@ steps:
     GITHUB_TOKEN:
       from_secret: GITHUB_TOKEN
     HTDC_VAULT_TOKEN:
-      from_secret: VAULT_DEV_TOKEN      
+      from_secret: VAULT_DEV_TOKEN
     HTDC_VAULT_ENDPOINT:
       from_secret: VAULT_DEV_ENDPOINT
   commands:
@@ -90,9 +90,9 @@ steps:
   image: pelotech/drone-helm3:0.14.2
   settings:
     mode: upgrade
-    chart: ./Helm_v3/dc
+    chart: ./Helm/dc
     release: dc-dev
-    values_files: ["Helm_v3/dc/values_dev.yaml"]
+    values_files: ["Helm/dc/values_dev.yaml"]
     namespace: dev
     skip_tls_verify: true
     wait: true
@@ -137,7 +137,7 @@ steps:
     GITHUB_TOKEN:
       from_secret: GITHUB_TOKEN
     HTDC_VAULT_TOKEN:
-      from_secret: VAULT_PROD_TOKEN      
+      from_secret: VAULT_PROD_TOKEN
     HTDC_VAULT_ENDPOINT:
       from_secret: VAULT_PROD_ENDPOINT
   commands:
@@ -175,9 +175,9 @@ steps:
   image: pelotech/drone-helm3:0.14.2
   settings:
     mode: upgrade
-    chart: ./Helm_v3/dc
+    chart: ./Helm/dc
     release: dc-production
-    values_files: ["Helm_v3/dc/values_prod.yaml"]
+    values_files: ["Helm/dc/values_prod.yaml"]
     namespace: production
     skip_tls_verify: true
     wait: true
@@ -199,4 +199,4 @@ steps:
     webhook_token:
       from_secret: DISCORD_WEBHOOK_TOKEN
   when:
-    status: [success, failure]        
+    status: [success, failure]
