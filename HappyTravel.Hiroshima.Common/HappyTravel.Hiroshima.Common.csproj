@@ -1,16 +1,13 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Nullable>enable</Nullable>
     <LangVersion>9</LangVersion>
     <TargetFramework>netcoreapp5.0</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="HappyTravel.EdoContracts" Version="1.4.9" />
+    <PackageReference Include="HappyTravel.EdoContracts" Version="2.0.1" />
     <PackageReference Include="HappyTravel.VaultClient" Version="1.1.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="5.0.0-rc2" />
     <PackageReference Include="HappyTravel.AmazonS3Client" Version="0.8.0" />
   </ItemGroup>
-
 </Project>
