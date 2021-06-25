@@ -1,11 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-
+<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <LangVersion>9</LangVersion>
     <Nullable>enable</Nullable>
     <TargetFramework>netcoreapp5.0</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
     <Content Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -16,12 +14,10 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>..\HappyTravel.Hiroshima.Api\HappyTravel.Hiroshima.Api.xml</DocumentationFile>
     <NoWarn>1701;1702;1591</NoWarn>
   </PropertyGroup>
-  
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="3.1.2" />
     <PackageReference Include="FloxDc.CacheFlow" Version="1.7.0" />
@@ -29,7 +25,7 @@
     <PackageReference Include="HappyTravel.EdoContracts" Version="1.4.9" />
     <PackageReference Include="HappyTravel.ErrorHandling" Version="1.0.0" />
     <PackageReference Include="HappyTravel.Geography" Version="1.3.0" />
-    <PackageReference Include="HappyTravel.StdOutLogger" Version="1.0.18" />
+    <PackageReference Include="HappyTravel.StdOutLogger" Version="1.4.0" />
     <PackageReference Include="HappyTravel.VaultClient" Version="1.1.0" />
     <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="3.0.1" />
     <PackageReference Include="Imageflow.NativeRuntime.ubuntu_16_04-x86_64" Version="1.5.2-rc56" />
@@ -63,19 +59,19 @@
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="5.0.0" />
     <PackageReference Include="System.Text.Json" Version="5.0.0" />
   </ItemGroup>
-
   <ItemGroup>
     <None Update="HappyTravel.Hiroshima.Api.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\HappyTravel.Hiroshima.Common\HappyTravel.Hiroshima.Common.csproj" />
     <ProjectReference Include="..\HappyTravel.Hiroshima.DirectContracts\HappyTravel.Hiroshima.DirectContracts.csproj" />
     <ProjectReference Include="..\HappyTravel.Hiroshima.DirectManager\HappyTravel.Hiroshima.DirectManager.csproj" />
   </ItemGroup>
-  
-  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
-
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>
