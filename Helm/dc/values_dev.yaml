@@ -72,6 +72,6 @@ env:
   ASPNETCORE_ENVIRONMENT: "Development"
   HTDC_VAULT_ENDPOINT: "https://vault.dev.happytravel.com/v1/"
   HTDC_REDIS_HOST: "redis-dc"
-  HTDC_HIROSHIMA_SENTRY_ENDPOINT: "https://4329932f83464c7eafc1afccd05ca432@sentry.happytravel.com/31"
+  HTDC_HIROSHIMA_SENTRY_ENDPOINT: "https://4329932f83464c7eafc1afccd05ca432@sentry1.happytravel.com/31"
   JAEGER_AGENT_HOST: "localhost"
   JAEGER_AGENT_PORT: "6831"
